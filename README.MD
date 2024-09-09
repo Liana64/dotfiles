@@ -1,6 +1,23 @@
-## Fish
+## Installation
+
+**Requirements**
+- [Eza](https://github.com/eza-community/eza)
+- [bat](https://github.com/sharkdp/bat)
+- [alacritty](https://github.com/alacritty/alacritty)
+- [starship](https://github.com/starship/starship)
+- [tmux](https://github.com/tmux/tmux)
+- [fish-shell](https://github.com/fish-shell/fish-shell)
+
+**Recommended**
+- [fzf](https://github.com/junegunn/fzf)
+
+## Features
+
 Adds a number of useful features and aliases to fish shell, including:
 
+- Bang bang ("!!") and ctrl-del/ctrl-] support
+- Replaces defaults ("ls","cat") with colorful rust variations
+- josean-dev's [nvim config](https://github.com/josean-dev/dev-environment-files)
 - Management of SSH agents (type `ssha` and `ssh-add-all` or `ssharm` to clear)
 - Construction & deconstruction of pre-configured tmux workspaces (type `tws` and `tks`)
 - Andrea Colangelo's fortune-mod displayed with each new window
@@ -9,7 +26,6 @@ Adds a number of useful features and aliases to fish shell, including:
 - Aliases for working with a terminal (type `i` or `l`)
 - Aliases for easy use of kubectl & docker (type `k` or `dps`)
 - Aliases for easy use of tmux (type `t`)
-- Builtin fish [autopair](https://github.com/jorgebucaran/autopair.fish) support so the repository can be cloned directly into `~/.config/fish/conf.d/`
 
 ## Variables 
 
