@@ -3,6 +3,7 @@
 **Requirements**
 - [Eza](https://github.com/eza-community/eza)
 - [bat](https://github.com/sharkdp/bat)
+- [ripgrep](https://github.com/BurntSushi/ripgrep)
 - [alacritty](https://github.com/alacritty/alacritty)
 - [starship](https://github.com/starship/starship)
 - [tmux](https://github.com/tmux/tmux)
@@ -10,12 +11,15 @@
 
 **Recommended**
 - [fzf](https://github.com/junegunn/fzf)
+- [tldr](https://github.com/tldr-pages/tldr)
+- [k9s](https://github.com/derailed/k9s)
 
 ## Features
 
 Adds a number of useful features and aliases to fish shell, including:
 
 - Bang bang ("!!") and ctrl-del/ctrl-] support
+- Make and cd to a temporary directory ("mktmp")
 - Replaces defaults ("ls","cat") with colorful rust variations
 - josean-dev's [nvim config](https://github.com/josean-dev/dev-environment-files)
 - Management of SSH agents (type `ssha` and `ssh-add-all` or `ssharm` to clear)

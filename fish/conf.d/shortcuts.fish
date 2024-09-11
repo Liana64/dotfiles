@@ -142,6 +142,7 @@ alias cat='batcat'
 #alias cd='z'
 alias nfetch='echo && echo && neofetch'
 alias ls='eza'
+alias grep='rg'
 
 # Main Shortcuts
 alias c='clear'
