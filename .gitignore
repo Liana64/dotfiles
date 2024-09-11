@@ -1,3 +1,5 @@
 .env
+fish/fish_variables
+fish/functions/
 fish/plugins/
 fish/conf.d/rustup.fish
