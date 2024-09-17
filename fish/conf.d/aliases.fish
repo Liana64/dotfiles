@@ -15,9 +15,10 @@ alias versioncfg='ln_log info v$LIANACFG_VER'
 # Personal Shortcuts
 alias weather='ln_weather'
 alias news='echo "" && curl -s https://brutalist.report/summary | sed -rn "s@(^.*<li>)(.*)(</li>)@\2\n@p" | sed "s|<strong>|• |g; s|</strong>||g"'
+alias ifc='echo "" && curl -s https://ifconfig.me && echo ""'
 
 # Tools and CLIs 
-alias cat='batcat'
+alias cat='bat'
 alias f='fabric'
 alias grep='rg'
 alias l='eza -la'

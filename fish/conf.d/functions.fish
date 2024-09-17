@@ -65,28 +65,28 @@ function ln_load_tmux
   set workspaces (string split ',' $LIANACFG_TMUX_WORKSPACES)
   for workspace in $workspaces
     tmux new -d -s $workspace
-    fc_log debug "Created tmux workspace: $workspace"
+    ln_log debug "Created tmux workspace: $workspace"
   end
   if test "$quiet_mode" != "q"
-    fc_log info "Finished creating workspaces"
+    ln_log info "Finished creating workspaces"
   end
 end
 
 function ln_load_ssh 
   set agents_dir $LIANACFG_SSH_AGENTS_DIR
-  fc_log debug "Adding keys from $LIANACFG_SSH_AGENTS_DIR"
+  ln_log debug "Adding keys from $LIANACFG_SSH_AGENTS_DIR"
 
   if not test -d $agents_dir
-    fc_log error "Directory $agents_dir does not exist"
+    ln_log error "Directory $agents_dir does not exist"
     return 1
   end
 
   for key in (find -L $LIANACFG_SSH_AGENTS_DIR -type f)
     eval ssh-add $key
     if test $status -eq 0
-      fc_log debug "Added SSH key: $key"
+      ln_log debug "Added SSH key: $key"
     else
-      fc_log error "Failed to add SSH key: $key"
+      ln_log error "Failed to add SSH key: $key"
     end
   end
 end

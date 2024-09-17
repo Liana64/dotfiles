@@ -10,7 +10,7 @@ function !!
   set var (history | head -n 1)
 
   if test $var = "!!"
-    fc_log warning "Paradox detected. Stop that."
+    ln_log warning "Paradox detected. Stop that."
     return 1
   end
 

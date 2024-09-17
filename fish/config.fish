@@ -2,9 +2,10 @@ if status is-interactive
     # Commands to run in interactive sessions can go here
 end
 
-# Initialize CLI tools
+# Initializations
 starship init fish | source
 zoxide init fish | source
+direnv hook fish | source
 
 # Set universals
 set -U EDITOR nvim
