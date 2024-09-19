@@ -6,11 +6,11 @@
 #########
 
 #Script Shortcuts
-alias editcfg='$EDITOR $LIANACFG_PATH'
-alias editenv='$EDITOR $LIANACFG_PATH/fish/conf.d/.env'
-alias lianacfg='cd $LIANACFG_PATH'
-alias reloadcfg='source_all $LIANACFG_PATH/fish/conf.d && ln_log info "Updated config"'
-alias versioncfg='ln_log info v$LIANACFG_VER'
+alias editcfg='$EDITOR $LN_PATH'
+alias editenv='$EDITOR $LN_PATH/.env'
+alias lianacfg='cd $LN_PATH'
+alias reloadcfg='source_all $LN_PATH && ln_log info "Updated config"'
+alias versioncfg='ln_log info v$LN_VER'
 
 # Personal Shortcuts
 alias weather='ln_weather'

@@ -33,7 +33,7 @@ function source_all
 end
 
 function ln_log --argument log_level -- $argv
-  if test "$LIANACFG_DEBUG" != "true" -a "$log_level" = "debug"
+  if test "$LN_DEBUG" != "true" -a "$log_level" = "debug"
       return 0
   end
   set_color --bold
@@ -62,7 +62,7 @@ end
 function ln_load_tmux 
   set quiet_mode $argv[1]
   
-  set workspaces (string split ',' $LIANACFG_TMUX_WORKSPACES)
+  set workspaces (string split ',' $LN_TMUX)
   for workspace in $workspaces
     tmux new -d -s $workspace
     ln_log debug "Created tmux workspace: $workspace"
@@ -73,15 +73,15 @@ function ln_load_tmux
 end
 
 function ln_load_ssh 
-  set agents_dir $LIANACFG_SSH_AGENTS_DIR
-  ln_log debug "Adding keys from $LIANACFG_SSH_AGENTS_DIR"
+  set agents_dir $LN_SSH_AGENTS
+  ln_log debug "Adding keys from $LN_SSH_AGENTS"
 
   if not test -d $agents_dir
     ln_log error "Directory $agents_dir does not exist"
     return 1
   end
 
-  for key in (find -L $LIANACFG_SSH_AGENTS_DIR -type f)
+  for key in (find -L $LN_SSH_AGENTS -type f)
     eval ssh-add $key
     if test $status -eq 0
       ln_log debug "Added SSH key: $key"
@@ -95,6 +95,6 @@ function ln_weather
   if test -n "$argv"
     curl wttr.in/$argv
   else
-    curl wttr.in/$LIANACFG_WEATHER_CITY
+    curl wttr.in/$LN_CITY
   end
 end

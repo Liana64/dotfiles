@@ -1,6 +1,12 @@
 ## Installation
 
-**Requirements**
+Create a .env file and add the below init hook to config.fish:
+
+```fish
+source $HOME/.config/fish/conf.d/.env
+````
+
+**Packages**
 - [Eza](https://github.com/eza-community/eza)
 - [bat](https://github.com/sharkdp/bat)
 - [ripgrep](https://github.com/BurntSushi/ripgrep)
@@ -8,16 +14,17 @@
 - [starship](https://github.com/starship/starship)
 - [tmux](https://github.com/tmux/tmux)
 - [fish-shell](https://github.com/fish-shell/fish-shell)
-
-**Recommended**
+- [neovim](https://github.com/neovim/neovim)
 - [fzf](https://github.com/junegunn/fzf)
 - [tldr](https://github.com/tldr-pages/tldr)
 - [k9s](https://github.com/derailed/k9s)
+- [AeroSpace](https://github.com/nikitabobko/AeroSpace)
 
 ## Features
 
 Adds a number of useful features and aliases to fish shell, including:
 
+- [s](https://github.com/zquestz/s) config for Kagi search (compiled to "se")
 - Bang bang ("!!") and ctrl-del/ctrl-] support
 - Make and cd to a temporary directory ("mktmp")
 - Replaces defaults ("ls","cat") with colorful rust variations
@@ -35,20 +42,18 @@ Adds a number of useful features and aliases to fish shell, including:
 
 Variable | Description
 -- | --
-| LIANACFG_DEBUG | Show debug messages when `true`
-| LIANACFG_PATH | Where this repository is located
-| LIANACFG_PATHS_OSX | A list of folders to append to the system path, if the detected OS is "Darwin"
-| LIANACFG_WEATHER_CITY | City to pull weather reports for
-| LIANACFG_SSH_AGENTS_DIR | A directory containing SSH keys to load, e.g. $HOME/.ssh/lianacfg/
-| LIANACFG_TMUX_WORKSPACES | A list of tmux workspaces to create, parsed in order & comma-separated
+| LN_DEBUG | Show debug messages when `true`
+| LN_PATH | Automatically set. Location of fish conf.d folder
+| LN_CITY | City for weather reports
+| LN_SSH_AGENTS | A directory containing SSH keys to load, e.g. $HOME/.ssh/agents/
+| LN_TMUX | A list of tmux workspaces to create, parsed in order & comma-separated
 
 ## Quick commands
 
 - For help, type `helpcfg`
 - Reload the config with `reloadcfg`
 - Reload the environment with `reloadenv`
-- Quickly edit the config with `editcfg`
-- Quickly edit the environment with `editenv`
+- Quickly edit dotfiles with `editcfg`
 
 ## Links
 

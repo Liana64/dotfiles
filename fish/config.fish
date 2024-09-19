@@ -6,6 +6,7 @@ end
 starship init fish | source
 zoxide init fish | source
 direnv hook fish | source
+source $HOME/.config/fish/conf.d/.env
 
 # Set universals
 set -U EDITOR nvim

@@ -5,6 +5,4 @@
  ## LICENSE file in the root directory of this source tree.
 #########
 
-source $LIANACFG_PATH/fish/conf.d/.env
-
-set -g LIANACFG_VER 1.1.0
+set -g LN_VER 1.1.1
