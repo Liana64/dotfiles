@@ -22,7 +22,7 @@ source $HOME/.config/fish/conf.d/.env
 
 ## Features
 
-Adds a number of useful features and aliases to fish shell, including:
+Adds a number of useful features and aliases, built on fish shell, including:
 
 - [s](https://github.com/zquestz/s) config for Kagi search (compiled to "se")
 - Bang bang ("!!") and ctrl-del/ctrl-] support
@@ -50,10 +50,8 @@ Variable | Description
 
 ## Quick commands
 
-- For help, type `helpcfg`
-- Reload the config with `reloadcfg`
-- Reload the environment with `reloadenv`
 - Quickly edit dotfiles with `editcfg`
+- Reload the config with `reloadcfg`
 
 ## Links
 
