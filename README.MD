@@ -1,12 +1,19 @@
 ## Installation
 
-Create a .env file and add the below init hook to config.fish:
+Add an init hook to fish.config
 
-```fish
+```sh
 source $HOME/.config/fish/conf.d/.env
 ````
 
+Stow desired packages
+
+```sh
+stow -t $HOME <Package>
+```
+
 **Packages**
+- [GNU Stow](https://git.savannah.gnu.org/cgit/stow.git)
 - [Eza](https://github.com/eza-community/eza)
 - [bat](https://github.com/sharkdp/bat)
 - [ripgrep](https://github.com/BurntSushi/ripgrep)
@@ -24,7 +31,7 @@ source $HOME/.config/fish/conf.d/.env
 
 Adds a number of useful features and aliases, built on fish shell, including:
 
-- [s](https://github.com/zquestz/s) config for Kagi search (compiled to "se")
+- Terminal Kagi search with [s](https://github.com/zquestz/s) (compile to "se")
 - Bang bang ("!!") and ctrl-del/ctrl-] support
 - Make and cd to a temporary directory ("mktmp")
 - Replaces defaults ("ls","cat") with colorful rust variations
