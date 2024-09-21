@@ -1,3 +1,9 @@
+# dotfiles
+
+My dotfiles
+
+## Features
+
 Adds a number of useful features and aliases, built on fish shell, including:
 
 - Terminal Kagi search with [s](https://github.com/zquestz/s) (compile to `se`)
