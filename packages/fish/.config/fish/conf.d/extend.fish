@@ -32,3 +32,12 @@ function ln_load
   bind \c] backward-kill-word
 end
 
+# Add Johnny Decimal index
+function index
+    if test -d $argv[1]
+        tree $argv[1] -L 3 | rg -w '[0-9][0-9].[0-9][0-9]'
+    else
+        ln_log warning "Directory $argv[1] does not exist."
+    end
+end
+
