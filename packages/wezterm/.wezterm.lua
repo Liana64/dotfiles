@@ -1,8 +1,8 @@
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
-config.color_scheme = "Chalkboard"
-config.font_size = 16
+config.color_scheme = "DanQing (base16)"
+config.font_size = 14
 
 config.enable_tab_bar = false
 

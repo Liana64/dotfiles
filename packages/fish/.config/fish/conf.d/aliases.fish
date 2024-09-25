@@ -64,6 +64,7 @@ alias kc='kubectl config current-context'
 alias kcls='kubectl config get-contexts'
 alias kcu='kubectl config use-context'
 alias kga='kubectl get all -A'
+alias tc='talosctl'
 
 # Docker Shortcuts
 alias d='docker'
