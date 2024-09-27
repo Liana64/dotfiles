@@ -25,13 +25,6 @@ function !!
   end
 end
 
-# Add ctrl-del and ctrl-]
-# https://github.com/fish-shell/fish-shell/issues/1047#issuecomment-96264160
-function ln_load
-  bind \e\[3\;5~ kill-word
-  bind \c] backward-kill-word
-end
-
 # Add Johnny Decimal index
 function index
     if test -d $argv[1]
