@@ -6,6 +6,7 @@ end
 starship init fish | source
 zoxide init fish | source
 direnv hook fish | source
+thefuck --alias | source
 
 # Config
 source $HOME/.config/fish/conf.d/.env
