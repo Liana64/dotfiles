@@ -17,4 +17,5 @@ fish_add_path /opt/nvim-linux64/bin
 fish_add_path /opt/go/bin
 fish_add_path /opt/zen
 fish_add_path $HOME/.local/bin
+fish_add_path $HOME/.krew/bin
 fish_add_path $HOME/go/bin

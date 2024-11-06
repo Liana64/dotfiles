@@ -38,6 +38,7 @@ alias r='sudo su -'
 alias rp='realpath'
 alias s='sudo'
 alias wh='which'
+alias zy='zypper'
 
 ## Debian Shortcuts
 alias u='sudo apt update'
