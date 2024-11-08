@@ -99,6 +99,41 @@ function ln_weather
   end
 end
 
+function loadcfg
+  if not set -q DF_PATH
+    ln_log error "DF_PATH is not set. Define DF_PATH and try again."
+    return 1
+  end
+  if test -n "$argv"
+    set package_path "$DF_PATH/packages/$argv"
+    if test -d "$package_path"
+      stow -t $HOME $package_path
+    else
+      ln_log error "Package folder '$package_path' does not exist."
+    end
+  else
+    ln_log error "Failed to load package. Contact postal services."
+  end
+end
+
+function unloadcfg
+  if not set -q DF_PATH
+    ln_log error "DF_PATH is not set. Define DF_PATH and try again."
+    return 1
+  end
+
+  if test -n "$argv"
+    set package_path "$DF_PATH/packages/$argv"
+    if test -d "$package_path"
+      stow -D -t $HOME $package_path
+    else
+      ln_log error "Package folder '$package_path' does not exist."
+    end
+  else
+    ln_log error "Failed to unload package. Contact your local gym."
+  end
+end
+
 function kencode
   if test -n "$argv"
     echo -n "$argv" | base64 -w 0
