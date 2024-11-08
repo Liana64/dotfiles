@@ -98,3 +98,23 @@ function ln_weather
     curl wttr.in/$LN_CITY
   end
 end
+
+function kencode
+  if test -n "$argv"
+    echo -n "$argv" | base64 -w 0
+  else if not test -t 0
+    cat | base64 -w 0
+  else
+    echo "No secret provided. Please specify a secret or place it into the pipe, e.g.: ls | kencode"
+  end
+end
+
+function kdecode 
+  if test -n "$argv"
+    echo -n "$argv" | base64 -d
+  else if not test -t 0
+    cat | base64 -d
+  else
+    echo "No secret provided. Please specify a secret or place it into the pipe, e.g.: ls | kdecode"
+  end
+end

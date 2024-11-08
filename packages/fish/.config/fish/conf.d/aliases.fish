@@ -57,7 +57,7 @@ alias ssh-add-all='ln_load_ssh'
 
 # Ansible Shortcuts
 alias ans='cd /etc/ansible'
-alias ova='eval "$(read -s VAULTKEY && export VAULTKEY)"'
+alias ova='read -s VAULTKEY && export VAULTKEY'
 
 # Kubernetes Shortcuts
 alias k='kubectl'
@@ -66,6 +66,7 @@ alias kcls='kubectl config get-contexts'
 alias kcu='kubectl config use-context'
 alias kga='kubectl get all -A'
 alias tc='talosctl'
+alias secret='echo -n \'$1\' | base64 -w 0'
 
 # Docker Shortcuts
 alias d='docker'
