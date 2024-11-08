@@ -11,7 +11,6 @@ alias editenv='$EDITOR $LN_PATH/.env'
 alias lianacfg='cd $LN_PATH'
 alias reloadcfg='source_all $LN_PATH && ln_log info "Updated config"'
 alias versioncfg='ln_log info v$LN_VER'
-alias loadcfg='stow -t $HOME $DF_PATH/packages/'
 
 # Personal Shortcuts
 alias weather='ln_weather'
@@ -67,7 +66,6 @@ alias kcls='kubectl config get-contexts'
 alias kcu='kubectl config use-context'
 alias kga='kubectl get all -A'
 alias tc='talosctl'
-alias secret='echo -n \'$1\' | base64 -w 0'
 
 # Docker Shortcuts
 alias d='docker'
