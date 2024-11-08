@@ -20,6 +20,7 @@ Adds a number of useful features and aliases, built on fish shell, including:
 - Reload the config with `reloadcfg`
 - Aliases for working with a terminal (type `i` or `l`)
 - Aliases for easy use of kubectl & docker (type `k` or `dps`)
+- Aliases to easily generate Kubernetes secrets in base64 (type `kencode` or `kdecode`, or try `echo 'SGVsbG8gV29ybGQ=' | kdecode`)
 - Aliases for easy use of tmux (type `t`)
 
 ## Installation
