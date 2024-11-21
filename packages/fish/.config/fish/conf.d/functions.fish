@@ -153,3 +153,11 @@ function kdecode
     echo "No secret provided. Please specify a secret or place it into the pipe, e.g.: ls | kdecode"
   end
 end
+
+function chtsh
+    if test (count $argv) -gt 0
+        curl cht.sh/$argv[1]
+    else
+        curl cht.sh
+    end
+end
