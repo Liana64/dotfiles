@@ -28,3 +28,6 @@ opt.clipboard:append("unnamedplus") -- use system clipboard as default register
 -- window splitting
 opt.splitright = true
 opt.splitbelow = true
+
+-- mouse
+opt.mousescroll = "ver:10,hor:6"

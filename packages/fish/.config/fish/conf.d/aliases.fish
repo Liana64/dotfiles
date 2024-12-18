@@ -1,10 +1,3 @@
-###
- ## Copyright (c) Liana64
- ##
- ## This source code is licensed under the MIT license found in the
- ## LICENSE file in the root directory of this source tree.
-#########
-
 #Script Shortcuts
 alias editcfg='$EDITOR $DF_PATH' 
 alias editenv='$EDITOR $LN_PATH/.env'
@@ -16,6 +9,8 @@ alias versioncfg='ln_log info v$LN_VER'
 alias weather='ln_weather'
 alias news='echo "" && curl -s https://brutalist.report/summary | sed -rn "s@(^.*<li>)(.*)(</li>)@\2\n@p" | sed "s|<strong>|• |g; s|</strong>||g"'
 alias ifc='echo "" && curl -s https://ifconfig.me && echo ""'
+alias wip='./scripts/wip.sh'
+alias deploy='./scripts/deploy.sh'
 
 # Tools and CLIs 
 alias cat='bat'
