@@ -1,5 +1,1 @@
-.env
-packages/fish/.config/fish/fish_variables
-packages/fish/.config/fish/functions/
-packages/fish/.config/fish/plugins/
-packages/fish/.config/fish/conf.d/rustup.fish
+lazy-lock.json
