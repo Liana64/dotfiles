@@ -13,3 +13,5 @@ source ~/.zsh_includes/aliases.zsh
 source ~/.zsh_includes/tmux.zsh
 
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+export TERM=xterm-256color
