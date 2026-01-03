@@ -12,6 +12,7 @@ if [[ $(uname) == "Darwin" ]]; then
   # Configure Darwin
   defaults write -g com.apple.mouse.scaling -1
   defaults write -g com.apple.trackpad.scaling -1
+  defaults write -g NSWindowShouldDragOnGesture -bool true
 
   touch ~/.hushlogin
 
@@ -20,5 +21,9 @@ if [[ $(uname) == "Darwin" ]]; then
 
   stow -t $HOME zsh
   stow -t $HOME kitty
+  stow -t $HOME starship
+  stow -t $HOME aerospace
+  stow -t $HOME neovim
   stow -t $HOME lazygit
+  stow -t $HOME k9s
 fi
