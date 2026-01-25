@@ -8,6 +8,7 @@ opt.autoindent = true
 opt.wrap = true
 opt.tabstop = 2
 opt.shiftwidth = 2
+opt.softtabstop = 2
 
 -- search
 opt.ignorecase = true
@@ -31,3 +32,7 @@ opt.splitbelow = true
 
 -- mouse
 opt.mousescroll = "ver:10,hor:6"
+
+-- undo
+opt.undofile = true
+opt.undodir = vim.fn.stdpath("data") .. "/undo"

@@ -148,12 +148,12 @@
     };
   };
 
-  home = {
-    persistence = {
-      # Comment to disable persistence
-      "/persist".directories = [ ".mozilla/firefox" ];
-    };
-  };
+  #home = {
+  #  persistence = {
+  #    # Comment to disable persistence
+  #    "/persist".directories = [ ".mozilla/firefox" ];
+  #  };
+  #};
 
   xdg.mimeApps.defaultApplications = {
     "text/html" = ["firefox.desktop"];

@@ -11,8 +11,8 @@
     ./shell
     ./dev
     ./emacs
-    ./services
-    ./web
+    #./services
+    #./web
   ];
 
   nixpkgs = {
@@ -24,30 +24,33 @@
 
   home = {
     username = "liana";
-    homeDirectory = "/home/liana";
-  };
-
-  home.sessionVariables = {
-    NIX_CONFIG = "experimental-features = nix-command flakes";
+    homeDirectory = "/Users/liana";
   };
 
   home.packages = with pkgs; [
-    firefox
-    element-desktop
-    bitwarden-cli
-    vlc
-    vesktop
+    #firefox
+    #element-desktop
+    #bitwarden-cli
+    #vlc
+    #vesktop
     ffmpeg
-    protonmail-bridge
+    #protonmail-bridge
     thunderbird
+    htop
     halloy
   ];
 
   programs.home-manager.enable = true;
-  programs.niri.enable = true;
+  #programs.niri.enable = true;
+
+  #services.gpg-agent = {
+  #  enable = true;
+  #  defaultCacheTtl = 1800;
+  #  enableSshSupport = true;
+  #};
 
   # Nicely reload system units when changing configs
-  systemd.user.startServices = "sd-switch";
+  #systemd.user.startServices = "sd-switch";
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
   home.stateVersion = "25.11";

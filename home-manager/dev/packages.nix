@@ -2,18 +2,22 @@
 {
   home.packages = with pkgs; [
     # General
-    direnv
-    pre-commit
+    #go-task
+    #pre-commit
+    lazygit
+    hyperfine
+    tokei
 
     # Cryptography
-    sops
-    age
+    #sops
+    #age
 
     # Kubernetes
-    kubectl
-    kubeconform
-    helm
-    talosctl
+    #kubectl
+    #kubeconform
+    #kubernetes-helm
+    #talosctl
+    #fluxcd
 
     # LSP
     nil
@@ -21,8 +25,7 @@
     lua-language-server
     yaml-language-server
     rust-analyzer
+    marksman
     shellcheck
   ];
-
-  programs.neovim.enable = true;
 }

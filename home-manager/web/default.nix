@@ -1,0 +1,6 @@
+{ import, ... }:
+{
+  imports = [
+    ./firefox.nix
+  ];
+}
