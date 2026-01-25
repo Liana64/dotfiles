@@ -11,6 +11,7 @@ fortune
 
 source ~/.zsh_includes/aliases.zsh
 source ~/.zsh_includes/tmux.zsh
+source ~/.zsh_includes/quick.zsh
 
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 

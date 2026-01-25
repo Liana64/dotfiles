@@ -144,15 +144,15 @@ esc = 'mode main'
 # Default floats
 [[on-window-detected]]
 if.app-id = 'com.apple.systempreferences'
-run = 'layout floating'
+run = "layout floating"
 
 [[on-window-detected]]
 if.app-id = 'com.apple.finder'
-run = 'layout floating'
+run = "layout floating"
 
 [[on-window-detected]]
 if.app-id = 'com.bitwarden.desktop'
-run = 'layout floating'
+run = "layout floating"
 
 # Move to workspace
 [[on-window-detected]]
