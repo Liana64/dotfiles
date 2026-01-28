@@ -1,5 +1,7 @@
 { pkgs, ... }:
 {
+  # TODO: Fix annoying bugs with snacks area management
+  # TODO: Add neorg (?)
   programs.neovim = {
     enable = true;
 
@@ -31,12 +33,12 @@
 
     extraLuaConfig = ''
       ${builtins.readFile ./nvim-core/options.lua}
-      ${builtins.readFile ./nvim-core/keymaps.lua}
       ${builtins.readFile ./nvim-plugins/gruvbox.lua}
       ${builtins.readFile ./nvim-plugins/snacks.lua}
       ${builtins.readFile ./nvim-plugins/gitsigns.lua}
       ${builtins.readFile ./nvim-plugins/comment.lua}
       ${builtins.readFile ./nvim-plugins/autopairs.lua}
+      ${builtins.readFile ./nvim-core/keymaps.lua}
     '';
     };
 }

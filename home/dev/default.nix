@@ -6,6 +6,8 @@
     ./packages.nix
   ];
 
+  # TODO: Fix broken k9s plugins
+  # TODO: Figure out a way to remember to use k9s plugins
   programs.k9s = {
     enable = true;
     settings = import ./k9s/settings.nix;

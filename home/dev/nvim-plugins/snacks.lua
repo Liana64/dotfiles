@@ -49,14 +49,6 @@ require("snacks").setup({
     size = 1024 * 1024,
   },
 
-  dim = {
-    enabled = true,
-    scope = {
-      min_size = 5,
-      max_size = 20,
-    },
-  },
-
   picker = {
     enabled = true,
     sources = {
@@ -83,8 +75,8 @@ require("snacks").setup({
   zen = {
     enabled = true,
     toggles = {
-      dim = true,
-      git_signs = true,
+      dim = false,
+      git_sign = true,
       diagnostics = true,
     },
   },
@@ -98,6 +90,7 @@ require("snacks").setup({
 
   explorer = {
     enabled = true,
+    replace_netrw = true,
     win = {
       list = {
         wo = {
@@ -106,16 +99,14 @@ require("snacks").setup({
         },
       },
     },
-    keys = {
-      ["<Esc>"] = false,
-    },
-    close_on_open = false,
-    auto_close = false,
+    follow_file = true,
+    focus_file = true,
   },
 
+  dim = { enabled = false },
   input = { enabled = true },
   select = { enabled = true },
-  quickfile = { enabled = true },
+  quickfile = { enabled = false },
   lazygit = { enabled = true },
   git = { enabled = true },
   scroll = { enabled = true },

@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     #nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
@@ -47,30 +47,37 @@
 
     # NixOS configuration entrypoint
     # Available through 'nixos-rebuild --flake .#your-hostname'
-    #nixosConfigurations = {
-    #  frame = nixpkgs.lib.nixosSystem {
-    #    specialArgs = {inherit inputs;};
-    #    modules = [
-    #      ./nixos/configuration.nix
-    #    ];
-    #  };
-    #};
+    nixosConfigurations = {
+      framework = nixpkgs.lib.nixosSystem {
+        specialArgs = { inherit inputs; };
+        modules = [
+          ./system/configuration.nix
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.liana = import ./home/home.nix;
+            home-manager.extraSpecialArgs = { inherit inputs; };
+          }
+        ];
+      };
+    };
 
     # Standalone home-manager configuration entrypoint
     # Available through 'home-manager --flake .#your-username@your-hostname'
     homeConfigurations = {
-      "liana@frame" = home-manager.lib.homeManagerConfiguration {
+      "liana@framework" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = {inherit inputs;};
         modules = [
-          ./home-manager/home.nix
+          ./home/home.nix
         ];
       };
       "liana@small" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.aarch64-darwin;
         extraSpecialArgs = {inherit inputs;};
         modules = [
-          ./home-manager/darwin.nix
+          ./home/darwin.nix
         ];
       };
     };

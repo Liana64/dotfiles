@@ -33,18 +33,46 @@
 
   home.packages = with pkgs; [
     firefox
+    libreoffice
     element-desktop
     bitwarden-cli
     vlc
     vesktop
     ffmpeg
-    protonmail-bridge
     thunderbird
     halloy
+    moonlight-qt
+    yazi
+    chromium
+    pavucontrol
+
+    # Paid
+    obsidian # TODO: Move to freeware
+    protonmail-bridge
+    protonmail-desktop
+    cider-2
   ];
 
+  gtk = {
+    enable = true;
+    theme = {
+      name = "adw-gtk3-dark";
+      package = pkgs.adw-gtk3;
+    };
+    iconTheme = {
+      name = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
+    cursorTheme = {
+      name = "Bibata-Modern-Classic";
+      package = pkgs.bibata-cursors;
+      size = 24;
+    };
+  };
+
+  xdg.configFile."sway/config".source = ./sway/config;
+
   programs.home-manager.enable = true;
-  programs.niri.enable = true;
 
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";

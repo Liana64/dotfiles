@@ -14,10 +14,8 @@
       ripgrep
       ripgrep-all
       tealdeer
-      bat
       jq
       yq
-      fd
       eza
       procs
       rustscan

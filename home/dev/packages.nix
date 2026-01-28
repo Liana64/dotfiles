@@ -2,22 +2,24 @@
 {
   home.packages = with pkgs; [
     # General
-    #go-task
-    #pre-commit
+    go-task
+    pre-commit
     lazygit
     hyperfine
     tokei
 
     # Cryptography
-    #sops
-    #age
+    sops
+    age
 
     # Kubernetes
-    #kubectl
-    #kubeconform
-    #kubernetes-helm
-    #talosctl
-    #fluxcd
+    kubectl
+    kubeconform
+    kubernetes-helm
+    talosctl
+    talhelper
+    fluxcd
+    cilium-cli
 
     # LSP
     nil

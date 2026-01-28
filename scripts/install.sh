@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+
+# This is my old install script, which is also currently broken.
+
 install_user="liana"
 
 if [[ $(uname) == "Darwin" ]]; then

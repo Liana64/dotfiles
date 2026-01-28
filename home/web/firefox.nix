@@ -49,13 +49,13 @@
         };
       };
       #bookmarks = {};
-      extensions = with inputs.firefox-addons.packages."x86_64-linux"; [
-        bitwarden
-        ublock-origin
-        reddit-enhancement-suite
-        #sponsorblock
-        #youtube-shorts-block
-      ];
+      #extensions = with inputs.firefox-addons.packages."x86_64-linux"; [
+      #  bitwarden
+      #  ublock-origin
+      #  reddit-enhancement-suite
+      #  #sponsorblock
+      #  #youtube-shorts-block
+      #];
       settings = {
         "browser.startup.homepage" = "labs.lianas.org";
 
@@ -123,28 +123,28 @@
         #"sidebar.revamp" = true;
         #"sidebar.main.tools" = ["history" "bookmarks"];
       };
-      restrictedDomainsList = [
-        "accounts-static.cdn.mozilla.net"
-        "accounts.firefox.com"
-        "addons.cdn.mozilla.net"
-        "addons.mozilla.org"
-        "api.accounts.firefox.com"
-        "beta.foldingathome.org"
-        "cloud.tenjin-dk.com"
-        "content.cdn.mozilla.net"
-        "discovery.addons.mozilla.org"
-        "install.mozilla.org"
-        "media.tenjin-dk.com"
-        "media.tenjin.com"
-        "metrics.tenjin-dk.com"
-        "metrics.tenjin.com"
-        "oauth.accounts.firefox.com"
-        "private.tenjin.com"
-        "profile.accounts.firefox.com"
-        "public.tenjin.com"
-        "support.mozilla.org"
-        "sync.services.mozilla.com"
-      ];
+      #restrictedDomainsList = [
+      #  "accounts-static.cdn.mozilla.net"
+      #  "accounts.firefox.com"
+      #  "addons.cdn.mozilla.net"
+      #  "addons.mozilla.org"
+      #  "api.accounts.firefox.com"
+      #  "beta.foldingathome.org"
+      #  "cloud.tenjin-dk.com"
+      #  "content.cdn.mozilla.net"
+      #  "discovery.addons.mozilla.org"
+      #  "install.mozilla.org"
+      #  "media.tenjin-dk.com"
+      #  "media.tenjin.com"
+      #  "metrics.tenjin-dk.com"
+      #  "metrics.tenjin.com"
+      #  "oauth.accounts.firefox.com"
+      #  "private.tenjin.com"
+      #  "profile.accounts.firefox.com"
+      #  "public.tenjin.com"
+      #  "support.mozilla.org"
+      #  "sync.services.mozilla.com"
+      #];
     };
   };
 
