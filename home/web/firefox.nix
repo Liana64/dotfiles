@@ -38,7 +38,7 @@
             name = "Nix Options";
             urls = [{template = "https://searchix.ovh/?query={searchTerms}";}];
             icon = "https://searchix.ovh/favicon.ico";
-            definedAliases = ["@sx"];
+            definedAliases = ["@no"];
           };
           opensecrets = {
             name = "Open Secrets";

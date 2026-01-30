@@ -34,7 +34,7 @@ in
     light.enable = true;
   };
   
-  services = {
+  services= {
     xserver.enable = true;
 
     displayManager = {
@@ -47,14 +47,21 @@ in
 
   xdg.portal = {
     enable = true;
+    config = {
+      sway = {
+        default = lib.mkForce ["wlr" "gtk"];
+        "org.freedesktop.impl.portal.Screenshot" = ["wlr"];
+        "org.freedesktop.impl.portal.ScreenCast" = ["wlr"];
+        "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
+      };
+    };
     wlr.enable = true;
+    
     extraPortals = with pkgs; [
+      xdg-desktop-portal-wlr
       xdg-desktop-portal-gtk
-    ] ++ lib.optionals useNiri [
-      xdg-desktop-portal-gnome
     ];
   };
-
 
   environment.systemPackages = with pkgs; [
     fuzzel

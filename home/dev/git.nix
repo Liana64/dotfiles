@@ -11,4 +11,6 @@
       push.autoSetupRemote = true;
     };
   };
+
+  programs.gh.enable = true;
 }

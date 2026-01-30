@@ -5,10 +5,12 @@
     
     font = {
       name = "DanQing (base16)";
-      size = 14;
+      size = 11;
     };
 
     settings = {
+      macos_option_as_cmd = "yes";
+      clear_all_shortcuts = "yes";
       update_check_interval = 0;
       cursor_shape = "beam";  # or "block", "underline"
       scrollback_lines = 200000;
@@ -67,7 +69,8 @@
       "cmd+shift+d" = "launch --location=hsplit --cwd=current";
 
       # Tabs
-      "cmd+t" = "new_tab_with_cwd";
+      "ctrl+tab" = "next_tab";
+      "ctrl+shift+tab" = "prev_tab";
       "cmd+h" = "neighboring_window left";
       "cmd+l" = "neighboring_window right";
       "cmd+j" = "neighboring_window down";
@@ -82,6 +85,11 @@
       "cmd+8" = "goto_tab 8";
       "cmd+9" = "goto_tab 9";
       "cmd+0" = "goto_tab 10";
+      "ctrl+t" = "new_tab_with_cwd";
+      "ctrl+w" = "close_tab";
+      "ctrl+shift+i" = "set_tab_title";
+      "ctrl+shift+c" = "copy_to_clipboard";
+      "ctrl+shift+v" = "paste_from_clipboard";
     };
   };
 }

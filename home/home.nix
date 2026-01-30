@@ -13,6 +13,8 @@
     ./emacs
     ./services
     ./web
+    ./sway.nix
+    ./waybar.nix
   ];
 
   nixpkgs = {
@@ -43,7 +45,7 @@
     halloy
     moonlight-qt
     yazi
-    chromium
+    ungoogled-chromium
     pavucontrol
 
     # Paid
@@ -69,8 +71,6 @@
       size = 24;
     };
   };
-
-  xdg.configFile."sway/config".source = ./sway/config;
 
   programs.home-manager.enable = true;
 

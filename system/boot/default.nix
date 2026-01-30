@@ -1,8 +1,7 @@
-{ pkgs, ... }: {
-  # Use systemd-boot
+{ lib, pkgs, ... }: {
   boot = {
     loader = {
-      systemd-boot.enable = true;
+      systemd-boot.enable = lib.mkForce false;
       efi.canTouchEfiVariables = true;
     };
 
@@ -15,6 +14,11 @@
 
     # Option (2): Pinned kernel version from the NixOS channel
     #kernelPackages = pkgs.linuxPackagesFor (pkgs.linuxKernel.kernels.linux_6_17);
+
+    lanzaboote = {
+      enable = true;
+      pkiBundle = "/var/lib/sbctl";
+    };
 
     # TODO: Review kernel modules and disable unused
     #blacklistedKernelModules = [];

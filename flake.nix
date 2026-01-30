@@ -3,16 +3,21 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
-    #nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote/v1.0.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
     home-manager,
+    lanzaboote,
     ...
   } @ inputs: let
     systems = [
@@ -52,9 +57,9 @@
         specialArgs = { inherit inputs; };
         modules = [
           ./system/configuration.nix
+          lanzaboote.nixosModules.lanzaboote
           home-manager.nixosModules.home-manager
           {
-            home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.liana = import ./home/home.nix;
             home-manager.extraSpecialArgs = { inherit inputs; };

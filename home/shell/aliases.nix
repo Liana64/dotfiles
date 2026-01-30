@@ -10,7 +10,10 @@ let
     l = "eza -la --git";
     k = "kubectl";
     dotfiles = "n ~/.dotfiles";
-    hms = "nix run home-manager/master -- switch --flake ~/.dotfiles#$(whoami)@$(hostname | cut -d'.' -f1)";
+    nixy = "sudo nixos-rebuild switch --flake ~/.dotfiles#$(hostname | cut -d '.' -f1)";
+    hms = "nix run home-manager/master -- switch --flake ~/.dotfiles#$(whoami)@$(hostname | cut -d '.' -f1)";
+    xclip = "wl-copy";
+    clip = "wl-copy";
   };
 
   containers = {
@@ -19,6 +22,7 @@ let
   };
 
   rust-tools = {
+    curl = "xh";
     ls = "eza -la --git";
     tree = "eza --tree";
     cat = "bat";

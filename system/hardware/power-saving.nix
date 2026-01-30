@@ -4,10 +4,9 @@
   # --> when running on battery power
   # --> when connected to external power
   # --> when connected to a dock that has external power
-  services.logind.lidSwitch = "suspend";
-  services.logind.lidSwitchExternalPower = "suspend";
-  services.logind.lidSwitchDocked = "suspend";
-
+  services.logind.settings.Login.HandleLidSwitch = "suspend";
+  services.logind.settings.Login.HandleLidSwitchExternalPower = "suspend";
+  services.logind.settings.Login.HandleLidSwitchDocked = "suspend";
   # Disable light sensors and accelerometers as
   # they are not used and consume extra battery
   hardware.sensor.iio.enable = false;
