@@ -1,4 +1,4 @@
-# This file replaces ~/.config/nixpkgs/home.nix
+# TODO: Organize this nightmare of files and get things out of nixos config that belong here
 {
   inputs,
   lib,
@@ -16,6 +16,7 @@
     ./sway.nix
     #./waybar.nix # NOTE: Massive waste of my time
     ./i3status.nix
+    ./mako.nix
   ];
 
   nixpkgs = {

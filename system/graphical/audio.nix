@@ -2,7 +2,9 @@
   config,
   ...
 }: {
-  # TODO: Validate this
+
+
+  # TODO: Add EasyFX profile
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
