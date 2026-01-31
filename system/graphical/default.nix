@@ -36,6 +36,7 @@ in
   
   services= {
     xserver.enable = true;
+    dbus.enable = true;
 
     displayManager = {
       gdm = {
@@ -52,7 +53,6 @@ in
         default = lib.mkForce ["wlr" "gtk"];
         "org.freedesktop.impl.portal.Screenshot" = ["wlr"];
         "org.freedesktop.impl.portal.ScreenCast" = ["wlr"];
-        "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
       };
     };
     wlr.enable = true;
@@ -63,12 +63,17 @@ in
     ];
   };
 
+  security.pam.services.sway.enableGnomeKeyring = true;
+
   environment.systemPackages = with pkgs; [
     fuzzel
-    mako
     wl-clipboard
+    mako
+    playerctl
     grim
+    dbus
     slurp
+    libsecret
   ] ++ lib.optionals useSway [
     swaybg
     swaylock

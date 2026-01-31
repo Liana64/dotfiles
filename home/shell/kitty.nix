@@ -63,6 +63,8 @@
 
     keybindings = {
       "shift+enter" = "send_text all \\e\\r";
+      "ctrl+left" = "send_text all \\x1b[1;5D";
+      "ctrl+right" = "send_text all \\x1b[1;5C";
 
       # Panes
       "cmd+d" = "launch --location=vsplit --cwd=current";

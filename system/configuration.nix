@@ -42,6 +42,7 @@
     unzip
     wget
     sbctl
+    seahorse
     #waybar
   ];
 

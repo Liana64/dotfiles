@@ -10,10 +10,14 @@ let
     l = "eza -la --git";
     k = "kubectl";
     dotfiles = "n ~/.dotfiles";
-    nixy = "sudo nixos-rebuild switch --flake ~/.dotfiles#$(hostname | cut -d '.' -f1)";
-    hms = "nix run home-manager/master -- switch --flake ~/.dotfiles#$(whoami)@$(hostname | cut -d '.' -f1)";
     xclip = "wl-copy";
     clip = "wl-copy";
+  };
+  
+  nixos = {
+    nixy = "sudo nixos-rebuild switch --flake ~/.dotfiles#$(hostname | cut -d '.' -f1)";
+    hms = "nix run home-manager/master -- switch --flake ~/.dotfiles#$(whoami)@$(hostname | cut -d '.' -f1)";
+    gc = "nix-collect-garbage -d";
   };
 
   containers = {
@@ -65,7 +69,7 @@ let
     flushdns = "sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder";
   };
 
-  aliases = editors // personal // containers // rust-tools // networking // utility // git // darwin;
+  aliases = editors // personal // nixos // containers // rust-tools // networking // utility // git // darwin;
   
   helpText = lib.concatStringsSep "\\n" (
     lib.mapAttrsToList (name: value: "  ${name} = ${value}") aliases

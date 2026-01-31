@@ -14,7 +14,8 @@
     ./services
     ./web
     ./sway.nix
-    ./waybar.nix
+    #./waybar.nix # NOTE: Massive waste of my time
+    ./i3status.nix
   ];
 
   nixpkgs = {
@@ -36,7 +37,6 @@
   home.packages = with pkgs; [
     firefox
     libreoffice
-    element-desktop
     bitwarden-cli
     vlc
     vesktop
@@ -49,7 +49,7 @@
     pavucontrol
 
     # Paid
-    obsidian # TODO: Move to freeware
+    obsidian
     protonmail-bridge
     protonmail-desktop
     cider-2
@@ -68,7 +68,6 @@
     cursorTheme = {
       name = "Bibata-Modern-Classic";
       package = pkgs.bibata-cursors;
-      size = 24;
     };
   };
 

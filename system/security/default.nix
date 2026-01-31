@@ -42,6 +42,11 @@
 
   services.udev.packages = [ pkgs.yubikey-personalization ];
 
+  programs.gnupg.agent = {
+    enable = true;
+    enableSSHSupport = true;
+  };
+
   # TODO: Enable or remove
   #programs.yubikey-touch-detector.enable = true;
   
@@ -53,15 +58,24 @@
   #programs.ssh.startAgent = false;
 
   # TODO: Test this
-  security.pam.u2f = {
-    enable = true;
-    settings = {
-      cue = true;  # Prompt when waiting for touch
-      # authfile = "/etc/u2f_mappings";  # Or use per-user ~/.config/Yubico/u2f_keys
+  security.pam = {
+    services = {
+      sudo.u2fAuth = true;
+      login.u2fAuth = false;
+      swaylock.u2fAuth = false;
+      gdm.enableGnomeKeyring = true;
+    };
+
+    u2f = {
+      enable = true;
+      settings = {
+        cue = true;  # Prompt when waiting for touch
+      };
     };
   };
 
-  security.pam.services.sudo.u2fAuth = true;
-  security.pam.services.login.u2fAuth = false;
-  security.pam.services.swaylock.u2fAuth = true;
+  
+  
+  
+  
 }

@@ -13,6 +13,7 @@
       fidget-nvim
       gitsigns-nvim
       gruvbox-nvim
+      lazygit-nvim
       lualine-nvim
       luasnip
       rustaceanvim
