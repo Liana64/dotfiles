@@ -1,9 +1,8 @@
-{ ... }:
+{ pkgs, ... }:
 {
   imports = [
     ./git.nix
     ./nvim.nix
-    ./packages.nix
   ];
 
   # TODO: Fix broken k9s plugins
@@ -15,6 +14,42 @@
     skins = import ./k9s/skins.nix;
     plugins = import ./k9s/plugins.nix;
   };
+
+  home.packages = with pkgs; [
+    # General
+    go-task
+    pre-commit
+    lazygit
+    hyperfine
+    tokei
+    ansible
+    lsof
+    gparted
+    parted
+
+    # Cryptography
+    sops
+    age
+
+    # Kubernetes
+    kubectl
+    kubeconform
+    kubernetes-helm
+    talosctl
+    talhelper
+    fluxcd
+    cilium-cli
+
+    # LSP
+    nil
+    nixd
+    lua-language-server
+    yaml-language-server
+    rust-analyzer
+    marksman
+    shellcheck
+    
+  ];
 
   #programs.direnv = {
   #  enable = true;

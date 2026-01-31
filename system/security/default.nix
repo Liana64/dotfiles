@@ -58,12 +58,14 @@
   #programs.ssh.startAgent = false;
 
   # TODO: Test this
+
   security.pam = {
     services = {
       sudo.u2fAuth = true;
       login.u2fAuth = false;
       swaylock.u2fAuth = false;
       gdm.enableGnomeKeyring = true;
+      sway.enableGnomeKeyring = true;
     };
 
     u2f = {

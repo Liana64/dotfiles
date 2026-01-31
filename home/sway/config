@@ -27,7 +27,7 @@ set $menu fuzzel
 exec "systemctl --user import-environment {,WAYLAND_}DISPLAY SWAYSOCK; systemctl --user start sway-session.target"
 exec swaymsg -t subscribe '["shutdown"]' && systemctl --user stop sway-session.target
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
-exec gnome-keyring-daemon --start --components=secrets
+exec gnome-keyring-daemon --start --components=secrets,ssh,pkcs11
 
 exec swayidle -w \
   timeout 300 'swaylock -f -c 000000' \
@@ -233,7 +233,7 @@ bar {
     font pango:JetBrainsMono Nerd Font 11
 }
 
-gaps inner 10
+#gaps inner 4
 
 output eDP-1 scale 1.85
 seat * xcursor_theme Bibata-Modern-Classic 16

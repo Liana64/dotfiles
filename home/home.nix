@@ -10,7 +10,7 @@
   imports = [
     ./shell
     ./dev
-    ./emacs
+    #./emacs
     ./services
     ./web
     ./sway.nix
@@ -47,6 +47,9 @@
     yazi
     ungoogled-chromium
     pavucontrol
+    pciutils
+    usbutils
+    fzf
 
     # Paid
     obsidian
