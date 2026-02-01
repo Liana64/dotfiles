@@ -30,6 +30,7 @@
     # This is a function that generates an attribute by calling a function you
     # pass to it, with each system as an argument
     forAllSystems = nixpkgs.lib.genAttrs systems;
+    colors = import ./common/colors/groove.nix { };
   in {
     # Your custom packages
     # Accessible through 'nix build', 'nix shell', etc
@@ -54,7 +55,7 @@
     # Available through 'nixos-rebuild --flake .#your-hostname'
     nixosConfigurations = {
       framework = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit inputs; };
+        specialArgs = { inherit inputs colors; };
         modules = [
           ./system/configuration.nix
           lanzaboote.nixosModules.lanzaboote
@@ -62,7 +63,7 @@
           {
             home-manager.useUserPackages = true;
             home-manager.users.liana = import ./home/home.nix;
-            home-manager.extraSpecialArgs = { inherit inputs; };
+            home-manager.extraSpecialArgs = { inherit inputs colors; };
           }
         ];
       };
@@ -73,14 +74,14 @@
     homeConfigurations = {
       "liana@framework" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = {inherit inputs;};
+        extraSpecialArgs = {inherit inputs colors;};
         modules = [
           ./home/home.nix
         ];
       };
       "liana@small" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-        extraSpecialArgs = {inherit inputs;};
+        extraSpecialArgs = {inherit inputs colors;};
         modules = [
           ./home/darwin.nix
         ];

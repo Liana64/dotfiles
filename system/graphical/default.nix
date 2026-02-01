@@ -22,6 +22,7 @@ in
     sway = {
       enable = useSway;
       wrapperFeatures.gtk = true;
+      package = pkgs.swayfx;
     };
 
     niri = {
@@ -63,7 +64,6 @@ in
     ];
   };
 
-  security.pam.services.sway.enableGnomeKeyring = true;
 
   environment.systemPackages = with pkgs; [
     fuzzel

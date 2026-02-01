@@ -1,22 +1,18 @@
 # TODO: Organize this nightmare of files and get things out of nixos config that belong here
-{
-  inputs,
-  lib,
-  config,
-  pkgs,
-  ...
-}: {
-  # You can import other home-manager modules here
+{ inputs, lib, config, pkgs, colors, ... }: {
+#let
+#  colors = import ../common/colors/gruvbox.nix { };
+#in {
+  home.username = "liana";
+  home.homeDirectory = "/home/liana";
+
   imports = [
     ./shell
+    ./graphical
     ./dev
     #./emacs
     ./services
     ./web
-    ./sway.nix
-    #./waybar.nix # NOTE: Massive waste of my time
-    ./i3status.nix
-    ./mako.nix
   ];
 
   nixpkgs = {
@@ -26,10 +22,10 @@
     };
   };
 
-  home = {
-    username = "liana";
-    homeDirectory = "/home/liana";
-  };
+  #home.file.".wallpapers" = {
+  #  source = ../wallpapers;
+  #  recursive = true;
+  #};
 
   home.sessionVariables = {
     NIX_CONFIG = "experimental-features = nix-command flakes";
@@ -50,7 +46,12 @@
     pavucontrol
     pciutils
     usbutils
+    moreutils
+    #trash-cli
     fzf
+    imagemagick
+    xdg-desktop-portal
+    bc
 
     # Paid
     obsidian

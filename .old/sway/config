@@ -34,6 +34,7 @@ exec swayidle -w \
   timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
   before-sleep 'swaylock -f -c 000000'
 
+font pango:JetBrainsMono Nerd Font 11
 input type:touchpad {
   tap enabled
   tap_button_map lrm
@@ -230,7 +231,6 @@ bar {
         inactive_workspace #292828 #292828 #ffffff
         urgent_workspace #ff5555 #ff5555 #ffffff
     }
-    font pango:JetBrainsMono Nerd Font 11
 }
 
 #gaps inner 4
