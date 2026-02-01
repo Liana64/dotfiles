@@ -22,6 +22,7 @@
       rustaceanvim
       snacks-nvim
       undotree
+      #neorg
       nvim-autopairs
       nvim-cmp
       nvim-lspconfig

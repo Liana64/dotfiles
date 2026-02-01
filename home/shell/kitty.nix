@@ -65,6 +65,10 @@
       "shift+enter" = "send_text all \\e\\r";
       "ctrl+left" = "send_text all \\x1b[1;5D";
       "ctrl+right" = "send_text all \\x1b[1;5C";
+      "alt+left" = "send_text all \\x1b[1;5D";
+      "alt+right" = "send_text all \\x1b[1;5C";
+      "ctrl+delete" = "send_text all \\x1bd\\x7f";
+      #"ctrl+delete" = "send_text all \\x1bd";
 
       # Panes
       "cmd+d" = "launch --location=vsplit --cwd=current";

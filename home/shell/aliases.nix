@@ -12,6 +12,7 @@ let
     dotfiles = "n ~/.dotfiles";
     xclip = "wl-copy";
     clip = "wl-copy";
+    myip = "curl ifconfig.me -j";
   };
   
   nixos = {
@@ -43,7 +44,6 @@ let
   };
 
   networking = {
-    ifc = "xh --body 'https://ifconfig.me'";
     ports = "ss -tunapl";
     fastping = "ping -c 100 -i 0.2";
     listening = "ss -tlnp";

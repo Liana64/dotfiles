@@ -6,7 +6,7 @@
     # TODO: Add gpg key
     settings = {
       user.name = "Liana";
-      user.email = "mail@lianas.org";
+      user.email = "liana@lianas.org";
       init.defaultBranch = "main";
       push.autoSetupRemote = true;
     };

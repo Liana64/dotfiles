@@ -20,12 +20,14 @@
     go-task
     pre-commit
     lazygit
-    hyperfine
-    tokei
     ansible
-    lsof
-    gparted
-    parted
+    dig
+    #hyperfine
+    #tokei
+    #lsof
+    #gparted
+    #parted
+    todoist-electron
 
     # Cryptography
     sops
