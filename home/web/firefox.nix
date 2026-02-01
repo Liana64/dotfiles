@@ -58,6 +58,7 @@
       #];
       settings = {
         "browser.startup.homepage" = "labs.lianas.org";
+        "browser.aboutConfig.showWarning" = false;
 
         # Disable firefox init
         "browser.disableResetPrompt" = true;
@@ -80,10 +81,16 @@
         "browser.newtabpage.activity-stream.feeds.topsites" = false;
         "browser.newtabpage.activity-stream.showSponsoredTopSites" = false;
         "browser.newtabpage.activity-stream.improvesearch.topSiteSearchShortcuts" = false;
+        "browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons" = false;
+        "browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features" = false;
+        "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
+        "browser.newtabpage.activity-stream.showWeather" = false;
 
         # Disable telemetry
         "app.shield.optoutstudies.enabled" = false;
         "browser.discovery.enabled" = false;
+        "browser.urlbar.suggest.quicksuggest.all" = false;
+        "browser.urlbar.suggest.quicksuggest.sponsored" = false;
         "browser.newtabpage.activity-stream.feeds.telemetry" = false;
         "browser.newtabpage.activity-stream.telemetry" = false;
         "browser.ping-centre.telemetry" = false;
