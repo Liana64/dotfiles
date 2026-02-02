@@ -68,7 +68,6 @@ in
   environment.systemPackages = with pkgs; [
     fuzzel
     wl-clipboard
-    mako
     playerctl
     grim
     dbus

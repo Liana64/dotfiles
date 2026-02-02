@@ -60,10 +60,15 @@
   # TODO: Test this
 
   security.pam = {
+
     services = {
-      sudo.u2fAuth = true;
-      login.u2fAuth = false;
+      swaylock = {};
+      swaylock.fprintAuth = true;
       swaylock.u2fAuth = false;
+      sudo.fprintAuth = true;
+      sudo.u2fAuth = true;
+      #login.fprintAuth = true;
+      login.u2fAuth = false;
       gdm.enableGnomeKeyring = true;
       sway.enableGnomeKeyring = true;
     };

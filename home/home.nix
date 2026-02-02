@@ -22,10 +22,10 @@
     };
   };
 
-  #home.file.".wallpapers" = {
-  #  source = ../wallpapers;
-  #  recursive = true;
-  #};
+  home.file.".wallpapers" = {
+    source = ../wallpapers;
+    recursive = true;
+  };
 
   home.sessionVariables = {
     NIX_CONFIG = "experimental-features = nix-command flakes";
@@ -47,6 +47,7 @@
     pciutils
     usbutils
     moreutils
+    bitwarden-desktop
     #trash-cli
     fzf
     imagemagick

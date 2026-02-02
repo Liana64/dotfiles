@@ -4,6 +4,10 @@
   pkgs,
   ...
 }: {
+  imports = [
+    ./email.nix
+  ];
+
   environment.variables.TERM = "xterm-256color";
   environment.variables.EDITOR = "vim";
   users.users = {

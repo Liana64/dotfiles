@@ -32,25 +32,23 @@
       client.urgent           $urgent-bg-color    $urgent-bg-color   $text-color          $urgent-bg-color
       
       # Settings
-      font pango:Product Sans 12
+      font pango:JetBrainsMono Nerd Font 11
       titlebar_separator enable
-      titlebar_padding 6
+      titlebar_padding 4
       title_align center
       default_border normal 2
       default_floating_border normal 2
       seat * xcursor_theme Bibata-Modern-Classic 16
-      
+
       #exec_always --no-startup-id autotiling-rs &
-      exec --no-startup-id swayidle -w \
-          timeout 360 'waylock' \
-          timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
-          before-sleep 'waylock'
 
-      #exec "systemctl --user import-environment {,WAYLAND_}DISPLAY SWAYSOCK; systemctl --user start sway-session.target"
-      #exec swaymsg -t subscribe '["shutdown"]' && systemctl --user stop sway-session.target
-      #exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+      exec swayidle -w \
+        timeout 300 'swaylock -f -c 000000' \
+        timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
+        before-sleep 'swaylock -f -c 000000'
+
+      exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
       exec gnome-keyring-daemon --start --components=secrets,ssh,pkcs11
-
     '';
     config = {
       terminal = "kitty";
@@ -90,8 +88,8 @@
           "${sup}+Shift+3" = "exec 'grim - | wl-copy'";
           "${sup}+Shift+4" = "exec 'grim -g \"$(slurp)\" - | wl-copy";
 
-          "XF86MonBrightnessUp" = "exec 'brightnessctl s 5+'";
-          "XF86MonBrightnessDown" = "exec 'brightnessctl s 5-'";
+          "XF86MonBrightnessUp" = "exec 'brightnessctl set 5%+'";
+          "XF86MonBrightnessDown" = "exec 'brightnessctl set 5%-'";
 
           "XF86AudioPlay" = "exec playerctl play-pause";
           "XF86AudioPause" = "exec playerctl play-pause";
@@ -99,9 +97,9 @@
           "XF86AudioNext" = "exec playerctl next";
           "XF86AudioStop" = "exec playerctl stop";
 
-          "XF86AudioRaiseVolume" = "exec 'pamixer -u ; pamixer -i 5'";
-          "XF86AudioLowerVolume" = "exec 'pamixer -u ; pamixer -d 5'";
-          "XF86AudioMute" = "exec 'pamixer -t'";
+          "XF86AudioRaiseVolume" = "exec 'pactl set-sink-volume \\@DEFAULT_SINK@ +5%'";
+          "XF86AudioLowerVolume" = "exec 'pactl set-sink-volume \\@DEFAULT_SINK@ -5%'";
+          "XF86AudioMute" = "exec 'pactl set-sink-mute \\@DEFAULT_SINK@ toggle'";
 
           "${mod}+Return" = "exec ${cfg.terminal}";
           "${sup}+Return" = "exec ${cfg.terminal}";
@@ -187,14 +185,14 @@
       };
 
       gaps = {
-        bottom = 5;
-        horizontal = 5;
-        vertical = 5;
-        inner = 5;
-        left = 5;
-        outer = 5;
-        right = 5;
-        top = 5;
+        bottom = 2;
+        horizontal = 2;
+        vertical = 2;
+        inner = 2;
+        left = 2;
+        outer = 2;
+        right = 2;
+        top = 2;
         smartBorders = "off";
         smartGaps = false;
       };
