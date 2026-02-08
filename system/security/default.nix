@@ -26,8 +26,6 @@
     };
   };
 
-  services.gnome.gnome-keyring.enable = true;
-
   # Configure the automatic mounting of external
   # USB drives; note that they are mounted according
   # to the user that is active, meaning that it can

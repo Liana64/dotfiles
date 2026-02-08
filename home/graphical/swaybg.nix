@@ -6,7 +6,7 @@
   systemd.user.services.swaybg = {
     Unit = {
       After = ["sway-session.target"];
-      Requires = ["sway-session.target"];
+      Requisite = ["sway-session.target"];
       PartOf = ["sway-session.target"];
     };
     Install = {

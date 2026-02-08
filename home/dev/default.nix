@@ -16,12 +16,12 @@
   };
 
   home.packages = with pkgs; [
-    # General
     go-task
     pre-commit
     lazygit
     ansible
     dig
+    watchexec
     #hyperfine
     #tokei
     #lsof

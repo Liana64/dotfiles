@@ -50,7 +50,6 @@
     bitwarden-desktop
     #trash-cli
     fzf
-    imagemagick
     xdg-desktop-portal
     bc
 

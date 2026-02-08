@@ -21,7 +21,7 @@
       isNormalUser = true;
       openssh.authorizedKeys.keys = [];
 
-      extraGroups = ["wheel" "networkmanager" "audio" "video" "dialout"];
+      extraGroups = ["wheel" "networkmanager" "audio" "video" "dialout" "docker"];
     };
   };
   programs.zsh.enable = true;

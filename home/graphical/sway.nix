@@ -1,4 +1,12 @@
 { config, lib, pkgs, colors, inputs, ... }: {
+  programs.swaylock = {
+    enable = true;
+    settings = {
+      daemonize = true;
+      indicator-caps-lock = true;
+      indicator-radius = 100;
+    };
+  };
   systemd.user.targets.graphical.Unit.Wants = [ "xdg-desktop-autostart.target" ];
   wayland.windowManager.sway = with colors; {
     enable = true;
@@ -39,6 +47,10 @@
       default_border normal 2
       default_floating_border normal 2
       seat * xcursor_theme Bibata-Modern-Classic 16
+      
+      # Fix file explorers
+      for_window [app_id="xdg-desktop-portal-gtk"] floating enable, resize set 900 600
+      for_window [title="(?i)save|open|download"] floating enable, resize set 900 600
 
       #exec_always --no-startup-id autotiling-rs &
 
@@ -175,12 +187,12 @@
         "eDP-1" = {
           resolution = "2880x1920@120Hz";
           position = "0,0";
-          scale = "1.85";
+          #scale = "1.85";
         };
         "DP-5" = {
-          resolution = "5120x1440@144Hz";
+          resolution = "3440x1440@144Hz";
           position = "0,0";
-          scale = "2.0";
+          #scale = "2.0";
         };
       };
 

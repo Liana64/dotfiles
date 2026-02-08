@@ -67,6 +67,19 @@
           }
         ];
       };
+      oob = nixpkgs.lib.nixosSystem {
+        specialArgs = { inherit inputs colors; };
+        modules = [
+          ./profiles/pi/configuration.nix
+          lanzaboote.nixosModules.lanzaboote
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useUserPackages = true;
+            home-manager.users.liana = import ./home/pi.nix;
+            home-manager.extraSpecialArgs = { inherit inputs colors; };
+          }
+        ];
+      };
     };
 
     # Standalone home-manager configuration entrypoint
@@ -84,6 +97,13 @@
         extraSpecialArgs = {inherit inputs colors;};
         modules = [
           ./home/darwin.nix
+        ];
+      };
+      "liana@oob" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.aarch64-linux;
+        extraSpecialArgs = {inherit inputs colors;};
+        modules = [
+          ./home/pi.nix
         ];
       };
     };

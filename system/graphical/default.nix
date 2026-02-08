@@ -73,9 +73,10 @@ in
     dbus
     slurp
     libsecret
+    imagemagick
   ] ++ lib.optionals useSway [
     swaybg
-    swaylock
     swayidle
+    #swaylock
   ];
 }

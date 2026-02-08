@@ -41,11 +41,18 @@
     vim
     unzip
     wget
-    sbctl
     seahorse
-    #waybar
+    localsend
+    docker
+    gimp
   ];
 
+  virtualisation.docker.enable = true;
+  virtualisation.docker.storageDriver = "btrfs";
+  virtualisation.docker.rootless = {
+    enable = true;
+    setSocketVariable = true;
+  };
   nix = let
     flakeInputs = lib.filterAttrs (_: lib.isType "flake") inputs;
   in {

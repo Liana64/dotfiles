@@ -2,6 +2,7 @@
   boot = {
     loader = {
       systemd-boot.enable = lib.mkForce false;
+      #systemd-boot.memtest86.enable = true;
       efi.canTouchEfiVariables = true;
     };
 

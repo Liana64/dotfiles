@@ -3,13 +3,13 @@
     enable = true;
 
     settings = {
-      defaultTimeout = 2000;
-      ignoreTimeout = false;
-      backgroundColor = "#1e1e2e";
-      textColor = "#cdd6f4";
-      borderColor = "#89b4fa";
-      borderRadius = 5;
-      borderSize = 2;
+      default-timeout = 3000;
+      ignore-timeout = false;
+      background-color = "#222222";
+      border-color = "#282828";
+      border-radius = 5;
+      font = "JetBrainsMono Nerd Font 10";
+      icons = false;
     };
   };
 }

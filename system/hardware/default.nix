@@ -26,6 +26,13 @@
   # Kernel >= 6.10
   hardware.framework.enableKmod = true;
 
+  environment.systemPackages = with pkgs; [
+    sbctl
+    dmidecode
+    hdparm
+    smartmontools
+  ];
+
   # Use minimal kernel parameters, including one that turns off ASPM,
   # which seems to enable suspend to work on the Framework 13 AMD laptop when using a dock
   #boot.kernelParams = [
