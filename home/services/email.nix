@@ -4,7 +4,7 @@
   systemd.user.services.protonmail-bridge = {
     Unit = {
       Description = "Protonmail Bridge";
-      After = [ "network-online.target" ];
+      After = [ "network-setup.service" ];
     };
     Service = {
       ExecStart = "${pkgs.protonmail-bridge}/bin/protonmail-bridge --noninteractive";

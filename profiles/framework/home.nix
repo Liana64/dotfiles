@@ -7,12 +7,11 @@
   home.homeDirectory = "/home/liana";
 
   imports = [
-    ./shell
-    ./graphical
-    ./dev
-    #./emacs
-    ./services
-    ./web
+    ../../home/shell
+    ../../home/graphical
+    ../../home/dev
+    ../../home/services
+    ../../home/web
   ];
 
   nixpkgs = {
@@ -23,7 +22,7 @@
   };
 
   home.file.".wallpapers" = {
-    source = ../wallpapers;
+    source = ../../wallpapers;
     recursive = true;
   };
 

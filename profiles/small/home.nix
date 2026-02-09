@@ -8,9 +8,9 @@
 }: {
   # You can import other home-manager modules here
   imports = [
-    ./shell
-    ./dev
-    ./emacs
+    ../../home/shell
+    ../../home/dev
+    ../../home/emacs
     #./services
     #./web
   ];

@@ -18,13 +18,13 @@
 
     # Import your generated (nixos-generate-config) hardware configuration
     ./hardware-configuration.nix
-    ./boot
-    ./graphical
-    ./hardware
-    ./network
-    ./security
-    ./time
-    ./users
+    ../../system/boot
+    ../../system/graphical
+    ../../system/hardware
+    ../../system/network
+    ../../system/security
+    ../../system/time
+    ../../system/users
   ];
 
   # Pinned NixOS version
@@ -45,6 +45,7 @@
     localsend
     docker
     gimp
+    rpi-imager
   ];
 
   virtualisation.docker.enable = true;

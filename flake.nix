@@ -57,12 +57,12 @@
       framework = nixpkgs.lib.nixosSystem {
         specialArgs = { inherit inputs colors; };
         modules = [
-          ./system/configuration.nix
+          ./profiles/framework/configuration.nix
           lanzaboote.nixosModules.lanzaboote
           home-manager.nixosModules.home-manager
           {
             home-manager.useUserPackages = true;
-            home-manager.users.liana = import ./home/home.nix;
+            home-manager.users.liana = import ./profiles/framework/home.nix;
             home-manager.extraSpecialArgs = { inherit inputs colors; };
           }
         ];
@@ -75,7 +75,7 @@
           home-manager.nixosModules.home-manager
           {
             home-manager.useUserPackages = true;
-            home-manager.users.liana = import ./home/pi.nix;
+            home-manager.users.liana = import ./profiles/oob/home.nix;
             home-manager.extraSpecialArgs = { inherit inputs colors; };
           }
         ];
@@ -89,21 +89,21 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = {inherit inputs colors;};
         modules = [
-          ./home/home.nix
-        ];
-      };
-      "liana@small" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-        extraSpecialArgs = {inherit inputs colors;};
-        modules = [
-          ./home/darwin.nix
+          ./profiles/framework/home.nix
         ];
       };
       "liana@oob" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.aarch64-linux;
         extraSpecialArgs = {inherit inputs colors;};
         modules = [
-          ./home/pi.nix
+          ./profiles/oob/home.nix
+        ];
+      };
+      "liana@small" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+        extraSpecialArgs = {inherit inputs colors;};
+        modules = [
+          ./profiles/small/home.nix
         ];
       };
     };
