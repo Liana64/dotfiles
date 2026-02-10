@@ -162,10 +162,13 @@
   #  };
   #};
 
-  xdg.mimeApps.defaultApplications = {
-    "text/html" = ["firefox.desktop"];
-    "text/xml" = ["firefox.desktop"];
-    "x-scheme-handler/http" = ["firefox.desktop"];
-    "x-scheme-handler/https" = ["firefox.desktop"];
+  # Set firefox as default browser
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "text/html" = "org.firefox.firefox.desktop";
+      "x-scheme-handler/http" = "org.firefox.firefox.desktop";
+      "x-scheme-handler/https" = "org.firefox.firefox.desktop";
+    };
   };
 }

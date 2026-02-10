@@ -6,6 +6,7 @@
      ./waybar.nix
      ./rofi.nix
      ./mako.nix
+     ./vicinae.nix
      #./i3status.nix
    ];
 

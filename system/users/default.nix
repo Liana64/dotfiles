@@ -8,8 +8,12 @@
     ./email.nix
   ];
 
-  environment.variables.TERM = "xterm-256color";
-  environment.variables.EDITOR = "vim";
+  environment.variables = {
+    EDITOR = "vim";
+    BROWSER = "firefox";
+    TERM = "xterm-256color";
+  };
+
   users.users = {
     liana = {
       shell = pkgs.zsh;

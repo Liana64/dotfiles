@@ -30,16 +30,25 @@ let
     curl = "xh";
     ls = "eza -la --git";
     tree = "eza --tree";
+
+    # This makes cat require "cat -p" for standard output, otherwise it gets piped to less
     cat = "bat";
+
     df = "duf";
     diff = "delta";
     du = "dust";
+
+    # This makes find require "find -- [someargs]"
     find = "fd";
+
     grep = "rg";
     top = "btop";
     htop = "btop";
     neofetch = "fastfetch";
+
+    # Beware, this breaks the "ps aux" command
     ps = "procs";
+
     nmap = "rustscan";
   };
 

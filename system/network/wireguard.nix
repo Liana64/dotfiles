@@ -8,7 +8,7 @@ in
   # After spending a lot of time troubleshooting issues with wireguard that only seemed
   # to affect my linux clients, it turns out that you need to reload the wireguard server
   # service whenever you add a new peer. I hope that this comment helps someone, somewhere,
-  # so that you don't have to go through what I did to figure this out.
+  # so that you don't have to go through what I did to figure this out. It hurt.
 
   networking.wg-quick.interfaces.wg0 = {
     configFile = wireguardConfigFile;
@@ -42,7 +42,7 @@ in
         is_trusted() {
           local current_ssid=$(${pkgs.networkmanager}/bin/nmcli -t -f active,ssid dev wifi | grep '^yes' | cut -d: -f2)
           
-          echo "  Current: SSID='$current_ssid'" >> "$LOGFILE"
+          #echo "  Current: SSID='$current_ssid'" >> "$LOGFILE"
 
           [[ ! -f "${trustedNetworksFile}" ]] && return 1
 
@@ -60,12 +60,12 @@ in
         case "$ACTION" in
           connectivity-change)
             if is_trusted; then
-              echo "  Trusted network - disconnecting VPN" >> "$LOGFILE"
+              #echo "  Trusted network - disconnecting VPN" >> "$LOGFILE"
               if is_up; then
                 ${pkgs.wireguard-tools}/bin/wg-quick down "${wireguardConfigFile}"
               fi
             else
-              echo "  Untrusted network - connecting VPN" >> "$LOGFILE"
+              #echo "  Untrusted network - connecting VPN" >> "$LOGFILE"
               if ! is_up; then
                 ${pkgs.wireguard-tools}/bin/wg-quick up "${wireguardConfigFile}"
               fi

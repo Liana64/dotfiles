@@ -22,7 +22,7 @@ in
     sway = {
       enable = useSway;
       wrapperFeatures.gtk = true;
-      package = pkgs.swayfx;
+      package = pkgs.sway;
     };
 
     niri = {
@@ -36,7 +36,7 @@ in
   };
   
   services= {
-    xserver.enable = true;
+    #xserver.enable = true;
     dbus.enable = true;
 
     displayManager = {

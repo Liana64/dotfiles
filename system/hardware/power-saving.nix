@@ -7,17 +7,22 @@
   services.logind.settings.Login.HandleLidSwitch = "suspend";
   services.logind.settings.Login.HandleLidSwitchExternalPower = "suspend";
   services.logind.settings.Login.HandleLidSwitchDocked = "suspend";
-  # Disable light sensors and accelerometers as
-  # they are not used and consume extra battery
+
+  # Disable light sensors and accelerometers
   hardware.sensor.iio.enable = false;
 
-  # Enable auto-cpufreq service
+  # Power settings
   services = {
     upower = {
       enable = true;
       percentageLow = 15;
       percentageCritical = 5;
     };
+
+    # Choose one or the other
+    power-profiles-daemon.enable = true;
+    tlp.enable = false;
+
     #auto-cpufreq = {
     #  enable = true;
     #  settings = {
@@ -31,7 +36,5 @@
     #    };
     #  };
     #};
-    power-profiles-daemon.enable = true;
-    tlp.enable = false;
   };
 }

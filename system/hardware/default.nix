@@ -17,14 +17,36 @@
   # $ fwupdmgr update
   services.fwupd.enable = true;
 
-  # Enable the fingerprint reader
-  services.fprintd.enable = true;
-
   # Framework kernel module
   # Enables battery charge limit, privacy switches, and system LEDs as
   # standard driver interfaces. Enabled by default on NixOS >= 24.05 and
   # Kernel >= 6.10
   hardware.framework.enableKmod = true;
+
+  # Enable the fingerprint reader
+  services.fprintd.enable = true;
+
+  # Enable Thunderbolt 3 support for CalDigit TS4 (enroll with `boltctl`)
+  # This uses the gnome bolt daemon
+  services.hardware.bolt.enable = true;
+
+  # Rules for systemd-udevd
+  # Credit: KyleOndy
+  services.udev = {
+    packages = [ pkgs.yubikey-personalization ];
+    extraRules = ''
+      # CalDigit TS4 Thunderbolt dock - start sleep inhibitor when connected
+      # Trigger on Thunderbolt device add/remove events for CalDigit vendor
+      ACTION=="add", SUBSYSTEM=="thunderbolt", ATTR{device_name}=="TS4", ATTR{vendor_name}=="CalDigit, Inc.", TAG+="systemd", ENV{SYSTEMD_WANTS}="inhibit-sleep-when-docked.service"
+      ACTION=="remove", SUBSYSTEM=="thunderbolt", ATTR{device_name}=="TS4", ATTR{vendor_name}=="CalDigit, Inc.", RUN+="${pkgs.systemd}/bin/systemctl stop inhibit-sleep-when-docked.service"
+    '';
+  };
+  
+  # Disable mouse acceleration
+  services.libinput.mouse.accelProfile = "flat";
+
+  # Allow printing
+  services.printing.enable = true;
 
   environment.systemPackages = with pkgs; [
     sbctl

@@ -10,21 +10,20 @@
   systemd.user.targets.graphical.Unit.Wants = [ "xdg-desktop-autostart.target" ];
   wayland.windowManager.sway = with colors; {
     enable = true;
-    checkConfig = false;
     systemd.enable = true;
     xwayland = true;
-    package = pkgs.swayfx;
+    package = pkgs.sway;
     wrapperFeatures.gtk = true;
     extraConfig = ''
       ## SWAYFX CONFIG
-      corner_radius 4
-      shadows on
-      shadow_offset 0 0
-      shadow_blur_radius 8
-      shadow_color #000000BB
-      shadow_inactive_color #000000B0
+      #corner_radius 4
+      #shadows on
+      #shadow_offset 0 0
+      #shadow_blur_radius 8
+      #shadow_color #000000BB
+      #shadow_inactive_color #000000B0
 
-      default_dim_inactive 0.2
+      #default_dim_inactive 0.2
 
       set $bg-color 	       ${mbg}
       set $inactive-bg-color   ${darker}
@@ -41,7 +40,7 @@
       
       # Settings
       font pango:JetBrainsMono Nerd Font 11
-      titlebar_separator enable
+      #titlebar_separator enable
       titlebar_padding 4
       title_align center
       default_border normal 2
@@ -65,28 +64,8 @@
     config = {
       terminal = "kitty";
       menu = "rofi -show drun";
+      #menu = "vicinae toggle";
       modifier = "Mod1";
-
-      keycodebindings =
-        let
-          cfg = config.wayland.windowManager.sway.config;
-          mod = cfg.modifier;
-          left = "h";
-          down = "j";
-          up = "k";
-          right = "l";
-        in
-        {
-          #"${mod}+${left}" = "focus left";
-          #"${mod}+${down}" = "focus down";
-          #"${mod}+${up}" = "focus up";
-          #"${mod}+${right}" = "focus right";
-
-          #"${mod}+Shift+${left}" = "move left";
-          #"${mod}+Shift+${down}" = "move down";
-          #"${mod}+Shift+${up}" = "move up";
-          #"${mod}+Shift+${right}" = "move right";
-        };
 
       keybindings =
         let
@@ -131,6 +110,16 @@
           "${mod}+Shift+Down" = "move down";
           "${mod}+Shift+Up" = "move up";
           "${mod}+Shift+Right" = "move right";
+
+          "${mod}+h"  = "focus left";
+          "${mod}+j"  = "focus down";
+          "${mod}+k"    = "focus up";
+          "${mod}+l" = "focus right";
+
+          "${mod}+Shift+h"  = "move left";
+          "${mod}+Shift+j"  = "move down";
+          "${mod}+Shift+k"    = "move up";
+          "${mod}+Shift+l" = "move right";
 
           "${mod}+Shift+b" = "splith";
           "${mod}+Shift+v" = "splitv";
@@ -196,18 +185,18 @@
         };
       };
 
-      gaps = {
-        bottom = 2;
-        horizontal = 2;
-        vertical = 2;
-        inner = 2;
-        left = 2;
-        outer = 2;
-        right = 2;
-        top = 2;
-        smartBorders = "off";
-        smartGaps = false;
-      };
+      #gaps = {
+      #  bottom = 2;
+      #  horizontal = 2;
+      #  vertical = 2;
+      #  inner = 2;
+      #  left = 2;
+      #  outer = 2;
+      #  right = 2;
+      #  top = 2;
+      #  smartBorders = "off";
+      #  smartGaps = false;
+      #};
       bars = [
         {
           position = "top";
@@ -241,13 +230,18 @@
   };
 
   home.sessionVariables = {
-    MOZ_ENABLE_WAYLAND = "1";
-    QT_QPA_PLATFORM = "wayland";
-    QT_SCALE_FACTOR = 1;
-    SDL_VIDEODRIVER = "wayland";
-    XDG_CURRENT_DESKTOP = "sway";
     XDG_SESSION_TYPE = "wayland";
     DESKTOP_SESSION = "sway";
+    XDG_CURRENT_DESKTOP = "sway";
+    QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+    QT_SCALE_FACTOR = 1;
+    QT_AUTO_SCREEN_SCALE_FACTOR = "0";
+    QT_QPA_PLATFORM = "wayland";
+    SDL_VIDEODRIVER = "wayland";
+    GDK_SCALE = "1";
+    GDK_DPI_SCALE = "1";
+    MOZ_ENABLE_WAYLAND = "1";
+    _JAVA_AWT_WM_NONREPARENTING = "1";
   };
 
   #xdg.configFile."sway/config" = lib.mkForce {
