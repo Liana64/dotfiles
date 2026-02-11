@@ -7,6 +7,13 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    
+    # EasyEffects profile
+    framework-dsp = {
+      url = "github:cab404/framework-dsp";
+      flake = false;
+    };
+
     lanzaboote = {
       url = "github:nix-community/lanzaboote/v1.0.0";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -30,7 +37,7 @@
     # This is a function that generates an attribute by calling a function you
     # pass to it, with each system as an argument
     forAllSystems = nixpkgs.lib.genAttrs systems;
-    colors = import ./common/colors/groove.nix { };
+    colors = import ./modules/common/colors/groove.nix { };
   in {
     # Your custom packages
     # Accessible through 'nix build', 'nix shell', etc
@@ -57,12 +64,12 @@
       framework = nixpkgs.lib.nixosSystem {
         specialArgs = { inherit inputs colors; };
         modules = [
-          ./profiles/framework/configuration.nix
+          ./hosts/framework/configuration.nix
           lanzaboote.nixosModules.lanzaboote
           home-manager.nixosModules.home-manager
           {
             home-manager.useUserPackages = true;
-            home-manager.users.liana = import ./profiles/framework/home.nix;
+            home-manager.users.liana = import ./hosts/framework/home.nix;
             home-manager.extraSpecialArgs = { inherit inputs colors; };
           }
         ];
@@ -70,12 +77,12 @@
       oob = nixpkgs.lib.nixosSystem {
         specialArgs = { inherit inputs colors; };
         modules = [
-          ./profiles/pi/configuration.nix
+          ./hosts/oob/configuration.nix
           lanzaboote.nixosModules.lanzaboote
           home-manager.nixosModules.home-manager
           {
             home-manager.useUserPackages = true;
-            home-manager.users.liana = import ./profiles/oob/home.nix;
+            home-manager.users.liana = import ./hosts/oob/home.nix;
             home-manager.extraSpecialArgs = { inherit inputs colors; };
           }
         ];
@@ -89,21 +96,21 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = {inherit inputs colors;};
         modules = [
-          ./profiles/framework/home.nix
+          ./hosts/framework/home.nix
         ];
       };
       "liana@oob" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.aarch64-linux;
         extraSpecialArgs = {inherit inputs colors;};
         modules = [
-          ./profiles/oob/home.nix
+          ./hosts/oob/home.nix
         ];
       };
       "liana@small" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.aarch64-darwin;
         extraSpecialArgs = {inherit inputs colors;};
         modules = [
-          ./profiles/small/home.nix
+          ./hosts/small/home.nix
         ];
       };
     };

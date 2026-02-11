@@ -1,0 +1,16 @@
+{
+  imports = [
+    ./email.nix
+    ./fonts.nix
+    ./hardening.nix
+    ./keyring.nix
+    ./networking.nix
+    ./nix.nix
+    ./syncthing.nix
+    ./time.nix
+    ./usbguard.nix
+    ./wayland.nix
+    ./wireguard.nix
+    ./yubikey.nix
+  ];
+}
