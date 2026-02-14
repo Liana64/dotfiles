@@ -57,6 +57,10 @@ in
       # Fix file explorers
       for_window [app_id="xdg-desktop-portal-gtk"] floating enable, resize set 900 600
       for_window [title="(?i)save|open|download"] floating enable, resize set 900 600
+      
+      # Disable laptop display when using a dock
+      bindswitch --reload --locked lid:on output eDP-1 disable
+      bindswitch --reload --locked lid:off output eDP-1 enable
 
       #exec_always --no-startup-id autotiling-rs &
 

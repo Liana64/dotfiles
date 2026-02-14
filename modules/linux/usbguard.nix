@@ -7,6 +7,11 @@
     presentControllerPolicy = "apply-policy";
     IPCAllowedGroups = [ "wheel" ];
     dbus.enable = true;
+
+    # This is insecure since USB information can be dumped, but we'll do it anyway
+    # TODO: Add a variable to disable this
+    #ruleFile = "/var/secrets/usbguard/rules.conf";
+    ruleFile = "/etc/usbguard/rules.conf";
   };
 
   # Configure the automatic mounting of external

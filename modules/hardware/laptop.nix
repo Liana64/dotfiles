@@ -26,12 +26,15 @@
 
         echo "$(date): CalDigit dock connected, holding sleep inhibitor"
 
+        # Wait a few seconds to authorize
+        sleep 3
+
         # Monitor dock connection status
         while true; do
           DOCK_INFO=$(${pkgs.bolt}/bin/boltctl list 2>/dev/null || true)
 
           if echo "$DOCK_INFO" | ${pkgs.gnugrep}/bin/grep -q "CalDigit" && \
-             echo "$DOCK_INFO" | ${pkgs.gnugrep}/bin/grep -A10 "CalDigit" | ${pkgs.gnugrep}/bin/grep -qE "status:[[:space:]]+connected$"; then
+             echo "$DOCK_INFO" | ${pkgs.gnugrep}/bin/grep -A10 "CalDigit" | ${pkgs.gnugrep}/bin/grep -qE "status:[[:space:]]+(connected|authorized)"; then
             # Still connected, keep holding inhibitor
             sleep 10
           else
@@ -59,7 +62,7 @@
   # --> when connected to a dock that has external power
   services.logind.settings.Login.HandleLidSwitch = "suspend";
   services.logind.settings.Login.HandleLidSwitchExternalPower = "suspend";
-  services.logind.settings.Login.HandleLidSwitchDocked = "suspend";
+  services.logind.settings.Login.HandleLidSwitchDocked = "ignore";
 
   # Disable light sensors and accelerometers
   hardware.sensor.iio.enable = false;
