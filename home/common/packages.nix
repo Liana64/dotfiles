@@ -55,7 +55,7 @@
     xh
     yaml-language-server
     yazi
-    yq
+    yq-go
     zoxide
   ];
  }

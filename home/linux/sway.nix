@@ -5,7 +5,7 @@
     settings = {
       daemonize = true;
       indicator-caps-lock = true;
-      indicator-radius = 100;
+      indicator-radius = 80;
     };
   };
   systemd.user.targets.graphical.Unit.Wants = [ "xdg-desktop-autostart.target" ];
@@ -16,24 +16,16 @@
     package = pkgs.sway;
     wrapperFeatures.gtk = true;
     extraConfig = ''
-      ## SWAYFX CONFIG
-      #corner_radius 4
-      #shadows on
-      #shadow_offset 0 0
-      #shadow_blur_radius 8
-      #shadow_color #000000BB
-      #shadow_inactive_color #000000B0
-
-      #default_dim_inactive 0.2
-
+      # Colors
       set $bg-color 	       ${mbg}
       set $inactive-bg-color   ${darker}
-      set $text-color          ${foreground}
-      set $inactive-text-color ${foreground}
-      set $urgent-bg-color     ${color9}
+      set $text-color          ${white}
+      set $inactive-text-color ${white}
+      set $urgent-bg-color     ${red}
 
-      # window colors
+      # Window Colors
       #                       border              background         text                 indicator
+
       client.focused          $bg-color           $bg-color          $text-color          $bg-color 
       client.unfocused        $inactive-bg-color $inactive-bg-color $inactive-text-color  $inactive-bg-color
       client.focused_inactive $inactive-bg-color $inactive-bg-color $inactive-text-color  $inactive-bg-color
@@ -41,7 +33,6 @@
       
       # Settings
       font pango:JetBrainsMono Nerd Font 11
-      #titlebar_separator enable
       titlebar_padding 4
       title_align center
       default_border normal 2

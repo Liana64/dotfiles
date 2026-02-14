@@ -19,10 +19,15 @@ in
     enable = true;
     systemd = {
       enable = false;
-      target = "graphical-session.target";
+      target = "sway-session.target";
     };
 
     style = ''
+      * {
+        font-size: 12px;
+        min-height: 0;
+      }
+
       window#waybar {
         background: ${darker};
         color: ${foreground};
@@ -30,83 +35,93 @@ in
 
       #workspaces {
         font-family: "JetBrainsMono Nerd Font";
-        font-size: 14px;
         background-color: ${darker};
-        margin : 4px 0;
-        border-radius : 4px;
+        margin : 2px 0;
       }
 
       #workspaces button {
-        font-size: 14px;
         background-color: transparent;
-        color: ${color7};
+        color: ${white};
         transition: all 0.1s ease;
       }
 
       #workspaces button.focused {
-        font-size: 14px;
-        color: ${foreground};
+        color: ${color1};
       }
 
       #workspaces button.persistent {
         color: ${foreground};
-        font-size: 12px;
       }
 
       #custom-launcher {
         background-color: ${darker};
-        color: ${color7};
+        color: ${white};
         margin : 4px 4.5px;
-        padding : 5px 8px;
-        font-size: 14px;
-        border-radius : 4px;
-      }
-
-      #custom-power {
-        color : ${color7};
-        background-color: ${darker};
-        margin : 4px 4.5px 4px 4.5px;
-        padding : 5px 11px 5px 13px;
+        padding : 2px 4px;
         border-radius : 4px;
       }
 
       #custom-vpn {
-        color: ${color7};
+        color: ${white};
         background-color: ${darker};
         margin: 4px 2px 4px 4.5px;
-        padding: 5px 8px;
+        padding: 2px 4px;
         border-radius: 4px 0 0 4px;
       }
       #clock {
         background-color: ${darker};
-        color: ${color7};
+        color: ${white};
         margin: 4px 9px;
-        padding: 5px 8px;
+        padding: 2px 4px;
         border-radius: 4px;
       }
       #network {
-        color: ${color7};
+        color: ${white};
         background-color: ${darker};
         margin: 4px 2px;
-        padding: 5px 8px;
+        padding: 2px 4px;
+      }
+      #network.disconnected {
+        color: ${white};
+        background-color: ${red};
+        margin: 4px 2px;
+        padding: 2px 4px;
       }
       #battery {
-        color: ${color7};
+        color: ${white};
         background-color: ${darker};
         margin: 4px 2px;
-        padding: 5px 8px;
+        padding: 2px 4px;
+      }
+      #battery.warning {
+        color: ${white};
+        background-color: ${orange};
+        margin: 4px 2px;
+        padding: 2px 4px;
+      }
+      #battery.critical {
+        color: ${white};
+        background-color: ${red};
+        margin: 4px 2px;
+        padding: 2px 4px;
+      }
+      #battery.charging {
+        color: ${white};
+        background-color: ${green};
+        margin: 4px 2px;
+        padding: 2px 4px;
       }
       #pulseaudio {
-        color: ${color7};
+        color: ${white};
         background-color: ${darker};
         margin: 4px 2px;
-        padding: 5px 8px;
+        padding: 2px 4px;
       }
       #tray {
-        color: ${color7};
+        color: ${white};
         background-color: ${darker};
         margin: 4px 4.5px 4px 0;
-        padding: 5px 8px;
+        padding: 2px 4px;
         border-radius: 0 4px 4px 0;
       }
     '';
@@ -115,7 +130,7 @@ in
       mainBar = {
         layer = "top";
         position = "top";
-        height = 18;
+        height = 14;
         output = [
           "eDP-1"
           "DP-5"
@@ -133,11 +148,9 @@ in
           format = " ";
         };
 
+        # Credit: KyleOndy
         "custom/usbguard" = {
-          format-icons = {
-            icon = " ";
-          };
-          format = "{icon}  {text}";
+          format = "  {text}";
           exec = "${app}/bin/waybar-usbguard";
           return-type = "json";
           on-click = "${app}/bin/waybar-usbguard allow";
@@ -173,16 +186,17 @@ in
         clock = {
           format = "{:%a %b %e %I:%M %p}";
           tooltip-format = "{:%Y-%m-%d | %H:%M}";
+          #on-click = "open some calendar";
         };
 
         battery = {
-          format = "{icon}";
-          format-charging = "󰂄";
+          format = "{icon} {capacity}%";
+          format-charging = "󰂄 {capacity}%";
           format-icons = [ "󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹" ];
           format-plugged = "󰚦 ";
           states = {
             critical = 15;
-            warning = 30;
+            warning = 35;
           };
           tooltip = true;
           tooltip-format = "{capacity}%";
@@ -196,11 +210,10 @@ in
         network = {
           interval = 2;
           format-wifi = "     {essid}";
-          format-ethernet = "🖧   {ifname}";
-          format-linked = "🖧   {ifname}";
-          format-disconnected = " ";
+          format-ethernet = "󰈀   {ifname}";
+          format-linked = "󰌗   {ifname}";
+          format-disconnected = "";
           tooltip-format = "{essid} {ifname}";
-          #on-click = "nmtui";
         };
         
         pulseaudio = { 
@@ -221,7 +234,7 @@ in
         };
 
         tray = {
-          icon-size = 16;
+          icon-size = 13;
           spacing = 10;
         };
       };
