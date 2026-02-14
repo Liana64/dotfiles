@@ -21,7 +21,7 @@
     @theme "/dev/null"
     * {
     font:                        "JetBrainsMono Nerd Font 12";
-    background:                  ${colors.background};
+    background:                  ${colors.darker};
     background-alt:              ${colors.mbg};
     foreground:                  ${colors.foreground};
     selected:                    ${colors.accent};
@@ -53,8 +53,8 @@
     }
 
     listbox {
-    spacing:                     20px;
-    padding:                     20px;
+    spacing:                     12px;
+    padding:                     10px;
     background-color:            transparent;
     orientation:                 vertical;
     children:                    [ "inputbar", "message", "listview" ];
@@ -67,7 +67,7 @@
     inputbar {
     enabled:                     true;
     spacing:                     10px;
-    padding:                     15px;
+    padding:                     10px;
     border-radius:               10px;
     background-color:            @background-alt;
     text-color:                  @foreground;
@@ -77,7 +77,7 @@
     enabled:                     true;
     expand:                      false;
     str:                         "  ";
-    font:                        "Iosevka Nerd Font 12";
+    font:                        "JetBrains Mono Nerd Font 12";
     background-color:            inherit;
     text-color:                  inherit;
     }
@@ -92,12 +92,12 @@
 
     mode-switcher{
     enabled:                     true;
-    spacing:                     20px;
+    spacing:                     12px;
     background-color:            transparent;
     text-color:                  @foreground;
     }
     button {
-    padding:                     15px;
+    padding:                     10px;
     border-radius:               10px;
     background-color:            @background-alt;
     text-color:                  inherit;

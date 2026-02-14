@@ -33,7 +33,7 @@ in
     extraConfig = ''
       # Colors
       set $bg-color 	       ${mbg}
-      set $inactive-bg-color   ${darker}
+      set $inactive-bg-color   ${background}
       set $text-color          ${white}
       set $inactive-text-color ${white}
       set $urgent-bg-color     ${red}
@@ -47,8 +47,8 @@ in
       client.urgent           $urgent-bg-color    $urgent-bg-color   $text-color          $urgent-bg-color
       
       # Settings
-      font pango:JetBrainsMono Nerd Font 11
-      titlebar_padding 4
+      font pango:JetBrainsMono Nerd Font 10
+      titlebar_padding 3
       title_align center
       default_border normal 2
       default_floating_border normal 2
@@ -62,7 +62,7 @@ in
       bindswitch --reload --locked lid:on output eDP-1 disable
       bindswitch --reload --locked lid:off output eDP-1 enable
 
-      #exec_always --no-startup-id autotiling-rs &
+      exec_always --no-startup-id autotiling-rs &
 
       exec swayidle -w \
         timeout 300 'swaylock -f -c 000000' \

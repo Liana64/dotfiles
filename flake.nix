@@ -23,6 +23,7 @@
   outputs = {
     self,
     nixpkgs,
+    nixpkgs-unstable,
     home-manager,
     lanzaboote,
     ...
@@ -94,6 +95,7 @@
     homeConfigurations = {
       "liana@framework" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        pkgs-unstable = nixpkgs-unstable.x86_64-linux;
         extraSpecialArgs = {inherit inputs colors;};
         modules = [
           ./hosts/framework/home.nix

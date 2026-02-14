@@ -101,15 +101,21 @@
   };
   xdg.configFile."kitty/startup.session".text = ''
     new_tab
-    launch --title vim
+    launch --title home
+
+    new_tab
+    launch --title dev
 
     new_tab
     launch --title ctl
-    
+
     new_tab
     launch --title mon
 
     new_tab
     launch --title rmt
+
+    new_tab
+    launch --title perf
   '';
 }

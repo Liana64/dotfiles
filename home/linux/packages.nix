@@ -8,5 +8,7 @@
     pciutils
     protonmail-bridge
     xdg-desktop-portal
+    todoist-electron
+    autotiling-rs
   ];
  }
