@@ -7,6 +7,7 @@ rec {
   mbg = "#282828";
 
   cursorColor = "#fbf1c7";
+  white = "#ffffff";
   comment = "#928374";
 
   color0 = "#3c3836";
