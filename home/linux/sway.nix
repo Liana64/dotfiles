@@ -1,4 +1,3 @@
-
 { config, lib, pkgs, colors, inputs, ... }:
 let
   app = pkgs.symlinkJoin {
@@ -192,12 +191,10 @@ in
         "eDP-1" = {
           resolution = "2880x1920@120Hz";
           position = "0,0";
-          #scale = "1.85";
         };
         "DP-5" = {
           resolution = "3440x1440@144Hz";
           position = "0,0";
-          #scale = "2.0";
         };
       };
 
