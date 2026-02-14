@@ -1,5 +1,21 @@
 
-{ config, lib, pkgs, colors, inputs, ... }: {
+{ config, lib, pkgs, colors, inputs, ... }:
+let
+  app = pkgs.symlinkJoin {
+    name = "sway-scripts";
+    paths = with pkgs; [
+      (writeShellScriptBin "sway-screenshot-all" (builtins.readFile ../../modules/linux/bin/sway-screenshot-all))
+      (writeShellScriptBin "sway-screenshot-area" (builtins.readFile ../../modules/linux/bin/sway-screenshot-area))
+      usbguard
+    ];
+    buildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/sway-screenshot-all      --prefix PATH : $out/bin
+      wrapProgram $out/bin/sway-screenshot-area     --prefix PATH : $out/bin
+    '';
+  };
+in
+{
   programs.swaylock = {
     enable = true;
     settings = {
@@ -67,8 +83,9 @@
           sup = "Mod4";
         in
         {
-          "print" = "exec 'grim -g \"$(slurp)\" - | wl-copy'";
-          "Shift+print" = "exec 'grim - | wl-copy'";
+          "print" = "exec '${app}/bin/sway-screenshot-area'";
+          "Shift+print" = "exec '${app}/bin/sway-screenshot-all'";
+
           "${sup}+Shift+3" = "exec 'grim - | wl-copy'";
           "${sup}+Shift+4" = "exec 'grim -g \"$(slurp)\" - | wl-copy";
 

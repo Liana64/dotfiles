@@ -21,7 +21,7 @@ in
   # good enough for *me*
   #
   # Format for trustedNetworksFile:
-  # "SomeSSID,SomeBSSID"
+  # SSID
 
   networking.networkmanager.dispatcherScripts = [
     {
@@ -30,36 +30,37 @@ in
         
         INTERFACE="$1"
         ACTION="$2"
+        NM_STATUS=$(${pkgs.networkmanager}/bin/nmcli -t -f type,state,connection dev)
+
         WG_INTERFACE="wg0"
         LOGFILE="/tmp/wg-autoconnect.log"
         
-        [[ "$CONNECTIVITY_STATE" != "FULL" ]] && exit 0
-
         is_up() {
-          ip link show "$WG_INTERFACE" &>/dev/null
+          ${pkgs.iproute2}/bin/ip link show "$WG_INTERFACE" &>/dev/null
         }
-        
+
+        is_ethernet() {
+          echo "$NM_STATUS" | grep -q '^ethernet:connected'
+        }
+
         is_trusted() {
-          local current_ssid=$(${pkgs.networkmanager}/bin/nmcli -t -f active,ssid dev wifi | grep '^yes' | cut -d: -f2)
-          
-          #echo "  Current: SSID='$current_ssid'" >> "$LOGFILE"
-
+          local current_ssid=$(echo "$NM_STATUS" | grep '^wifi:connected:' | sed 's/^wifi:connected://')
+          [[ -z "$current_ssid" ]] && return 1
           [[ ! -f "${trustedNetworksFile}" ]] && return 1
-
-          local trusted_ssids=$(cat "${trustedNetworksFile}" | grep -v '^#' | tr '\n' ',' | sed 's/,$//')
-
-          IFS=',' read -r ssids <<< "$trusted_ssids"
-          for ssid in "''${ssids[@]}"; do
-            ssid=$(echo "$ssid" | xargs)
+          while IFS= read -r ssid; do
+            [[ "$ssid" =~ ^#.*$ || -z "$ssid" ]] && continue
+            ssid=$(echo "$ssid" | ${pkgs.findutils}/bin/xargs)
             [[ "$current_ssid" == "$ssid" ]] && return 0
-          done
-          
+          done < "${trustedNetworksFile}"
           return 1
         }
         
+        [[ "$CONNECTIVITY_STATE" != "FULL" ]] && exit 0
+
         case "$ACTION" in
           connectivity-change)
-            if is_trusted; then
+            NM_STATUS=$(${pkgs.networkmanager}/bin/nmcli -t -f type,state,connection dev)
+            if is_ethernet || is_trusted; then
               #echo "  Trusted network - disconnecting VPN" >> "$LOGFILE"
               if is_up; then
                 ${pkgs.wireguard-tools}/bin/wg-quick down "${wireguardConfigFile}"

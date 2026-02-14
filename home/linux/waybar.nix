@@ -212,7 +212,7 @@ in
           format-wifi = "     {essid}";
           format-ethernet = "󰈀   {ifname}";
           format-linked = "󰌗   {ifname}";
-          format-disconnected = "";
+          format-disconnected = " ";
           tooltip-format = "{essid} {ifname}";
         };
         

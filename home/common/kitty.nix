@@ -14,6 +14,7 @@
       update_check_interval = 0;
       cursor_shape = "beam";  # or "block", "underline"
       scrollback_lines = 200000;
+      startup_session = "startup.session";
 
       # Window
       remember_window_size = "yes";
@@ -98,4 +99,17 @@
       "ctrl+shift+v" = "paste_from_clipboard";
     };
   };
+  xdg.configFile."kitty/startup.session".text = ''
+    new_tab
+    launch --title vim
+
+    new_tab
+    launch --title ctl
+    
+    new_tab
+    launch --title mon
+
+    new_tab
+    launch --title rmt
+  '';
 }
