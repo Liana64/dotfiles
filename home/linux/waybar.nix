@@ -138,7 +138,7 @@ in
 
         modules-left = [ "custom/launcher" "sway/workspaces" "sway/mode" ];
         modules-center = [ "clock" ];
-        modules-right = [ "custom/yubikey" "custom/usbguard" "custom/vpn" "network" "battery" "pulseaudio" "tray" ];
+        modules-right = [ "custom/yubikey" "custom/syncthing" "custom/usbguard" "custom/vpn" "network" "battery" "pulseaudio" "tray" ];
         
         "custom/launcher" = {
           format = " ";
@@ -205,6 +205,14 @@ in
         "custom/vpn" = {
           exec = "test -e /proc/sys/net/ipv4/conf/wg0 && echo ' ' || echo ' '";
           interval = 5;
+          tooltip = false;
+        };
+
+        "custom/syncthing" = {
+          exec = "test $(pgrep -c syncthing) -gt 0 && echo '󰓦  '";
+          interval = 5;
+          tooltip = false;
+          on-click = "firefox \"https://127.0.0.1:8384/\"";
         };
 
         network = {
