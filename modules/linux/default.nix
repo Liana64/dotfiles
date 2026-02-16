@@ -1,5 +1,6 @@
 {
   imports = [
+    ./drawio.nix
     ./email.nix
     ./fonts.nix
     ./hardening.nix
