@@ -1,9 +1,10 @@
 {
   config,
   pkgs,
+  colors,
   ...
 }: {
-  systemd.user.services.swaybg = {
+  systemd.user.services.swaybg = with colors; {
     Unit = {
       After = ["sway-session.target"];
       Requisite = ["sway-session.target"];
@@ -13,7 +14,7 @@
       WantedBy = ["sway-session.target"];
     };
     Service = {
-      ExecStart = "${pkgs.swaybg}/bin/swaybg -i /home/liana/.dotfiles/wallpapers/space.png -m fill";
+      ExecStart = "${pkgs.swaybg}/bin/swaybg -i ${wallpaper} -m fill";
       Restart = "on-failure";
     };
   };

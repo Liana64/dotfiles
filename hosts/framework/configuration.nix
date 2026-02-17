@@ -57,14 +57,14 @@
   };
 
   environment.systemPackages = with pkgs; [
-    vim
-    unzip
-    wget
-    seahorse
-    localsend
     gimp
-    traceroute
     gptfdisk
+    localsend
+    seahorse
+    traceroute
+    unzip
+    vim
+    wget
   ];
 
   nix = let

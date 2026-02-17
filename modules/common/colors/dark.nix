@@ -1,5 +1,7 @@
 {}:
 rec {
+  name = "dark";
+  wallpaper = "/home/liana/.dotfiles/wallpapers/trees.jpg";
   foreground = "#fbf1c7";
   background = "#222222";
   darker = "#181818";
@@ -33,5 +35,4 @@ rec {
 
   color7 = "#d4be98";
   color15 = "#d4be98";
-  name = "dark";
 }

@@ -2,6 +2,7 @@
   imports = [
     ./drawio.nix
     ./email.nix
+    ./files.nix
     ./fonts.nix
     ./hardening.nix
     ./keyring.nix

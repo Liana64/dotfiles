@@ -21,4 +21,15 @@
     LC_TELEPHONE = "en_US.UTF-8";
     LC_TIME = "en_US.UTF-8";
   };
+  
+  # Enable chronyd with Network Time Security (NTS)
+  services.chrony = {
+    enable = true;
+    enableNTS = true;
+    servers = [
+        "time.nist.gov"
+        "time.cloudflare.com"
+        "nts.netnod.se"
+     ];
+  };
 }

@@ -1,5 +1,7 @@
 {}:
 rec {
+  name = "groove";
+  wallpaper = "/home/liana/.dotfiles/wallpapers/trees.jpg";
   foreground = "#fbf1c7";
   background = "#222222";
   darker = "#181818";
@@ -33,5 +35,4 @@ rec {
 
   color7  = "#d4be98";
   tan     = "#d4be98";
-  name = "groove";
 }

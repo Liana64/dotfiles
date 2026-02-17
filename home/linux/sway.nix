@@ -15,14 +15,16 @@ let
   };
 in
 {
-  programs.swaylock = {
+  programs.swaylock = with colors; {
     enable = true;
     settings = {
       daemonize = true;
+      image = "${wallpaper}";
       indicator-caps-lock = true;
       indicator-radius = 80;
     };
   };
+
   systemd.user.targets.graphical.Unit.Wants = [ "xdg-desktop-autostart.target" ];
   wayland.windowManager.sway = with colors; {
     enable = true;
@@ -86,6 +88,9 @@ in
           sup = "Mod4";
         in
         {
+
+          "${sup}+Escape" = ''mode "(p)oweroff, (s)uspend, (h)ibernate, (r)eboot, (l)ogout"'';
+
           "print" = "exec '${app}/bin/sway-screenshot-area'";
           "Shift+print" = "exec '${app}/bin/sway-screenshot-all'";
 
@@ -109,6 +114,7 @@ in
           "${sup}+Return" = "exec ${cfg.terminal}";
 
           "${mod}+Shift+r" = "reload";
+          "${mod}+Control+Shift+r" = "exec 'nixy'";
           "${sup}+d" = "exec ${cfg.menu}";
 
           "${mod}+Space" = "exec ${cfg.menu}";
@@ -179,6 +185,7 @@ in
 
           "${mod}+r" = "mode resize";
         };
+
       input = {
         "type:touchpad" = {
           tap = "enabled";
@@ -191,6 +198,7 @@ in
           xkb_layout = "us";
         };
       };
+
       output = {
         "eDP-1" = {
           resolution = "2880x1920@120Hz";
@@ -221,6 +229,18 @@ in
           fonts.names = ["JetBrainsMono Nerd Font"];
         }
       ];
+
+      modes = {
+        "(p)oweroff, (s)uspend, (h)ibernate, (r)eboot, (l)ogout" = {
+          p = "exec swaymsg 'mode default' && systemctl poweroff";
+          s = "exec swaymsg 'mode default' && systemctl suspend-then-hibernate";
+          h = "exec swaymsg 'mode default' && systemctl hibernate";
+          r = "exec swaymsg 'mode default' && systemctl reboot";
+          l = "exec swaymsg 'mode default' && systemctl --user stop sway-session.target && systemctl --user stop graphical-session.target && swaymsg exit";
+          Return = "mode default";
+          Escape = "mode default";
+        };
+      };
       focus.followMouse = false;
     };
   };
