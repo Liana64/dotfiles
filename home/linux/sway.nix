@@ -171,10 +171,14 @@ in
 
           "${mod}+Shift+q" = "move container to workspace q";
           "${mod}+Shift+w" = "move container to workspace w";
+          "${mod}+Control+Shift+w" = "exec 'firefox'";
           "${mod}+Shift+e" = "move container to workspace e";
           "${mod}+Shift+a" = "move container to workspace a";
+          "${mod}+Control+Shift+a" = "exec 'firefox \"https://claude.ai\"'";
           "${mod}+Shift+s" = "move container to workspace s";
+          "${mod}+Control+Shift+s" = "exec 'element-desktop'";
           "${mod}+Shift+d" = "move container to workspace d";
+          "${mod}+Control+Shift+d" = "exec 'obsidian'";
           "${mod}+Shift+z" = "move container to workspace z";
           "${mod}+Shift+x" = "move container to workspace x";
           "${mod}+Shift+c" = "move container to workspace c";
