@@ -1,7 +1,7 @@
 {}:
 rec {
   name = "groove";
-  wallpaper = "/home/liana/.dotfiles/wallpapers/trees.jpg";
+  wallpaper = "/home/liana/.dotfiles/wallpapers/flower.png";
   foreground = "#fbf1c7";
   background = "#222222";
   darker = "#181818";
