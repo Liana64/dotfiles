@@ -27,13 +27,7 @@
   };
 
   home.packages = with pkgs; [
-    #firefox
-    #element-desktop
-    #bitwarden-cli
-    #vlc
-    #vesktop
     ffmpeg
-    #protonmail-bridge
     thunderbird
     htop
     halloy

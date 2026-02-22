@@ -101,10 +101,7 @@ in
         layer = "top";
         position = "top";
         height = 14;
-        output = [
-          "eDP-1"
-          "DP-5"
-        ];
+        output = [ "*" ];
 
         modules-left = [ "custom/launcher" "sway/workspaces" "sway/mode" ];
         modules-center = [ "clock" ];
