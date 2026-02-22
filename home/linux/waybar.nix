@@ -36,7 +36,7 @@ in
       #workspaces {
         font-family: "JetBrainsMono Nerd Font";
         background-color: ${darker};
-        margin : 2px 0;
+        margin: 0;
       }
 
       #workspaces button {
@@ -58,71 +58,41 @@ in
         color: ${white};
         margin : 4px 4.5px;
         padding : 2px 4px;
-        border-radius : 4px;
       }
 
-      #custom-vpn {
+      #clock, #network, #battery, #pulseaudio, #tray, #custom-vpn, #custom-usbguard, #custom-yubikey, #custom-kdeconnect, #custom-syncthing {
         color: ${white};
         background-color: ${darker};
         margin: 4px 2px 4px 4.5px;
-        padding: 2px 4px;
-        border-radius: 4px 0 0 4px;
+        padding: 2px 6px;
       }
-      #clock {
-        background-color: ${darker};
-        color: ${white};
-        margin: 4px 9px;
-        padding: 2px 4px;
-        border-radius: 4px;
+
+      #network.ethernet {
+        color: ${darker};
+        background-color: ${tan};
+        margin: 4px 2px 4px 4.5px;
+        padding: 2px 6px;
       }
-      #network {
-        color: ${white};
-        background-color: ${darker};
-        margin: 4px 2px;
-        padding: 2px 4px;
-      }
-      #network.disconnected {
+
+      #network.disconnected, #custom-syncthing.disconnected, #battery.critical {
         color: ${white};
         background-color: ${red};
-        margin: 4px 2px;
-        padding: 2px 4px;
+        margin: 4px 2px 4px 4.5px;
+        padding: 2px 6px;
       }
-      #battery {
-        color: ${white};
-        background-color: ${darker};
-        margin: 4px 2px;
-        padding: 2px 4px;
-      }
-      #battery.warning {
+
+      #battery.warning, #usbguard.blocked {
         color: ${white};
         background-color: ${orange};
-        margin: 4px 2px;
-        padding: 2px 4px;
+        margin: 4px 2px 4px 4.5px;
+        padding: 2px 6px;
       }
-      #battery.critical {
-        color: ${white};
-        background-color: ${red};
-        margin: 4px 2px;
-        padding: 2px 4px;
-      }
+
       #battery.charging {
         color: ${white};
         background-color: ${green};
-        margin: 4px 2px;
-        padding: 2px 4px;
-      }
-      #pulseaudio {
-        color: ${white};
-        background-color: ${darker};
-        margin: 4px 2px;
-        padding: 2px 4px;
-      }
-      #tray {
-        color: ${white};
-        background-color: ${darker};
-        margin: 4px 4.5px 4px 0;
-        padding: 2px 4px;
-        border-radius: 0 4px 4px 0;
+        margin: 4px 2px 4px 4.5px;
+        padding: 2px 6px;
       }
     '';
 
@@ -150,7 +120,7 @@ in
 
         # Credit: KyleOndy
         "custom/usbguard" = {
-          format = "  {text}";
+          format = " {text}";
           exec = "${app}/bin/waybar-usbguard";
           return-type = "json";
           on-click = "${app}/bin/waybar-usbguard allow";
@@ -203,24 +173,36 @@ in
         };
 
         "custom/vpn" = {
-          exec = "test -e /proc/sys/net/ipv4/conf/wg0 && echo ' ' || echo ' '";
+          exec = ''
+            if [ -e /proc/sys/net/ipv4/conf/wg0 ]; then
+              echo '{"text": " ", "class": "connected"}'
+            else
+              echo '{"text": " ", "class": "disconnected"}'
+            fi
+          '';
+          return-type = "json";
           interval = 5;
-          tooltip = false;
         };
 
         "custom/syncthing" = {
-          exec = "test $(pgrep -c syncthing) -gt 0 && echo '󰓦  '";
+          exec = ''
+            if pgrep -x syncthing >/dev/null; then
+              echo '{"text": "󰓦", "class": "connected"}'
+            else
+              echo '{"text": "󰓦", "class": "disconnected"}'
+            fi
+          '';
+          return-type = "json";
           interval = 5;
-          tooltip = false;
           on-click = "firefox \"https://127.0.0.1:8384/\"";
         };
 
         "custom/kdeconnect" = {
           exec = ''
             if kdeconnect-cli --list-available --id-only 2>/dev/null | grep -q .; then
-              echo '{"text": "󰄜 ", "class": "connected"}'
+              echo '{"text": "󰄜", "class": "connected"}'
             else
-              echo '{"text": "󰥐 ", "class": "disconnected"}'
+              echo '{"text": "󰥐", "class": "disconnected"}'
             fi
           '';
           return-type = "json";
@@ -230,7 +212,7 @@ in
         network = {
           interval = 2;
           format-wifi = "     {essid}";
-          format-ethernet = "󰈀   {ifname}";
+          format-ethernet = "󰈀    {ifname}";
           format-linked = "󰌗   {ifname}";
           format-disconnected = " ";
           tooltip-format = "{essid} {ifname}";
@@ -240,7 +222,7 @@ in
           format = "󱄠  {volume}%";
           format-bluetooth = "{icon} {volume}% {format_source}";
           format-bluetooth-muted = "{icon} {format_source}";
-          format-muted = "󰸈 ";
+          format-muted = "󰸈";
           format-source = "";
           format-source-muted = "";
           format-icons = {
