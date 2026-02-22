@@ -60,7 +60,7 @@ in
         padding : 2px 4px;
       }
 
-      #clock, #network, #battery, #pulseaudio, #tray, #custom-vpn, #custom-usbguard, #custom-yubikey, #custom-kdeconnect, #custom-syncthing {
+      #clock, #network, #battery, #pulseaudio, #tray, #custom-vpn, #custom-usbguard, #custom-yubikey, #custom-syncthing {
         color: ${white};
         background-color: ${darker};
         margin: 4px 2px 4px 4.5px;
@@ -108,7 +108,7 @@ in
 
         modules-left = [ "custom/launcher" "sway/workspaces" "sway/mode" ];
         modules-center = [ "clock" ];
-        modules-right = [ "custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/kdeconnect" "custom/vpn" "network" "battery" "pulseaudio" "tray" ];
+        modules-right = [ "custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/vpn" "network" "battery" "pulseaudio" "tray" ];
         
         "custom/launcher" = {
           format = " ";
@@ -195,18 +195,6 @@ in
           return-type = "json";
           interval = 5;
           on-click = "firefox \"https://127.0.0.1:8384/\"";
-        };
-
-        "custom/kdeconnect" = {
-          exec = ''
-            if kdeconnect-cli --list-available --id-only 2>/dev/null | grep -q .; then
-              echo '{"text": "󰄜", "class": "connected"}'
-            else
-              echo '{"text": "󰥐", "class": "disconnected"}'
-            fi
-          '';
-          return-type = "json";
-          interval = 5;
         };
 
         network = {

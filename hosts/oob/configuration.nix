@@ -68,8 +68,6 @@
     setSocketVariable = true;
   };
 
-  #networking.firewall.enable = false;
-
   nix = let
     flakeInputs = lib.filterAttrs (_: lib.isType "flake") inputs;
   in {

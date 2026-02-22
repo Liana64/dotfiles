@@ -5,7 +5,6 @@
     ./element.nix
     ./firefox.nix
     ./framework.nix
-    ./kdeconnect.nix
     ./gpg.nix
     ./mako.nix
     ./packages.nix
