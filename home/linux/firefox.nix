@@ -253,5 +253,10 @@
       "x-scheme-handler/http" = "firefox.desktop";
       "x-scheme-handler/https" = "firefox.desktop";
     };
+    associations.removed = {
+      "text/html" = "chromium-browser.desktop";
+      "x-scheme-handler/http" = "chromium-browser.desktop";
+      "x-scheme-handler/https" = "chromium-browser.desktop";
+    };
   };
 }

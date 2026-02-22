@@ -6,8 +6,24 @@ let
     n = "nvim";
   };
 
+  ls = {
+    l = "eza -la --git --group-directories-first";
+    ll ="eza -la --git --group-directories-first";
+    ls ="eza";
+    l1 ="eza -1";
+  };
+
+  grep = {
+    ug ="rg";
+    grep ="rg";
+    egrep ="rg -E";
+    fgrep = "rg -F";
+    xzgrep ="rg -z";
+    xzegrep ="rg -zE";
+    xzfgrep ="rg -zF";
+  };
+
   personal = {
-    l = "eza -la --git";
     k = "kubectl";
     dotfiles = "n ~/.dotfiles";
     xclip = "wl-copy";
@@ -29,33 +45,30 @@ let
 
   rust-tools = {
     curl = "xh";
-    ls = "eza -la --git";
     tree = "eza --tree";
 
     # This makes cat require "cat -p" for standard output, otherwise it gets piped to less
     cat = "bat";
+    catp = "bat -p";
 
     df = "duf";
     diff = "delta";
     du = "dust";
 
-    # This makes find require "find -- [someargs]"
-    find = "fd";
+    find = "fd --";
 
-    grep = "rg";
     top = "btop";
     htop = "btop";
     neofetch = "fastfetch";
 
-    # Beware, this breaks the "ps aux" command
+    # Beware, this breaks the "ps aux" command, use "\ps aux" if needed
     ps = "procs";
-
     nmap = "rustscan";
   };
 
   networking = {
-    ports = "ss -tunapl";
     fastping = "ping -c 100 -i 0.2";
+    ports = "ss -tunapl";
     listening = "ss -tlnp";
     netstat = "ss";
   };
@@ -79,7 +92,7 @@ let
     flushdns = "sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder";
   };
 
-  aliases = editors // personal // nixos // containers // rust-tools // networking // utility // git // darwin;
+  aliases = editors // ls // grep // personal // nixos // containers // rust-tools // networking // utility // git // darwin;
   
   helpText = lib.concatStringsSep "\\n" (
     lib.mapAttrsToList (name: value: "  ${name} = ${value}") aliases
