@@ -1,6 +1,16 @@
 local Snacks = require("snacks")
 
-require("snacks").setup({
+-- Disable default netrw
+vim.cmd("let g:loaded_netrw = 1")
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    if vim.fn.argc() == 0 then
+      Snacks.explorer()
+    end
+  end,
+})
+
+Snacks.setup({
   dashboard = {
     enabled = true,
     sections = {
@@ -69,6 +79,18 @@ require("snacks").setup({
           "--glob", "!.git",
         },
       },
+      explorer = {
+        win = {
+          list = {
+            wo = {
+              number = true,
+              relativenumber = true,
+            },
+          },
+        },
+        auto_close = false,
+        jump = { close = false },
+      },
     },
   },
 
@@ -86,21 +108,6 @@ require("snacks").setup({
     win = {
       position = "float",
     },
-  },
-
-  explorer = {
-    enabled = true,
-    replace_netrw = true,
-    win = {
-      list = {
-        wo = {
-          number = true,
-          relativenumber = true,
-        },
-      },
-    },
-    follow_file = true,
-    focus_file = true,
   },
 
   dim = { enabled = false },

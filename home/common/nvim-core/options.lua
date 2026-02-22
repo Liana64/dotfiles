@@ -1,5 +1,6 @@
-vim.cmd("let g:netrw_liststyle = 3")
 
+
+-- Vim options
 local opt = vim.opt
 opt.relativenumber = true
 opt.number = true
@@ -10,29 +11,29 @@ opt.tabstop = 2
 opt.shiftwidth = 2
 opt.softtabstop = 2
 
--- search
+-- Search
 opt.ignorecase = true
 opt.smartcase = true
 
--- visual
+-- Visual
 opt.cursorline = true
 opt.termguicolors = true
 opt.background = "dark"
 opt.signcolumn = "yes"
 
--- backspace
+-- Backspace
 opt.backspace = "indent,eol,start"
 
--- clipboard
+-- Clipboard
 opt.clipboard:append("unnamedplus") -- use system clipboard as default register
 
--- window splitting
+-- Window splitting
 opt.splitright = true
 opt.splitbelow = true
 
--- mouse
+-- Mouse
 opt.mousescroll = "ver:10,hor:6"
 
--- undo
+-- Undo
 opt.undofile = true
 opt.undodir = vim.fn.stdpath("data") .. "/undo"
