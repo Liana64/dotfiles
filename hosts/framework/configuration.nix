@@ -57,6 +57,7 @@
   };
 
   environment.systemPackages = with pkgs; [
+    android-tools
     gimp
     gptfdisk
     localsend
