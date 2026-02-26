@@ -11,6 +11,7 @@
     ./rofi.nix
     ./sway.nix
     ./swaybg.nix
+    ./syncthing.nix
     ./waybar.nix
   ];
   

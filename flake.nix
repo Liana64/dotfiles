@@ -71,7 +71,13 @@
           {
             home-manager.useUserPackages = true;
             home-manager.users.liana = import ./hosts/framework/home.nix;
-            home-manager.extraSpecialArgs = { inherit inputs colors; };
+            home-manager.extraSpecialArgs = {
+              inherit inputs colors;
+              nixpkgs-unstable = import nixpkgs-unstable {
+                system = "x86_64-linux";
+                config.allowUnfree = true;
+              };
+            };
           }
         ];
       };
@@ -95,8 +101,13 @@
     homeConfigurations = {
       "liana@framework" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        pkgs-unstable = nixpkgs-unstable.x86_64-linux;
-        extraSpecialArgs = {inherit inputs colors;};
+        extraSpecialArgs = {
+          inherit inputs colors;
+          nixpkgs-unstable = import nixpkgs-unstable {
+            system = "x86_64-linux";
+            config.allowUnfree = true;
+          };
+        };
         modules = [
           ./hosts/framework/home.nix
         ];

@@ -1,9 +1,8 @@
- { pkgs, ... }:
+ { pkgs, nixpkgs-unstable, ... }:
  {
   home.packages = with pkgs; [
     autotiling-rs
     bc
-    #claude-code
     cosign
     cider-2
     moreutils
@@ -11,5 +10,7 @@
     pciutils
     protonmail-bridge
     #todoist-electron
-  ];
+  #] ++ (with nixpkgs-unstable; [
+  #  claude-code
+  ]);
  }

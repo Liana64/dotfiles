@@ -8,7 +8,6 @@
     ./keyring.nix
     ./networking.nix
     ./nix.nix
-    ./syncthing.nix
     ./time.nix
     ./usbguard.nix
     ./wayland.nix
