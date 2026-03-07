@@ -33,7 +33,6 @@ in
         NM_STATUS=$(${pkgs.networkmanager}/bin/nmcli -t -f type,state,connection dev)
 
         WG_INTERFACE="wg0"
-        LOGFILE="/tmp/wg-autoconnect.log"
         
         is_up() {
           ${pkgs.iproute2}/bin/ip link show "$WG_INTERFACE" &>/dev/null
@@ -61,12 +60,10 @@ in
           connectivity-change)
             NM_STATUS=$(${pkgs.networkmanager}/bin/nmcli -t -f type,state,connection dev)
             if is_ethernet || is_trusted; then
-              #echo "  Trusted network - disconnecting VPN" >> "$LOGFILE"
               if is_up; then
                 ${pkgs.wireguard-tools}/bin/wg-quick down "${wireguardConfigFile}"
               fi
             else
-              #echo "  Untrusted network - connecting VPN" >> "$LOGFILE"
               if ! is_up; then
                 ${pkgs.wireguard-tools}/bin/wg-quick up "${wireguardConfigFile}"
               fi
