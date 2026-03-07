@@ -56,10 +56,6 @@ in
       default_floating_border normal 2
       seat * xcursor_theme Bibata-Modern-Classic 16
       
-      # Fix file explorers
-      for_window [app_id="xdg-desktop-portal-gtk"] floating enable, resize set 900 600
-      for_window [title="(?i)save|open|download"] floating enable, resize set 900 600
-      
       # Disable laptop display when using a dock
       bindswitch --reload --locked lid:on output eDP-1 disable
       bindswitch --reload --locked lid:off output eDP-1 enable
@@ -109,6 +105,10 @@ in
           "XF86AudioRaiseVolume" = "exec 'pactl set-sink-volume \\@DEFAULT_SINK@ +5%'";
           "XF86AudioLowerVolume" = "exec 'pactl set-sink-volume \\@DEFAULT_SINK@ -5%'";
           "XF86AudioMute" = "exec 'pactl set-sink-mute \\@DEFAULT_SINK@ toggle'";
+
+          #"${sup}+c" = "exec wtype -P XF56Copy";
+          #"${sup}+v" = "exec wtype -P XF56Paste";
+          #"${sup}+x" = "exec wtype -P XF56Cut";
 
           "${mod}+Return" = "exec ${cfg.terminal}";
           "${sup}+Return" = "exec ${cfg.terminal}";
@@ -272,6 +272,7 @@ in
 
   home.sessionVariables = {
     XDG_SESSION_TYPE = "wayland";
+    XDG_DATA_DIRS = "$HOME/.nix-profile/share:${config.home.profileDirectory}/share:$XDG_DATA_DIRS";
     DESKTOP_SESSION = "sway";
     XDG_CURRENT_DESKTOP = "sway";
     QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";

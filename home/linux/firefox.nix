@@ -259,4 +259,7 @@
       "x-scheme-handler/https" = "chromium-browser.desktop";
     };
   };
+  xdg.configFile."xfce4/helpers.rc".text = ''
+    WebBrowser=firefox
+  '';
 }

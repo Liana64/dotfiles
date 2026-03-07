@@ -88,7 +88,7 @@ in
         padding: 2px 6px;
       }
 
-      #battery.charging {
+      #battery.charging, #custom-vpn.connected {
         color: ${white};
         background-color: ${green};
         margin: 4px 2px 4px 4.5px;
@@ -172,9 +172,9 @@ in
         "custom/vpn" = {
           exec = ''
             if [ -e /proc/sys/net/ipv4/conf/wg0 ]; then
-              echo '{"text": " ", "class": "connected"}'
+              echo '{"text": "", "class": "connected"}'
             else
-              echo '{"text": " ", "class": "disconnected"}'
+              echo '{"text": "", "class": "disconnected"}'
             fi
           '';
           return-type = "json";

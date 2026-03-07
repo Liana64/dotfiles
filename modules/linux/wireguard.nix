@@ -44,7 +44,7 @@ in
         }
 
         is_trusted() {
-          local current_ssid=$(echo "$NM_STATUS" | grep '^wifi:connected:' | sed 's/^wifi:connected://')
+          local current_ssid=$(${pkgs.networkmanager}/bin/nmcli -t -f active,ssid dev wifi | grep '^yes:' | cut -d: -f2-)
           [[ -z "$current_ssid" ]] && return 1
           [[ ! -f "${trustedNetworksFile}" ]] && return 1
           while IFS= read -r ssid; do
