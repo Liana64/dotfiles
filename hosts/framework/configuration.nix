@@ -56,6 +56,7 @@
 
   environment.systemPackages = with pkgs; [
     android-tools
+    backblaze-b2
     gimp
     gptfdisk
     localsend
@@ -64,6 +65,7 @@
     unzip
     vim
     wget
+    wireshark
   ];
 
   nix = let
