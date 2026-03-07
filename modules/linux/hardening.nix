@@ -24,4 +24,9 @@
       flatpak install -y --noninteractive flathub org.signal.Signal
     '';
   };
+
+  # Fix xdg-open in flatpak
+  systemd.user.extraConfig = ''
+    DefaultEnvironment="PATH=/run/current-system/sw/bin"
+  '';
 }

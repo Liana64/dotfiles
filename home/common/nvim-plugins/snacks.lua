@@ -2,41 +2,28 @@ local Snacks = require("snacks")
 
 -- Disable default netrw
 vim.cmd("let g:loaded_netrw = 1")
+
+-- vim.api.nvim_create_autocmd("VimEnter", {
+--   callback = function()
+--     vim.schedule(function()
+--       Snacks.explorer()
+--     end)
+--   end,
+-- })
+
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
-    if vim.fn.argc() == 0 then
+    vim.schedule(function()
+      local old = vim.v.oldfiles
+      if #old > 0 then
+        vim.cmd("edit " .. vim.fn.fnameescape(old[1]))
+      end
       Snacks.explorer()
-    end
+    end)
   end,
 })
 
 Snacks.setup({
-  dashboard = {
-    enabled = true,
-    sections = {
-      { section = "header" },
-      { section = "keys", gap = 1, padding = 1 },
-    },
-    preset = {
-      header = [[
-                                                                         
-██╗     ██╗ █████╗ ███╗   ██╗ █████╗     ██╗      █████╗ ██████╗ ███████╗
-██║     ██║██╔══██╗████╗  ██║██╔══██╗    ██║     ██╔══██╗██╔══██╗██╔════╝
-██║     ██║███████║██╔██╗ ██║███████║    ██║     ███████║██████╔╝███████╗
-██║     ██║██╔══██║██║╚██╗██║██╔══██║    ██║     ██╔══██║██╔══██╗╚════██║
-███████╗██║██║  ██║██║ ╚████║██║  ██║    ███████╗██║  ██║██████╔╝███████║
-╚══════╝╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝    ╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝
-                                                                         ]],
-      keys = {
-        { icon = " ", key = "e", desc = "New File", action = ":ene" },
-        { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.picker.files()" },
-        { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.picker.grep()" },
-        { icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.picker.recent()" },
-        { icon = " ", key = "q", desc = "Quit", action = ":qa" },
-      },
-    },
-  },
-
   indent = {
     enabled = true,
     char = "┊",

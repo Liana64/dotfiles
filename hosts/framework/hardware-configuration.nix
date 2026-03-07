@@ -12,9 +12,17 @@
   boot.initrd.kernelModules = [ "dm-snapshot" "cryptd" ];
   boot.initrd.luks.devices."cryptroot".device = "/dev/disk/by-label/NIXOS_LUKS";
   boot.kernelModules = [ "kvm-amd" ];
+
+  # Fix screen flickering and hopefully fix random AMD GPU freezes
   boot.kernelParams = [
-    "amdgpu.sg_display=0"        # Fix screen flickering and hopefully fix random AMD GPU freezes
-    #amdgpu.cwsr_enable=0
+    # Disable Scatter/Gather display
+    "amdgpu.sg_display=0"
+
+    # Disable panel self-refresh
+    "amdgpu.dcdebugmask=0x10"
+
+    # Disable Adaptive Backlight Management
+    "amdgpu.abm_level=0"
   ];
   boot.extraModulePackages = [ ];
 
