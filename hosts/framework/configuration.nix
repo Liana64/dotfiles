@@ -60,6 +60,8 @@
     gimp
     gptfdisk
     localsend
+    libnotify
+    nh
     seahorse
     traceroute
     unzip

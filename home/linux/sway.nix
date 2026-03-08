@@ -5,12 +5,14 @@ let
     paths = with pkgs; [
       (writeShellScriptBin "sway-screenshot-all" (builtins.readFile ../../modules/linux/bin/sway-screenshot-all))
       (writeShellScriptBin "sway-screenshot-area" (builtins.readFile ../../modules/linux/bin/sway-screenshot-area))
+      (writeShellScriptBin "nix-rebuild-sway" (builtins.readFile ../../modules/linux/bin/nix-rebuild-sway))
       usbguard
     ];
     buildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/sway-screenshot-all      --prefix PATH : $out/bin
       wrapProgram $out/bin/sway-screenshot-area     --prefix PATH : $out/bin
+      wrapProgram $out/bin/nix-rebuild-sway         --prefix PATH : $out/bin
     '';
   };
 in
@@ -32,6 +34,7 @@ in
     xwayland = true;
     package = pkgs.sway;
     wrapperFeatures.gtk = true;
+
     extraConfig = ''
       # Colors
       set $bg-color 	       ${mbg}
@@ -75,6 +78,12 @@ in
       terminal = "kitty";
       menu = "rofi -show drun";
       #menu = "vicinae toggle";
+      startup = [
+        { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; }
+      ];
+      window.commands = [
+        { criteria = { title = "nix-rebuild"; }; command = "floating enable, resize set 800 400"; }
+      ];
       modifier = "Mod1";
 
       keybindings =
@@ -114,7 +123,7 @@ in
           "${sup}+Return" = "exec ${cfg.terminal}";
 
           "${mod}+Shift+r" = "reload";
-          "${mod}+Control+Shift+r" = "exec 'nixy'";
+          "${mod}+Control+Shift+r" = "exec 'kitty --title nix-rebuild ${app}/bin/nix-rebuild-sway'";
           "${sup}+d" = "exec ${cfg.menu}";
 
           "${mod}+Space" = "exec ${cfg.menu}";
