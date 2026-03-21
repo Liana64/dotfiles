@@ -62,7 +62,6 @@ in
     dbus
     slurp
     libsecret
-    imagemagick
   ] ++ lib.optionals useSway [
     swaybg
     swayidle

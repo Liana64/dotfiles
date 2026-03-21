@@ -28,9 +28,8 @@
 
   home.packages = with pkgs; [
     ffmpeg
-    thunderbird
     htop
-    halloy
+    #halloy
   ];
 
   programs.home-manager.enable = true;

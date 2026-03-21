@@ -5,11 +5,11 @@
     ansible
     bat
     bitwarden-cli
-    bitwarden-desktop
     btop
     cilium-cli
     delta
     dig
+    distrobox
     duf
     dust
     eza
@@ -20,23 +20,22 @@
     fortune
     fzf
     go-task
-    halloy
+    #halloy
     hexyl
+    imagemagick
+    just
     jq
+    ktop
     kubeconform
     kubectl
     kubernetes-helm
     lazygit
-    libreoffice
     lua-language-server
     marksman
-    moonlight-qt
     nil
     nixd
-    obsidian
     pre-commit
     procs
-    protonmail-desktop
     ripgrep
     ripgrep-all
     rust-analyzer
@@ -46,11 +45,7 @@
     talhelper
     talosctl
     tealdeer
-    thunderbird
-    ungoogled-chromium
     usbutils
-    vesktop
-    vlc
     watchexec
     xh
     yaml-language-server

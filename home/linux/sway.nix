@@ -51,6 +51,18 @@ in
       client.focused_inactive $inactive-bg-color  $inactive-bg-color $inactive-text-color $inactive-bg-color
       client.urgent           $urgent-bg-color    $urgent-bg-color   $text-color          $urgent-bg-color
       
+      for_window [app_id="firefox"] inhibit_idle fullscreen
+      for_window [app_id="obsidian"] inhibit_idle fullscreen
+      for_window [app_id="vlc"] inhibit_idle fullscreen
+
+      assign [app_id="Kitty"] workspace q
+      assign [app_id="Thunderbird"] workspace e
+      assign [app_id="Element"] workspace s
+      assign [app_id="signal"] workspace s
+      assign [app_id="vesktop"] workspace s
+      assign [class="obsidian"] workspace d
+      assign [class="Cider"] workspace z
+
       # Settings
       font pango:JetBrainsMono Nerd Font 10
       titlebar_padding 3
@@ -73,10 +85,6 @@ in
 
       exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
       exec gnome-keyring-daemon --start --components=secrets,ssh,pkcs11
-
-      for_window [app_id="firefox"] inhibit_idle fullscreen
-      for_window [app_id="obsidian"] inhibit_idle fullscreen
-      for_window [app_id="vlc"] inhibit_idle fullscreen
     '';
     config = {
       terminal = "kitty";
@@ -259,6 +267,11 @@ in
   home.sessionVariables = {
     XDG_SESSION_TYPE = "wayland";
     XDG_DATA_DIRS = "$HOME/.nix-profile/share:${config.home.profileDirectory}/share:$XDG_DATA_DIRS";
+
+    # Fix blurry electron apps
+    ELECTRON_OZONE_PLATFORM_HINT = "auto";
+    OZONE_PLATFORM = "wayland";
+
     DESKTOP_SESSION = "sway";
     XDG_CURRENT_DESKTOP = "sway";
     QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";

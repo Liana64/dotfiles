@@ -6,7 +6,6 @@
     cosign
     cider-2
     moreutils
-    pavucontrol
     pciutils
     protonmail-bridge
     #winbox4

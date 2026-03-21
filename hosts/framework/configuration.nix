@@ -16,6 +16,7 @@
 
     # Import your generated (nixos-generate-config) hardware configuration
     ./hardware-configuration.nix
+    ../../modules/common
     ../../modules/linux
     ../../modules/hardware
   ];
@@ -57,9 +58,7 @@
   environment.systemPackages = with pkgs; [
     android-tools
     backblaze-b2
-    gimp
     gptfdisk
-    localsend
     libnotify
     nh
     seahorse

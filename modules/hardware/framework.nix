@@ -30,15 +30,16 @@
   # This uses the gnome bolt daemon
   services.hardware.bolt.enable = true;
   environment.systemPackages = with pkgs; [
-    sbctl             # Sign our own EFI shim
     dmidecode         # BIOS troubleshooting
-    hdparm
+    ethtool           # Manage networking
+    hdparm            # Manage drives
+    nvme-cli          # Manage NVMes
+    perf              # Benchmarking
+    sbctl             # Sign our own EFI shim
     smartmontools     # Check smart data on disks
-    nvme-cli
     sysstat           # Troubleshoot performance
-    perf
-    ethtool
-    tcpdump
+    tcpdump           # Troubleshoot networking
+    inotify-tools     # Use inotify
   ];
 
   # Use minimal kernel parameters, including one that turns off ASPM,

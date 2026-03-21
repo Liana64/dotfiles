@@ -21,12 +21,18 @@
             name = "GitHub";
             urls = [{template = "https://github.com/search?q={searchTerms}&type=repositories";}];
             icon = "https://github.com/favicon.ico";
-            definedAliases = ["@g"];
+            definedAliases = ["@gh"];
+          };
+          flathub = {
+            name = "Flathub";
+            urls = [{template = "https://flathub.org/en/apps/search?q={searchTerms}";}];
+            icon = "https://dl.flathub.org/assets/_next/public/favicon.svg";
+            definedAliases = ["@fh"];
           };
           kubesearch = {
             name = "Kubesearch";
             urls = [{template = "https://kubesearch.dev/#{searchTerms}";}];
-            definedAliases = ["@k"];
+            definedAliases = ["@ku"];
           };
           nixpkgs = {
             name = "Nix Packages";
