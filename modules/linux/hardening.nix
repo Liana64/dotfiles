@@ -5,7 +5,7 @@
     #forcePageTableIsolation = true;
     apparmor = {
       enable = true;
-      killUnconfinedConfinables = true;
+      killUnconfinedConfinables = true; # Monitor with journalctl -u apparmor
       packages = [pkgs.apparmor-profiles];
     };
   };

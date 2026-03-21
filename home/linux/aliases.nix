@@ -77,7 +77,7 @@ let
     bc = "bc -l";
     h = "history";
     j = "jobs -l";
-    uu = "uuidgen -x | tr '[:lower:]' '[:upper:]'";
+    uu = "uuidgen -r | tr '[:lower:]' '[:upper:]'";
     gpg-encrypt = "gpg -c --no-symkey-cache --cipher-algo=AES256";
     gpg-decrypt = "gpg -d";
   };

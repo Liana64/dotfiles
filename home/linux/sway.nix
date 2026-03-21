@@ -1,4 +1,4 @@
-{ config, lib, pkgs, colors, inputs, ... }:
+{ config, pkgs, colors, ... }:
 let
   app = pkgs.symlinkJoin {
     name = "sway-scripts";
@@ -47,8 +47,8 @@ in
       #                       border              background         text                 indicator
 
       client.focused          $bg-color           $bg-color          $text-color          $bg-color 
-      client.unfocused        $inactive-bg-color $inactive-bg-color $inactive-text-color  $inactive-bg-color
-      client.focused_inactive $inactive-bg-color $inactive-bg-color $inactive-text-color  $inactive-bg-color
+      client.unfocused        $inactive-bg-color  $inactive-bg-color $inactive-text-color $inactive-bg-color
+      client.focused_inactive $inactive-bg-color  $inactive-bg-color $inactive-text-color $inactive-bg-color
       client.urgent           $urgent-bg-color    $urgent-bg-color   $text-color          $urgent-bg-color
       
       # Settings
@@ -63,16 +63,20 @@ in
       bindswitch --reload --locked lid:on output eDP-1 disable
       bindswitch --reload --locked lid:off output eDP-1 enable
 
-      exec_always --no-startup-id autotiling-rs &
+      exec_always --no-startup-id autotiling-rs
 
       exec swayidle -w \
-        timeout 300 'swaylock -f -c 000000' \
+        timeout 300 'swaylock -f' \
         timeout 600 'swaymsg "output * power off"' \
         resume 'swaymsg "output * power on"' \
         before-sleep 'swaylock -f -c 000000'
 
       exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
       exec gnome-keyring-daemon --start --components=secrets,ssh,pkcs11
+
+      for_window [app_id="firefox"] inhibit_idle fullscreen
+      for_window [app_id="obsidian"] inhibit_idle fullscreen
+      for_window [app_id="vlc"] inhibit_idle fullscreen
     '';
     config = {
       terminal = "kitty";
@@ -100,7 +104,7 @@ in
           "Shift+print" = "exec '${app}/bin/sway-screenshot-all'";
 
           "${sup}+Shift+3" = "exec 'grim - | wl-copy'";
-          "${sup}+Shift+4" = "exec 'grim -g \"$(slurp)\" - | wl-copy";
+          "${sup}+Shift+4" = "exec 'grim -g \"$(slurp)\" - | wl-copy'";
 
           "XF86MonBrightnessUp" = "exec 'brightnessctl set 5%+'";
           "XF86MonBrightnessDown" = "exec 'brightnessctl set 5%-'";
@@ -195,8 +199,6 @@ in
           "${sup}+Shift+q" = "kill";
           "${sup}+Shift+e" =
             "exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -b 'Yes, exit sway' 'swaymsg exit'";
-
-          "${mod}+r" = "mode resize";
         };
 
       input = {
@@ -223,18 +225,6 @@ in
         };
       };
 
-      #gaps = {
-      #  bottom = 2;
-      #  horizontal = 2;
-      #  vertical = 2;
-      #  inner = 2;
-      #  left = 2;
-      #  outer = 2;
-      #  right = 2;
-      #  top = 2;
-      #  smartBorders = "off";
-      #  smartGaps = false;
-      #};
       bars = [
         {
           position = "top";
@@ -258,19 +248,6 @@ in
     };
   };
 
-  #home.packages = with pkgs; [
-  #  fuzzel
-  #  bemenu
-  #  swaylock
-  #  swayidle
-  #  swaybg
-  #  grim
-  #  slurp
-  #  wl-clipboard
-  #  brightnessctl
-  #  playerctl
-  #  mako
-  #];
   home.pointerCursor = {
     gtk.enable = true;
     x11.enable = true;
@@ -294,65 +271,4 @@ in
     MOZ_ENABLE_WAYLAND = "1";
     _JAVA_AWT_WM_NONREPARENTING = "1";
   };
-
-  #xdg.configFile."sway/config" = lib.mkForce {
-  #  source = ./sway/config;
-  #};
-  
-#  programs.i3status = {
-#    enable = true;
-#    general = {
-#      colors = true;
-#      interval = 5;
-#    };
-#    modules = {
-#      "wireless _first_" = {
-#        position = 1;
-#        settings = {
-#          format_up = "W: (%quality at %essid) %ip";
-#          format_down = "W: down";
-#        };
-#      };
-#      "ethernet _first_" = {
-#        position = 2;
-#        settings = {
-#          format_up = "E: %ip (%speed)";
-#          format_down = "E: down";
-#        };
-#      };
-#      "battery all" = {
-#        position = 3;
-#        settings = {
-#          format = "%status %percentage %remaining";
-#        };
-#      };
-#      "disk /" = {
-#        position = 4;
-#        settings = {
-#          format = "%avail";
-#        };
-#      };
-#      "load" = {
-#        position = 5;
-#        settings = {
-#          format = "%1min";
-#        };
-#      };
-#      "memory" = {
-#        position = 6;
-#        settings = {
-#          format = "%used / %available";
-#          threshold_degraded = "1G";
-#          format_degraded = "MEMORY < %available";
-#        };
-#      };
-#      "tztime local" = {
-#        position = 7;
-#        settings = {
-#          format = "%Y-%m-%d %H:%M:%S";
-#        };
-#      };
-#    };
-#  };
-  #services.mako.enable = true;
 }

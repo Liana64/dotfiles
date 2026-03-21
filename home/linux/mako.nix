@@ -9,7 +9,7 @@
       border-color = "#282828";
       border-radius = 5;
       font = "JetBrainsMono Nerd Font 10";
-      icons = false;
+      icons = true;
     };
   };
 }

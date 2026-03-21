@@ -55,6 +55,17 @@
       };
     };
 
+  # Make sure that we lock everything before sleep
+  systemd.user.services.lock-before-sleep = {
+    description = "Lock the screen prior to sleep";
+    serviceConfig = {
+      type = "simple";
+      Before = "sleep.target";
+      ExecStart = "swaylock -f";
+      WantedBy = "sleep.target";
+    };
+  };
+
   # Configure how the system sleeps when the lid is closed;
   # specifically, it should sleep or suspend in all cases
   # --> when running on battery power
