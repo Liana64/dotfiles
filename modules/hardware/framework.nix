@@ -22,6 +22,9 @@
 
   # Enable the fingerprint reader
   services.fprintd.enable = true;
+  security.pam.services.swaylock = {
+    fprintAuth = true;
+  };
 
   # Enable Thunderbolt 3 support for CalDigit TS4 (enroll with `boltctl`)
   # This uses the gnome bolt daemon

@@ -30,7 +30,7 @@
       historySubstringSearch.enable = true;
     };
 
-
+  programs.direnv.enable = true;
   programs.tmux.enable = true;
 
   programs.zoxide = {

@@ -13,10 +13,15 @@ vim.cmd("let g:loaded_netrw = 1")
 
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
+    local argc = vim.fn.argc()
+    local arg = vim.fn.argv(0)
     vim.schedule(function()
-      local old = vim.v.oldfiles
-      if #old > 0 then
-        vim.cmd("edit " .. vim.fn.fnameescape(old[1]))
+      if argc > 0 and arg ~= "." then return end
+      if argc == 0 then
+        local old = vim.v.oldfiles
+        if #old > 0 then
+          vim.cmd("edit " .. vim.fn.fnameescape(old[1]))
+        end
       end
       Snacks.explorer()
     end)

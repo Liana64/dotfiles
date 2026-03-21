@@ -9,8 +9,9 @@
     pavucontrol
     pciutils
     protonmail-bridge
+    #winbox4
     #todoist-electron
   #] ++ (with nixpkgs-unstable; [
   #  claude-code
-  ]);
+  ];
  }

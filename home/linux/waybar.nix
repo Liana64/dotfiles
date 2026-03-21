@@ -172,9 +172,9 @@ in
         "custom/vpn" = {
           exec = ''
             if [ -e /proc/sys/net/ipv4/conf/wg0 ]; then
-              echo '{"text": "", "class": "connected"}'
+              echo '{"text": " ", "class": "connected"}'
             else
-              echo '{"text": "", "class": "disconnected"}'
+              echo '{"text": " ", "class": "disconnected"}'
             fi
           '';
           return-type = "json";

@@ -39,7 +39,7 @@ let
   };
 
   containers = {
-    sec-tools = "kubectl exec -it deploy/sec-tools -- zsh";
+    claw = "kubectl exec -it deploy/claude-clode -- claude";
     blog = "kubectl rollout restart deployment blog -n default";
   };
 
