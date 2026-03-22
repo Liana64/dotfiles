@@ -51,9 +51,8 @@ in
       client.focused_inactive $inactive-bg-color  $inactive-bg-color $inactive-text-color $inactive-bg-color
       client.urgent           $urgent-bg-color    $urgent-bg-color   $text-color          $urgent-bg-color
       
-      for_window [app_id="firefox"] inhibit_idle fullscreen
-      for_window [app_id="obsidian"] inhibit_idle fullscreen
-      for_window [app_id="vlc"] inhibit_idle fullscreen
+      # Inhibit idle if any window is fullscreen
+      for_window [app_id=".*"] inhibit_idle fullscreen
 
       assign [app_id="Kitty"] workspace q
       assign [app_id="Thunderbird"] workspace e
