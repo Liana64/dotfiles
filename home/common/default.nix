@@ -1,6 +1,7 @@
 {
   imports = [
     ./atuin.nix
+    ./anki.nix
     ./git.nix
     ./k9s.nix
     ./kitty.nix

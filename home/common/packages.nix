@@ -20,7 +20,6 @@
     fortune
     fzf
     go-task
-    #halloy
     hexyl
     imagemagick
     just
