@@ -64,10 +64,13 @@ in
 
       # Settings
       font pango:JetBrainsMono Nerd Font 10
-      titlebar_padding 3
-      title_align center
-      default_border normal 2
-      default_floating_border normal 2
+      #titlebar_padding 3
+      #title_align center
+
+      # Draw titlebars
+      #default_border normal 2
+      #default_floating_border normal 2
+
       seat * xcursor_theme Bibata-Modern-Classic 16
       
       # Disable laptop display when using a dock
@@ -80,9 +83,10 @@ in
         timeout 300 'swaylock -f' \
         timeout 600 'swaymsg "output * power off"' \
         resume 'swaymsg "output * power on"' \
-        before-sleep 'swaylock -f -c 000000'
+        before-sleep 'swaylock -f'
 
-      exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+      exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY \
+      SWAYSOCK XDG_CURRENT_DESKTOP=sway
       exec gnome-keyring-daemon --start --components=secrets,ssh,pkcs11
     '';
     config = {
@@ -96,6 +100,16 @@ in
         { criteria = { title = "nix-rebuild"; }; command = "floating enable, resize set 800 400"; }
       ];
       modifier = "Mod1";
+
+      gaps = {
+        inner = 4;
+        smartGaps = true;
+        smartBorders = "on";
+      };
+      window.titlebar = false;
+      window.border = 2;
+      floating.border = 2;
+      floating.titlebar = false;
 
       keybindings =
         let
@@ -215,9 +229,14 @@ in
           middle_emulation = "enabled";
           natural_scroll = "disabled";
           drag_lock = "disabled";
+
+          # Slower scrolling
+          scroll_factor = "0.7";
         };
         "*" = {
           xkb_layout = "us";
+          repeat_delay = "200";
+          repeat_rate = "40";
         };
       };
 

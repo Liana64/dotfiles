@@ -16,6 +16,10 @@
       scrollback_lines = 200000;
       startup_session = "startup.session";
 
+      # Mouse
+      wheel_scroll_multiplier = 5;
+      touch_scroll_multiplier = 3;
+
       # Window
       remember_window_size = "yes";
       window_padding_width = 8;
@@ -33,10 +37,10 @@
       tab_bar_edge = "bottom";
       tab_bar_style = "fade";
 
-      # Performance defaults
-      repaint_delay = 10;
-      input_delay = 3;
-      sync_to_monitor = "yes";
+      # Performance
+      repaint_delay = 5;
+      input_delay = 1;
+      sync_to_monitor = "no";
 
       # Dracula theme
       background = "#1e1f28";
@@ -72,8 +76,8 @@
       #"ctrl+delete" = "send_text all \\x1bd";
 
       # Panes
-      "cmd+d" = "launch --location=vsplit --cwd=current";
-      "cmd+shift+d" = "launch --location=hsplit --cwd=current";
+      "cmd+d" = "launch --dont-take-focus --location=vsplit --cwd=current";
+      "cmd+shift+d" = "launch --dont-take-focus --location=hsplit --cwd=current";
 
       # Tabs
       "ctrl+tab" = "next_tab";

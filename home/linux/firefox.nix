@@ -136,6 +136,26 @@
         # Remove close button
         "browser.tabs.inTitlebar" = 0;
 
+        # Smooth scrolling
+        "general.smoothScroll" = true;
+        "general.smoothScroll.msdPhysics.enabled" = true;
+        "mousewheel.min_line_scroll_amount" = 30;
+
+        # GPU acceleration
+        "gfx.webrender.all" = true;
+        "media.ffmpeg.vaapi.enabled" = true;
+        "widget.dmabuf.force-enabled" = true;
+
+        # Reduce UI jank
+        "ui.prefersReducedMotion" = 0;
+        "layout.frame_rate" = 0;
+
+        # default 0.002
+        "apz.fling_friction" = "0.003";
+
+        # default 0.5
+        "apz.fling_min_velocity_threshold" = "1.0";
+
         # Vertical tabs
         #"sidebar.verticalTabs" = true;
         #"sidebar.revamp" = true;
