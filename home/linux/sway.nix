@@ -233,6 +233,11 @@ in
           # Slower scrolling
           scroll_factor = "0.7";
         };
+
+        "type:mouse" = {
+          accel_profile = "flat";
+        };
+
         "*" = {
           xkb_layout = "us";
           repeat_delay = "200";
