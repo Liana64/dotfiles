@@ -278,6 +278,7 @@
       "text/html" = "firefox.desktop";
       "x-scheme-handler/http" = "firefox.desktop";
       "x-scheme-handler/https" = "firefox.desktop";
+      "x-scheme-handler/terminal" = "kitty.desktop";
     };
     associations.removed = {
       "text/html" = "chromium-browser.desktop";

@@ -16,6 +16,6 @@
         rounding = 10;
       };
     };
-    extensions = [ ];
+    #extensions = [ ];
   };
 }

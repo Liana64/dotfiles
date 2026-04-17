@@ -229,13 +229,12 @@ in
           middle_emulation = "enabled";
           natural_scroll = "disabled";
           drag_lock = "disabled";
-
-          # Slower scrolling
           scroll_factor = "0.7";
         };
 
-        "type:mouse" = {
+        "type:pointer" = {
           accel_profile = "flat";
+          pointer_accel = "-0.15";
         };
 
         "*" = {
@@ -276,6 +275,7 @@ in
         };
       };
       focus.followMouse = false;
+      focus.newWindow = "focus";
     };
   };
 

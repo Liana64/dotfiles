@@ -111,6 +111,9 @@
     launch --title dev
 
     new_tab
+    launch --title ai
+
+    new_tab
     launch --title ctl
 
     new_tab
