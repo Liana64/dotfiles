@@ -191,37 +191,23 @@
       /**
       * Hide sidebar-panel-header (sidebar.revamp: true)
       */
+
+      #sidebar-main,
+      #sidebar-launcher-splitter {
+        display: none !important;
+      }
+
+      /* Hide sidebar-panel-header (sidebar.revamp: true) */
       #sidebar-panel-header {
         display: none;
       }
 
-      /**
-      * Dynamic styles
-      *
-      * Choose when styles below will be activated (comment/uncomment line)
-      * - When Sidebery set title preface "."
-      * - When Sidebery sidebar is active
-      */
+      /* Styles that should only apply while Sidebery is active */
       #main-window[titlepreface="."] {
-      /* #main-window:has(#sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"][checked="true"]) { */
+        #TabsToolbar > * { display: none !important; }
+        #nav-bar { border-color: transparent !important; }
 
-        /* Hide horizontal native tabs toolbar */
-        #TabsToolbar > * {
-          display: none !important;
-        }
-
-        /* Hide top window border */
-        #nav-bar {
-          border-color: transparent !important;
-        }
-
-        /* Hide new Firefox sidebar, restyle addon's sidebar */
-        #sidebar-main, #sidebar-launcher-splitter {
-          display: none !important;
-        }
-        #sidebar-box {
-          padding: 0 !important;
-        }
+        #sidebar-box { padding: 0 !important; }
         #sidebar-box #sidebar {
           box-shadow: none !important;
           border: none !important;
@@ -237,6 +223,7 @@
           border: 0 !important;
           opacity: 0 !important;
         }
+        #sidebar-header { display: none !important; }
 
         /* Update background color of the #browser area (it's visible near the
         rounded corner of the web page) so it blends with sidebery color with 
