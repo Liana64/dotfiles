@@ -141,14 +141,16 @@
         "general.smoothScroll.msdPhysics.enabled" = true;
         "mousewheel.min_line_scroll_amount" = 30;
 
-        # GPU acceleration
-        #"gfx.webrender.all" = true;
-        #"media.ffmpeg.vaapi.enabled" = true;
-        #"widget.dmabuf.force-enabled" = true;
+        # Enable GPU acceleration
+        "gfx.webrender.all" = true;
+        "media.ffmpeg.vaapi.enabled" = true;
+        "widget.dmabuf.force-enabled" = true;
 
-        # Reduce UI jank
-        "ui.prefersReducedMotion" = 0;
-        "layout.frame_rate" = 0;
+        # Reduce iGPU usage
+        "ui.prefersReducedMotion" = 1;
+
+        # Max framerate
+        "layout.frame_rate" = 120;
 
         # default 0.002
         "apz.fling_friction" = "0.003";

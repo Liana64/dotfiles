@@ -40,7 +40,7 @@
     sysstat           # Troubleshoot performance
     tcpdump           # Troubleshoot networking
     inotify-tools     # Use inotify
-    lm_sensors
+    lm_sensors        # Temperature sensors
   ];
 
   # Use minimal kernel parameters, including one that turns off ASPM,
