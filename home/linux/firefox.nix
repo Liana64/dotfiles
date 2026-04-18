@@ -142,9 +142,9 @@
         "mousewheel.min_line_scroll_amount" = 30;
 
         # GPU acceleration
-        "gfx.webrender.all" = true;
-        "media.ffmpeg.vaapi.enabled" = true;
-        "widget.dmabuf.force-enabled" = true;
+        #"gfx.webrender.all" = true;
+        #"media.ffmpeg.vaapi.enabled" = true;
+        #"widget.dmabuf.force-enabled" = true;
 
         # Reduce UI jank
         "ui.prefersReducedMotion" = 0;

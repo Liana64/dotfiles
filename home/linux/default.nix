@@ -2,6 +2,7 @@
   imports = [
     ../common
     ./aliases.nix
+    ./claude.nix
     ./element.nix
     ./firefox.nix
     ./framework.nix
