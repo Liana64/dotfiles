@@ -3,6 +3,7 @@
     ../common
     ./aliases.nix
     ./claude.nix
+    ./dconf.nix
     ./element.nix
     ./firefox.nix
     ./framework.nix
