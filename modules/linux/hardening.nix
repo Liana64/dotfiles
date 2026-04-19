@@ -68,8 +68,9 @@
       RemainAfterExit = true;
     };
   };
-  # Fix xdg-open in flatpak
+  # Fix xdg-open in flatpak; include the user profile so the portal can
+  # launch home-manager-installed apps (e.g. firefox) for URL handlers.
   systemd.user.extraConfig = ''
-    DefaultEnvironment="PATH=/run/current-system/sw/bin"
+    DefaultEnvironment="PATH=/etc/profiles/per-user/liana/bin:/run/current-system/sw/bin"
   '';
 }
