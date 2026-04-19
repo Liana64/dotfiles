@@ -60,14 +60,14 @@ in
         padding : 2px 4px;
       }
 
-      #clock, #network, #battery, #pulseaudio, #tray, #custom-vpn, #custom-usbguard, #custom-yubikey, #custom-syncthing {
+      #clock, #network, #bluetooth, #battery, #pulseaudio, #tray, #custom-vpn, #custom-usbguard, #custom-yubikey, #custom-syncthing {
         color: ${white};
         background-color: ${darker};
         margin: 4px 2px 4px 4.5px;
         padding: 2px 6px;
       }
 
-      #network.ethernet {
+      #network.ethernet, #bluetooth.on {
         color: ${darker};
         background-color: ${tan};
         margin: 4px 2px 4px 4.5px;
@@ -88,7 +88,7 @@ in
         padding: 2px 6px;
       }
 
-      #battery.charging, #custom-vpn.connected {
+      #battery.charging, #custom-vpn.connected, #bluetooth.connected {
         color: ${white};
         background-color: ${green};
         margin: 4px 2px 4px 4.5px;
@@ -105,7 +105,7 @@ in
 
         modules-left = [ "custom/launcher" "sway/workspaces" "sway/mode" ];
         modules-center = [ "clock" ];
-        modules-right = [ "custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/vpn" "network" "battery" "pulseaudio" "tray" ];
+        modules-right = [ "custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/vpn" "network" "battery" "bluetooth" "pulseaudio" "tray" ];
         
         "custom/launcher" = {
           format = " ";
@@ -203,10 +203,21 @@ in
           tooltip-format = "{essid} {ifname}";
         };
         
-        pulseaudio = { 
-          format = "󱄠  {volume}%";
-          format-bluetooth = "{icon} {volume}% {format_source}";
-          format-bluetooth-muted = "{icon} {format_source}";
+        bluetooth = {
+          format = "󰂯";
+          format-disabled = "󰂲";
+          format-connected = "󰂱 {num_connections}";
+          tooltip-format = "{controller_alias}\t{controller_address}";
+          tooltip-format-connected = "{controller_alias}\t{controller_address}\n\n{device_enumerate}";
+          tooltip-format-enumerate-connected = "{device_alias}\t{device_address}";
+          on-click = "${pkgs.blueman}/bin/blueman-manager";
+          on-click-right = "${pkgs.util-linux}/bin/rfkill toggle bluetooth";
+        };
+
+        pulseaudio = {
+          format = "󱄠   {volume}%";
+          #format-bluetooth = "{icon} {volume}% {format_source}";
+          #format-bluetooth-muted = "{icon} {format_source}";
           format-muted = "󰸈";
           format-source = "";
           format-source-muted = "";

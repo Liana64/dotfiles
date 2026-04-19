@@ -281,6 +281,12 @@ in
     };
   };
 
+  xdg.configFile."autostart/blueman.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Hidden=true
+  '';
+
   home.pointerCursor = {
     gtk.enable = true;
     x11.enable = true;
