@@ -3,6 +3,7 @@
     ./drawio.nix
     ./email.nix
     ./files.nix
+    ./flatpak.nix
     ./fonts.nix
     ./hardening.nix
     ./keyring.nix
