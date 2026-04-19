@@ -268,11 +268,21 @@
       "x-scheme-handler/http" = "firefox.desktop";
       "x-scheme-handler/https" = "firefox.desktop";
       "x-scheme-handler/terminal" = "kitty.desktop";
+      "application/pdf" = "firefox.desktop";
+      "text/plain" = "org.gnome.TextEditor.desktop";
+      "image/jpeg" = "org.gnome.Loupe.desktop";
+      "image/png" = "org.gnome.Loupe.desktop";
+      "image/gif" = "org.gnome.Loupe.desktop";
+      "image/webp" = "org.gnome.Loupe.desktop";
+      "image/svg+xml" = "org.gnome.Loupe.desktop";
+      "image/bmp" = "org.gnome.Loupe.desktop";
+      "image/tiff" = "org.gnome.Loupe.desktop";
     };
     associations.removed = {
       "text/html" = "chromium-browser.desktop";
       "x-scheme-handler/http" = "chromium-browser.desktop";
       "x-scheme-handler/https" = "chromium-browser.desktop";
+      "application/pdf" = "chromium-browser.desktop";
     };
   };
   xdg.configFile."xfce4/helpers.rc".text = ''

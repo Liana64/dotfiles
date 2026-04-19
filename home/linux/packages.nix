@@ -6,8 +6,11 @@
     cosign
     cider-2
     moreutils
+    pavucontrol
     pciutils
     protonmail-bridge
+    gnome-text-editor
+    loupe
     #winbox4
     #todoist-electron
   #] ++ (with nixpkgs-unstable; [
