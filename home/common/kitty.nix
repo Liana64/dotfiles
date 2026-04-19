@@ -14,7 +14,6 @@
       update_check_interval = 0;
       cursor_shape = "beam";  # or "block", "underline"
       scrollback_lines = 200000;
-      startup_session = "startup.session";
 
       # Mouse
       wheel_scroll_multiplier = 5;

@@ -95,6 +95,7 @@ in
       #menu = "vicinae toggle";
       startup = [
         { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; }
+        { command = "kitty --session startup.session"; }
       ];
       window.commands = [
         { criteria = { title = "nix-rebuild"; }; command = "floating enable, resize set 800 400"; }
@@ -146,6 +147,7 @@ in
 
           "${mod}+Return" = "exec ${cfg.terminal}";
           "${sup}+Return" = "exec ${cfg.terminal}";
+          "${mod}+Shift+Return" = "exec ${cfg.terminal} --session startup.session";
 
           "${mod}+Shift+r" = "reload";
           "${mod}+Control+Shift+r" = "exec 'kitty --title nix-rebuild ${app}/bin/nix-rebuild-sway'";
