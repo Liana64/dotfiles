@@ -33,8 +33,6 @@ let
   };
   
   nixos = {
-    nixy = "sudo nixos-rebuild switch --flake ~/.dotfiles#$(hostname | cut -d '.' -f1)";
-    hms = "nix run home-manager/master -- switch --flake ~/.dotfiles#$(whoami)@$(hostname | cut -d '.' -f1)";
     gc = "nix-collect-garbage -d";
   };
 

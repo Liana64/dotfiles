@@ -21,6 +21,10 @@
     SHELL = "${pkgs.zsh}/bin/zsh";
   };
 
+  home.sessionPath = [
+    "$HOME/.local/share/devtools"
+  ];
+
   #home.file.".local/share/flatpak/overrides/global".text = ''
   #  [Environment]
   #  ELECTRON_OZONE_PLATFORM_HINT=wayland

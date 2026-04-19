@@ -114,10 +114,10 @@
     launch --title ai
 
     new_tab
-    launch --title ctl
+    launch --title mon
 
     new_tab
-    launch --title mon
+    launch --title ctl
 
     new_tab
     launch --title rmt
