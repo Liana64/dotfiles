@@ -33,6 +33,10 @@
       # Verified packages
       flatpak install -y --noninteractive flathub \
       org.signal.Signal \
+      org.gnome.Calculator \
+      org.gnome.Loupe \
+      org.gnome.Maps \
+      org.gnome.TextEditor \
       org.gimp.GIMP \
       org.libreoffice.LibreOffice \
       md.obsidian.Obsidian \
@@ -46,8 +50,9 @@
       com.rustdesk.RustDesk \
       com.github.tchx84.Flatseal
 
-      #com.prusa3d.PrusaSlicer
-      #com.github.johnfactotum.Foliate
+      #com.prusa3d.PrusaSlicer \
+      #com.github.johnfactotum.Foliate \
+      #org.freecad.FreeCAD \
 
       # org.telegram.desktop
       # org.zulip.Zulip
