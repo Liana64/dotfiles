@@ -21,6 +21,25 @@
       pkiBundle = "/var/lib/sbctl";
     };
 
+    # Kernel 7.0
+    initrd.luks.cryptoModules = [
+      "aes"
+      # "aes_generic"
+      "blowfish"
+      "twofish"
+      "serpent"
+      "cbc"
+      "xts"
+      "lrw"
+      "sha1"
+      "sha256"
+      "sha512"
+      "af_alg"
+      "algif_skcipher"
+      "cryptd"
+      "input_leds" # for capslock LED on most keyboards in case decryption requires password
+    ];
+
     # TODO: Review kernel modules and disable unused
     #blacklistedKernelModules = [];
   };
