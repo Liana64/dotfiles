@@ -10,10 +10,10 @@
 
   security.pam = {
     services = {
-      swaylock.fprintAuth = true;
+      swaylock.fprintAuth = false;
       swaylock.u2fAuth = false;
-      sudo.fprintAuth = true;
-      sudo.u2fAuth = true;
+      sudo.fprintAuth = false;
+      sudo.u2fAuth = false;
       #login.fprintAuth = true;
       login.u2fAuth = false;
       gdm.enableGnomeKeyring = true;
