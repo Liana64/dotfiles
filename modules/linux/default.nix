@@ -9,6 +9,7 @@
     ./keyring.nix
     ./networking.nix
     ./nix.nix
+    ./podman.nix
     ./time.nix
     ./usbguard.nix
     ./wayland.nix

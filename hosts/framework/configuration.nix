@@ -62,6 +62,7 @@
     libnotify
     nh
     seahorse
+    just
     traceroute
     unzip
     vim
