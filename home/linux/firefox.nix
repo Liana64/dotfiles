@@ -51,6 +51,11 @@
             urls = [{template = "https://www.opensecrets.org/search?q={searchTerms}";}];
             definedAliases = ["@os"];
           };
+          protondb = {
+            name = "ProtonDB";
+            urls = [{template = "https://www.protondb.com/search?q={searchTerms}";}];
+            definedAliases = ["@pr"];
+          };
           bing.metaData.hidden = true;
         };
       };
