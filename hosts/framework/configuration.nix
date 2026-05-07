@@ -33,7 +33,7 @@
       isNormalUser = true;
       openssh.authorizedKeys.keys = [];
 
-      extraGroups = ["wheel" "networkmanager" "audio" "video" "dialout" "docker"];
+      extraGroups = ["wheel" "networkmanager" "audio" "video" "dialout"];
     };
   };
 
@@ -68,6 +68,7 @@
     vim
     wget
     wireshark
+    lsof
   ];
 
   nix = let
