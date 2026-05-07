@@ -2,9 +2,13 @@
 {
   networking.networkmanager.enable = true;
   networking.useDHCP = lib.mkDefault true;
-  
+
+  # iptables is pretty old by now
+  networking.nftables.enable = true;
+
   networking.firewall = {
     enable = true;
+    logRefusedConnections = true;
     
     # Allow localsend
     allowedTCPPorts = [ 53317 ];
