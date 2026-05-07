@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This is my old install script, which is also currently broken.
+# This is the old install script, which is also currently broken.
 
 install_user="liana"
 

@@ -28,7 +28,7 @@ let
     dotfiles = "n ~/.dotfiles";
     xclip = "wl-copy";
     clip = "wl-copy";
-    myip = "curl ifconfig.me -j";
+    thisip = "curl ifconfig.me -j";
     weather = "curl wttr.in/Chicago";
   };
   

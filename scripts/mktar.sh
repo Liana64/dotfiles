@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This is for exporting dotfiles to my work computer, that unfortunately has JAMF
+# This is for exporting dotfiles to the work computer, that unfortunately has JAMF
 # on it, so I dont want to run a nix daemon. It is currently broken.
 
 set -euo pipefail

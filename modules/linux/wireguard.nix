@@ -6,7 +6,7 @@ let
 in
 {
   # After spending a lot of time troubleshooting issues with wireguard that only seemed
-  # to affect my linux clients, it turns out that you need to reload the wireguard server
+  # to affect the linux clients, it turns out that you need to reload the wireguard server
   # service whenever you add a new peer. I hope that this comment helps someone, somewhere,
   # so that you don't have to go through what I did to figure this out. It hurt.
 
