@@ -10,6 +10,7 @@
       warn-dirty = false;
       fallback = true;
       connect-timeout = 1;
+      allowed-users = [ "@wheel" ];
     };
   };
 
@@ -18,4 +19,7 @@
       allowUnfree = true;
     };
   };
+
+  # Fix `man -k`
+  documentation.man.generateCaches = true;
 }
