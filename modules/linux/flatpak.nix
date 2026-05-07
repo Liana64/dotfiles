@@ -41,6 +41,7 @@
         dev.vencord.Vesktop
         md.obsidian.Obsidian
         io.github.ungoogled_software.ungoogled_chromium
+        com.todoist.Todoist
         # com.prusa3d.PrusaSlicer
         # com.github.johnfactotum.Foliate
         # org.freecad.FreeCAD
