@@ -7,8 +7,10 @@
     ./fonts.nix
     ./hardening.nix
     ./keyring.nix
+    ./journald.nix
     ./networking.nix
     ./nix.nix
+    #./systemd-hardening.nix
     ./virtualization.nix
     ./time.nix
     ./usbguard.nix
