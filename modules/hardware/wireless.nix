@@ -1,7 +1,7 @@
-{config, pkgs, lib, ...}:
+{pkgs, ...}:
 {
-  # Allow printing
-  services.printing.enable = true;
+  # Enable printing if needed
+  services.printing.enable = false;
 
   # Enable bluetooth
   hardware.bluetooth = {
