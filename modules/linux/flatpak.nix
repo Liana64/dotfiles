@@ -59,6 +59,9 @@
       flatpak install -y --noninteractive flathub "''${verified[@]}"
       flatpak install -y --noninteractive flathub "''${unverified[@]}"
 
+      # Use libsecret for Signal's password store instead of the plaintext default
+      flatpak override --env=SIGNAL_PASSWORD_STORE=gnome-libsecret org.signal.Signal
+
       touch "$STAMP"
     '';
     serviceConfig = {
