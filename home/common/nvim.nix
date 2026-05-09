@@ -1,7 +1,7 @@
 { pkgs, ... }:
 {
   # Need this otherwise lazygit-nvim won't work
-  home.file."cache/nvim/.keep".text = "";
+  xdg.cacheFile."nvim/.keep".text = "";
 
   # TODO: Fix annoying bugs with snacks area management
   # TODO: Add neorg (?)
