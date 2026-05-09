@@ -29,8 +29,8 @@
       # If you do, you can skip setting a root password by passing '--no-root-passwd' to nixos-install.
       # Be sure to change it (using passwd) after rebooting!
 
-      initialHashedPassword = "$7$GU..../....xWF998Wb.uTEdKMtYU8zN.$BiszmcjuUE1myXJw8no4IAMZof/gZ4kAObf3hDKhnY8";
       isNormalUser = true;
+      initialHashedPassword = "$y$j9T$kWRrNhfqdXExcsRTmxSIg1$n4jTrwnDRfr814vE2su6d1fELLrVEEaTBoWeSrvqq08";
       openssh.authorizedKeys.keys = [];
 
       extraGroups = ["wheel" "networkmanager" "audio" "video" "dialout"];

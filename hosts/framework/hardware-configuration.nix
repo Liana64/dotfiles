@@ -8,9 +8,9 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "usb_storage" "usbhid" "sd_mod" ];
+  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "usb_storage" "uas" "usbhid" "sd_mod" ];
   boot.initrd.kernelModules = [ "dm-snapshot" "cryptd" ];
-  boot.initrd.luks.devices."cryptroot".device = "/dev/disk/by-label/NIXOS_LUKS";
+  boot.initrd.luks.devices."cryptroot".device = "/dev/disk/by-uuid/1c5e2008-7f3c-43dd-a1b5-4183b234e327";
   boot.kernelModules = [ "kvm-amd" ];
 
   # Fix screen flickering and hopefully fix random AMD GPU freezes
@@ -27,19 +27,19 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-label/NIXOS_ROOT";
+    { device = "/dev/disk/by-uuid/6c7fc8f1-934a-4205-8304-b9c1a0e9a825";
       fsType = "btrfs";
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-label/NIXOS_BOOT";
+    { device = "/dev/disk/by-uuid/6C09-EB1C";
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };
 
-  swapDevices =
-    [ { device = "/dev/disk/by-label/NIXOS_SWAP"; }
-    ];
+#  swapDevices =
+#    [ { device = "/dev/disk/by-label/NIXOS_SWAP"; }
+#    ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.enableAllFirmware = true;
