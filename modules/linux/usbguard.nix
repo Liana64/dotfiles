@@ -26,4 +26,13 @@
   environment.systemPackages = with pkgs; [
     usbguard
   ];
+
+  systemd.services.usbguard.preStart = ''
+    if [ ! -s /etc/usbguard/rules.conf ]; then
+      mkdir -p /etc/usbguard
+      ${pkgs.usbguard}/bin/usbguard generate-policy > /etc/usbguard/rules.conf
+      chmod 600 /etc/usbguard/rules.conf
+    fi
+  '';
 }
+
