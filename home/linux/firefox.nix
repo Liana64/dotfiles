@@ -73,7 +73,7 @@
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
         # General settings
-        "browser.startup.homepage" = "labs.lianas.org";
+        "browser.startup.homepage" = "bookmarks.lianas.org";
         "browser.aboutConfig.showWarning" = false;
 
         # Disable firefox init
@@ -164,9 +164,9 @@
         "apz.fling_min_velocity_threshold" = "1.0";
 
         # Vertical tabs
-        #"sidebar.verticalTabs" = true;
-        #"sidebar.revamp" = true;
-        #"sidebar.main.tools" = ["history" "bookmarks"];
+        "sidebar.verticalTabs" = true;
+        "sidebar.revamp" = true;
+        "sidebar.main.tools" = ["history" "bookmarks"];
       };
       #restrictedDomainsList = [
       #  "accounts-static.cdn.mozilla.net"
@@ -205,6 +205,13 @@
       /* Hide sidebar-panel-header (sidebar.revamp: true) */
       #sidebar-panel-header {
         display: none;
+      }
+
+      /* Hide Firefox View, unified extensions, and overflow buttons */
+      #firefox-view-button,
+      #unified-extensions-button,
+      #nav-bar-overflow-button {
+        display: none !important;
       }
 
       /* Styles that should only apply while Sidebery is active */
