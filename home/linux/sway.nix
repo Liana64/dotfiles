@@ -42,11 +42,12 @@ in
       set $text-color          ${white}
       set $inactive-text-color ${white}
       set $urgent-bg-color     ${red}
+      set $focus-color         #6572b64d
 
       # Window Colors
       #                       border              background         text                 indicator
 
-      client.focused          $bg-color           $bg-color          $text-color          $bg-color 
+      client.focused          $focus-color        $focus-color       $text-color          $focus-color
       client.unfocused        $inactive-bg-color  $inactive-bg-color $inactive-text-color $inactive-bg-color
       client.focused_inactive $inactive-bg-color  $inactive-bg-color $inactive-text-color $inactive-bg-color
       client.urgent           $urgent-bg-color    $urgent-bg-color   $text-color          $urgent-bg-color
@@ -99,6 +100,8 @@ in
       ];
       window.commands = [
         { criteria = { title = "nix-rebuild"; }; command = "floating enable, resize set 800 400"; }
+        { criteria = { app_id = "firefox"; title = "^(Save|Open|Enter name of|Select).*"; };
+          command = "floating enable, resize set 900 650, move position center"; }
       ];
       modifier = "Mod1";
 
@@ -109,8 +112,8 @@ in
         smartBorders = "on";
       };
       window.titlebar = false;
-      window.border = 2;
-      floating.border = 2;
+      window.border = 3;
+      floating.border = 3;
       floating.titlebar = false;
 
       keybindings =
