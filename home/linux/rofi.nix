@@ -1,5 +1,4 @@
-# Credit: https://github.com/namishh/crystal
-{ config, pkgs, colors, ... }: {
+{ pkgs, colors, ... }: {
   programs.rofi = {
     enable = true;
     package = pkgs.rofi;
@@ -12,6 +11,22 @@
       sidebar-mode = false;
     };
   };
+
+  # Hidden entries
+  xdg.dataFile = {
+    "applications/thunar-bulk-rename.desktop".text = ''
+      [Desktop Entry]
+      Type=Application
+      Hidden=true
+    '';
+    "applications/thunar-settings.desktop".text = ''
+      [Desktop Entry]
+      Type=Application
+      Hidden=true
+    '';
+  };
+
+  # Credit: https://github.com/namishh/crystal
   xdg.configFile."rofi/config.rasi".text = ''
     configuration {
     	modi:                       "drun";
