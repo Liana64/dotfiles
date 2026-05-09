@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-nh os switch ~/.dotfiles
+nh os switch /nix/dotfiles
 echo ""
 echo "Done. Press any key to close..."
 read -n 1 -s -r

@@ -1,7 +1,7 @@
 {}:
 rec {
   name = "dark";
-  wallpaper = "/home/liana/.dotfiles/wallpapers/flower.png";
+  wallpaper = "/nix/dotfiles/wallpapers/flower.png";
   foreground = "#fbf1c7";
   background = "#222222";
   darker = "#181818";
