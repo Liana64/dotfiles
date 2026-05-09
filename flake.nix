@@ -81,6 +81,25 @@
           }
         ];
       };
+      portable = nixpkgs.lib.nixosSystem {
+        specialArgs = { inherit inputs colors; };
+        modules = [
+          ./hosts/portable/configuration.nix
+          lanzaboote.nixosModules.lanzaboote
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useUserPackages = true;
+            home-manager.users.liana = import ./hosts/portable/home.nix;
+            home-manager.extraSpecialArgs = {
+              inherit inputs colors;
+              nixpkgs-unstable = import nixpkgs-unstable {
+                system = "x86_64-linux";
+                config.allowUnfree = true;
+              };
+            };
+          }
+        ];
+      };
       oob = nixpkgs.lib.nixosSystem {
         specialArgs = { inherit inputs colors; };
         modules = [
@@ -110,6 +129,19 @@
         };
         modules = [
           ./hosts/framework/home.nix
+        ];
+      };
+      "liana@portable" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        extraSpecialArgs = {
+          inherit inputs colors;
+          nixpkgs-unstable = import nixpkgs-unstable {
+            system = "x86_64-linux";
+            config.allowUnfree = true;
+          };
+        };
+        modules = [
+          ./hosts/portable/home.nix
         ];
       };
       "liana@oob" = home-manager.lib.homeManagerConfiguration {
