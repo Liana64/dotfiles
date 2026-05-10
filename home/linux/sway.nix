@@ -31,7 +31,7 @@ in
   wayland.windowManager.sway = with colors; {
     enable = true;
     systemd.enable = true;
-    xwayland = true;
+    xwayland = false;
     package = pkgs.sway;
     wrapperFeatures.gtk = true;
 
@@ -213,15 +213,17 @@ in
           "${mod}+Shift+w" = "move container to workspace w";
           "${mod}+Control+Shift+w" = "exec 'firefox'";
           "${mod}+Shift+e" = "move container to workspace e";
+          "${mod}+Control+Shift+e" = "workspace e; exec flatpak run org.mozilla.Thunderbird";
           "${mod}+Shift+a" = "move container to workspace a";
           "${mod}+Control+Shift+a" = "exec 'firefox \"https://claude.ai\"'";
           "${mod}+Shift+s" = "move container to workspace s";
-          "${mod}+Control+Shift+s" = "exec 'element-desktop'";
+          "${mod}+Control+Shift+s" = "workspace s; exec flatpak run org.signal.Signal";
           "${mod}+Shift+d" = "move container to workspace d";
-          "${mod}+Control+Shift+d" = "exec 'obsidian'";
+          "${mod}+Control+Shift+d" = "workspace d; exec flatpak run md.obsidian.Obsidian";
           "${mod}+Shift+z" = "move container to workspace z";
           "${mod}+Shift+x" = "move container to workspace x";
           "${mod}+Shift+c" = "move container to workspace c";
+          "${mod}+Control+Shift+c" = "workspace c; exec thunar";
 
           "${sup}+Shift+q" = "kill";
           "${sup}+Shift+e" =
@@ -272,7 +274,7 @@ in
       modes = {
         "(p)oweroff, (s)uspend, (h)ibernate, (r)eboot, (l)ogout" = {
           p = "exec swaymsg 'mode default' && systemctl poweroff";
-          s = "exec swaymsg 'mode default' && systemctl suspend-then-hibernate";
+          s = "exec swaymsg 'mode default' && systemctl suspend";
           h = "exec swaymsg 'mode default' && systemctl hibernate";
           r = "exec swaymsg 'mode default' && systemctl reboot";
           l = "exec swaymsg 'mode default' && systemctl --user stop sway-session.target && systemctl --user stop graphical-session.target && swaymsg exit";
@@ -303,8 +305,8 @@ in
     XDG_SESSION_TYPE = "wayland";
     XDG_DATA_DIRS = "$HOME/.nix-profile/share:${config.home.profileDirectory}/share:$XDG_DATA_DIRS";
 
-    # Fix blurry electron apps
-    ELECTRON_OZONE_PLATFORM_HINT = "auto";
+    # Force native Wayland for Electron/Chromium apps (no XWayland fallback)
+    ELECTRON_OZONE_PLATFORM_HINT = "wayland";
     OZONE_PLATFORM = "wayland";
 
     DESKTOP_SESSION = "sway";
