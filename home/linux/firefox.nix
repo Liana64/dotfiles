@@ -73,7 +73,7 @@
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
         # General settings
-        "browser.startup.homepage" = "bookmarks.lianas.org";
+        "browser.startup.homepage" = "bookmarks.labs.lianas.org";
         "browser.aboutConfig.showWarning" = false;
 
         # Disable firefox init
@@ -167,6 +167,13 @@
         "sidebar.verticalTabs" = true;
         "sidebar.revamp" = true;
         "sidebar.main.tools" = ["history" "bookmarks"];
+
+        # Wayland popup/menu fixes
+        "widget.wayland.use-move-to-rect" = false;
+        "widget.gtk.ignore-bogus-leave-notify" = 1;
+        "widget.use-xdg-desktop-portal.file-picker" = 0;
+        "widget.use-xdg-desktop-portal.mime-handler" = 0;
+        "widget.non-native-theme.enabled" = false;
       };
       #restrictedDomainsList = [
       #  "accounts-static.cdn.mozilla.net"
@@ -207,60 +214,27 @@
         display: none;
       }
 
-      /* Hide Firefox View, unified extensions, and overflow buttons */
-      #firefox-view-button,
-      #unified-extensions-button,
-      #nav-bar-overflow-button {
-        display: none !important;
+      /* Sidebery styles applied globally (title preface gate removed) */
+      #TabsToolbar > * { display: none !important; }
+      #nav-bar { border-color: transparent !important; }
+
+      #sidebar-box { padding: 0 !important; }
+      #sidebar-box #sidebar {
+        box-shadow: none !important;
+        border: none !important;
+        outline: none !important;
+        border-radius: 0 !important;
       }
-
-      /* Styles that should only apply while Sidebery is active */
-      #main-window[titlepreface="."] {
-        #TabsToolbar > * { display: none !important; }
-        #nav-bar { border-color: transparent !important; }
-
-        #sidebar-box { padding: 0 !important; }
-        #sidebar-box #sidebar {
-          box-shadow: none !important;
-          border: none !important;
-          outline: none !important;
-          border-radius: 0 !important;
-        }
-        #sidebar-splitter {
-          --splitter-width: 3px !important;
-          min-width: var(--splitter-width) !important;
-          width: var(--splitter-width) !important;
-          padding: 0 !important;
-          margin: 0 calc(-1*var(--splitter-width) + 1px) 0 0 !important;
-          border: 0 !important;
-          opacity: 0 !important;
-        }
-        #sidebar-header { display: none !important; }
-
-        /* Update background color of the #browser area (it's visible near the
-        rounded corner of the web page) so it blends with sidebery color with 
-        vertical nav-bar. */
-        /* #browser {
-          background-color: var(--lwt-accent-color) !important;
-          background-image: none !important;
-        } */
-
-        /* Hide sidebar header (sidebar.revamp: false) */
-        #sidebar-header {
-          display: none !important;
-        }
-
-        /* Uncomment the block below to show window buttons in Firefox nav-bar 
-        (maybe, I didn't test it on non-linux-tiled-wm env) */
-        /* #nav-bar > .titlebar-buttonbox-container,
-        #nav-bar > .titlebar-buttonbox-container > .titlebar-buttonbox {
-          display: flex !important;
-        } */
-
-        /* Uncomment one of the lines below if you need space near window buttons */
-        /* #nav-bar > .titlebar-spacer[type="pre-tabs"] { display: flex !important; } */
-        /* #nav-bar > .titlebar-spacer[type="post-tabs"] { display: flex !important; } */
+      #sidebar-splitter {
+        --splitter-width: 3px !important;
+        min-width: var(--splitter-width) !important;
+        width: var(--splitter-width) !important;
+        padding: 0 !important;
+        margin: 0 calc(-1*var(--splitter-width) + 1px) 0 0 !important;
+        border: 0 !important;
+        opacity: 0 !important;
       }
+      #sidebar-header { display: none !important; }
     '';
     };
   };
