@@ -62,6 +62,7 @@ in
       assign [app_id="vesktop"] workspace s
       assign [class="obsidian"] workspace d
       assign [class="Cider"] workspace z
+      assign [class="Todoist"] workspace c
 
       # Settings
       font pango:JetBrainsMono Nerd Font 10
@@ -223,7 +224,8 @@ in
           "${mod}+Shift+z" = "move container to workspace z";
           "${mod}+Shift+x" = "move container to workspace x";
           "${mod}+Shift+c" = "move container to workspace c";
-          "${mod}+Control+Shift+c" = "workspace c; exec thunar";
+          "${mod}+Control+Shift+x" = "workspace x; exec thunar";
+          "${mod}+Control+Shift+c" = "workspace c; exec flatpak run com.todoist.Todoist";
 
           "${sup}+Shift+q" = "kill";
           "${sup}+Shift+e" =
