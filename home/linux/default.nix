@@ -2,7 +2,6 @@
   imports = [
     ../common
     ./aliases.nix
-    ./claude.nix
     ./dconf.nix
     ./element.nix
     ./firefox.nix
@@ -17,17 +16,7 @@
     ./waybar.nix
   ];
   
-  #environment.variables.SHELL = "${pkgs.zsh}/bin/zsh";
   home.sessionVariables = {
     SHELL = "${pkgs.zsh}/bin/zsh";
   };
-
-  home.sessionPath = [
-    "$HOME/.local/share/devtools"
-  ];
-
-  #home.file.".local/share/flatpak/overrides/global".text = ''
-  #  [Environment]
-  #  ELECTRON_OZONE_PLATFORM_HINT=wayland
-  #'';
 }
