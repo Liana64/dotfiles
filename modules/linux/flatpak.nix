@@ -7,9 +7,9 @@
   # TODO: Declare this: flatpak override --user --socket=wayland
   systemd.services.flatpak-repo = {
     wantedBy = [ "multi-user.target" ];
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
-    path = [ pkgs.flatpak ];
+    after = [ "network-online.target" "nss-lookup.target" ];
+    wants = [ "network-online.target" "nss-lookup.target" ];
+    path = [ pkgs.flatpak pkgs.gawk ];
     script = ''
       STAMP="/var/lib/flatpak/.nixos-setup-done"
 
@@ -26,8 +26,8 @@
         org.gnome.Snapshot
         org.gnome.Characters
         org.gnome.Calendar
-        org.gnome.Mahjongg
-        com.github.finefindus.eyedropper
+        #org.gnome.Mahjongg
+        #com.github.finefindus.eyedropper
         dev.bragefuglseth.Fretboard
         # com.rafaelmardojai.Blanket
         org.mozilla.Thunderbird
@@ -56,13 +56,24 @@
         us.zoom.Zoom
       )
 
-      flatpak install -y --noninteractive flathub "''${verified[@]}"
-      flatpak install -y --noninteractive flathub "''${unverified[@]}"
+      desired=( "''${verified[@]}" "''${unverified[@]}" )
 
-      # Use libsecret for Signal's password store instead of the plaintext default
+      installed=$(flatpak list --app --columns=application,origin | awk '$2 == "flathub" { print $1 }')
+      for app in $installed; do
+        keep=0
+        for d in "''${desired[@]}"; do
+          if [ "$app" = "$d" ]; then keep=1; break; fi
+        done
+        if [ "$keep" -eq 0 ]; then
+          flatpak uninstall -y --noninteractive "$app" || true
+        fi
+      done
+
+      flatpak install -y --noninteractive flathub "''${desired[@]}"
+      flatpak uninstall -y --noninteractive --unused || true
+
+      # Overrides
       flatpak override --env=SIGNAL_PASSWORD_STORE=gnome-libsecret org.signal.Signal
-
-      # Force native Wayland for all Electron flatpaks (XWayland disabled in sway)
       flatpak override --env=ELECTRON_OZONE_PLATFORM_HINT=wayland
 
       touch "$STAMP"
