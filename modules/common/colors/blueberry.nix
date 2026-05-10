@@ -1,6 +1,6 @@
 {}:
 rec {
-  name = "groove";
+  name = "blueberry";
   wallpaper = "/nix/dotfiles/wallpapers/flower.png";
   foreground = "#fbf1c7";
   background = "#222222";
@@ -26,6 +26,9 @@ rec {
 
   color4  = "#7daea3";
   blue    = "#7daea3";
+
+  indigo    = "#5b6ee8";
+  indigoDim = "#4654b8";
 
   color5  = "#d3869b";
   pink    = "#d3869b";

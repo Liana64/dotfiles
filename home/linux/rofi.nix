@@ -2,7 +2,7 @@
   programs.rofi = {
     enable = true;
     package = pkgs.rofi;
-    font = "JetBrainsMono Nerd Font 12";
+    font = "JetBrainsMono Nerd Font 10";
     extraConfig = {
       modi = "drun";
       display-drun = "";
@@ -35,11 +35,14 @@
     }
     @theme "/dev/null"
     * {
-    font:                        "JetBrainsMono Nerd Font 12";
+    font:                        "JetBrainsMono Nerd Font 10";
     background:                  ${colors.darker};
     background-alt:              ${colors.mbg};
     foreground:                  ${colors.foreground};
-    selected:                    ${colors.accent};
+    selected:                    ${colors.foreground};
+    selected-bg:                 ${colors.indigo};
+    selected-alt:                ${colors.indigoDim};
+    prompt-color:                ${colors.blue};
     active:                      ${colors.color2};
     urgent:                      ${colors.color1};
     }
@@ -92,9 +95,9 @@
     enabled:                     true;
     expand:                      false;
     str:                         "  ";
-    font:                        "JetBrains Mono Nerd Font 12";
+    font:                        "JetBrains Mono Nerd Font 10";
     background-color:            inherit;
-    text-color:                  inherit;
+    text-color:                  @prompt-color;
     }
     entry {
     enabled:                     true;
@@ -119,7 +122,7 @@
     cursor:                      pointer;
     }
     button selected {
-    background-color:            @background-alt;
+    background-color:            @selected-bg;
     text-color:                  @selected;
     }
 
@@ -163,7 +166,7 @@
     text-color:                  @foreground;
     }
     element selected.normal {
-    background-color:            @background-alt;
+    background-color:            @selected-bg;
     text-color:                  @selected;
     }
     element selected.urgent {
@@ -171,7 +174,7 @@
     text-color:                  @foreground;
     }
     element selected.active {
-    background-color:            @urgent;
+    background-color:            @selected-alt;
     text-color:                  @foreground;
     }
     element-icon {

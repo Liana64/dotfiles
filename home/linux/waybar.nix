@@ -42,11 +42,13 @@ in
       #workspaces button {
         background-color: transparent;
         color: ${white};
+        border-radius: 0;
+        border-bottom: 2px solid transparent;
         transition: all 0.1s ease;
       }
 
       #workspaces button.focused {
-        color: ${color1};
+        border-bottom: 2px solid ${indigo};
       }
 
       #workspaces button.persistent {
