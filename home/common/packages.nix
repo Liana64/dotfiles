@@ -14,7 +14,7 @@
     dust
     eza
     fastfetch
-    fd
+    #fd
     ffmpeg
     fluxcd
     fortune
@@ -34,19 +34,18 @@
     nil
     nixd
     pre-commit
-    procs
+    #procs
     ripgrep
     ripgrep-all
     rust-analyzer
     rustscan
     shellcheck
     sops
-    talhelper
     talosctl
     tealdeer
     usbutils
     watchexec
-    xh
+    #xh
     yaml-language-server
     yazi
     yq-go

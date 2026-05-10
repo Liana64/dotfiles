@@ -42,7 +42,7 @@ let
   };
 
   rust-tools = {
-    curl = "xh";
+    #curl = "xh";
     tree = "eza --tree";
 
     # This makes cat require "cat -p" for standard output, otherwise it gets piped to less
@@ -53,14 +53,14 @@ let
     diff = "delta";
     du = "dust";
 
-    find = "fd --";
+    #find = "fd --";
 
     top = "btop";
     htop = "btop";
     neofetch = "fastfetch";
 
     # Beware, this breaks the "ps aux" command, use "\ps aux" if needed
-    ps = "procs";
+    #ps = "procs";
     nmap = "rustscan";
   };
 
