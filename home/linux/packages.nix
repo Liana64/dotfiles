@@ -1,6 +1,6 @@
  { pkgs, nixpkgs-unstable, ... }:
  {
-  home.packages = with pkgs; [
+  home.packages = (with pkgs; [
     autotiling-rs
     bc
     cosign
@@ -9,9 +9,8 @@
     pavucontrol
     pciutils
     protonmail-bridge
-    #winbox4
-    #todoist-electron
-  #] ++ (with nixpkgs-unstable; [
-  #  claude-code
-  ];
+  ]) ++ (with nixpkgs-unstable; [
+    claude-code
+    talhelper
+  ]);
  }
