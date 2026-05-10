@@ -1,7 +1,7 @@
 { pkgs, ... }: {
   programs.gnupg.agent = {
     enable = true;
-    enableSSHSupport = true;
+    enableSSHSupport = false; # gnome-keyring handles SSH (started in sway with ssh component)
   };
 
   services.gnome.gnome-keyring = {
