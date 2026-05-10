@@ -5,6 +5,8 @@
   services.usbguard = {
     enable = true;
     presentControllerPolicy = "apply-policy";
+    # Fix yubikey unavailable on boot
+    presentDevicePolicy = "keep";
     IPCAllowedGroups = [ "wheel" ];
     dbus.enable = true;
 
