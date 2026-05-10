@@ -89,7 +89,7 @@ in
 
       exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY \
       SWAYSOCK XDG_CURRENT_DESKTOP=sway
-      exec gnome-keyring-daemon --start --components=secrets,ssh,pkcs11
+      exec gnome-keyring-daemon --start --components=secrets,pkcs11
     '';
     config = {
       terminal = "kitty";
