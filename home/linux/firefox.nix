@@ -137,6 +137,12 @@
         "privacy.trackingprotection.enabled" = true;
         "dom.security.https_only_mode" = true;
         "signon.rememberSignons" = false;
+        "signon.autofillForms" = false;
+        "signon.generation.enabled" = false;
+        "signon.management.page.breach-alerts.enabled" = false;
+        "extensions.formautofill.addresses.enabled" = false;
+        "extensions.formautofill.creditCards.enabled" = false;
+        "extensions.formautofill.available" = "off";
 
         # Remove close button
         "browser.tabs.inTitlebar" = 0;
