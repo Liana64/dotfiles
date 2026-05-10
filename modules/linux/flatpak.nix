@@ -19,6 +19,7 @@
       verified=(
         org.signal.Signal
         org.gnome.Calculator
+        org.gnome.Showtime
         org.gnome.Loupe
         org.gnome.Maps
         org.gnome.TextEditor
@@ -51,7 +52,6 @@
 
       # Unverified packages
       unverified=(
-        org.videolan.VLC
         me.proton.Mail
         us.zoom.Zoom
       )
@@ -61,6 +61,9 @@
 
       # Use libsecret for Signal's password store instead of the plaintext default
       flatpak override --env=SIGNAL_PASSWORD_STORE=gnome-libsecret org.signal.Signal
+
+      # Force native Wayland for all Electron flatpaks (XWayland disabled in sway)
+      flatpak override --env=ELECTRON_OZONE_PLATFORM_HINT=wayland
 
       touch "$STAMP"
     '';
