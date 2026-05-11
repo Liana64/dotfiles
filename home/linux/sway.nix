@@ -101,7 +101,7 @@ in
       ];
       window.commands = [
         { criteria = { title = "nix-rebuild"; }; command = "floating enable, resize set 800 400"; }
-        { criteria = { app_id = "firefox"; title = "^(Save|Open|Enter name of|Select).*"; };
+        { criteria = { app_id = "firefox-esr"; title = "^(Save|Open|Enter name of|Select).*"; };
           command = "floating enable, resize set 900 650, move position center"; }
       ];
       modifier = "Mod1";
@@ -212,11 +212,11 @@ in
 
           "${mod}+Shift+q" = "move container to workspace q";
           "${mod}+Shift+w" = "move container to workspace w";
-          "${mod}+Control+Shift+w" = "exec 'firefox'";
+          "${mod}+Control+Shift+w" = "exec 'firefox-esr'";
           "${mod}+Shift+e" = "move container to workspace e";
           "${mod}+Control+Shift+e" = "workspace e; exec flatpak run org.mozilla.Thunderbird";
           "${mod}+Shift+a" = "move container to workspace a";
-          "${mod}+Control+Shift+a" = "exec 'firefox \"https://claude.ai\"'";
+          "${mod}+Control+Shift+a" = "exec 'firefox-esr \"https://claude.ai\"'";
           "${mod}+Shift+s" = "move container to workspace s";
           "${mod}+Control+Shift+s" = "workspace s; exec flatpak run org.signal.Signal";
           "${mod}+Shift+d" = "move container to workspace d";
@@ -310,6 +310,7 @@ in
     # Force native Wayland for Electron/Chromium apps (no XWayland fallback)
     ELECTRON_OZONE_PLATFORM_HINT = "wayland";
     OZONE_PLATFORM = "wayland";
+    NIXOS_OZONE_WL = "1";
 
     DESKTOP_SESSION = "sway";
     XDG_CURRENT_DESKTOP = "sway";

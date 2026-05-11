@@ -5,6 +5,7 @@
 }: {
   programs.firefox = {
     enable = true;
+    package = pkgs.firefox-esr;
     profiles.liana = {
       search = {
         force = true;
@@ -256,11 +257,11 @@
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
-      "text/html" = "firefox.desktop";
-      "x-scheme-handler/http" = "firefox.desktop";
-      "x-scheme-handler/https" = "firefox.desktop";
+      "text/html" = "firefox-esr.desktop";
+      "x-scheme-handler/http" = "firefox-esr.desktop";
+      "x-scheme-handler/https" = "firefox-esr.desktop";
       "x-scheme-handler/terminal" = "kitty.desktop";
-      "application/pdf" = "firefox.desktop";
+      "application/pdf" = "firefox-esr.desktop";
       "text/plain" = "org.gnome.TextEditor.desktop";
       "image/jpeg" = "org.gnome.Loupe.desktop";
       "image/png" = "org.gnome.Loupe.desktop";
@@ -278,6 +279,6 @@
     };
   };
   xdg.configFile."xfce4/helpers.rc".text = ''
-    WebBrowser=firefox
+    WebBrowser=firefox-esr
   '';
 }

@@ -39,7 +39,7 @@
 
   environment.variables = {
     EDITOR = "vim";
-    BROWSER = "firefox";
+    BROWSER = "firefox-esr";
     TERM = "xterm-256color";
   };
 
