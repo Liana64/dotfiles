@@ -42,7 +42,7 @@
     selected:                    ${colors.foreground};
     selected-bg:                 ${colors.indigo};
     selected-alt:                ${colors.indigoDim};
-    prompt-color:                ${colors.blue};
+    prompt-color:                ${colors.emerald};
     active:                      ${colors.color2};
     urgent:                      ${colors.color1};
     }

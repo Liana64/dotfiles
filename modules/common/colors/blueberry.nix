@@ -25,7 +25,7 @@ rec {
   orange  = "#e79a4e";
 
   color4  = "#7daea3";
-  blue    = "#7daea3";
+  emerald = "#7daea3";
 
   indigo    = "#5b6ee8";
   indigoDim = "#4654b8";

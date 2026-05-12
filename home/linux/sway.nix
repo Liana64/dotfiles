@@ -1,4 +1,4 @@
-{ config, pkgs, colors, ... }:
+{ config, pkgs, ... }:
 let
   app = pkgs.symlinkJoin {
     name = "sway-scripts";
@@ -17,18 +17,17 @@ let
   };
 in
 {
-  programs.swaylock = with colors; {
+  programs.swaylock = {
     enable = true;
     settings = {
       daemonize = true;
-      image = "${wallpaper}";
       indicator-caps-lock = true;
       indicator-radius = 80;
     };
   };
 
   systemd.user.targets.graphical.Unit.Wants = [ "xdg-desktop-autostart.target" ];
-  wayland.windowManager.sway = with colors; {
+  wayland.windowManager.sway = {
     enable = true;
     systemd.enable = true;
     xwayland = false;
@@ -36,22 +35,6 @@ in
     wrapperFeatures.gtk = true;
 
     extraConfig = ''
-      # Colors
-      set $bg-color 	       ${mbg}
-      set $inactive-bg-color   ${background}
-      set $text-color          ${white}
-      set $inactive-text-color ${white}
-      set $urgent-bg-color     ${red}
-      set $focus-color         #6572b64d
-
-      # Window Colors
-      #                       border              background         text                 indicator
-
-      client.focused          $focus-color        $focus-color       $text-color          $focus-color
-      client.unfocused        $inactive-bg-color  $inactive-bg-color $inactive-text-color $inactive-bg-color
-      client.focused_inactive $inactive-bg-color  $inactive-bg-color $inactive-text-color $inactive-bg-color
-      client.urgent           $urgent-bg-color    $urgent-bg-color   $text-color          $urgent-bg-color
-      
       # Inhibit idle if any window is fullscreen
       for_window [app_id=".*"] inhibit_idle fullscreen
 
@@ -113,8 +96,8 @@ in
         smartBorders = "on";
       };
       window.titlebar = false;
-      window.border = 3;
-      floating.border = 3;
+      window.border = 2;
+      floating.border = 2;
       floating.titlebar = false;
 
       keybindings =
@@ -294,14 +277,6 @@ in
     Type=Application
     Hidden=true
   '';
-
-  home.pointerCursor = {
-    gtk.enable = true;
-    x11.enable = true;
-    package = pkgs.bibata-cursors;
-    name = "Bibata-Modern-Classic";
-    size = 16;
-  };
 
   home.sessionVariables = {
     XDG_SESSION_TYPE = "wayland";

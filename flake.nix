@@ -10,12 +10,18 @@
     
     # EasyEffects profile
     framework-dsp = {
+      #url = "github:cab404/framework-dsp/6e5b8e7a5d1f422bcaa2f237f28223fe2292ca38";
       url = "github:cab404/framework-dsp";
       flake = false;
     };
 
     lanzaboote = {
       url = "github:nix-community/lanzaboote/v1.0.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    stylix = {
+      url = "github:danth/stylix/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
