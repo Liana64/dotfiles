@@ -1,4 +1,8 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+let
+  hardening = import ../common/systemd-hardening.nix;
+in
+{
 
   # Rules for systemd-udevd
   # Credit: KyleOndy
@@ -48,10 +52,13 @@
     {
       description = "Inhibit sleep when CalDigit TS4 Thunderbolt dock is connected";
       # Service is triggered by udev rules, not started at boot
-      serviceConfig = {
+      serviceConfig = hardening.airgapped // {
         Type = "simple";
         ExecStart = "${pkgs.systemd}/bin/systemd-inhibit --what=sleep:handle-lid-switch --who='CalDigit TS4 Dock Monitor' --why='Prevent sleep while docked' --mode=block ${monitorScript}";
         Restart = "on-failure";
+        # CAP_BLOCK_SUSPEND is required to hold a "block" inhibitor.
+        CapabilityBoundingSet = [ "CAP_BLOCK_SUSPEND" ];
+        AmbientCapabilities = [ "CAP_BLOCK_SUSPEND" ];
       };
     };
 

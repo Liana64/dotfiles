@@ -1,4 +1,8 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+let
+  hardening = import ../common/systemd-hardening.nix;
+in
+{
   # flatpaks are pretty good at sandboxing, so we ought to use them when available
   services.flatpak = {
     enable = true;
@@ -79,7 +83,8 @@
 
       touch "$STAMP"
     '';
-    serviceConfig = {
+    # `base` only: flatpak needs network, /var writes, and bwrap user namespaces.
+    serviceConfig = hardening.base // {
       Type = "oneshot";
       RemainAfterExit = true;
     };
