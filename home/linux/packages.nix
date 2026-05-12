@@ -10,7 +10,6 @@
     pciutils
     protonmail-bridge
   ]) ++ (with nixpkgs-unstable; [
-    claude-code
     talhelper
   ]);
  }
