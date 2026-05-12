@@ -27,7 +27,6 @@
     enable = true;
     enableNTS = true;
     servers = [
-        "time.nist.gov"
         "time.cloudflare.com"
         "nts.netnod.se"
      ];
