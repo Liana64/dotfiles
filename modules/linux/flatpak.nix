@@ -4,7 +4,6 @@
     enable = true;
   };
 
-  # TODO: Declare this: flatpak override --user --socket=wayland
   systemd.services.flatpak-repo = {
     wantedBy = [ "multi-user.target" ];
     after = [ "network-online.target" "nss-lookup.target" ];
@@ -73,6 +72,8 @@
       flatpak uninstall -y --noninteractive --unused || true
 
       # Overrides
+      flatpak override --socket=wayland
+      flatpak override --nosocket=x11
       flatpak override --env=SIGNAL_PASSWORD_STORE=gnome-libsecret org.signal.Signal
       flatpak override --env=ELECTRON_OZONE_PLATFORM_HINT=wayland
 
