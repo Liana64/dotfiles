@@ -44,11 +44,10 @@
     lm_sensors        # Temperature sensors
   ];
 
-  # Use minimal kernel parameters, including one that turns off ASPM,
-  # which seems to enable suspend to work on the Framework 13 AMD laptop when using a dock
-  #boot.kernelParams = [
-    # Uncomment if there are suspend issues when using a dock
-    #"pcie_aspm=off"
-  #];
+  # Disable PCIe ASPM. Without this, the CalDigit TS4 dock's internal PCIe
+  # link (igc NIC, USB-C PD) drops under load, taking the system with it.
+  boot.kernelParams = [
+    "pcie_aspm=off"
+  ];
 
 }
