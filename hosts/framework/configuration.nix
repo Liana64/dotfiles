@@ -45,6 +45,11 @@
 
   programs.zsh.enable = true;
 
+  services.btrfs.autoScrub = {
+    enable = true;
+    interval = "Fri *-*-1..7 10:00:00";
+  };
+
   # Pinned NixOS version
   # See: https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "23.05";
