@@ -38,7 +38,7 @@ in
       # Inhibit idle if any window is fullscreen
       for_window [app_id=".*"] inhibit_idle fullscreen
 
-      assign [app_id="Kitty"] workspace q
+      assign [app_id="kitty"] workspace q
       assign [app_id="Thunderbird"] workspace e
       assign [app_id="Element"] workspace s
       assign [app_id="signal"] workspace s
@@ -70,8 +70,6 @@ in
         resume 'swaymsg "output * power on"' \
         before-sleep 'swaylock -f'
 
-      exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY \
-      SWAYSOCK XDG_CURRENT_DESKTOP=sway
       exec gnome-keyring-daemon --start --components=secrets,pkcs11
     '';
     config = {
@@ -109,6 +107,7 @@ in
         {
 
           "${sup}+Escape" = ''mode "(p)oweroff, (s)uspend, (h)ibernate, (r)eboot, lo(g)out, (l)ock"'';
+          "XF86AudioMedia" = ''mode "(p)oweroff, (s)uspend, (h)ibernate, (r)eboot, lo(g)out, (l)ock"'';
 
           "print" = "exec '${app}/bin/sway-screenshot-area'";
           "Shift+print" = "exec '${app}/bin/sway-screenshot-all'";
@@ -248,13 +247,7 @@ in
         };
       };
 
-      bars = [
-        {
-          position = "top";
-          command = "waybar";
-          fonts.names = ["JetBrainsMono Nerd Font"];
-        }
-      ];
+      bars = [];
 
       modes = {
         "(p)oweroff, (s)uspend, (h)ibernate, (r)eboot, lo(g)out, (l)ock" = {

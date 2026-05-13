@@ -18,7 +18,7 @@ in
   programs.waybar = with colors; {
     enable = true;
     systemd = {
-      enable = false;
+      enable = true;
       target = "sway-session.target";
     };
 
@@ -193,7 +193,7 @@ in
           '';
           return-type = "json";
           interval = 5;
-          on-click = "firefox \"https://127.0.0.1:8384/\"";
+          on-click = "firefox-esr \"https://127.0.0.1:8384/\"";
         };
 
         network = {

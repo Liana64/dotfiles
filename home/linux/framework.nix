@@ -4,6 +4,13 @@
   xdg.configFile."easyeffects/output/cab-fw.json".source =
     "${inputs.framework-dsp}/config/output/Gracefu's Edits.json";
 
+  # Bind easyeffects to sway session.
+  systemd.user.services.easyeffects.Unit = {
+    PartOf = [ "sway-session.target" ];
+    Requisite = [ "sway-session.target" ];
+    After = [ "sway-session.target" ];
+  };
+
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";
 }

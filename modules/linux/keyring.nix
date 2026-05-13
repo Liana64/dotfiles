@@ -14,7 +14,7 @@
       swaylock.u2fAuth = false;
       sudo.fprintAuth = false;
       sudo.u2fAuth = false;
-      login.fprintAuth = lib.mkForce true;
+      # login.fprintAuth = lib.mkForce true;
       login.u2fAuth = false;
       gdm.enableGnomeKeyring = true;
       sway.enableGnomeKeyring = true;
