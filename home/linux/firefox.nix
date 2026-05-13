@@ -1,8 +1,13 @@
 {
   pkgs,
   inputs,
+  config,
   ...
-}: {
+}: let
+  inherit (config.lib.stylix) colors;
+  indigo = "#${colors.base0D}";
+  white  = "#${colors.base07}";
+in {
   programs.firefox = {
     enable = true;
     package = pkgs.firefox-esr;
@@ -249,12 +254,14 @@
       .urlbarView-row[selected] .urlbarView-title-separator,
       .urlbarView-row[selected] .urlbarView-action,
       .urlbarView-row[selected] .urlbarView-secondary-action {
-        color: #ffffff !important;
+        background-color: ${indigo} !important;
+        color: ${white} !important;
       }
 
       #urlbar-input::selection,
       #urlbar .urlbar-input-box ::selection {
-        color: #ffffff !important;
+        background-color: ${indigo} !important;
+        color: ${white} !important;
       }
     '';
     };
