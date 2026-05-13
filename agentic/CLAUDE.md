@@ -3,7 +3,7 @@
 These rules override conflicting guidance
 
 - Code is a bonsai tree. Thoughtful, zen, minimal. Prune anything not load-bearing.
-- Comments explain why, not what, and are skipped by default.
+- Preference for no comments unless vital. If needed, comments explain why, not what.
 - Code ought to derive from a single source of reproducible truth.
 - As much as possible, design to minimize surprise.
 
