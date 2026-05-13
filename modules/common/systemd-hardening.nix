@@ -1,10 +1,7 @@
-# Reusable systemd unit hardening profiles. Each tier extends the previous.
 rec {
-  # Kernel surface, suid, personality. /var stays writable.
   base = {
     NoNewPrivileges = true;
     ProtectSystem = "full";
-    ProtectHome = true;
     PrivateTmp = true;
     ProtectKernelModules = true;
     ProtectKernelTunables = true;
@@ -18,10 +15,10 @@ rec {
     RemoveIPC = true;
   };
 
-  # + FS read-only outside /var, /run, /tmp; namespace, device, and syscall locks.
-  # Breaks bwrap, podman, suid helpers, and syscalls outside @system-service.
+  # This breaks a lot
   confined = base // {
     ProtectSystem = "strict";
+    ProtectHome = true;
     PrivateDevices = true;
     ProtectControlGroups = true;
     ProcSubset = "pid";

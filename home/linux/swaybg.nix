@@ -17,7 +17,6 @@ in
     Install = {
       WantedBy = ["sway-session.target"];
     };
-    # needs /dev/dri for DRM/EGL
     Service = hardening.base // {
       ExecStart = "${pkgs.swaybg}/bin/swaybg -i ${wallpaper} -m fill";
       Restart = "on-failure";
