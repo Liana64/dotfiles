@@ -4,7 +4,7 @@
     gc = {
       automatic = true;
       dates = "Fri 11:00";
-      options = "--delete-older-than 7d";
+      options = "--delete-older-than 30d";
     };
     settings = {
       experimental-features = [ "nix-command flakes" ];
