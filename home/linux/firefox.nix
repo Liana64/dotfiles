@@ -242,6 +242,20 @@
         opacity: 0 !important;
       }
       #sidebar-header { display: none !important; }
+
+      .urlbarView-row[selected],
+      .urlbarView-row[selected] .urlbarView-title,
+      .urlbarView-row[selected] .urlbarView-url,
+      .urlbarView-row[selected] .urlbarView-title-separator,
+      .urlbarView-row[selected] .urlbarView-action,
+      .urlbarView-row[selected] .urlbarView-secondary-action {
+        color: #ffffff !important;
+      }
+
+      #urlbar-input::selection,
+      #urlbar .urlbar-input-box ::selection {
+        color: #ffffff !important;
+      }
     '';
     };
   };
