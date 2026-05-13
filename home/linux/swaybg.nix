@@ -3,7 +3,11 @@
   pkgs,
   colors,
   ...
-}: {
+}:
+let
+  hardening = import ../../modules/common/systemd-hardening.nix;
+in
+{
   systemd.user.services.swaybg = with colors; {
     Unit = {
       After = ["sway-session.target"];
@@ -13,7 +17,8 @@
     Install = {
       WantedBy = ["sway-session.target"];
     };
-    Service = {
+    # needs /dev/dri for DRM/EGL
+    Service = hardening.base // {
       ExecStart = "${pkgs.swaybg}/bin/swaybg -i ${wallpaper} -m fill";
       Restart = "on-failure";
     };
