@@ -15,6 +15,7 @@ rec {
     RestrictRealtime = true;
     RestrictSUIDSGID = true;
     LockPersonality = true;
+    RemoveIPC = true;
   };
 
   # + FS read-only outside /var, /run, /tmp; namespace, device, and syscall locks.
@@ -31,7 +32,6 @@ rec {
     UMask = "0077";
   };
 
-  # + IP denial. Local IPC (AF_UNIX) only.
   airgapped = confined // {
     RestrictAddressFamilies = [ "AF_UNIX" ];
     IPAddressDeny = "any";

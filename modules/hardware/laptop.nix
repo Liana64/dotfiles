@@ -51,21 +51,19 @@ in
     in
     {
       description = "Inhibit sleep when CalDigit TS4 Thunderbolt dock is connected";
-      # Service is triggered by udev rules, not started at boot
       serviceConfig = hardening.airgapped // {
         Type = "simple";
         ExecStart = "${pkgs.systemd}/bin/systemd-inhibit --what=sleep:handle-lid-switch --who='CalDigit TS4 Dock Monitor' --why='Prevent sleep while docked' --mode=block ${monitorScript}";
         Restart = "on-failure";
-        # CAP_BLOCK_SUSPEND is required to hold a "block" inhibitor.
         CapabilityBoundingSet = [ "CAP_BLOCK_SUSPEND" ];
         AmbientCapabilities = [ "CAP_BLOCK_SUSPEND" ];
+        DynamicUser = true;
       };
     };
 
-  # Make sure that we lock everything before sleep
   systemd.user.services.lock-before-sleep = {
     description = "Lock the screen prior to sleep";
-    serviceConfig = {
+    serviceConfig = hardening.base // {
       type = "simple";
       Before = "sleep.target";
       ExecStart = "swaylock -f";

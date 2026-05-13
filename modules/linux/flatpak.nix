@@ -83,7 +83,7 @@ in
 
       touch "$STAMP"
     '';
-    # `base` only: flatpak needs network, /var writes, and bwrap user namespaces.
+    # needs network, /var writes, and bwrap user namespaces.
     serviceConfig = hardening.base // {
       Type = "oneshot";
       RemainAfterExit = true;
