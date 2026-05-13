@@ -108,7 +108,7 @@ in
         in
         {
 
-          "${sup}+Escape" = ''mode "(p)oweroff, (s)uspend, (h)ibernate, (r)eboot, (l)ogout"'';
+          "${sup}+Escape" = ''mode "(p)oweroff, (s)uspend, (h)ibernate, (r)eboot, lo(g)out, (l)ock"'';
 
           "print" = "exec '${app}/bin/sway-screenshot-area'";
           "Shift+print" = "exec '${app}/bin/sway-screenshot-all'";
@@ -257,12 +257,13 @@ in
       ];
 
       modes = {
-        "(p)oweroff, (s)uspend, (h)ibernate, (r)eboot, (l)ogout" = {
+        "(p)oweroff, (s)uspend, (h)ibernate, (r)eboot, lo(g)out, (l)ock" = {
           p = "exec swaymsg 'mode default' && systemctl poweroff";
           s = "exec swaymsg 'mode default' && systemctl suspend";
           h = "exec swaymsg 'mode default' && systemctl hibernate";
           r = "exec swaymsg 'mode default' && systemctl reboot";
-          l = "exec swaymsg 'mode default' && systemctl --user stop sway-session.target && systemctl --user stop graphical-session.target && swaymsg exit";
+          g = "exec swaymsg 'mode default' && systemctl --user stop sway-session.target && systemctl --user stop graphical-session.target && swaymsg exit";
+          l = "exec swaymsg 'mode default' && swaylock -f";
           Return = "mode default";
           Escape = "mode default";
         };
