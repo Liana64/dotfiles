@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, lib, ... }: {
   programs.gnupg.agent = {
     enable = true;
     enableSSHSupport = true;
@@ -14,7 +14,7 @@
       swaylock.u2fAuth = false;
       sudo.fprintAuth = false;
       sudo.u2fAuth = false;
-      #login.fprintAuth = true;
+      login.fprintAuth = lib.mkForce true;
       login.u2fAuth = false;
       gdm.enableGnomeKeyring = true;
       sway.enableGnomeKeyring = true;
