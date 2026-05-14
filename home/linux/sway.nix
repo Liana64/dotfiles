@@ -240,6 +240,7 @@ in
         "eDP-1" = {
           resolution = "2880x1920@120Hz";
           position = "0,0";
+          scale = "1.9";
         };
         "DP-5" = {
           resolution = "3440x1440@144Hz";
