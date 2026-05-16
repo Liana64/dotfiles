@@ -31,16 +31,19 @@ in
     light.enable = true;
   };
   
-  services= {
-    #xserver.enable = true;
+  services = {
     dbus.enable = true;
 
-    displayManager = {
-      gdm = {
-        enable = true;
-        wayland = true;
+    greetd = {
+      enable = true;
+      settings.default_session = {
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --remember --cmd sway";
+        user = "greeter";
       };
     };
+
+    # Unused on sway, creates zombies
+    speechd.enable = false;
   };
 
   xdg.portal = {

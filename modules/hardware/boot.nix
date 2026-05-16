@@ -6,6 +6,8 @@
       efi.canTouchEfiVariables = true;
     };
 
+    plymouth.enable = true;
+
     # Linux kernel: two options, with the second one being useful
     # when there are problems with the latest kernel and thus there
     # is a need to pin the installation to a specific version

@@ -48,6 +48,14 @@
   # link (igc NIC, USB-C PD) drops under load, taking the system with it.
   boot.kernelParams = [
     "pcie_aspm=off"
+    "quiet"
+    "splash"
+    "udev.log_level=3"
+    "rd.systemd.show_status=auto"
   ];
+
+  # Keep boot console quiet so kernel/udev messages don't overwrite plymouth/tuigreet
+  boot.consoleLogLevel = 3;
+  boot.initrd.verbose = false;
 
 }
