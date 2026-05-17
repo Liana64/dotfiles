@@ -6,7 +6,7 @@
   # Enable bluetooth
   hardware.bluetooth = {
     enable = true;
-    powerOnBoot = false;
+    powerOnBoot = true;
   };
   environment.systemPackages = [ pkgs.blueman ];
 

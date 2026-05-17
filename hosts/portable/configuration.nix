@@ -40,7 +40,6 @@
   environment.variables = {
     EDITOR = "vim";
     BROWSER = "firefox-esr";
-    TERM = "xterm-256color";
   };
 
   programs.zsh.enable = true;

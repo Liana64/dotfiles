@@ -9,6 +9,7 @@
     };
 
     settings = {
+      term = "xterm-256color";
       macos_option_as_cmd = "yes";
       clear_all_shortcuts = "yes";
       update_check_interval = 0;
