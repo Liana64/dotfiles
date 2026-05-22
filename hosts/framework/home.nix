@@ -1,8 +1,5 @@
 # TODO: Organize this nightmare of files and get things out of nixos config that belong here
-{ inputs, lib, config, pkgs, colors, ... }: {
-#let
-#  colors = import ../common/colors/gruvbox.nix { };
-#in {
+{ ... }: {
   home.username = "liana";
   home.homeDirectory = "/home/liana";
 
