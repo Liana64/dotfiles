@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, colors, ... }:
 {
   programs.kitty = {
     enable = true;
@@ -42,28 +42,20 @@
       input_delay = 1;
       sync_to_monitor = "no";
 
-      # Dracula theme
-      background = "#1e1f28";
-      foreground = "#f8f8f2";
-      cursor = "#bbbbbb";
-      selection_background = "#44475a";
-      selection_foreground = "#1e1f28";
-      color0 = "#000000";
-      color8 = "#545454";
-      color1 = "#ff5555";
-      color9 = "#ff5454";
-      color2 = "#50fa7b";
-      color10 = "#50fa7b";
-      color3 = "#f0fa8b";
-      color11 = "#f0fa8b";
-      color4 = "#bd92f8";
-      color12 = "#bd92f8";
-      color5 = "#ff78c5";
-      color13 = "#ff78c5";
-      color6 = "#8ae9fc";
-      color14 = "#8ae9fc";
-      color7 = "#bbbbbb";
-      color15 = "#ffffff";
+      # blueberry palette
+      background = colors.background;
+      foreground = colors.foreground;
+      cursor = colors.cursorColor;
+      selection_background = colors.gray;
+      selection_foreground = colors.foreground;
+      color0  = colors.color0;   color8  = colors.comment;
+      color1  = colors.color1;   color9  = colors.color1;
+      color2  = colors.color2;   color10 = colors.color2;
+      color3  = colors.color3;   color11 = colors.color3;
+      color4  = colors.color4;   color12 = colors.color4;
+      color5  = colors.color5;   color13 = colors.color5;
+      color6  = colors.color6;   color14 = colors.color6;
+      color7  = colors.color7;   color15 = colors.white;
     };
 
     keybindings = {

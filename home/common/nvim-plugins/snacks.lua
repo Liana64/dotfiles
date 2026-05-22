@@ -120,3 +120,5 @@ Snacks.setup({
   toggle = { enabled = true },
   win = { enabled = true },
 })
+
+vim.api.nvim_set_hl(0, "SnacksIndent", { fg = "#bdae93" }) -- base04
