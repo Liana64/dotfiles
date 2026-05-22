@@ -27,7 +27,12 @@ in
     {
       source = pkgs.writeScript "wg-autoconnect" ''
         #!${pkgs.bash}/bin/bash
-        
+        # systemd ships `resolvconf` as a symlink to resolvectl; wg-quick's
+        # wrapper only appends openresolv to PATH, so without this prepend
+        # wg-quick calls resolvectl, hits dbus-org.freedesktop.resolve1, and
+        # rolls the tunnel back.
+        export PATH=${pkgs.openresolv}/bin:$PATH
+
         INTERFACE="$1"
         ACTION="$2"
         NM_STATUS=$(${pkgs.networkmanager}/bin/nmcli -t -f type,state,connection dev)
@@ -54,26 +59,31 @@ in
           return 1
         }
         
-        [[ "$CONNECTIVITY_STATE" != "FULL" ]] && exit 0
-
         case "$ACTION" in
+          up) ;;
           connectivity-change)
-            NM_STATUS=$(${pkgs.networkmanager}/bin/nmcli -t -f type,state,connection dev)
-            if is_ethernet || is_trusted; then
-              if is_up; then
-                ${pkgs.wireguard-tools}/bin/wg-quick down "${wireguardConfigFile}"
-              fi
-            else
-              if ! is_up; then
-                ${pkgs.wireguard-tools}/bin/wg-quick up "${wireguardConfigFile}"
-              fi
-            fi
+            [[ "$CONNECTIVITY_STATE" = "FULL" ]] || exit 0
             ;;
+          *) exit 0 ;;
         esac
+
+        if is_ethernet || is_trusted; then
+          is_up && ${pkgs.wireguard-tools}/bin/wg-quick down "${wireguardConfigFile}"
+        else
+          is_up || ${pkgs.wireguard-tools}/bin/wg-quick up "${wireguardConfigFile}"
+        fi
       '';
       type = "basic";
     }
   ];
 
   networking.networkmanager.unmanaged = [ "interface-name:wg0" ];
+
+  # Keep openresolv from invoking systemd-resolved (not enabled on this host);
+  # otherwise wg-quick's `resolvconf -a wg0` rolls the tunnel back when the
+  # resolvectl/systemd-resolved subscribers try to dbus-activate resolved.
+  #networking.resolvconf.extraConfig = ''
+  #  resolvectl=NO
+  #  systemd_resolved=NO
+  #'';
 }
