@@ -2,4 +2,5 @@
 
 dir="$HOME/Media/Screenshots/$(date +%Y)"
 mkdir -p "$dir"
-grim -g "$(slurp)" "$dir/$(date +%Y-%m-%d_%H-%M-%S).png"
+file="$dir/$(date +%Y-%m-%d_%H-%M-%S).png"
+grim -g "$(slurp)" "$file" && notify-send -i "$file" "Screenshot saved" "$file"
