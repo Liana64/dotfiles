@@ -38,12 +38,12 @@
       --color-purple: ${colors.pink};   --color-purple-rgb: ${rgb colors.pink};
       --color-pink: ${colors.pink};     --color-pink-rgb: ${rgb colors.pink};
 
-      --h1-color: ${colors.red};
-      --h2-color: ${colors.orange};
-      --h3-color: ${colors.lime};
-      --h4-color: ${colors.green};
-      --h5-color: ${colors.emerald};
-      --h6-color: ${colors.pink};
+      --h1-color: ${colors.emerald};
+      --h2-color: ${colors.pink};
+      --h3-color: ${colors.red};
+      --h4-color: ${colors.orange};
+      --h5-color: ${colors.lime};
+      --h6-color: ${colors.green};
       --inline-title-color: ${colors.orange};
 
       --bold-color: ${colors.orange};
@@ -153,12 +153,13 @@ in {
   home.file."${vault}/.obsidian/core-plugins.json".source =
     lib.mkForce ((pkgs.formats.json { }).generate "core-plugins.json" corePlugins);
 
-  # Move pre-existing real config aside so home-manager can link its own.
+  # Clear real config so home-manager can link its own. Obsidian rewrites these
+  # at runtime; back the original aside once, then discard later drift each run.
   home.activation.obsidianAdopt = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
     d="$HOME/${vault}/.obsidian"
     for f in app.json appearance.json core-plugins.json core-plugins-migration.json community-plugins.json hotkeys.json; do
-      if [ -e "$d/$f" ] && [ ! -L "$d/$f" ] && [ ! -e "$d/$f.pre-hm" ]; then
-        mv "$d/$f" "$d/$f.pre-hm"
+      if [ -e "$d/$f" ] && [ ! -L "$d/$f" ]; then
+        if [ -e "$d/$f.pre-hm" ]; then rm "$d/$f"; else mv "$d/$f" "$d/$f.pre-hm"; fi
       fi
     done
   '';
