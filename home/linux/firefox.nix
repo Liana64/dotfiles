@@ -2,11 +2,12 @@
   pkgs,
   inputs,
   config,
+  colors,
   ...
 }: let
-  inherit (config.lib.stylix) colors;
-  indigo = "#${colors.base0D}";
-  white  = "#${colors.base07}";
+  stylixColors = config.lib.stylix.colors;
+  indigo = "#${stylixColors.base0D}";
+  white  = "#${stylixColors.base07}";
 in {
   programs.firefox = {
     enable = true;
@@ -212,6 +213,13 @@ in {
 
     # Sidebery customization
     userChrome = ''
+      :root {
+        --toolbar-bgcolor: ${colors.darker} !important;
+        --lwt-accent-color: ${colors.darker} !important;
+        --newtab-background-color: ${colors.darker} !important;
+        --sidebar-background-color: ${colors.darker} !important;
+      }
+
       /**
       * Hide sidebar-panel-header (sidebar.revamp: true)
       */
