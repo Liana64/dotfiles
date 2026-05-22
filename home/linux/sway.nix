@@ -161,8 +161,8 @@ in
           "${mod}+k"    = "focus up";
           "${mod}+l" = "focus right";
 
-          "${sup}+Tab" = "focus next";
-          "${sup}+Shift+Tab" = "focus prev";
+          "${mod}+Tab" = "focus next";
+          "${mod}+Shift+Tab" = "focus prev";
 
           "${mod}+Shift+h"  = "move left";
           "${mod}+Shift+j"  = "move down";

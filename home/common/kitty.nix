@@ -1,4 +1,4 @@
-{ pkgs, colors, ... }:
+{ colors, ... }:
 {
   programs.kitty = {
     enable = true;
@@ -44,7 +44,7 @@
 
       # blueberry palette
       background = colors.background;
-      foreground = colors.foreground;
+      foreground = colors.white;
       cursor = colors.cursorColor;
       selection_background = colors.gray;
       selection_foreground = colors.foreground;
@@ -59,40 +59,54 @@
     };
 
     keybindings = {
+      # Shell passthrough
       "shift+enter" = "send_text all \\e\\r";
-      "ctrl+left" = "send_text all \\x1b[1;5D";
-      "ctrl+right" = "send_text all \\x1b[1;5C";
-      "alt+left" = "send_text all \\x1b[1;5D";
-      "alt+right" = "send_text all \\x1b[1;5C";
-      "ctrl+delete" = "send_text all \\x1bd\\x7f";
-      #"ctrl+delete" = "send_text all \\x1bd";
+      "ctrl+left"   = "send_text all \\x1b[1;5D";
+      "ctrl+right"  = "send_text all \\x1b[1;5C";
+      "ctrl+delete"    = "send_text all \\x1bd\\x7f";
+      "ctrl+backspace" = "send_text all \\x1b\\x7f";
 
-      # Panes
-      "cmd+d" = "launch --dont-take-focus --location=vsplit --cwd=current";
-      "cmd+shift+d" = "launch --dont-take-focus --location=hsplit --cwd=current";
+      # Scrollback
+      "shift+page_up"   = "scroll_page_up";
+      "shift+page_down" = "scroll_page_down";
+      "shift+home"      = "scroll_home";
+      "shift+end"       = "scroll_end";
+
+      # Clipboard & font
+      "ctrl+shift+c"     = "copy_to_clipboard";
+      "ctrl+shift+v"     = "paste_from_clipboard";
+      "ctrl+shift+plus"  = "change_font_size all +1.0";
+      "ctrl+shift+minus" = "change_font_size all -1.0";
+      "ctrl+shift+0"     = "change_font_size all 0";
 
       # Tabs
-      "ctrl+tab" = "next_tab";
-      "ctrl+shift+tab" = "prev_tab";
-      "cmd+h" = "neighboring_window left";
-      "cmd+l" = "neighboring_window right";
-      "cmd+j" = "neighboring_window down";
-      "cmd+k" = "neighboring_window up";
-      "cmd+1" = "goto_tab 1";
-      "cmd+2" = "goto_tab 2";
-      "cmd+3" = "goto_tab 3";
-      "cmd+4" = "goto_tab 4";
-      "cmd+5" = "goto_tab 5";
-      "cmd+6" = "goto_tab 6";
-      "cmd+7" = "goto_tab 7";
-      "cmd+8" = "goto_tab 8";
-      "cmd+9" = "goto_tab 9";
-      "cmd+0" = "goto_tab 10";
-      "ctrl+t" = "new_tab_with_cwd";
-      "ctrl+w" = "close_tab";
-      "ctrl+shift+i" = "set_tab_title";
-      "ctrl+shift+c" = "copy_to_clipboard";
-      "ctrl+shift+v" = "paste_from_clipboard";
+      "super+t"     = "new_tab_with_cwd";
+      "super+i"     = "set_tab_title";
+      "super+left"  = "prev_tab";
+      "super+right" = "next_tab";
+      "super+tab"       = "next_tab";
+      "super+shift+tab" = "prev_tab";
+      "super+shift+left"  = "move_tab_backward";
+      "super+shift+right" = "move_tab_forward";
+      "super+1" = "goto_tab 1";
+      "super+2" = "goto_tab 2";
+      "super+3" = "goto_tab 3";
+      "super+4" = "goto_tab 4";
+      "super+5" = "goto_tab 5";
+      "super+6" = "goto_tab 6";
+      "super+7" = "goto_tab 7";
+      "super+8" = "goto_tab 8";
+      "super+9" = "goto_tab 9";
+      "super+0" = "goto_tab 10";
+
+      # Panes
+      "super+backslash" = "launch --dont-take-focus --location=vsplit --cwd=current";
+      "super+minus"     = "launch --dont-take-focus --location=hsplit --cwd=current";
+      "super+w"         = "close_window";
+      "super+h" = "neighboring_window left";
+      "super+j" = "neighboring_window down";
+      "super+k" = "neighboring_window up";
+      "super+l" = "neighboring_window right";
     };
   };
   xdg.configFile."kitty/startup.session".text = ''
