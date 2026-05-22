@@ -44,10 +44,10 @@
     lm_sensors        # Temperature sensors
   ];
 
-  # Disable PCIe ASPM. Without this, the CalDigit TS4 dock's internal PCIe
-  # link (igc NIC, USB-C PD) drops under load, taking the system with it.
+  # pcie_aspm=off used to prevent link drops under load for the Caldigit TS4,
+  # now it's probably not needed anymore.
   boot.kernelParams = [
-    "pcie_aspm=off"
+    #"pcie_aspm=off"
     "quiet"
     "splash"
     "udev.log_level=3"
@@ -57,5 +57,4 @@
   # Keep boot console quiet so kernel/udev messages don't overwrite plymouth/tuigreet
   boot.consoleLogLevel = 3;
   boot.initrd.verbose = false;
-
 }
