@@ -1,15 +1,16 @@
-{ inputs, pkgs, lib, ... }: let
+{ inputs, pkgs, lib, colors, ... }: let
   # Single literal palette. Stored with `#` for IDE color preview.
   # base16Scheme below strips `#` because stylix wants raw hex.
   palette = {
-    base00 = "#222222"; # default background
-    base01 = "#282828"; # lighter bg / mbg
+    base00 = "#222222"; # background
+    base01 = "#282828"; # light background
     base02 = "#3c3836"; # selection / gray
     base03 = "#928374"; # comments
     base04 = "#bdae93";
-    base05 = "#fbf1c7"; # default foreground
+    base05 = "#fffcf3"; # light foreground
+    #base05 = "#fbf1c7"; # dark foreground
     base06 = "#ddc7a1";
-    base07 = "#ffffff";
+    base07 = "#ffffff"; # white
     base08 = "#ea6962"; # red
     base09 = "#e79a4e"; # orange
     base0A = "#d8a657"; # yellow
@@ -80,6 +81,12 @@ in {
       swaylock.enable = false;
       mako.enable     = false;
       firefox.profileNames = [ "liana" ];
+
+      # Thunar (and other GTK apps) use these named colors for view/window bg.
+      gtk.extraCss = ''
+        @define-color window_bg_color ${colors.darker};
+        @define-color view_bg_color ${colors.darker};
+      '';
     };
   };
 
@@ -89,7 +96,7 @@ in {
 
   # Override stylix' sway colors: translucent indigo on focused, invisible otherwise.
   wayland.windowManager.sway.config.colors = let
-    focus = "${indigo}80";
+    focus = "${indigo}cc";
     invisible = {
       border = "#00000000"; background = "#00000000";
       text = white; indicator = "#00000000"; childBorder = "#00000000";
