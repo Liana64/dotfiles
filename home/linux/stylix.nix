@@ -74,7 +74,6 @@ in {
     # Modules with manual theming today — migrate one at a time.
     targets = {
       waybar.enable   = false;
-      rofi.enable     = false;
       kitty.enable    = false;
       neovim.enable   = false;
       swaylock.enable = false;
@@ -139,16 +138,4 @@ in {
     caps-lock-bs-hl-color  = rgba red;
   };
 
-  # Mako notifications: dark, indigo border, red for high-urgency.
-  services.mako.settings = {
-    background-color = mbg;
-    border-color     = indigo;
-    text-color       = foreground;
-    border-size      = 1;
-    progress-color   = "over ${indigo}33";
-
-    "urgency=high" = {
-      border-color = red;
-    };
-  };
 }

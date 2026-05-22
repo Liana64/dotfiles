@@ -12,11 +12,13 @@
     ./mime.nix
     ./obsidian.nix
     ./packages.nix
-    ./rofi.nix
     ./sway.nix
     ./swaybg.nix
     ./syncthing.nix
     ./stylix.nix
+    ./thunderbird.nix
+    ./vesktop.nix
+    ./vicinae.nix
     ./waybar.nix
     ./xdg-userdirs.nix
   ];

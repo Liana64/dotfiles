@@ -29,7 +29,16 @@ in
   systemd.user.targets.graphical.Unit.Wants = [ "xdg-desktop-autostart.target" ];
   wayland.windowManager.sway = {
     enable = true;
-    systemd.enable = true;
+    systemd = {
+      enable = true;
+      # Import PATH and XDG_DATA_DIRS so launched apps resolve binaries and desktop entries.
+      variables = [
+        "DISPLAY" "WAYLAND_DISPLAY" "SWAYSOCK"
+        "XDG_CURRENT_DESKTOP" "XDG_SESSION_TYPE"
+        "NIXOS_OZONE_WL" "XCURSOR_THEME" "XCURSOR_SIZE"
+        "PATH" "XDG_DATA_DIRS"
+      ];
+    };
     xwayland = false;
     package = pkgs.sway;
     wrapperFeatures.gtk = true;
@@ -74,8 +83,7 @@ in
     '';
     config = {
       terminal = "kitty";
-      menu = "rofi -show drun";
-      #menu = "vicinae toggle";
+      menu = "vicinae toggle";
       startup = [
         { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; }
         { command = "kitty --session startup.session"; }
