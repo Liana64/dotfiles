@@ -28,11 +28,42 @@ vim.api.nvim_create_autocmd("VimEnter", {
   end,
 })
 
+-- Keep a normal editor window so the explorer is never left as the only window
+do
+  local quitting = false
+  vim.api.nvim_create_autocmd("ExitPre", {
+    callback = function() quitting = true end,
+  })
+  vim.api.nvim_create_autocmd("WinClosed", {
+    callback = function()
+      if quitting then return end
+      vim.schedule(function()
+        if quitting then return end
+        local explorer, normal = nil, 0
+        for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+          if vim.api.nvim_win_is_valid(w) and vim.api.nvim_win_get_config(w).relative == "" then
+            if vim.w[w].snacks_layout then
+              explorer = w
+            else
+              normal = normal + 1
+            end
+          end
+        end
+        if explorer and normal == 0 then
+          vim.cmd("botright vnew")
+          vim.api.nvim_win_set_width(explorer, 40) -- snacks sidebar width
+          vim.api.nvim_set_current_win(explorer)
+        end
+      end)
+    end,
+  })
+end
+
 Snacks.setup({
   indent = {
     enabled = true,
-    char = "┊",
-    scope = { enabled = true },
+    indent = { char = "┊" },
+    scope = { enabled = true, char = "┊" },
     animate = { enabled = false },
   },
 
@@ -121,4 +152,5 @@ Snacks.setup({
   win = { enabled = true },
 })
 
-vim.api.nvim_set_hl(0, "SnacksIndent", { fg = "#bdae93" }) -- base04
+vim.api.nvim_set_hl(0, "SnacksIndent", { fg = "#3c3836" }) -- base02
+vim.api.nvim_set_hl(0, "SnacksIndentScope", { fg = "#928374" }) -- base03
