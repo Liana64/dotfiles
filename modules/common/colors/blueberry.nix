@@ -4,7 +4,7 @@ rec {
   wallpaper = "/nix/dotfiles/wallpapers/flower.png";
   foreground = "#fbf1c7";
   background = "#222222";
-  darker = "#181818";
+  darker = "#18182c";
   accent = "#a9b665";
   mbg = "#282828";
 
