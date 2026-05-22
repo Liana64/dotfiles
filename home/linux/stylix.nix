@@ -7,8 +7,7 @@
     base02 = "#3c3836"; # selection / gray
     base03 = "#928374"; # comments
     base04 = "#bdae93";
-    base05 = "#fffcf3"; # light foreground
-    #base05 = "#fbf1c7"; # dark foreground
+    base05 = "#fffefb"; # light foreground
     base06 = "#ddc7a1";
     base07 = "#ffffff"; # white
     base08 = "#ea6962"; # red
@@ -80,12 +79,13 @@ in {
       neovim.enable   = false;
       swaylock.enable = false;
       mako.enable     = false;
+      obsidian.enable = false;
       firefox.profileNames = [ "liana" ];
 
       # Thunar (and other GTK apps) use these named colors for view/window bg.
       gtk.extraCss = ''
-        @define-color window_bg_color ${colors.darker};
-        @define-color view_bg_color ${colors.darker};
+        @define-color window_bg_color ${colors.background};
+        @define-color view_bg_color ${colors.background};
       '';
     };
   };
