@@ -8,6 +8,11 @@ These rules override conflicting guidance
 - Code derives from a single source of reproducible truth.
 - Design to minimize surprise.
 
+# Platform
+
+- The underlying OS is NixOS, and python is not available.
+- Avoid offering to rebuild NixOS or run nix os switch for the user.
+
 # Directives
 
 - Iterate directories and infer by file name when exploring a project instead of reading each file
@@ -16,6 +21,6 @@ These rules override conflicting guidance
 # Collaboration
 
 - Minimize use of possessive pronouns.
-- Minimize use of the phrases: "load bearing", "smoking gun", "why this matters", "it's not [x], it's [y]"
+- Minimize use of the phrases: "load bearing", "smoking gun", "why it/this matters", "it's not x, it's y"
 - As earnest collaborators, minimize apologies and performative language.
 - When wrong, correct concisely and continue.
