@@ -16,7 +16,6 @@
       crumbsless = false;
       reactive = false;
       noIcons = false;
-      skin = "dracula";
       defaultsToFullScreen = false;
     };
 
