@@ -1,0 +1,12 @@
+#!/bin/sh
+# Codicon VPN glyphs (U+EBC1/EBC2) have uneven side-bearing; icon spacing looks slightly off.
+net_state=""
+[ -r /run/wg-network-state ] && read -r net_state < /run/wg-network-state
+
+if [ -e /proc/sys/net/ipv4/conf/wg0 ]; then
+    printf '{"text": " ", "class": "connected", "tooltip": "VPN connected"}\n'
+elif [ "$net_state" = untrusted ]; then
+    printf '{"text": " ", "class": "untrusted", "tooltip": "VPN off, untrusted network"}\n'
+else
+    printf '{"text": " ", "class": "disconnected", "tooltip": "VPN off"}\n'
+fi

@@ -68,8 +68,10 @@ in
         esac
 
         if is_ethernet || is_trusted; then
+          echo safe > /run/wg-network-state
           is_up && ${pkgs.wireguard-tools}/bin/wg-quick down "${wireguardConfigFile}"
         else
+          echo untrusted > /run/wg-network-state
           is_up || ${pkgs.wireguard-tools}/bin/wg-quick up "${wireguardConfigFile}"
         fi
       '';
@@ -78,6 +80,33 @@ in
   ];
 
   networking.networkmanager.unmanaged = [ "interface-name:wg0" ];
+
+  # Manual VPN toggle for waybar — wg-quick directly so it mirrors the dispatcher.
+  systemd.services.vpn-toggle = {
+    description = "Toggle the WireGuard tunnel";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = pkgs.writeShellScript "vpn-toggle" ''
+        export PATH=${pkgs.openresolv}/bin:$PATH
+        if ${pkgs.iproute2}/bin/ip link show wg0 &>/dev/null; then
+          ${pkgs.wireguard-tools}/bin/wg-quick down "${wireguardConfigFile}"
+        else
+          ${pkgs.wireguard-tools}/bin/wg-quick up "${wireguardConfigFile}"
+        fi
+      '';
+    };
+  };
+
+  # Let a wheel user (waybar) start vpn-toggle without authenticating.
+  security.polkit.extraConfig = ''
+    polkit.addRule(function(action, subject) {
+      if (action.id == "org.freedesktop.systemd1.manage-units" &&
+          action.lookup("unit") == "vpn-toggle.service" &&
+          subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+      }
+    });
+  '';
 
   # Keep openresolv from invoking systemd-resolved (not enabled on this host);
   # otherwise wg-quick's `resolvconf -a wg0` rolls the tunnel back when the

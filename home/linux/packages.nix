@@ -6,6 +6,7 @@
     cosign
     cider-2
     moreutils
+    networkmanagerapplet
     pavucontrol
     pciutils
     protonmail-bridge

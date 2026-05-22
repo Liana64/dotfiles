@@ -5,6 +5,7 @@ let
     paths = with pkgs; [
       (writeShellScriptBin "waybar-usbguard" (builtins.readFile ../../modules/linux/bin/waybar-usbguard))
       (writeShellScriptBin "waybar-yubikey" (builtins.readFile ../../modules/linux/bin/waybar-yubikey))
+      (writeShellScriptBin "waybar-vpn" (builtins.readFile ../../modules/linux/bin/waybar-vpn))
       usbguard
     ];
     buildInputs = [ pkgs.makeWrapper ];
@@ -23,7 +24,11 @@ in
     };
 
     style = ''
+      @define-color surface mix(${darker}, ${indigo}, 0.5);
+      @define-color alert   mix(${color0}, ${red}, 0.5);
+
       * {
+        font-family: "JetBrainsMono Nerd Font";
         font-size: 12px;
         min-height: 0;
       }
@@ -33,68 +38,126 @@ in
         color: ${foreground};
       }
 
-      #workspaces {
-        font-family: "JetBrainsMono Nerd Font";
-        background-color: ${darker};
-        margin: 0;
+      tooltip {
+        background: ${darker};
+        border: 1px solid ${color0};
+        border-radius: 8px;
       }
 
-      #workspaces button {
-        background-color: transparent;
-        color: ${white};
-        border-radius: 0;
-        border-bottom: 2px solid transparent;
-        transition: all 0.1s ease;
-      }
-
-      #workspaces button.focused {
-        border-bottom: 2px solid ${indigo};
-      }
-
-      #workspaces button.persistent {
+      tooltip label {
         color: ${foreground};
       }
 
+      menu,
+      menuitem {
+        font-family: "Cantarell";
+        font-size: 12px;
+      }
+
+      #clock,
+      #network,
+      #battery,
+      #bluetooth,
+      #pulseaudio,
+      #tray,
+      #custom-launcher,
+      #custom-vpn,
+      #custom-usbguard,
+      #custom-yubikey,
+      #custom-syncthing {
+        color: ${white};
+        margin: 3px 2px;
+        padding: 2px 8px;
+        border-radius: 8px;
+        transition: background-color 0.15s ease, color 0.15s ease;
+      }
+
       #custom-launcher {
-        background-color: ${darker};
         color: ${white};
-        margin : 4px 4.5px;
-        padding : 2px 4px;
+        font-size: 14px;
+        margin-left: 5px;
       }
 
-      #clock, #network, #bluetooth, #battery, #pulseaudio, #tray, #custom-vpn, #custom-usbguard, #custom-yubikey, #custom-syncthing {
+      #custom-launcher:hover {
+        background: @surface;
         color: ${white};
-        background-color: ${darker};
-        margin: 4px 2px 4px 4.5px;
-        padding: 2px 6px;
       }
 
-      #network.ethernet, #bluetooth.on {
+      #clock {
+        font-family: "Cantarell";
+        font-size: 13px;
+        background: @surface;
+        padding: 2px 12px;
+      }
+
+      #tray {
+        background: @surface;
+        margin-right: 5px;
+      }
+
+      #workspaces {
+        margin: 3px 4px;
+      }
+
+      #workspaces button {
+        color: ${comment};
+        min-width: 16px;
+        padding: 1px 8px;
+        margin: 0 1px;
+        border: none;
+        border-radius: 6px;
+        box-shadow: none;
+      }
+
+      #workspaces button:not(.empty) {
+        color: ${white};
+      }
+
+      #workspaces button:hover,
+      #network:hover,
+      #battery:hover,
+      #bluetooth:hover,
+      #pulseaudio:hover,
+      #custom-vpn:hover,
+      #custom-usbguard:hover,
+      #custom-yubikey:hover,
+      #custom-syncthing:hover {
+        background: @surface;
+        color: ${white};
+      }
+
+      #workspaces button.focused {
+        background: ${indigo};
+        color: ${white};
+      }
+
+      #workspaces button.urgent {
+        background: @alert;
+        color: ${white};
+      }
+
+      #network.ethernet,
+      #bluetooth.on {
+        background: ${tan};
         color: ${darker};
-        background-color: ${tan};
-        margin: 4px 2px 4px 4.5px;
-        padding: 2px 6px;
       }
 
-      #network.disconnected, #custom-syncthing.disconnected, #battery.critical {
-        color: ${white};
-        background-color: ${red};
-        margin: 4px 2px 4px 4.5px;
-        padding: 2px 6px;
+      #network.disconnected,
+      #custom-syncthing.disconnected,
+      #custom-vpn.untrusted,
+      #battery.critical {
+        background: @alert;
       }
 
-      #battery.warning, #usbguard.blocked {
-        color: ${white};
-        background-color: ${orange};
-        margin: 4px 2px 4px 4.5px;
-        padding: 2px 6px;
+      #battery.warning,
+      #custom-usbguard.blocked {
+        background: ${orange};
       }
 
-      #battery.charging, #custom-vpn.connected, #bluetooth.connected {
-        color: ${white};
-        background-color: ${green};
-        margin: 4px 2px 4px 4.5px;
-        padding: 2px 6px;
+      #battery.charging,
+      #custom-vpn.connected,
+      #bluetooth.connected {
+        background: ${green};
       }
     '';
 
@@ -111,10 +174,8 @@ in
         
         "custom/launcher" = {
           format = " ";
-        };
-
-        "custom/power" = {
-          format = " ";
+          tooltip = false;
+          on-click = "${pkgs.vicinae}/bin/vicinae toggle";
         };
 
         # Credit: KyleOndy
@@ -147,7 +208,7 @@ in
             "8:x" = [];
             "9:c" = [];
           };
-          disable-click = true;
+          disable-click = false;
         };
 
         "sway/mode" = {
@@ -157,7 +218,7 @@ in
         clock = {
           format = "{:%a %b %e %I:%M %p}";
           tooltip-format = "{:%Y-%m-%d | %H:%M}";
-          #on-click = "open some calendar";
+          on-click = "flatpak run org.mozilla.Thunderbird -calendar";
         };
 
         battery = {
@@ -175,15 +236,10 @@ in
         };
 
         "custom/vpn" = {
-          exec = ''
-            if [ -e /proc/sys/net/ipv4/conf/wg0 ]; then
-              echo '{"text": " ", "class": "connected"}'
-            else
-              echo '{"text": " ", "class": "disconnected"}'
-            fi
-          '';
+          exec = "${app}/bin/waybar-vpn";
           return-type = "json";
-          interval = 5;
+          interval = 3;
+          on-click = "systemctl start vpn-toggle.service";
         };
 
         "custom/syncthing" = {
@@ -201,12 +257,13 @@ in
 
         network = {
           interval = 2;
-          format-wifi = "     {essid}";
-          format-ethernet = "󰈀    {ifname}";
-          format-linked = "󰌗   {ifname}";
+          format-wifi = " {essid}";
+          format-ethernet = "󰈀 {ifname}";
+          format-linked = "󰌗 {ifname}";
           format-disconnected = " ";
           tooltip-format = "{essid} {ifname}";
           tooltip-format-ethernet = "{ifname}  {ipaddr}/{cidr}\nvia {gwaddr}\n  {bandwidthDownBits}    {bandwidthUpBits}";
+          on-click = "${pkgs.networkmanagerapplet}/bin/nm-connection-editor";
         };
         
         bluetooth = {
@@ -222,8 +279,6 @@ in
 
         pulseaudio = {
           format = "󱄠   {volume}%";
-          #format-bluetooth = "{icon} {volume}% {format_source}";
-          #format-bluetooth-muted = "{icon} {format_source}";
           format-muted = "󰸈";
           format-source = "";
           format-source-muted = "";

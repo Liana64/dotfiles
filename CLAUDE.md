@@ -10,7 +10,7 @@ NixOS + home-manager dotfiles via Nix Flakes.
   - `oob`, `small` — deprecated, ignore.
 - `modules/{common,linux,hardware}/` — NixOS modules. `modules/common/colors/blueberry.nix` is injected as the `colors` specialArg.
 - `home/{common,linux}/` — home-manager modules. `home/linux/default.nix` imports `../common`.
-- `agentic/` — materialized into `~/.claude/` by `home/linux/agentic.nix`: `CLAUDE.md` → global user CLAUDE.md, `system/*.md` → `~/.claude/agents/`.
+- `agentic/` — materialized into `~/.claude/` by `home/linux/agentic.nix`: `AGENTS.md` → global user `~/.claude/CLAUDE.md`, `system/*.md` → `~/.claude/agents/`.
 
 ## Conventions
 - One feature per `.nix`; `default.nix` aggregates siblings. New module → add to the relevant `default.nix`.
