@@ -38,14 +38,14 @@ in
       # Inhibit idle if any window is fullscreen
       for_window [app_id=".*"] inhibit_idle fullscreen
 
-      assign [app_id="kitty"] workspace q
-      assign [app_id="Thunderbird"] workspace e
-      assign [app_id="Element"] workspace s
-      assign [app_id="signal"] workspace s
-      assign [app_id="vesktop"] workspace s
-      assign [class="obsidian"] workspace d
-      assign [class="Cider"] workspace z
-      assign [class="Todoist"] workspace c
+      assign [app_id="kitty"] workspace 1:q
+      assign [app_id="Thunderbird"] workspace 3:e
+      assign [app_id="Element"] workspace 5:s
+      assign [app_id="signal"] workspace 5:s
+      assign [app_id="vesktop"] workspace 5:s
+      assign [class="obsidian"] workspace 6:d
+      assign [class="Cider"] workspace 7:z
+      assign [class="Todoist"] workspace 9:c
 
       # Settings
       font pango:JetBrainsMono Nerd Font 10
@@ -90,7 +90,7 @@ in
       gaps = {
         inner = 4;
         outer = 4;
-        smartGaps = true;
+        #smartGaps = true;
         smartBorders = "on";
       };
       window.titlebar = false;
@@ -111,6 +111,9 @@ in
 
           "print" = "exec '${app}/bin/sway-screenshot-area'";
           "Shift+print" = "exec '${app}/bin/sway-screenshot-all'";
+
+          "${sup}+Shift+1" = "exec '${app}/bin/sway-screenshot-all'";
+          "${sup}+Shift+2" = "exec '${app}/bin/sway-screenshot-area'";
 
           "${sup}+Shift+3" = "exec 'grim - | wl-copy'";
           "${sup}+Shift+4" = "exec 'grim -g \"$(slurp)\" - | wl-copy'";
@@ -182,32 +185,33 @@ in
           "${mod}+Shift+Space" = "floating toggle";
           "${mod}+y" = "focus mode_toggle";
 
-          "${mod}+q" = "workspace q";
-          "${mod}+w" = "workspace w";
-          "${mod}+e" = "workspace e";
-          "${mod}+a" = "workspace a";
-          "${mod}+s" = "workspace s";
-          "${mod}+d" = "workspace d";
-          "${mod}+z" = "workspace z";
-          "${mod}+x" = "workspace x";
-          "${mod}+c" = "workspace c";
+          "${mod}+q" = "workspace 1:q";
+          "${mod}+w" = "workspace 2:w";
+          "${mod}+e" = "workspace 3:e";
+          "${mod}+a" = "workspace 4:a";
+          "${mod}+s" = "workspace 5:s";
+          "${mod}+d" = "workspace 6:d";
+          "${mod}+z" = "workspace 7:z";
+          "${mod}+x" = "workspace 8:x";
+          "${mod}+c" = "workspace 9:c";
 
-          "${mod}+Shift+q" = "move container to workspace q";
-          "${mod}+Shift+w" = "move container to workspace w";
+          "${mod}+Shift+q" = "move container to workspace 1:q";
+          "${mod}+Shift+w" = "move container to workspace 2:w";
           "${mod}+Control+Shift+w" = "exec 'firefox-esr'";
-          "${mod}+Shift+e" = "move container to workspace e";
-          "${mod}+Control+Shift+e" = "workspace e; exec flatpak run org.mozilla.Thunderbird";
-          "${mod}+Shift+a" = "move container to workspace a";
+          "${mod}+Shift+e" = "move container to workspace 3:e";
+          "${mod}+Control+Shift+e" = "workspace 3:e; exec flatpak run org.mozilla.Thunderbird";
+          "${mod}+Shift+a" = "move container to workspace 4:a";
           "${mod}+Control+Shift+a" = "exec 'firefox-esr \"https://claude.ai\"'";
-          "${mod}+Shift+s" = "move container to workspace s";
-          "${mod}+Control+Shift+s" = "workspace s; exec flatpak run org.signal.Signal";
-          "${mod}+Shift+d" = "move container to workspace d";
-          "${mod}+Control+Shift+d" = "workspace d; exec flatpak run md.obsidian.Obsidian";
-          "${mod}+Shift+z" = "move container to workspace z";
-          "${mod}+Shift+x" = "move container to workspace x";
-          "${mod}+Shift+c" = "move container to workspace c";
-          "${mod}+Control+Shift+x" = "workspace x; exec thunar";
-          "${mod}+Control+Shift+c" = "workspace c; exec flatpak run com.todoist.Todoist";
+          "${mod}+Shift+s" = "move container to workspace 5:s";
+          "${mod}+Control+Shift+s" = "workspace 5:s; exec flatpak run org.signal.Signal";
+          "${mod}+Shift+d" = "move container to workspace 6:d";
+          "${mod}+Control+Shift+d" = "workspace 6:d; exec flatpak run md.obsidian.Obsidian";
+          "${mod}+Shift+z" = "move container to workspace 7:z";
+          "${mod}+Shift+x" = "move container to workspace 8:x";
+          "${mod}+Shift+c" = "move container to workspace 9:c";
+          "${mod}+Control+Shift+x" = "workspace 8:x; exec thunar";
+          "${mod}+Control+Return" = "exec thunar";
+          "${mod}+Control+Shift+c" = "workspace 9:c; exec flatpak run com.todoist.Todoist";
 
           "${sup}+Shift+q" = "kill";
           "${sup}+Shift+e" =
@@ -240,7 +244,8 @@ in
         "eDP-1" = {
           resolution = "2880x1920@120Hz";
           position = "0,0";
-          scale = "1.9";
+          #scale = "1.9";
+          scale = "1.8";
         };
         "DP-5" = {
           resolution = "3440x1440@144Hz";

@@ -134,16 +134,18 @@ in
         "sway/workspaces" = {
           disable-scroll = true;
           all-outputs = true;
+          sort-by-number = true;
+          format = "{name}";
           persistent_workspaces = {
-            "q" = []; 
-            "w" = [];
-            "e" = [];
-            "a" = [];
-            "s" = [];
-            "d" = [];
-            "z" = [];
-            "x" = [];
-            "c" = [];
+            "1:q" = [];
+            "2:w" = [];
+            "3:e" = [];
+            "4:a" = [];
+            "5:s" = [];
+            "6:d" = [];
+            "7:z" = [];
+            "8:x" = [];
+            "9:c" = [];
           };
           disable-click = true;
         };
@@ -168,7 +170,8 @@ in
             warning = 35;
           };
           tooltip = true;
-          tooltip-format = "{capacity}%";
+          tooltip-format = "{capacity}% — {time}";
+          tooltip-format-charging = "{capacity}% — {time} until full";
         };
 
         "custom/vpn" = {
@@ -203,6 +206,7 @@ in
           format-linked = "󰌗   {ifname}";
           format-disconnected = " ";
           tooltip-format = "{essid} {ifname}";
+          tooltip-format-ethernet = "{ifname}  {ipaddr}/{cidr}\nvia {gwaddr}\n  {bandwidthDownBits}    {bandwidthUpBits}";
         };
         
         bluetooth = {
