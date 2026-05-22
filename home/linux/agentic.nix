@@ -76,7 +76,7 @@ in
   };
 
   home.file = {
-    ".claude/CLAUDE.md".source = ../../agentic/CLAUDE.md;
+    ".claude/CLAUDE.md".source = ../../agentic/AGENTS.md;
   } // lib.mapAttrs'
     (name: _: lib.nameValuePair ".claude/agents/${name}" {
       source = systemDir + "/${name}";
