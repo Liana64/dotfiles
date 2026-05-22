@@ -64,6 +64,7 @@ in
     grim
     dbus
     slurp
+    libnotify
     libsecret
   ] ++ lib.optionals useSway [
     swaybg

@@ -58,7 +58,6 @@
     android-tools
     backblaze-b2
     gptfdisk
-    libnotify
     nh
     seahorse
     just
