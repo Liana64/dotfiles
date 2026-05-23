@@ -154,7 +154,6 @@ in
         background: ${orange};
       }
 
-      #battery.charging,
       #custom-vpn.connected,
       #bluetooth.connected {
         background: ${green};
@@ -223,9 +222,9 @@ in
 
         battery = {
           format = "{icon} {capacity}%";
-          format-charging = "󰂄 {capacity}%";
-          format-icons = [ "󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹" ];
-          format-plugged = "󰚦 ";
+          format-charging = " {icon} {capacity}%";
+          format-icons = [ "" "" "" "" "" ];
+          format-plugged = " ";
           states = {
             critical = 15;
             warning = 35;
@@ -278,8 +277,8 @@ in
         };
 
         pulseaudio = {
-          format = "󱄠   {volume}%";
-          format-muted = "󰸈";
+          format = "{icon} {volume}%";
+          format-muted = " {volume}%";
           format-source = "";
           format-source-muted = "";
           format-icons = {
