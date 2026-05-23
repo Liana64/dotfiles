@@ -1,5 +1,5 @@
-{ pkgs, config, ... }: let
-  inherit (config.lib.stylix.colors.withHashtag) base07 base0D;
+{ pkgs, config, lib, ... }: let
+  inherit (config.lib.stylix.colors.withHashtag) base04 base07 base0D;
 in {
   programs.k9s = {
     enable = true;
@@ -13,6 +13,8 @@ in {
       cursorFgColor = base07;
       cursorBgColor = base0D;
     };
+    # Stylix sets the prompt suggestion to base03 (comment); unreadable on dark bg.
+    skins.stylix.k9s.prompt.suggestColor = lib.mkForce base04;
   };
   xdg.configFile."k9s/plugins.yaml".source =
     (pkgs.formats.yaml {}).generate "plugins.yaml" (import ./k9s/plugins.nix);
