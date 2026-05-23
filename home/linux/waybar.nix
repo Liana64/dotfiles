@@ -257,12 +257,12 @@ in
 
         network = {
           interval = 2;
-          format-wifi = " {essid}";
+          format-wifi = "  {essid}";
           format-ethernet = "󰈀 {ifname}";
           format-linked = "󰌗 {ifname}";
           format-disconnected = " ";
-          tooltip-format = "{essid} {ifname}";
-          tooltip-format-ethernet = "{ifname}  {ipaddr}/{cidr}\nvia {gwaddr}\n  {bandwidthDownBits}    {bandwidthUpBits}";
+          tooltip-format = "{essid} {ifname}\n{ipaddr}/{cidr}\nvia {gwaddr}\n  {bandwidthDownBits}    {bandwidthUpBits}";
+          tooltip-format-ethernet = "{ifname}\n{ipaddr}/{cidr}\nvia {gwaddr}\n  {bandwidthDownBits}    {bandwidthUpBits}";
           on-click = "${pkgs.networkmanagerapplet}/bin/nm-connection-editor";
         };
         
