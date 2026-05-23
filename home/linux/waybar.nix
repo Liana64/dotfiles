@@ -154,6 +154,7 @@ in
         background: ${orange};
       }
 
+      #battery.charging,
       #custom-vpn.connected,
       #bluetooth.connected {
         background: ${green};
@@ -222,7 +223,7 @@ in
 
         battery = {
           format = "{icon} {capacity}%";
-          format-charging = " {icon} {capacity}%";
+          format-charging = " {capacity}%";
           format-icons = [ "" "" "" "" "" ];
           format-plugged = " ";
           states = {

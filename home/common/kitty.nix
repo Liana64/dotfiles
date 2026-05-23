@@ -4,7 +4,7 @@
     enable = true;
     
     font = {
-      name = "DanQing (base16)";
+      name = "JetBrainsMono Nerd Font";
       size = 11;
     };
 
@@ -102,7 +102,8 @@
       # Panes
       "super+backslash" = "launch --dont-take-focus --location=vsplit --cwd=current";
       "super+minus"     = "launch --dont-take-focus --location=hsplit --cwd=current";
-      "super+w"         = "close_window";
+      "super+w"         = "close_window_with_confirmation";
+      "super+shift+w"   = "close_window";
       "super+h" = "neighboring_window left";
       "super+j" = "neighboring_window down";
       "super+k" = "neighboring_window up";
