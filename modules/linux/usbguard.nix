@@ -1,11 +1,8 @@
 { pkgs, ... }: { 
   # Prevent unauthorized USBs from mounting
-  # Use `usbguard generate-policy > /etc/usbguard/rules.conf && chmod 600 /etc/usbguard/rules.conf`
-  # to write authorized defaults
   services.usbguard = {
     enable = true;
     presentControllerPolicy = "apply-policy";
-    # Fix yubikey unavailable on boot
     presentDevicePolicy = "keep";
     IPCAllowedGroups = [ "wheel" ];
     dbus.enable = true;
@@ -33,7 +30,7 @@
     if [ ! -s /etc/usbguard/rules.conf ]; then
       mkdir -p /etc/usbguard
       ${pkgs.usbguard}/bin/usbguard generate-policy > /etc/usbguard/rules.conf
-      chmod 600 /etc/usbguard/rules.conf
+      chmod 0600 /etc/usbguard/rules.conf
     fi
   '';
 }

@@ -222,7 +222,7 @@ in
         };
 
         battery = {
-          format = "{icon} {capacity}%";
+          format = "{icon}  {capacity}%";
           format-charging = " {capacity}%";
           format-icons = [ "" "" "" "" "" ];
           format-plugged = " ";
@@ -279,7 +279,7 @@ in
 
         pulseaudio = {
           format = "{icon} {volume}%";
-          format-muted = " {volume}%";
+          format-muted = "";
           format-source = "";
           format-source-muted = "";
           format-icons = {

@@ -5,6 +5,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+    nixos-hardware.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     
@@ -24,6 +25,13 @@
       url = "github:danth/stylix/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Staged for impermanence migration. Not yet consumed by any host.
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    #impermanence.url = "github:nix-community/impermanence";
   };
 
   outputs = {
@@ -45,6 +53,37 @@
     # pass to it, with each system as an argument
     forAllSystems = nixpkgs.lib.genAttrs systems;
     colors = import ./modules/common/colors/blueberry.nix { };
+    lib = nixpkgs.lib;
+
+    mkUnstable = system: import nixpkgs-unstable {
+      inherit system;
+      config.allowUnfree = true;
+    };
+
+    homeArgs = { system, unstable }: { inherit inputs colors; }
+      // lib.optionalAttrs unstable { nixpkgs-unstable = mkUnstable system; };
+
+    mkNixos = { host, system ? "x86_64-linux", withUnstable ? true }:
+      lib.nixosSystem {
+        specialArgs = { inherit inputs colors; };
+        modules = [
+          ./hosts/${host}/configuration.nix
+          lanzaboote.nixosModules.lanzaboote
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useUserPackages = true;
+            home-manager.users.liana = import ./hosts/${host}/home.nix;
+            home-manager.extraSpecialArgs = homeArgs { inherit system; unstable = withUnstable; };
+          }
+        ];
+      };
+
+    mkHome = { host, system ? "x86_64-linux", withUnstable ? true }:
+      home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.${system};
+        extraSpecialArgs = homeArgs { inherit system; unstable = withUnstable; };
+        modules = [ ./hosts/${host}/home.nix ];
+      };
   in {
     # Your custom packages
     # Accessible through 'nix build', 'nix shell', etc
@@ -68,102 +107,18 @@
     # NixOS configuration entrypoint
     # Available through 'nixos-rebuild --flake .#your-hostname'
     nixosConfigurations = {
-      framework = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit inputs colors; };
-        modules = [
-          ./hosts/framework/configuration.nix
-          lanzaboote.nixosModules.lanzaboote
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useUserPackages = true;
-            home-manager.users.liana = import ./hosts/framework/home.nix;
-            home-manager.extraSpecialArgs = {
-              inherit inputs colors;
-              nixpkgs-unstable = import nixpkgs-unstable {
-                system = "x86_64-linux";
-                config.allowUnfree = true;
-              };
-            };
-          }
-        ];
-      };
-      portable = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit inputs colors; };
-        modules = [
-          ./hosts/portable/configuration.nix
-          lanzaboote.nixosModules.lanzaboote
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useUserPackages = true;
-            home-manager.users.liana = import ./hosts/portable/home.nix;
-            home-manager.extraSpecialArgs = {
-              inherit inputs colors;
-              nixpkgs-unstable = import nixpkgs-unstable {
-                system = "x86_64-linux";
-                config.allowUnfree = true;
-              };
-            };
-          }
-        ];
-      };
-      oob = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit inputs colors; };
-        modules = [
-          ./hosts/oob/configuration.nix
-          lanzaboote.nixosModules.lanzaboote
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useUserPackages = true;
-            home-manager.users.liana = import ./hosts/oob/home.nix;
-            home-manager.extraSpecialArgs = { inherit inputs colors; };
-          }
-        ];
-      };
+      framework = mkNixos { host = "framework"; };
+      portable = mkNixos { host = "portable"; };
+      oob = mkNixos { host = "oob"; withUnstable = false; };
     };
 
     # Standalone home-manager configuration entrypoint
     # Available through 'home-manager --flake .#your-username@your-hostname'
     homeConfigurations = {
-      "liana@framework" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = {
-          inherit inputs colors;
-          nixpkgs-unstable = import nixpkgs-unstable {
-            system = "x86_64-linux";
-            config.allowUnfree = true;
-          };
-        };
-        modules = [
-          ./hosts/framework/home.nix
-        ];
-      };
-      "liana@portable" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = {
-          inherit inputs colors;
-          nixpkgs-unstable = import nixpkgs-unstable {
-            system = "x86_64-linux";
-            config.allowUnfree = true;
-          };
-        };
-        modules = [
-          ./hosts/portable/home.nix
-        ];
-      };
-      "liana@oob" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.aarch64-linux;
-        extraSpecialArgs = {inherit inputs colors;};
-        modules = [
-          ./hosts/oob/home.nix
-        ];
-      };
-      "liana@small" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-        extraSpecialArgs = {inherit inputs colors;};
-        modules = [
-          ./hosts/small/home.nix
-        ];
-      };
+      "liana@framework" = mkHome { host = "framework"; };
+      "liana@portable" = mkHome { host = "portable"; };
+      "liana@oob" = mkHome { host = "oob"; system = "aarch64-linux"; withUnstable = false; };
+      "liana@small" = mkHome { host = "small"; system = "aarch64-darwin"; withUnstable = false; };
     };
   };
 }

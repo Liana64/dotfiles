@@ -7,7 +7,7 @@
       options = "--delete-older-than 30d";
     };
     settings = {
-      experimental-features = [ "nix-command flakes" ];
+      experimental-features = [ "nix-command" "flakes" ];
       warn-dirty = false;
       fallback = true;
       connect-timeout = 1;

@@ -52,12 +52,6 @@
   # See: https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "23.05";
 
-  nixpkgs = {
-    config = {
-      allowUnfree = true;
-    };
-  };
-
   environment.systemPackages = with pkgs; [
     android-tools
     backblaze-b2
@@ -71,6 +65,7 @@
     wget
     wireshark
     lsof
+    opentofu
   ];
 
   nix = let
