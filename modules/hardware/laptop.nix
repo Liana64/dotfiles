@@ -63,11 +63,11 @@ in
 
   systemd.user.services.lock-before-sleep = {
     description = "Lock the screen prior to sleep";
+    before = [ "sleep.target" ];
+    wantedBy = [ "sleep.target" ];
     serviceConfig = hardening.base // {
-      type = "simple";
-      Before = "sleep.target";
+      Type = "oneshot";
       ExecStart = "swaylock -f";
-      WantedBy = "sleep.target";
     };
   };
 
