@@ -1,9 +1,11 @@
-{ inputs, lib, pkgs, nixpkgs-unstable, ... }:
+{ lib, pkgs, nixpkgs-unstable, ... }:
 let
-  systemDir = ../../agentic/system;
-  agents = lib.filterAttrs
-    (name: type: type == "regular" && lib.hasSuffix ".md" name)
-    (builtins.readDir systemDir);
+  linkMd = srcDir: destDir:
+    lib.mapAttrs'
+      (name: _: lib.nameValuePair "${destDir}/${name}" { source = srcDir + "/${name}"; })
+      (lib.filterAttrs
+        (name: type: type == "regular" && lib.hasSuffix ".md" name)
+        (builtins.readDir srcDir));
 
   claudeScripts = pkgs.symlinkJoin {
     name = "claude-scripts";
@@ -25,17 +27,17 @@ in
     enable = true;
     package = nixpkgs-unstable.claude-code;
     settings = {
-      teammateDefaultModel = "opus";
+      autoMemoryEnabled = true;
+      autoDreamEnabled = true;
+      teammateDefaultModel = "claude-opus-4-8";
       alwaysThinkingEnabled = true;
       env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
       permissions.deny = [
-        "Read(./.env)"
-        "Read(./.env.*)"
-        "Read(./*.tfvars)"
-        "Read(./*kubeconfig)"
-        "Read(./secrets/**)"
-        "Read(./config/credentials.json)"
-        "Read(./build)"
+        "Read(.env)"
+        "Read(.env.*)"
+        "Read(*.tfvars)"
+        "Read(*kubeconfig)"
+        "Read(**/secrets/**)"
       ];
       lspServers = {
         lua = {
@@ -77,9 +79,7 @@ in
 
   home.file = {
     ".claude/CLAUDE.md".source = ../../agentic/AGENTS.md;
-  } // lib.mapAttrs'
-    (name: _: lib.nameValuePair ".claude/agents/${name}" {
-      source = systemDir + "/${name}";
-    })
-    agents;
+  }
+  // linkMd ../../agentic/agents ".claude/agents"
+  // linkMd ../../agentic/skills ".claude/skills";
 }

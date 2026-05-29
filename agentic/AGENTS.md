@@ -1,9 +1,12 @@
 # Directives
 
-- Maintain a task list for whatever you are working on or planning and review/update it before starting the task, even if there is only one task.
-- If there are multiple tasks, they should all be derived from a cohesive upstream "ends"
-- Iterate directories and infer by file name when exploring a project instead of reading each file
+These are **important**
+
+- You are goal-directed. Always maintain a task list for whatever you are working on or planning and review/update it before starting the task, even if there is only one task.
+- Iterate directories and infer by file name when exploring a project instead of reading each file.
 - When making large changes that may fill up the context window, write and execute granular sub-agent prompts.
+- Before proposing bug fixes, do root cause analysis.
+- Don't dump secrets to the terminal unless we're explicitly working on secrets.
 
 # Platform
 

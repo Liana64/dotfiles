@@ -2,6 +2,9 @@
 
 NixOS + home-manager dotfiles via Nix Flakes.
 
+## Design
+- Use stylix theming for component design and lib.mkForce when applicable.
+
 ## Layout
 - `flake.nix` — entry point. `nixosConfigurations`: `framework`, `portable`, `oob`. `homeConfigurations`: `liana@{framework,portable,oob,small}`.
 - `hosts/<name>/` — `configuration.nix`, `home.nix`, `hardware-configuration.nix`.
@@ -19,7 +22,7 @@ NixOS + home-manager dotfiles via Nix Flakes.
 - `stateVersion`: NixOS `23.05`, home-manager `25.11`. Do not change.
 
 ## Build
-- `nh os switch ~/.dotfiles`. Ask before building.
+- `nh os switch ~/.dotfiles`. Don't offer to build.
 
 ## Stale, ignore
 - `README.MD`, `TODO.md`, `scripts/install.sh`.
