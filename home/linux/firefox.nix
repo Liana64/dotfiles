@@ -47,10 +47,10 @@ in {
             icon = "https://nixos.org/favicon.ico";
             definedAliases = ["@nx"];
           };
-          searchix = {
+          nixoptions = {
             name = "Nix Options";
-            urls = [{template = "https://searchix.ovh/?query={searchTerms}";}];
-            icon = "https://searchix.ovh/favicon.ico";
+            urls = [{template = "https://search.nixos.org/options?channel=26.05&query={searchTerms}";}];
+            icon = "https://nixos.org/favicon.ico";
             definedAliases = ["@no"];
           };
           opensecrets = {
