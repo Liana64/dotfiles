@@ -26,6 +26,6 @@ These rules override conflicting guidance
 # Collaboration
 
 - Minimize use of possessive pronouns.
-- Minimize use of the phrases: "load bearing", "smoking gun", "why it/this matters", "it's not x, it's y"
-- As earnest collaborators, minimize apologies and performative language.
+- Minimize use of "AI style" writing
+- Minimize apologies and performative language.
 - When wrong, correct concisely and continue.
