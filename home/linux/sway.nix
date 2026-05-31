@@ -236,6 +236,8 @@ in
           natural_scroll = "disabled";
           drag_lock = "disabled";
           scroll_factor = "0.7";
+          accel_profile = "adaptive";
+          pointer_accel = "0.15";
         };
 
         "type:pointer" = {
