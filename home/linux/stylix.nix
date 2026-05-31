@@ -1,4 +1,4 @@
-{ inputs, pkgs, lib, colors, ... }: let
+{ inputs, pkgs, lib, colors, osConfig, ... }: let
   # Single literal palette. Stored with `#` for IDE color preview.
   # base16Scheme below strips `#` because stylix wants raw hex.
   palette = {
@@ -30,7 +30,7 @@
   green      = palette.base0B;
   indigo     = palette.base0D;
 in {
-  imports = [ inputs.stylix.homeModules.stylix ];
+  imports = [ inputs.stylix.homeModules.stylix inputs.niri.homeModules.stylix ];
 
   stylix = {
     enable = true;
@@ -73,6 +73,9 @@ in {
 
     # Modules with manual theming today — migrate one at a time.
     targets = {
+      # Must be gated: enabling writes programs.niri.settings, which would emit a
+      # niri/config.kdl even on sway hosts (settings defaults null → no file).
+      niri.enable     = (osConfig.compositor or "sway") == "niri";
       waybar.enable   = false;
       kitty.enable    = false;
       neovim.enable   = false;

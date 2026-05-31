@@ -214,7 +214,7 @@ in
         "sway/mode" = {
           tooltip = false;
         };
-        
+
         clock = {
           format = "{:%a %b %e %I:%M %p}";
           tooltip-format = "{:%Y-%m-%d | %H:%M}";

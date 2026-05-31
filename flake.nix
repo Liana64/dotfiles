@@ -26,6 +26,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    niri = {
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs-stable.follows = "nixpkgs";
+    };
+
     # Staged for impermanence migration. Not yet consumed by any host.
     disko = {
       url = "github:nix-community/disko";
@@ -69,6 +75,7 @@
         modules = [
           ./hosts/${host}/configuration.nix
           lanzaboote.nixosModules.lanzaboote
+          inputs.niri.nixosModules.niri
           home-manager.nixosModules.home-manager
           {
             home-manager.useUserPackages = true;

@@ -1,14 +1,22 @@
  {
+  config,
   lib,
   pkgs,
   ...
 }:
 let
-  compositor = "sway";
-  useSway = compositor == "sway";
-  useNiri = compositor == "niri";
+  cfg = config.compositor;
+  useSway = cfg == "sway";
+  useNiri = cfg == "niri";
 in
 {
+  options.compositor = lib.mkOption {
+    type = lib.types.enum [ "sway" "niri" ];
+    default = "sway";
+    description = "Wayland compositor to use for the graphical session.";
+  };
+
+  config = {
 
   hardware = {
     graphics.enable = true;
@@ -23,6 +31,7 @@ in
 
     niri = {
       enable = useNiri;
+      package = pkgs.niri;
     };
 
     dconf.enable = true;
@@ -31,13 +40,16 @@ in
     light.enable = true;
   };
   
+  # Don't add sodiboo's cachix; niri comes from nixpkgs (pkgs.niri).
+  niri-flake.cache.enable = false;
+
   services = {
     dbus.enable = true;
 
     greetd = {
       enable = true;
       settings.default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd sway";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd ${if useNiri then "niri-session" else "sway"}";
         user = "greeter";
       };
     };
@@ -49,7 +61,9 @@ in
   xdg.portal = {
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-    config.common.default = lib.mkForce ["gtk"];
+    # niri needs the gnome portal (added by its nixos module) for screencast;
+    # forcing gtk-only would shadow it, so scope the force to sway.
+    config.common.default = lib.mkIf useSway (lib.mkForce ["gtk"]);
   };
   
   # Disable screencopy
@@ -57,6 +71,7 @@ in
     enable = false;
   };
 
+  # swaybg/swayidle are compositor-agnostic despite the names.
   environment.systemPackages = with pkgs; [
     fuzzel
     wl-clipboard
@@ -66,9 +81,8 @@ in
     slurp
     libnotify
     libsecret
-  ] ++ lib.optionals useSway [
     swaybg
     swayidle
-    #swaylock
   ];
+  };
 }

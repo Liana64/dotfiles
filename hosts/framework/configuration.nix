@@ -21,6 +21,7 @@
   ];
 
   networking.hostName = "framework";
+  compositor = "sway";
   users.users = {
     liana = {
       shell = pkgs.zsh;

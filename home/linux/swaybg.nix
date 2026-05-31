@@ -10,12 +10,12 @@ in
 {
   systemd.user.services.swaybg = with colors; {
     Unit = {
-      After = ["sway-session.target"];
-      Requisite = ["sway-session.target"];
-      PartOf = ["sway-session.target"];
+      After = ["graphical-session.target"];
+      Requisite = ["graphical-session.target"];
+      PartOf = ["graphical-session.target"];
     };
     Install = {
-      WantedBy = ["sway-session.target"];
+      WantedBy = ["graphical-session.target"];
     };
     Service = hardening.base // {
       ExecStart = "${pkgs.swaybg}/bin/swaybg -i ${wallpaper} -m fill";

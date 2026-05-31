@@ -1,5 +1,6 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, osConfig, ... }:
 let
+  useSway = (osConfig.compositor or "sway") == "sway";
   app = pkgs.symlinkJoin {
     name = "sway-scripts";
     paths = with pkgs; [
@@ -28,7 +29,7 @@ in
 
   systemd.user.targets.graphical.Unit.Wants = [ "xdg-desktop-autostart.target" ];
   wayland.windowManager.sway = {
-    enable = true;
+    enable = useSway;
     systemd = {
       enable = true;
       # Import PATH and XDG_DATA_DIRS so launched apps resolve binaries and desktop entries.
@@ -290,7 +291,10 @@ in
     Hidden=true
   '';
 
-  home.sessionVariables = {
+  home.sessionVariables = lib.optionalAttrs useSway {
+    DESKTOP_SESSION = "sway";
+    XDG_CURRENT_DESKTOP = "sway";
+  } // {
     XDG_SESSION_TYPE = "wayland";
     XDG_DATA_DIRS = "$HOME/.nix-profile/share:${config.home.profileDirectory}/share:$XDG_DATA_DIRS";
 
@@ -299,8 +303,6 @@ in
     OZONE_PLATFORM = "wayland";
     NIXOS_OZONE_WL = "1";
 
-    DESKTOP_SESSION = "sway";
-    XDG_CURRENT_DESKTOP = "sway";
     QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
     QT_SCALE_FACTOR = 1;
     QT_AUTO_SCREEN_SCALE_FACTOR = "0";

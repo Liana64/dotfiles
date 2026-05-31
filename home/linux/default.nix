@@ -10,6 +10,7 @@
     ./gpg.nix
     ./mako.nix
     ./mime.nix
+    ./niri.nix
     ./obsidian.nix
     ./packages.nix
     ./sway.nix
