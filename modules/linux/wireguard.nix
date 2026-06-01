@@ -1,8 +1,19 @@
-{config, pkgs, ...}:
+{config, pkgs, lib, ...}:
 let
   dnsEndpoint = "172.17.0.1";
   wireguardConfigFile = "/var/secrets/wireguard/wg0.conf";
   trustedNetworksFile = "/var/secrets/wireguard/trusted-networks";
+
+  # openresolv first: systemd's resolvconf symlink resolves to resolvectl
+  # otherwise, hijacking wg-quick's DNS setup and rolling the tunnel back.
+  wgAutoconnect = pkgs.writeShellScript "wg-autoconnect" (''
+    export PATH=${lib.makeBinPath [
+      pkgs.openresolv pkgs.networkmanager pkgs.iproute2
+      pkgs.wireguard-tools pkgs.findutils pkgs.gnugrep pkgs.coreutils
+    ]}:$PATH
+    export WG_CONFIG="${wireguardConfigFile}"
+    export TRUSTED_NETWORKS="${trustedNetworksFile}"
+  '' + builtins.readFile ./bin/wireguard-autoconnect);
 in
 {
   # After spending a lot of time troubleshooting issues with wireguard that only seemed
@@ -25,56 +36,7 @@ in
 
   networking.networkmanager.dispatcherScripts = [
     {
-      source = pkgs.writeScript "wg-autoconnect" ''
-        #!${pkgs.bash}/bin/bash
-        # systemd ships `resolvconf` as a symlink to resolvectl; wg-quick's
-        # wrapper only appends openresolv to PATH, so without this prepend
-        # wg-quick calls resolvectl, hits dbus-org.freedesktop.resolve1, and
-        # rolls the tunnel back.
-        export PATH=${pkgs.openresolv}/bin:$PATH
-
-        INTERFACE="$1"
-        ACTION="$2"
-        NM_STATUS=$(${pkgs.networkmanager}/bin/nmcli -t -f type,state,connection dev)
-
-        WG_INTERFACE="wg0"
-        
-        is_up() {
-          ${pkgs.iproute2}/bin/ip link show "$WG_INTERFACE" &>/dev/null
-        }
-
-        is_ethernet() {
-          echo "$NM_STATUS" | grep -q '^ethernet:connected'
-        }
-
-        is_trusted() {
-          local current_ssid=$(${pkgs.networkmanager}/bin/nmcli -t -f active,ssid dev wifi | grep '^yes:' | cut -d: -f2-)
-          [[ -z "$current_ssid" ]] && return 1
-          [[ ! -f "${trustedNetworksFile}" ]] && return 1
-          while IFS= read -r ssid; do
-            [[ "$ssid" =~ ^#.*$ || -z "$ssid" ]] && continue
-            ssid=$(echo "$ssid" | ${pkgs.findutils}/bin/xargs)
-            [[ "$current_ssid" == "$ssid" ]] && return 0
-          done < "${trustedNetworksFile}"
-          return 1
-        }
-        
-        case "$ACTION" in
-          up) ;;
-          connectivity-change)
-            [[ "$CONNECTIVITY_STATE" = "FULL" ]] || exit 0
-            ;;
-          *) exit 0 ;;
-        esac
-
-        if is_ethernet || is_trusted; then
-          echo safe > /run/wg-network-state
-          is_up && ${pkgs.wireguard-tools}/bin/wg-quick down "${wireguardConfigFile}"
-        else
-          echo untrusted > /run/wg-network-state
-          is_up || ${pkgs.wireguard-tools}/bin/wg-quick up "${wireguardConfigFile}"
-        fi
-      '';
+      source = wgAutoconnect;
       type = "basic";
     }
   ];
