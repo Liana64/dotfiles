@@ -1,5 +1,7 @@
-{ config, pkgs, colors, ... }:
+{ config, pkgs, colors, osConfig, ... }:
 let
+  useNiri = (osConfig.compositor or "sway") == "niri";
+  wsModules = if useNiri then [ "niri/workspaces" ] else [ "sway/workspaces" "sway/mode" ];
   app = pkgs.symlinkJoin {
     name = "waybar-scripts";
     paths = with pkgs; [
@@ -14,13 +16,22 @@ let
       wrapProgram $out/bin/waybar-yubikey       --prefix PATH : $out/bin
     '';
   };
+  # Toggle BT via BlueZ HCI power, never rfkill: rfkill power-gates the MT7925
+  # BT-USB function and it fails to re-enumerate on unblock (descriptor read -110).
+  btToggle = pkgs.writeShellScript "bt-toggle" ''
+    if ${pkgs.bluez}/bin/bluetoothctl show | grep -q 'Powered: yes'; then
+      ${pkgs.bluez}/bin/bluetoothctl power off
+    else
+      ${pkgs.bluez}/bin/bluetoothctl power on
+    fi
+  '';
 in
 {
   programs.waybar = with colors; {
     enable = true;
     systemd = {
       enable = true;
-      target = "sway-session.target";
+      target = "graphical-session.target";
     };
 
     style = ''
@@ -168,7 +179,7 @@ in
         height = 14;
         output = [ "*" ];
 
-        modules-left = [ "custom/launcher" "sway/workspaces" "sway/mode" ];
+        modules-left = [ "custom/launcher" ] ++ wsModules;
         modules-center = [ "clock" ];
         modules-right = [ "custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/vpn" "network" "battery" "bluetooth" "pulseaudio" "tray" ];
         
@@ -213,6 +224,10 @@ in
 
         "sway/mode" = {
           tooltip = false;
+        };
+
+        "niri/workspaces" = {
+          format = "{value}";
         };
 
         clock = {
@@ -274,7 +289,7 @@ in
           tooltip-format-connected = "{controller_alias}\t{controller_address}\n\n{device_enumerate}";
           tooltip-format-enumerate-connected = "{device_alias}\t{device_address}";
           on-click = "${pkgs.blueman}/bin/blueman-manager";
-          on-click-right = "${pkgs.util-linux}/bin/rfkill toggle bluetooth";
+          on-click-right = "${btToggle}";
         };
 
         pulseaudio = {

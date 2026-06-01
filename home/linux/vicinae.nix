@@ -5,10 +5,10 @@
     enable = true;
     package = pkgs.vicinae;
 
-    # Start after sway exports the session env so launched apps resolve.
+    # Bind to graphical-session.target so the server starts under both sway and niri.
     systemd = {
       enable = true;
-      target = "sway-session.target";
+      target = "graphical-session.target";
     };
 
     settings = {

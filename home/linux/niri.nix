@@ -1,4 +1,4 @@
-{ config, lib, pkgs, osConfig, ... }:
+{ config, lib, pkgs, colors, osConfig, ... }:
 let
   compositor = osConfig.compositor or "sway";
 
@@ -28,6 +28,30 @@ in
   config = lib.mkIf (compositor == "niri") {
     programs.niri.settings = {
       environment.NIXOS_OZONE_WL = "1";
+
+      animations.enable = false;
+
+      # Ask clients to omit their own titlebars/decorations.
+      prefer-no-csd = true;
+
+      # Border only on the focused window; inactive windows get none.
+      # (overrides the stylix niri target, which enables an always-on border)
+      layout = {
+        border.enable = false;
+        focus-ring = {
+          enable = true;
+          active.color = colors.indigo;
+        };
+        # New windows open mid-size so they never cover existing ones; niri keeps
+        # column widths fixed, so this is one default, not count-driven.
+        # Alt+r cycles width; Alt+Shift+f maximizes a lone window.
+        default-column-width.proportion = 0.5;
+        preset-column-widths = [
+          { proportion = 0.5; }
+          { proportion = 0.667; }
+          { proportion = 1.0; }
+        ];
+      };
 
       input = {
         keyboard.xkb.layout = "us";
@@ -81,6 +105,8 @@ in
         { argv = [ "kitty" "--session" "startup.session" ]; }
         # niri turns monitors back on with input, so no resume command is needed.
         { sh = "swayidle -w timeout 300 'swaylock -f' timeout 600 'niri msg action power-off-monitors' before-sleep 'swaylock -f'"; }
+        # Workaround for waybar duplicating bars across session restarts.
+        { sh = "systemctl --user reset-failed waybar.service"; }
       ];
 
       binds = wsBinds // {
@@ -112,10 +138,12 @@ in
         "${mod}+Shift+k".action.move-window-up = [ ];
         "${mod}+Shift+j".action.move-window-down = [ ];
 
-        "${mod}+Tab".action.focus-column-right = [ ];
-        "${mod}+Shift+Tab".action.focus-column-left = [ ];
+        "${mod}+Tab".action.focus-column-right-or-first = [ ];
+        "${mod}+Shift+Tab".action.focus-column-left-or-last = [ ];
 
         "${mod}+f".action.fullscreen-window = [ ];
+        "${mod}+r".action.switch-preset-column-width = [ ];
+        "${mod}+Shift+f".action.maximize-column = [ ];
         "${mod}+t".action.toggle-column-tabbed-display = [ ];
         "${mod}+Shift+Space".action.toggle-window-floating = [ ];
         "${mod}+y".action.switch-focus-between-floating-and-tiling = [ ];
@@ -153,6 +181,9 @@ in
         "${sup}+Escape".action.spawn = [ "swaylock" "-f" ];
         "${sup}+Shift+q".action.close-window = [ ];
         "${sup}+Shift+e".action.quit = [ ];
+
+        # niri's default binds are replaced when `binds` is set; restore the help overlay.
+        "${sup}+Shift+Slash".action.show-hotkey-overlay = [ ];
       };
     };
   };
