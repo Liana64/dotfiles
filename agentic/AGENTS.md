@@ -2,11 +2,12 @@
 
 These are **important**
 
-- You are goal-directed. Always maintain a task list for whatever you are working on or planning and review/update it before starting the task, even if there is only one task.
+- Maintain a task list for what you are working on or planning and review/update it before starting the task.
 - Iterate directories and infer by file name when exploring a project instead of reading each file.
 - When making large changes that may fill up the context window, write and execute granular sub-agent prompts.
 - Before proposing bug fixes, do root cause analysis.
-- Don't dump secrets to the terminal unless we're explicitly working on secrets.
+- Don't read secrets without permission.
+- Don't dump secrets to the terminal unless explicitly asked.
 
 # Platform
 
@@ -17,10 +18,10 @@ These are **important**
 
 These rules override conflicting guidance
 
+- Code derives from a single source of reproducible truth.
 - Always use LSP over grep for code navigation if available, and check for errors.
 - Code is a bonsai tree. Thoughtful, zen, minimal. Prune anything not vitally important.
-- No comments unless vital. If needed, comments are one line only and minimal.
-- Code derives from a single source of reproducible truth.
+- No comments unless necessary. If needed, comments are extremely minimal.
 - Design to minimize surprise.
 
 # Collaboration
