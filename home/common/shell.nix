@@ -16,6 +16,7 @@
 
       # Edit command in nvim with ctrl-e
       initContent = ''
+        [[ -t 0 ]] && stty -ixon
         bindkey '^r' atuin-search
         bindkey '^[[A' atuin-up-search
         bindkey '^[OA' atuin-up-search
