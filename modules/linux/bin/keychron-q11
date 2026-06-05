@@ -8,31 +8,33 @@
 # next to the switch, then plug that half's USB-C in. Flash, then repeat on the
 # other half with the same .bin.
 #
-# KEYMAP_DIR is injected by the Nix wrapper. QMK_REV pins qmk_firmware.
+# QMK_SRC (pinned qmk_firmware, via flake.lock) and KEYMAP_DIR are injected by
+# the Nix wrapper.
 set -euo pipefail
 
-QMK_REV="${QMK_REV:-master}"
 KB="keychron/q11/ansi_encoder"
 KM="liana"
-WORK="${WORK:-${XDG_CACHE_HOME:-$HOME/.cache}/keychron-q11/qmk}"
 OUT="keychron_q11_ansi_encoder_${KM}.bin"
 
 build() {
-  if [ ! -d "$WORK/.git" ]; then
-    git clone https://github.com/qmk/qmk_firmware "$WORK"
+  # The pinned source is a read-only store path; qmk needs a writable tree.
+  # Cache a writable copy keyed on the store hash, refreshed only when the lock
+  # bumps (a new $QMK_SRC path).
+  work="${XDG_CACHE_HOME:-$HOME/.cache}/keychron-q11/$(basename "$QMK_SRC")"
+  if [ ! -e "$work/.ready" ]; then
+    rm -rf "$work"
+    mkdir -p "$work"
+    cp -a "$QMK_SRC/." "$work/"
+    chmod -R u+w "$work"
+    touch "$work/.ready"
   fi
-  # Resolve QMK_REV (branch, tag, or SHA) freshly each run via FETCH_HEAD, so a
-  # branch like "master" tracks upstream instead of a stale local ref.
-  git -C "$WORK" fetch --tags --force origin "$QMK_REV"
-  git -C "$WORK" checkout --force FETCH_HEAD
-  git -C "$WORK" submodule update --init --recursive
 
-  dest="$WORK/keyboards/$KB/keymaps/$KM"
+  dest="$work/keyboards/$KB/keymaps/$KM"
   mkdir -p "$dest"
   install -m644 "$KEYMAP_DIR/keymap.c" "$KEYMAP_DIR/rules.mk" "$dest/"
 
-  QMK_HOME="$WORK" qmk compile -kb "$KB" -km "$KM"
-  cp "$WORK/$OUT" "$PWD/"
+  QMK_HOME="$work" qmk compile -kb "$KB" -km "$KM"
+  cp "$work/$OUT" "$PWD/"
   echo "Built: $PWD/$OUT"
 }
 

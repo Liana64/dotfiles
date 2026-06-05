@@ -435,6 +435,23 @@
         "type": "github"
       }
     },
+    "qmk-firmware": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1780523327,
+        "narHash": "sha256-SXYAWT0OX/x03ac4bXhmCh7PH9FXXI4CKyO975iHIS4=",
+        "owner": "qmk",
+        "repo": "qmk_firmware",
+        "rev": "486f01f5133b3d2adf27ec546ca7fa05dbf548f1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "qmk",
+        "repo": "qmk_firmware",
+        "rev": "486f01f5133b3d2adf27ec546ca7fa05dbf548f1",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "disko": "disko",
@@ -445,6 +462,7 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
+        "qmk-firmware": "qmk-firmware",
         "stylix": "stylix"
       }
     },

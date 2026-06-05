@@ -1,9 +1,10 @@
 # Keychron Q11 firmware (ANSI + knob)
 
-Custom QMK keymap for the split Q11, built and flashed with the `keychron-q11`
-command. That command is provided to every Linux host via
-[`home/linux/keychron-q11.nix`](../../home/linux/keychron-q11.nix), which wraps
-the script in [`modules/linux/bin/keychron-q11`](../../modules/linux/bin/keychron-q11).
+Custom QMK keymap for the split Q11, built and flashed with
+`nix run /nix/dotfiles#keychron-q11`, a flake app wrapping the script in
+[`modules/linux/bin/keychron-q11`](../../modules/linux/bin/keychron-q11). It is
+not installed into any host profile — the qmk + ARM toolchain closure is fetched
+only when the app runs, and is garbage-collectable afterward.
 
 The layout follows the Framework laptop modifier row
 (`Ctrl, Fn, Super, Alt │ Alt, Fn, Super`). Both slider positions carry the same
@@ -16,12 +17,14 @@ Windows" — that legend can't be changed in firmware, so read "Windows" as Linu
 Build:
 
 ```sh
-keychron-q11 build              # -> ./keychron_q11_ansi_encoder_liana.bin
+nix run /nix/dotfiles#keychron-q11 -- build     # -> ./keychron_q11_ansi_encoder_liana.bin
 ```
 
-Pin the QMK revision for reproducibility with `QMK_REV=<tag> keychron-q11 build`
-(defaults to `master`; the keymap uses the current `RM_*` RGB-matrix keycodes, so
-use a recent QMK).
+The QMK source is pinned by the `qmk-firmware` flake input (locked in
+`flake.lock`, submodules included), so builds are reproducible and the source is
+integrity-checked rather than cloned fresh from a moving `master`. Update it
+deliberately with `nix flake update qmk-firmware` (the keymap uses the current
+`RM_*` RGB-matrix keycodes, so keep it reasonably recent).
 
 The Q11 is split with no master half: flash each side individually over its own
 USB-C port with the same `.bin`. Pop a half's space-bar keycap, hold the reset

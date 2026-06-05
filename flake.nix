@@ -38,6 +38,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     #impermanence.url = "github:nix-community/impermanence";
+
+    # Pinned firmware source for the Keychron Q11 build (embedded/keychron-q11).
+    # Locked in flake.lock incl. submodules; fetched only when the app is run.
+    qmk-firmware = {
+      url = "github:qmk/qmk_firmware/486f01f5133b3d2adf27ec546ca7fa05dbf548f1?submodules=1";
+      flake = false;
+    };
   };
 
   outputs = {
@@ -89,12 +96,42 @@
       home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.${system};
         extraSpecialArgs = homeArgs { inherit system; unstable = withUnstable; };
-        modules = [ ./hosts/${host}/home.nix ];
+        modules = [
+          inputs.niri.homeModules.niri
+          inputs.niri.homeModules.stylix
+          ./hosts/${host}/home.nix
+        ];
       };
+
+    # Keychron Q11 firmware builder/flasher. Run on demand (`nix run`), never
+    # installed — the qmk + ARM toolchain closure is fetched only when used.
+    mkKeychronQ11 = system: let
+      pkgs = nixpkgs.legacyPackages.${system};
+    in pkgs.symlinkJoin {
+      name = "keychron-q11";
+      paths = [
+        (pkgs.writeShellScriptBin "keychron-q11"
+          (builtins.readFile ./modules/linux/bin/keychron-q11))
+      ];
+      buildInputs = [ pkgs.makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/keychron-q11 \
+          --prefix PATH : ${lib.makeBinPath (with pkgs; [ git qmk gnumake gcc-arm-embedded dfu-util coreutils ])} \
+          --set KEYMAP_DIR ${./embedded/keychron-q11} \
+          --set QMK_SRC ${inputs.qmk-firmware}
+      '';
+    };
   in {
-    # Your custom packages
-    # Accessible through 'nix build', 'nix shell', etc
-    #packages = forAllSystems (system: import ./pkgs nixpkgs.legacyPackages.${system});
+    packages = forAllSystems (system: {
+      keychron-q11 = mkKeychronQ11 system;
+    });
+
+    apps = forAllSystems (system: {
+      keychron-q11 = {
+        type = "app";
+        program = "${mkKeychronQ11 system}/bin/keychron-q11";
+      };
+    });
 
     # Formatter for your nix files, available through 'nix fmt'
     # Other options beside 'alejandra' include 'nixpkgs-fmt'
@@ -116,7 +153,6 @@
     nixosConfigurations = {
       framework = mkNixos { host = "framework"; };
       portable = mkNixos { host = "portable"; };
-      oob = mkNixos { host = "oob"; withUnstable = false; };
     };
 
     # Standalone home-manager configuration entrypoint
@@ -124,8 +160,6 @@
     homeConfigurations = {
       "liana@framework" = mkHome { host = "framework"; };
       "liana@portable" = mkHome { host = "portable"; };
-      "liana@oob" = mkHome { host = "oob"; system = "aarch64-linux"; withUnstable = false; };
-      "liana@small" = mkHome { host = "small"; system = "aarch64-darwin"; withUnstable = false; };
     };
   };
 }
