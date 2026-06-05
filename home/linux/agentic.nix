@@ -7,6 +7,11 @@ let
         (name: type: type == "regular" && lib.hasSuffix ".md" name)
         (builtins.readDir srcDir));
 
+  linkSkills = srcDir: destDir:
+    lib.mapAttrs'
+      (name: _: lib.nameValuePair "${destDir}/${name}" { source = srcDir + "/${name}"; })
+      (lib.filterAttrs (name: type: type == "directory") (builtins.readDir srcDir));
+
   claudeScripts = pkgs.symlinkJoin {
     name = "claude-scripts";
     paths = with pkgs; [
@@ -31,6 +36,7 @@ in
       autoDreamEnabled = true;
       teammateDefaultModel = "claude-opus-4-8";
       alwaysThinkingEnabled = true;
+      lspRecommendationDisabled = true;
       env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
       permissions.deny = [
         "Read(.env)"
@@ -81,5 +87,5 @@ in
     ".claude/CLAUDE.md".source = ../../agentic/AGENTS.md;
   }
   // linkMd ../../agentic/agents ".claude/agents"
-  // linkMd ../../agentic/skills ".claude/skills";
+  // linkSkills ../../agentic/skills ".claude/skills";
 }
