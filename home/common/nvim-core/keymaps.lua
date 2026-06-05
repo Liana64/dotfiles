@@ -11,6 +11,8 @@ keymap.set("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })
 keymap.set("n", "<leader>nh", ":nohl<CR>", { desc = "Clear search highlights" })
 keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle, { desc = "Undotree" })
 
+keymap.set({ "n", "i", "v" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Save file" })
+
 keymap.set("n", "<leader>zz", "<cmd>wqa<cr>", { desc = "Write and close everything right now" })
 keymap.set("n", "<leader>qq", "<cmd>qa!<cr>", { desc = "Dangerously close everything right now" })
 
