@@ -20,6 +20,8 @@
       lazygit-nvim
       lualine-nvim
       luasnip
+      orgmode
+      org-roam-nvim
       rustaceanvim
       snacks-nvim
       undotree
@@ -42,6 +44,8 @@
       ${builtins.readFile ./nvim-core/options.lua}
       ${builtins.readFile ./nvim-plugins/gruvbox.lua}
       ${builtins.readFile ./nvim-plugins/treesitter.lua}
+      ${builtins.readFile ./nvim-plugins/orgmode.lua}
+      ${builtins.readFile ./nvim-plugins/org-roam.lua}
       ${builtins.readFile ./nvim-plugins/snacks.lua}
       ${builtins.readFile ./nvim-plugins/gitsigns.lua}
       ${builtins.readFile ./nvim-plugins/comment.lua}
