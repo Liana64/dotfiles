@@ -3,11 +3,13 @@
     ../common
     ./aliases.nix
     ./agentic.nix
+    ./benchmarks.nix
     ./dconf.nix
     ./element.nix
     ./firefox.nix
     ./framework.nix
     ./gpg.nix
+    ./keychron-q11.nix
     ./mako.nix
     ./mime.nix
     ./niri.nix

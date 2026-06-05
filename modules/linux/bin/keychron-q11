@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Keychron Q11 (ANSI + knob) custom firmware: build & flash.
+#
+#   keychron-q11 build         build the .bin into $PWD
+#   keychron-q11 flash <bin>   flash one half over DFU
+#
+# Put a half into DFU first: pop its space bar keycap, hold the reset button
+# next to the switch, then plug that half's USB-C in. Flash, then repeat on the
+# other half with the same .bin.
+#
+# KEYMAP_DIR is injected by the Nix wrapper. QMK_REV pins qmk_firmware.
+set -euo pipefail
+
+QMK_REV="${QMK_REV:-master}"
+KB="keychron/q11/ansi_encoder"
+KM="liana"
+WORK="${WORK:-${XDG_CACHE_HOME:-$HOME/.cache}/keychron-q11/qmk}"
+OUT="keychron_q11_ansi_encoder_${KM}.bin"
+
+build() {
+  if [ ! -d "$WORK/.git" ]; then
+    git clone https://github.com/qmk/qmk_firmware "$WORK"
+  fi
+  # Resolve QMK_REV (branch, tag, or SHA) freshly each run via FETCH_HEAD, so a
+  # branch like "master" tracks upstream instead of a stale local ref.
+  git -C "$WORK" fetch --tags --force origin "$QMK_REV"
+  git -C "$WORK" checkout --force FETCH_HEAD
+  git -C "$WORK" submodule update --init --recursive
+
+  dest="$WORK/keyboards/$KB/keymaps/$KM"
+  mkdir -p "$dest"
+  install -m644 "$KEYMAP_DIR/keymap.c" "$KEYMAP_DIR/rules.mk" "$dest/"
+
+  QMK_HOME="$WORK" qmk compile -kb "$KB" -km "$KM"
+  cp "$WORK/$OUT" "$PWD/"
+  echo "Built: $PWD/$OUT"
+}
+
+flash() {
+  bin="${1:?usage: keychron-q11 flash <bin>}"
+  # STM32 system bootloader (DfuSe), main flash at 0x08000000, reset on completion.
+  dfu-util -a 0 -d 0483:df11 -s 0x08000000:leave -D "$bin"
+}
+
+case "${1:-build}" in
+  build)        build ;;
+  flash) shift; flash "$@" ;;
+  *) echo "usage: keychron-q11 {build|flash <bin>}" >&2; exit 2 ;;
+esac
