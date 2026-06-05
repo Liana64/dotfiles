@@ -188,6 +188,9 @@ in
           "${mod}+f" = "fullscreen";
           "${mod}+p" = "focus parent";
 
+          "${mod}+minus" = "resize shrink width 50px";
+          "${mod}+plus" = "resize grow width 50px";
+
           "${mod}+g" = "layout stacking";
           "${mod}+t" = "layout tabbed";
 

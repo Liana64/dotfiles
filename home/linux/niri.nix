@@ -142,6 +142,8 @@ in
         "${mod}+Shift+Tab".action.focus-column-left-or-last = [ ];
 
         "${mod}+f".action.fullscreen-window = [ ];
+        "${mod}+minus".action.set-column-width = "-10%";
+        "${mod}+plus".action.set-column-width = "+10%";
         "${mod}+r".action.switch-preset-column-width = [ ];
         "${mod}+Shift+f".action.maximize-column = [ ];
         "${mod}+t".action.toggle-column-tabbed-display = [ ];
