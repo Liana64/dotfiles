@@ -35,10 +35,10 @@ in
     };
 
     dconf.enable = true;
-
-    # Allow brightness control
-    light.enable = true;
   };
+
+  services.udev.packages = [ pkgs.brightnessctl ];
+  users.users.liana.extraGroups = [ "video" ];
   
   # Don't add sodiboo's cachix; niri comes from nixpkgs (pkgs.niri).
   niri-flake.cache.enable = false;
@@ -73,6 +73,7 @@ in
 
   # swaybg/swayidle are compositor-agnostic despite the names.
   environment.systemPackages = with pkgs; [
+    brightnessctl
     fuzzel
     wl-clipboard
     playerctl

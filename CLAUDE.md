@@ -18,7 +18,7 @@ NixOS + home-manager dotfiles via Nix Flakes.
 - One feature per `.nix`; `default.nix` aggregates siblings. New module → add to the relevant `default.nix`.
 - `specialArgs`/`extraSpecialArgs` carry `inputs`, `nixpkgs-unstable`, `colors`.
 - User `liana`, email `liana@lianas.org` hardcoded in `home/common/git.nix`.
-- `stateVersion`: NixOS `23.05`, home-manager `25.11`. Do not change.
+- `stateVersion`: NixOS `23.05`, home-manager `26.05`. Do not change.
 
 ## Build
 - `nh os switch ~/.dotfiles`. Don't offer to build.

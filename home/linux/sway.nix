@@ -93,7 +93,7 @@ in
       ];
       window.commands = [
         { criteria = { title = "nix-rebuild"; }; command = "floating enable, resize set 800 400"; }
-        { criteria = { app_id = "firefox-esr"; title = "^(Save|Open|Enter name of|Select).*"; };
+        { criteria = { app_id = "firefox"; title = "^(Save|Open|Enter name of|Select).*"; };
           command = "floating enable, resize set 900 650, move position center"; }
       ];
       modifier = "Mod1";
@@ -211,11 +211,11 @@ in
 
           "${mod}+Shift+q" = "move container to workspace 1:q";
           "${mod}+Shift+w" = "move container to workspace 2:w";
-          "${mod}+Control+Shift+w" = "exec 'firefox-esr'";
+          "${mod}+Control+Shift+w" = "exec 'firefox'";
           "${mod}+Shift+e" = "move container to workspace 3:e";
           "${mod}+Control+Shift+e" = "workspace 3:e; exec flatpak run org.mozilla.Thunderbird";
           "${mod}+Shift+a" = "move container to workspace 4:a";
-          "${mod}+Control+Shift+a" = "exec 'firefox-esr \"https://claude.ai\"'";
+          "${mod}+Control+Shift+a" = "exec 'firefox \"https://claude.ai\"'";
           "${mod}+Shift+s" = "move container to workspace 5:s";
           "${mod}+Control+Shift+s" = "workspace 5:s; exec flatpak run org.signal.Signal";
           "${mod}+Shift+d" = "move container to workspace 6:d";

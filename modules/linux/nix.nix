@@ -30,5 +30,5 @@
   };
 
   # Fix `man -k`
-  documentation.man.generateCaches = true;
+  documentation.man.cache.enable = true;
 }

@@ -39,7 +39,7 @@
 
   environment.variables = {
     EDITOR = "vim";
-    BROWSER = "firefox-esr";
+    BROWSER = "firefox";
   };
 
   programs.zsh.enable = true;

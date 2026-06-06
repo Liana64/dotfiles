@@ -3,17 +3,17 @@
     enable = true;
     defaultApplications = {
       # Web
-      "text/html"                   = "firefox-esr.desktop";
-      "x-scheme-handler/http"       = "firefox-esr.desktop";
-      "x-scheme-handler/https"      = "firefox-esr.desktop";
-      "x-scheme-handler/about"      = "firefox-esr.desktop";
-      "x-scheme-handler/unknown"    = "firefox-esr.desktop";
+      "text/html"                   = "firefox.desktop";
+      "x-scheme-handler/http"       = "firefox.desktop";
+      "x-scheme-handler/https"      = "firefox.desktop";
+      "x-scheme-handler/about"      = "firefox.desktop";
+      "x-scheme-handler/unknown"    = "firefox.desktop";
 
       # Terminal
       "x-scheme-handler/terminal"   = "kitty.desktop";
 
       # PDF — firefox renders these well enough
-      "application/pdf"             = "firefox-esr.desktop";
+      "application/pdf"             = "firefox.desktop";
 
       # Plain text
       "text/plain"                  = "org.gnome.TextEditor.desktop";

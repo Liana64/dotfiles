@@ -11,7 +11,7 @@
 in {
   programs.firefox = {
     enable = true;
-    package = pkgs.firefox-esr;
+    package = pkgs.firefox;
     profiles.liana = {
       search = {
         force = true;
@@ -283,6 +283,6 @@ in {
   #};
 
   xdg.configFile."xfce4/helpers.rc".text = ''
-    WebBrowser=firefox-esr
+    WebBrowser=firefox
   '';
 }

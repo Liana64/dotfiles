@@ -31,7 +31,7 @@ in
     enable = true;
     systemd = {
       enable = true;
-      target = "graphical-session.target";
+      targets = [ "graphical-session.target" ];
     };
 
     style = ''
@@ -267,7 +267,7 @@ in
           '';
           return-type = "json";
           interval = 5;
-          on-click = "firefox-esr \"https://127.0.0.1:8384/\"";
+          on-click = "firefox \"https://127.0.0.1:8384/\"";
         };
 
         network = {

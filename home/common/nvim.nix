@@ -40,7 +40,7 @@
       which-key-nvim
     ];
 
-    extraLuaConfig = ''
+    initLua = ''
       ${builtins.readFile ./nvim-core/options.lua}
       ${builtins.readFile ./nvim-plugins/gruvbox.lua}
       ${builtins.readFile ./nvim-plugins/treesitter.lua}
