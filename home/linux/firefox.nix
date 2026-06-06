@@ -58,6 +58,37 @@ in {
             urls = [{template = "https://www.opensecrets.org/search?q={searchTerms}";}];
             definedAliases = ["@os"];
           };
+          intel = {
+            name = "Intel ARK";
+            urls = [{template = "https://www.intel.com/content/www/us/en/search.html#q={searchTerms}&cf-tabfilter=Products";}];
+            definedAliases = ["@it"];
+          };
+          amd = {
+            name = "AMD";
+            urls = [{template = "https://www.amd.com/en/search/site-search.html#q={searchTerms}";}];
+            definedAliases = ["@am"];
+          };
+          rhel-10 = {
+            name = "RHEL 10";
+            urls = [{template = "https://docs.redhat.com/search/?p=1&rows=10&documentKind=Documentation&src=scoped&q={searchTerms}&product=Red+Hat+Enterprise+Linux&documentation_version=%26Red+Hat+Enterprise+Linux%2610";}];
+            definedAliases = ["@rh10"];
+          };
+          rhel-09 = {
+            name = "RHEL 9";
+            urls = [{template = "https://docs.redhat.com/search/?p=1&rows=10&documentKind=Documentation&src=scoped&q={searchTerms}&product=Red+Hat+Enterprise+Linux&documentation_version=%26Red+Hat+Enterprise+Linux%269";}];
+            definedAliases = ["@rh9"];
+          };
+          rhel-08 = {
+            name = "RHEL 8";
+            urls = [{template = "https://docs.redhat.com/search/?p=1&rows=10&documentKind=Documentation&src=scoped&q={searchTerms}&product=Red+Hat+Enterprise+Linux&documentation_version=%26Red+Hat+Enterprise+Linux%268";}];
+            definedAliases = ["@rh8"];
+          };
+
+
+
+
+
+
           protondb = {
             name = "ProtonDB";
             urls = [{template = "https://www.protondb.com/search?q={searchTerms}";}];
