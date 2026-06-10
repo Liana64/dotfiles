@@ -1,5 +1,7 @@
-{ config, lib, inputs, ... }: {
-  nix = {
+{ lib, inputs, ... }: {
+  nix = let
+    flakeInputs = lib.filterAttrs (_: lib.isType "flake") inputs;
+  in {
     optimise.automatic = true;
     gc = {
       automatic = true;
@@ -13,21 +15,14 @@
       connect-timeout = 1;
       allowed-users = [ "@wheel" ];
     };
+
+    channel.enable = false;
+    # Make flake registry and nix path match flake inputs
+    registry = lib.mapAttrs (_: flake: { inherit flake; }) flakeInputs;
+    nixPath = lib.mapAttrsToList (n: _: "${n}=flake:${n}") flakeInputs;
   };
 
-  system.autoUpgrade = {
-    enable = true;
-    flake = inputs.self.outPath;
-    flags = [ "-L" ];
-    dates = "Fri 09:00";
-    randomizedDelaySec = "15min";
-  };
-
-  nixpkgs = {
-    config = {
-      allowUnfree = true;
-    };
-  };
+  nixpkgs.config.allowUnfree = true;
 
   # Fix `man -k`
   documentation.man.cache.enable = true;

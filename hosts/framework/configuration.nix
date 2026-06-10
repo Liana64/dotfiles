@@ -1,19 +1,5 @@
-{
-  inputs,
-  lib,
-  pkgs,
-  ...
-}: {
-  # You can import other NixOS modules here
+{ pkgs, ... }: {
   imports = [
-    # If you want to use modules your own flake exports (from modules/nixos):
-    # inputs.self.nixosModules.example
-
-    # Or modules from other flakes (such as nixos-hardware):
-    # inputs.hardware.nixosModules.common-cpu-amd
-    # inputs.hardware.nixosModules.common-ssd
-
-    # Import your generated (nixos-generate-config) hardware configuration
     ./hardware-configuration.nix
     ../../modules/common
     ../../modules/linux
@@ -22,69 +8,18 @@
 
   networking.hostName = "framework";
   compositor = "sway";
-  users.users = {
-    liana = {
-      shell = pkgs.zsh;
-      # TODO: You can set an initial password for your user.
-      # If you do, you can skip setting a root password by passing '--no-root-passwd' to nixos-install.
-      # Be sure to change it (using passwd) after rebooting!
 
-      isNormalUser = true;
-      initialHashedPassword = "$y$j9T$kWRrNhfqdXExcsRTmxSIg1$n4jTrwnDRfr814vE2su6d1fELLrVEEaTBoWeSrvqq08";
-      openssh.authorizedKeys.keys = [];
-
-      extraGroups = ["wheel" "networkmanager" "audio" "video" "dialout"];
-    };
-  };
-
-  environment.variables = {
-    EDITOR = "vim";
-    BROWSER = "firefox";
-  };
-
-  programs.zsh.enable = true;
+  users.users.liana.initialHashedPassword = "$y$j9T$kWRrNhfqdXExcsRTmxSIg1$n4jTrwnDRfr814vE2su6d1fELLrVEEaTBoWeSrvqq08";
 
   services.btrfs.autoScrub = {
     enable = true;
     interval = "Fri *-*-1..7 10:00:00";
   };
 
-  # Pinned NixOS version
-  # See: https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
-  system.stateVersion = "23.05";
-
   environment.systemPackages = with pkgs; [
-    android-tools
-    backblaze-b2
-    gptfdisk
-    nh
-    seahorse
-    just
-    traceroute
-    unzip
-    vim
-    wget
-    wireshark
-    lsof
     opentofu
   ];
 
-  nix = let
-    flakeInputs = lib.filterAttrs (_: lib.isType "flake") inputs;
-  in {
-    #settings = {
-    #  experimental-features = "nix-command flakes";
-    #  # Opinionated: disable global registry
-    #  flake-registry = "";
-    #  # Workaround for https://github.com/NixOS/nix/issues/9574
-    #  nix-path = config.nix.nixPath;
-    #};
-    # Opinionated: disable channels
-    channel.enable = false;
-
-    # Opinionated: make flake registry and nix path match flake inputs
-    registry = lib.mapAttrs (_: flake: {inherit flake;}) flakeInputs;
-    nixPath = lib.mapAttrsToList (n: _: "${n}=flake:${n}") flakeInputs;
-  };
-
+  # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
+  system.stateVersion = "23.05";
 }
