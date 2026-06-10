@@ -9,6 +9,13 @@ These are **important**
 - Don't read secrets without permission.
 - Don't dump secrets to the terminal unless explicitly asked.
 
+# Memory and tasks
+
+- Canonical agent state (memories, todo lists) lives in the ai-memory repo at `~/Projects/Software/ai-memory` (remote `ssh://git@git.milberry.org/liana/ai-memory.git`); the `~/.claude` memory and todo paths are symlinks into it.
+- After writing memories or todos, commit in that repo with a terse message; push best-effort, never force.
+- The repo is model-agnostic — no harness-specific schema or layout.
+- Onboarding a new project: create `projects/<name>/`, symlink `~/.claude/projects/<slug>/memory` and `<project>/.claude/todo.md` into it.
+
 # Platform
 
 - The underlying OS is NixOS, and python is not available.
@@ -18,6 +25,7 @@ These are **important**
 
 These rules override conflicting guidance
 
+- When you finish writing an implementation from scratch, spawn a code-review sub-agent ("fresh-eyes") to review that feature only.
 - Code derives from a single source of reproducible truth.
 - Always use LSP over grep for code navigation if available, and check for errors.
 - Code is a bonsai tree. Thoughtful, zen, minimal. Prune anything not vitally important.

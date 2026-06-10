@@ -31,10 +31,15 @@ in
   programs.claude-code = {
     enable = true;
     package = nixpkgs-unstable.claude-code;
+    # temporarily disabled
+    # mcpServers.qdrant-memory = {
+    #   type = "sse";
+    #   url = "http://qdrant.mcp.milberry.org:8000/sse";
+    # };
     settings = {
       autoMemoryEnabled = true;
       autoDreamEnabled = true;
-      teammateDefaultModel = "claude-opus-4-8";
+      teammateDefaultModel = "claude-fable-5";
       alwaysThinkingEnabled = true;
       lspRecommendationDisabled = true;
       env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
@@ -55,7 +60,7 @@ in
           extensionToLanguage = { ".md" = "markdown"; };
         };
         nix = {
-          command = "${pkgs.nil}/bin/nil";
+          command = "${pkgs.nixd}/bin/nixd";
           extensionToLanguage = { ".nix" = "nix"; };
         };
         rust = {
