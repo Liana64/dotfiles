@@ -1,18 +1,45 @@
 #!/usr/bin/env bash
-# Wireless + Bluetooth benchmark battery for card A/B comparison.
-# Each run writes one tagged JSON so two cards can be diffed with `compare`.
+# Wireless benchmark for card A/B comparison.
+#   run       one point-in-time sample (legacy schema)
+#   playbook  controlled matrix: band x powersave x direction, repeated, with
+#             warmups, hard timeouts, RF-context capture, band-landing verify
+#   report    aggregate many runs into a median/p95 comparison table
+#   compare   ad-hoc diff of two run files
 set -u
 
+# ---- CONFIG (override any via env: VAR=... wifi-bench playbook) --------------
 IFACE="${WIFI_BENCH_IFACE:-$(iw dev 2>/dev/null | awk '/Interface/{print $2; exit}')}"
 SERVER="${WIFI_BENCH_SERVER:-172.16.5.21}"
-BT_PEER="${WIFI_BENCH_BT_PEER:-}"
 PING_TARGET="${WIFI_BENCH_PING_TARGET:-1.1.1.1}"
-DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/wifi-bench"
+DATA_DIR="${WIFI_BENCH_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/wifi-bench}"
+NM_CON="${WIFI_BENCH_NM_CON:-Milberry}"
 
-die() { echo "wifi-bench: $*" >&2; exit 1; }
+BANDS="${WIFI_BENCH_BANDS:-6 5 2.4}"
+POWERSAVE_MODES="${WIFI_BENCH_PS:-off on}"
+DIRECTIONS="${WIFI_BENCH_DIRS:-down up bidir}"
+
+BSSID_6="${WIFI_BENCH_BSSID_6:-26:6A:1B:34:65:3C}";  EXPECT_FREQ_6="${WIFI_BENCH_FREQ_6:-6535}"
+BSSID_5="${WIFI_BENCH_BSSID_5:-26:6A:1B:34:65:3B}";  EXPECT_FREQ_5="${WIFI_BENCH_FREQ_5:-5745}"
+BSSID_24="${WIFI_BENCH_BSSID_24:-22:6A:1B:34:65:3A}"; EXPECT_FREQ_24="${WIFI_BENCH_FREQ_24:-2437}"
+
+IPERF_T="${WIFI_BENCH_IPERF_T:-30}"
+IPERF_O="${WIFI_BENCH_IPERF_O:-3}"
+IPERF_P="${WIFI_BENCH_IPERF_P:-4}"
+IPERF_TIMEOUT="${WIFI_BENCH_IPERF_TIMEOUT:-60}"
+UDP_RATES="${WIFI_BENCH_UDP_RATES:-100M 500M 1000M}"
+
+REPS="${WIFI_BENCH_REPS:-5}"
+WARMUPS="${WIFI_BENCH_WARMUPS:-1}"
+GAP_MIN="${WIFI_BENCH_GAP_MIN:-1}"
+GAP_MAX="${WIFI_BENCH_GAP_MAX:-3}"
+
+DISTANCE="${WIFI_BENCH_DISTANCE:-}"
+POSITION="${WIFI_BENCH_POSITION:-}"
+# -----------------------------------------------------------------------------
+
+die()  { echo "wifi-bench: $*" >&2; exit 1; }
 note() { echo "  $*" >&2; }
 
-# --- metadata: identifies which card produced this run -----------------------
 collect_meta() {
   local model driver dver fw kernel reg ssid freq width band
   model=$(lspci -nn 2>/dev/null | grep -iE 'network|wireless' | head -1 | sed 's/^[0-9a-f:.]* //')
@@ -34,171 +61,359 @@ collect_meta() {
       channel:$freq, chan_width:$width, band:$band}'
 }
 
-# --- 1. PHY link metrics -----------------------------------------------------
-test_phy() {
-  note "PHY link metrics"
-  local link station
-  link=$(iw dev "$IFACE" link 2>/dev/null)
-  station=$(iw dev "$IFACE" station dump 2>/dev/null)
-  jq -n \
-    --arg signal "$(echo "$link"   | awk -F'signal: ' '/signal:/{print $2}')" \
-    --arg rxrate "$(echo "$link"   | awk -F'rx bitrate: ' '/rx bitrate:/{print $2}')" \
-    --arg txrate "$(echo "$link"   | awk -F'tx bitrate: ' '/tx bitrate:/{print $2}')" \
-    --arg sigavg "$(echo "$station"| awk -F'signal avg:[ \t]*' '/signal avg:/{print $2}')" \
-    --arg txmcs  "$(echo "$station"| awk -F'tx bitrate:[ \t]*' '/tx bitrate:/{print $2}')" \
-    --arg rxmcs  "$(echo "$station"| awk -F'rx bitrate:[ \t]*' '/rx bitrate:/{print $2}')" \
-    '{signal_dbm:$signal, signal_avg_dbm:$sigavg,
-      rx_bitrate:$rxrate, tx_bitrate:$txrate,
-      tx_mcs:$txmcs, rx_mcs:$rxmcs}'
+# ---- iperf3 (always timeout-wrapped; UDP uses fixed rates, never -b 0) -------
+iperf_run() { timeout --kill-after=5 "$IPERF_TIMEOUT" \
+  iperf3 -c "$SERVER" -J -t "$IPERF_T" -O "$IPERF_O" "$@" 2>/dev/null; }
+
+iperf_extract() {  # $1=tcp|udp ; $2=direction (bidir sums both) ; stdin=iperf3 json
+  local mode="$1" dir="${2:-}" js; js="$(cat)"
+  [ -n "$js" ] || { echo '{"error":"iperf_timeout"}'; return; }
+  case "$mode" in
+    tcp)
+      if [ "$dir" = bidir ]; then
+        echo "$js" | jq '{bps:((.end.sum_received.bits_per_second // 0)
+                             + (.end.sum_received_bidir_reverse.bits_per_second // 0)),
+                          retransmits:((.end.sum_sent.retransmits // 0)
+                             + (.end.sum_sent_bidir_reverse.retransmits // 0))}' 2>/dev/null \
+          || echo '{"error":"parse"}'
+      else
+        echo "$js" | jq '{bps:((.end.sum_received.bits_per_second // .end.sum.bits_per_second) // 0),
+                          retransmits:(.end.sum_sent.retransmits // 0)}' 2>/dev/null \
+          || echo '{"error":"parse"}'
+      fi ;;
+    udp) echo "$js" | jq '{bps:(.end.sum.bits_per_second // 0),
+                           jitter_ms:(.end.sum.jitter_ms // 0),
+                           loss_pct:(.end.sum.lost_percent // 0)}' 2>/dev/null || echo '{"error":"parse"}' ;;
+  esac
 }
 
-# --- 2. throughput (iperf3 against LAN server) -------------------------------
-num() { local v; v="$(cat)"; case "$v" in ''|null) echo 0 ;; *) echo "$v" ;; esac; }
-iperf_bps() { jq -r '(.end.sum_received.bits_per_second // .end.sum.bits_per_second) // 0' 2>/dev/null | num; }
-
-test_throughput() {
-  if ! iperf3 -c "$SERVER" -J -t 1 >/dev/null 2>&1; then
-    note "throughput: skipped ($SERVER unreachable)"
-    jq -n --arg s "$SERVER" '{skipped:("iperf3 server unreachable: "+$s)}'
-    return
-  fi
-  note "throughput -> $SERVER (TCP up/down/x4, UDP up/down)"
-  local tcp_up tcp_dn tcp_p4 udp_up udp_dn
-  tcp_up=$(iperf3 -c "$SERVER" -J -t 10        2>/dev/null)
-  tcp_dn=$(iperf3 -c "$SERVER" -J -t 10 -R     2>/dev/null)
-  tcp_p4=$(iperf3 -c "$SERVER" -J -t 10 -P 4   2>/dev/null)
-  udp_up=$(iperf3 -c "$SERVER" -J -t 10 -u -b 0    2>/dev/null)
-  udp_dn=$(iperf3 -c "$SERVER" -J -t 10 -u -b 0 -R 2>/dev/null)
-  jq -n \
-    --argjson tcp_up_bps "$(echo "$tcp_up" | iperf_bps)" \
-    --argjson tcp_dn_bps "$(echo "$tcp_dn" | iperf_bps)" \
-    --argjson tcp_p4_bps "$(echo "$tcp_p4" | iperf_bps)" \
-    --argjson udp_up_bps "$(echo "$udp_up" | iperf_bps)" \
-    --argjson udp_dn_bps "$(echo "$udp_dn" | iperf_bps)" \
-    --argjson jitter "$(echo "$udp_up" | jq -r '.end.sum.jitter_ms // 0' 2>/dev/null | num)" \
-    --argjson loss   "$(echo "$udp_up" | jq -r '.end.sum.lost_percent // 0' 2>/dev/null | num)" \
-    '{tcp_up_mbps:   ($tcp_up_bps/1e6),
-      tcp_down_mbps: ($tcp_dn_bps/1e6),
-      tcp_up_x4_mbps:($tcp_p4_bps/1e6),
-      udp_up_mbps:   ($udp_up_bps/1e6),
-      udp_down_mbps: ($udp_dn_bps/1e6),
-      udp_jitter_ms: $jitter,
-      udp_loss_pct:  $loss}'
-}
-
-# --- 3. latency --------------------------------------------------------------
+# ---- latency ----------------------------------------------------------------
 ping_stats() {
-  local target="$1" out
-  out=$(ping -c 100 -i 0.2 -q "$target" 2>/dev/null | awk -F' = ' '/rtt|round-trip/{print $2}' | cut -d' ' -f1)
+  local out
+  out=$(ping -c 100 -i 0.2 -q "$1" 2>/dev/null | awk -F' = ' '/rtt|round-trip/{print $2}' | cut -d' ' -f1)
   echo "${out:-///}"
 }
-
 test_latency() {
-  note "latency: gateway + $PING_TARGET (100 pings each)"
-  local gw gw_s tgt_s
+  local gw
   gw=$(ip route 2>/dev/null | awk '/default/{print $3; exit}')
-  gw_s=$(ping_stats "$gw")
-  tgt_s=$(ping_stats "$PING_TARGET")
-  jq -n --arg gw "$gw" --arg gws "$gw_s" --arg tgt "$PING_TARGET" --arg tgts "$tgt_s" '
+  jq -n --arg gw "$gw" --arg gws "$(ping_stats "$gw")" \
+        --arg tgt "$PING_TARGET" --arg tgts "$(ping_stats "$PING_TARGET")" '
     def parse(s): (s|split("/")) as $p
       | {min_ms:($p[0]|tonumber? // null), avg_ms:($p[1]|tonumber? // null),
          max_ms:($p[2]|tonumber? // null), mdev_ms:($p[3]|tonumber? // null)};
     {gateway:{host:$gw}+parse($gws), target:{host:$tgt}+parse($tgts)}'
 }
 
-# --- 4. scan + association (disruptive; --with-assoc only) --------------------
-test_assoc() {
-  note "scan + association timing (link will briefly drop)"
-  local t0 t1 scan_s assoc_s uuid
-  t0=$(cat /proc/uptime | awk '{print $1}')
-  sudo iw dev "$IFACE" scan >/dev/null 2>&1
-  t1=$(cat /proc/uptime | awk '{print $1}')
-  scan_s=$(awk "BEGIN{print $t1-$t0}")
-  uuid=$(nmcli -g GENERAL.CON-UUID device show "$IFACE" 2>/dev/null)
-  if [ -n "$uuid" ]; then
-    sudo nmcli con down uuid "$uuid" >/dev/null 2>&1
-    t0=$(cat /proc/uptime | awk '{print $1}')
-    sudo nmcli con up uuid "$uuid" >/dev/null 2>&1
-    t1=$(cat /proc/uptime | awk '{print $1}')
-    assoc_s=$(awk "BEGIN{print $t1-$t0}")
+# ---- RF context (sampled per measured rep; RF varies) -----------------------
+current_freq()  { iw dev "$IFACE" info 2>/dev/null | grep -oE '\([0-9]+ MHz\)' | grep -oE '[0-9]+' | head -1; }
+current_width() { iw dev "$IFACE" info 2>/dev/null | awk -F'width: ' '/width:/{print $2}' | grep -oE '[0-9]+' | head -1; }
+ps_actual()     { iw dev "$IFACE" get power_save 2>/dev/null | awk -F': ' '{print $2}'; }
+on_ac() {
+  local f
+  for f in /sys/class/power_supply/A*/online; do
+    [ -r "$f" ] && { [ "$(cat "$f")" = 1 ] && echo true || echo false; return; }
+  done
+  echo null
+}
+battery_w() {  # discharge rate in W; null on AC-only or unreadable
+  local d uw c v
+  for d in /sys/class/power_supply/BAT*; do
+    if [ -r "$d/power_now" ]; then uw=$(cat "$d/power_now")
+    elif [ -r "$d/current_now" ] && [ -r "$d/voltage_now" ]; then
+      c=$(cat "$d/current_now"); v=$(cat "$d/voltage_now")
+      uw=$(awk "BEGIN{printf \"%d\", $c*$v/1e6}")
+    else continue; fi
+    awk "BEGIN{printf \"%.2f\", $uw/1e6}"; return
+  done
+  echo null
+}
+
+rf_context() {
+  local info station survey freq width txp sig chains retries failed bloss noise act busy ps ac busypct chains_json
+  local txbr rxbr txm rxm expm bw
+  info=$(iw dev "$IFACE" info 2>/dev/null)
+  station=$(iw dev "$IFACE" station dump 2>/dev/null)
+  survey=$(iw dev "$IFACE" survey dump 2>/dev/null)
+  freq=$(echo "$info" | grep -oE '\([0-9]+ MHz\)' | grep -oE '[0-9]+' | head -1)
+  width=$(echo "$info" | awk -F'width: ' '/width:/{print $2}' | grep -oE '[0-9]+' | head -1)
+  txp=$(echo "$info" | awk '/txpower/{print $2; exit}')
+  sig=$(echo "$station" | awk -F'signal:[ \t]*' '/[ \t]signal:/{print $2; exit}' | grep -oE '^-?[0-9]+')
+  chains=$(echo "$station" | grep -oE '\[-?[0-9]+, *-?[0-9]+\]' | head -1 | tr -d '[] ')
+  retries=$(echo "$station" | awk -F'tx retries:[ \t]*' '/tx retries:/{print $2; exit}')
+  failed=$(echo "$station"  | awk -F'tx failed:[ \t]*'  '/tx failed:/{print $2; exit}')
+  bloss=$(echo "$station"   | awk -F'beacon loss:[ \t]*' '/beacon loss:/{print $2; exit}')
+  txbr=$(echo "$station" | awk -F'tx bitrate:[ \t]*' '/tx bitrate:/{print $2; exit}')
+  rxbr=$(echo "$station" | awk -F'rx bitrate:[ \t]*' '/rx bitrate:/{print $2; exit}')
+  txm=$(echo "$txbr" | grep -oE '^[0-9.]+')
+  rxm=$(echo "$rxbr" | grep -oE '^[0-9.]+')
+  expm=$(echo "$station" | awk -F'expected throughput:[ \t]*' '/expected throughput:/{print $2; exit}' \
+    | grep -oE '[0-9.]+' | head -1)
+  read -r noise act busy < <(echo "$survey" | awk '
+    /frequency/{inuse = /\[in use\]/ ? 1 : 0}
+    inuse && /noise/{match($0,/-?[0-9]+/); n=substr($0,RSTART,RLENGTH)}
+    inuse && /channel active time/{match($0,/[0-9]+/); a=substr($0,RSTART,RLENGTH)}
+    inuse && /channel busy time/{match($0,/[0-9]+/); b=substr($0,RSTART,RLENGTH)}
+    END{print (n==""?"null":n), (a==""?"null":a), (b==""?"null":b)}')
+  ps=$(ps_actual); ac=$(on_ac); bw=$(battery_w)
+  busypct="null"
+  if [ -n "${act:-}" ] && [ "${act:-0}" -gt 0 ] 2>/dev/null; then
+    busypct=$(awk "BEGIN{printf \"%.2f\", ($busy/$act)*100}")
+  fi
+  chains_json="[]"; [ -n "$chains" ] && chains_json="[$chains]"
+  jq -n \
+    --argjson freq "${freq:-null}" --argjson width "${width:-null}" \
+    --argjson sig "${sig:-null}" --argjson chains "$chains_json" \
+    --argjson noise "${noise:-null}" --argjson busy "$busypct" \
+    --argjson retries "${retries:-null}" --argjson failed "${failed:-null}" \
+    --argjson bloss "${bloss:-null}" --argjson txp "${txp:-null}" \
+    --argjson txm "${txm:-null}" --argjson rxm "${rxm:-null}" --argjson expm "${expm:-null}" \
+    --arg txr "${txbr:-}" --arg rxr "${rxbr:-}" --argjson bw "${bw:-null}" \
+    --arg ps "${ps:-}" --argjson ac "${ac:-null}" \
+    '{freq_mhz:$freq, width_mhz:$width, signal_dbm:$sig, signal_chains_dbm:$chains,
+      noise_dbm:$noise, channel_busy_pct:$busy, tx_retries:$retries, tx_failed:$failed,
+      beacon_loss:$bloss, txpower_dbm:$txp,
+      tx_bitrate_mbps:$txm, rx_bitrate_mbps:$rxm, expected_mbps:$expm,
+      tx_rate:(if $txr=="" then null else $txr end),
+      rx_rate:(if $rxr=="" then null else $rxr end),
+      battery_w:$bw, powersave:$ps, on_ac:$ac}'
+}
+
+# ---- band steering + powersave (playbook) -----------------------------------
+band_bssid() { case "$1" in 6) echo "$BSSID_6";; 5) echo "$BSSID_5";; 2.4) echo "$BSSID_24";; esac; }
+band_freq()  { case "$1" in 6) echo "$EXPECT_FREQ_6";; 5) echo "$EXPECT_FREQ_5";; 2.4) echo "$EXPECT_FREQ_24";; esac; }
+
+band_pin_and_verify() {
+  local label="$1" bssid exp act diff
+  bssid=$(band_bssid "$label"); exp=$(band_freq "$label")
+  note "switch -> ${label}GHz (bssid ${bssid:-auto}, expect ${exp:-?}MHz)"
+  sudo nmcli con modify "$NM_CON" 802-11-wireless.bssid "$bssid" >/dev/null 2>&1
+  sudo nmcli con up "$NM_CON" >/dev/null 2>&1
+  sleep 4
+  act=$(current_freq)
+  [ -n "$act" ] || { note "  no link after switch"; return 1; }
+  [ -n "$exp" ] || return 0
+  diff=$(( act > exp ? act - exp : exp - act ))
+  [ "$diff" -le 10 ] || { note "  landed ${act}MHz, wanted ${exp}MHz"; return 1; }
+  return 0
+}
+
+set_powersave() {
+  local v; [ "$1" = off ] && v=2 || v=3
+  sudo nmcli con modify "$NM_CON" 802-11-wireless-powersave "$v" >/dev/null 2>&1
+  sudo nmcli con up "$NM_CON" >/dev/null 2>&1
+  sleep 2
+}
+
+# Powersave is toggled only for the duration of the run; ORIG_* captured at
+# playbook start are restored on exit so the system default is left untouched.
+ORIG_BSSID=""
+ORIG_PS=""
+ORIG_PS_STATE=""
+restore_nm() {
+  sudo nmcli con modify "$NM_CON" 802-11-wireless.bssid "$ORIG_BSSID" >/dev/null 2>&1
+  sudo nmcli con modify "$NM_CON" 802-11-wireless-powersave "${ORIG_PS:-0}" >/dev/null 2>&1
+  sudo nmcli con up "$NM_CON" >/dev/null 2>&1 || true
+  sleep 2
+  local now; now=$(ps_actual)
+  if [ -n "$ORIG_PS_STATE" ] && [ "$now" != "$ORIG_PS_STATE" ]; then
+    note "WARN: powersave is '$now' after restore, expected baseline '$ORIG_PS_STATE'"
   else
-    assoc_s="null"
+    note "powersave restored to baseline: ${now:-unknown}"
   fi
-  jq -n --argjson scan "$scan_s" --argjson assoc "${assoc_s:-null}" \
-    '{scan_seconds:$scan, associate_dhcp_seconds:$assoc}'
 }
 
-# --- 5. bluetooth (bluetoothctl power only; never rfkill) --------------------
-test_bluetooth() {
-  note "bluetooth: adapter caps + l2ping"
-  command -v bluetoothctl >/dev/null || { jq -n '{skipped:"no bluetoothctl"}'; return; }
-  local was_on show ver l2 connect_s
-  was_on=$(bluetoothctl show 2>/dev/null | grep -q 'Powered: yes' && echo yes || echo no)
-  [ "$was_on" = no ] && bluetoothctl power on >/dev/null 2>&1
-  show=$(bluetoothctl show 2>/dev/null)
-  ver=$(echo "$show" | awk -F': ' '/Version/{print $2}')
-  if [ -n "$BT_PEER" ]; then
-    l2=$(sudo l2ping -c 50 "$BT_PEER" 2>/dev/null | awk -F' = ' '/round-trip|rtt/{print $2}' | cut -d' ' -f1)
-    local t0 t1
-    t0=$(cat /proc/uptime | awk '{print $1}')
-    bluetoothctl connect "$BT_PEER" >/dev/null 2>&1
-    t1=$(cat /proc/uptime | awk '{print $1}')
-    connect_s=$(awk "BEGIN{print $t1-$t0}")
-  fi
-  # restore prior power state
-  [ "$was_on" = no ] && bluetoothctl power off >/dev/null 2>&1
-  jq -n --arg ver "$ver" --arg peer "$BT_PEER" --arg l2 "${l2:-//}" \
-        --argjson connect "${connect_s:-null}" '
-    def parse(s): (s|split("/")) as $p
-      | {min_ms:($p[0]|tonumber? // null), avg_ms:($p[1]|tonumber? // null),
-         max_ms:($p[2]|tonumber? // null)};
-    {hci_version:$ver,
-     note:"throughput needs a cooperative L2CAP peer (l2test); reporting caps + l2ping only",
-     peer:(if $peer=="" then null else $peer end),
-     l2ping:(if $peer=="" then null else parse($l2) end),
-     connect_seconds:$connect}'
+rand_gap() {  # GAP_MIN/GAP_MAX minutes -> seconds
+  local lo="$GAP_MIN" hi="$GAP_MAX"
+  [ "$hi" -le "$lo" ] && { echo $((lo * 60)); return; }
+  echo $(( (RANDOM % (hi - lo + 1) + lo) * 60 ))
 }
 
-# --- run ---------------------------------------------------------------------
+dir_flag() { case "$1" in down) echo "-R";; bidir) echo "--bidir";; *) echo "";; esac; }
+
+# ---- run (legacy single sample) ---------------------------------------------
+test_throughput() {
+  if ! timeout 5 iperf3 -c "$SERVER" -J -t 1 >/dev/null 2>&1; then
+    note "throughput: skipped ($SERVER unreachable)"
+    jq -n --arg s "$SERVER" '{skipped:("iperf3 server unreachable: "+$s)}'; return
+  fi
+  note "throughput -> $SERVER"
+  local tcp_up tcp_dn tcp_p4 udp_up
+  tcp_up=$(iperf_run); tcp_dn=$(iperf_run -R); tcp_p4=$(iperf_run -P 4)
+  udp_up=$(iperf_run -u -b 500M)
+  jq -n \
+    --argjson up "$(echo "$tcp_up" | iperf_extract tcp)" \
+    --argjson dn "$(echo "$tcp_dn" | iperf_extract tcp)" \
+    --argjson p4 "$(echo "$tcp_p4" | iperf_extract tcp)" \
+    --argjson udp "$(echo "$udp_up" | iperf_extract udp)" \
+    '{tcp_up_mbps:(($up.bps//0)/1e6), tcp_down_mbps:(($dn.bps//0)/1e6),
+      tcp_up_x4_mbps:(($p4.bps//0)/1e6), udp_up_mbps:(($udp.bps//0)/1e6),
+      udp_jitter_ms:($udp.jitter_ms//null), udp_loss_pct:($udp.loss_pct//null)}'
+}
+
 cmd_run() {
-  [ -n "$IFACE" ] || die "no wireless interface found (set WIFI_BENCH_IFACE)"
+  [ -n "$IFACE" ] || die "no wireless interface (set WIFI_BENCH_IFACE)"
   command -v jq >/dev/null || die "jq missing"
-  local with_assoc=no
-  [ "${1:-}" = "--with-assoc" ] && with_assoc=yes
-
-  echo "wifi-bench: iface=$IFACE server=${SERVER:-<unset>}" >&2
-  local meta phy thr lat assoc bt ts
-  meta=$(collect_meta)
-  phy=$(test_phy)
-  thr=$(test_throughput)
-  lat=$(test_latency)
-  if [ "$with_assoc" = yes ]; then assoc=$(test_assoc); else assoc='{"skipped":"pass --with-assoc"}'; fi
-  bt=$(test_bluetooth)
+  echo "wifi-bench: iface=$IFACE server=$SERVER" >&2
+  local meta thr lat ts result driver out
+  meta=$(collect_meta); thr=$(test_throughput); lat=$(test_latency)
   ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-
-  local result
-  result=$(jq -n \
-    --arg ts "$ts" --argjson meta "$meta" --argjson phy "$phy" \
-    --argjson thr "$thr" --argjson lat "$lat" --argjson assoc "$assoc" --argjson bt "$bt" \
-    '{timestamp:$ts, meta:$meta, phy:$phy, throughput:$thr,
-      latency:$lat, association:$assoc, bluetooth:$bt}')
-
+  result=$(jq -n --arg ts "$ts" --argjson meta "$meta" --argjson thr "$thr" --argjson lat "$lat" \
+    '{timestamp:$ts, meta:$meta, throughput:$thr, latency:$lat}')
   mkdir -p "$DATA_DIR"
-  local driver out
   driver=$(echo "$meta" | jq -r '.driver // "unknown"')
   out="$DATA_DIR/$(date -u +%Y%m%dT%H%M%SZ)_${driver}.json"
   echo "$result" > "$out"
-
   echo "$result" | jq -r '
     "── \(.meta.model // "?")  [\(.meta.driver)/\(.meta.firmware)]  \(.meta.band) \(.meta.chan_width)",
-    "PHY        signal \(.phy.signal_dbm // "?")  rx \(.phy.rx_bitrate // "?")  tx \(.phy.tx_bitrate // "?")",
     "Throughput TCP up \(.throughput.tcp_up_mbps // "-"|tostring|.[0:7]) / down \(.throughput.tcp_down_mbps // "-"|tostring|.[0:7]) Mbps  UDP loss \(.throughput.udp_loss_pct // "-")%",
-    "Latency    gw \(.latency.gateway.avg_ms // "?")ms  \(.latency.target.host) \(.latency.target.avg_ms // "?")ms",
-    "Bluetooth  HCI \(.bluetooth.hci_version // "?")  \(.bluetooth.note // "")"'
+    "Latency    gw \(.latency.gateway.avg_ms // "?")ms  \(.latency.target.host) \(.latency.target.avg_ms // "?")ms"'
   echo "wifi-bench: wrote $out" >&2
 }
 
-# --- compare two runs --------------------------------------------------------
+# ---- playbook ---------------------------------------------------------------
+write_cell() {
+  local out="$1" rid="$2" meta="$3" band="$4" ps="$5" dir="$6" af="$7" aw="$8" ef="$9" reps="${10}" ts
+  ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  jq -n --arg rid "$rid" --arg ts "$ts" --argjson meta "$meta" \
+    --arg band "$band" --arg ps "$ps" --arg dir "$dir" \
+    --argjson af "${af:-null}" --argjson aw "${aw:-null}" --argjson ef "${ef:-null}" \
+    --arg distance "$DISTANCE" --arg position "$POSITION" --argjson reps "$reps" '
+    def pct(a; p): (a|map(select(.!=null))|sort) as $s | ($s|length) as $n
+      | if $n==0 then null else $s[((p*($n-1))|floor)] end;
+    ($reps|map(.tcp.bps // empty)) as $tcp
+    | ($reps|map(.latency.target.avg_ms // empty)) as $lat
+    | ($reps|map(.rf.signal_dbm // empty)) as $sig
+    | ($reps|map(.rf.tx_bitrate_mbps // empty)) as $txr
+    | ($reps|map(.rf.battery_w // empty)) as $bw
+    | {schema:2, run_id:$rid, timestamp:$ts,
+       matrix:{band:$band, powersave:$ps, direction:$dir}, landed:true,
+       landed_detail:{expected_freq_mhz:$ef, actual_freq_mhz:$af, actual_width_mhz:$aw},
+       meta:$meta,
+       provenance:{distance:$distance, position:$position,
+         on_ac:($reps[0].rf.on_ac // null),
+         powersave_actual:($reps[0].rf.powersave // null),
+         txpower_dbm:($reps[0].rf.txpower_dbm // null)},
+       reps:$reps,
+       summary:{
+         tcp_bps:{median:pct($tcp;0.5), p5:pct($tcp;0.05), p95:pct($tcp;0.95)},
+         latency_avg_ms:{median:pct($lat;0.5), p5:pct($lat;0.05), p95:pct($lat;0.95)},
+         signal_dbm:{median:pct($sig;0.5)},
+         tx_bitrate_mbps:{median:pct($txr;0.5)},
+         battery_w:{median:pct($bw;0.5)}}}' > "$out"
+  note "wrote $out"
+}
+
+cmd_playbook() {
+  [ -n "$IFACE" ] || die "no wireless interface (set WIFI_BENCH_IFACE)"
+  command -v jq >/dev/null || die "jq missing"
+  command -v nmcli >/dev/null || die "nmcli missing"
+  nmcli -t -f NAME con show 2>/dev/null | grep -qx "$NM_CON" || die "NM connection '$NM_CON' not found"
+
+  ORIG_BSSID=$(nmcli -g 802-11-wireless.bssid con show "$NM_CON" 2>/dev/null)
+  ORIG_PS=$(nmcli -g 802-11-wireless-powersave con show "$NM_CON" 2>/dev/null)
+  ORIG_PS_STATE=$(ps_actual)
+  note "baseline powersave: ${ORIG_PS_STATE:-unknown} (restored on exit)"
+  trap restore_nm EXIT
+  local run_id meta driver outdir band ps dir cell=0 gap
+  run_id=$(date -u +%Y%m%dT%H%M%SZ)
+  meta=$(collect_meta)
+  driver=$(echo "$meta" | jq -r '.driver // "unknown"')
+  outdir="$DATA_DIR/playbook/$run_id"; mkdir -p "$outdir"
+  echo "wifi-bench playbook: run_id=$run_id driver=$driver bands=[$BANDS] ps=[$POWERSAVE_MODES] dirs=[$DIRECTIONS] reps=$REPS" >&2
+
+  for band in $BANDS; do
+    local exp_freq act_freq act_width
+    exp_freq=$(band_freq "$band")
+    if ! band_pin_and_verify "$band"; then
+      act_freq=$(current_freq)
+      jq -n --arg rid "$run_id" --argjson meta "$meta" --arg band "$band" \
+        --argjson ef "${exp_freq:-null}" --argjson af "${act_freq:-null}" \
+        '{schema:2, run_id:$rid, matrix:{band:$band}, landed:false,
+          landed_detail:{expected_freq_mhz:$ef, actual_freq_mhz:$af}, meta:$meta}' \
+        > "$outdir/${driver}_b${band}_skipped.json"
+      note "band ${band}GHz skipped (landed:false)"
+      continue
+    fi
+    for ps in $POWERSAVE_MODES; do
+      set_powersave "$ps"
+      act_freq=$(current_freq); act_width=$(current_width)
+      [ -n "$act_freq" ] || { note "no link after ps=$ps, skipping"; continue; }
+      for dir in $DIRECTIONS; do
+        [ "$cell" -gt 0 ] && { gap=$(rand_gap); note "  gap ${gap}s"; sleep "$gap"; }
+        cell=$((cell + 1))
+        local dflag; dflag=$(dir_flag "$dir")
+        note "cell band=${band} ps=${ps} dir=${dir}"
+        local w; for ((w = 0; w < WARMUPS; w++)); do iperf_run -P "$IPERF_P" $dflag >/dev/null 2>&1; done
+        local reps_json="" i
+        for ((i = 1; i <= REPS; i++)); do
+          note "  rep $i/$REPS"
+          local rf tcp lat udp_json="" rate u
+          rf=$(rf_context)
+          tcp=$(iperf_run -P "$IPERF_P" $dflag | iperf_extract tcp "$dir")
+          for rate in $UDP_RATES; do
+            u=$(iperf_run -u -b "$rate" $dflag | iperf_extract udp | jq --arg r "$rate" '. + {rate:$r}')
+            udp_json="${udp_json:+$udp_json,}$u"
+          done
+          lat=$(test_latency)
+          local rep_obj
+          rep_obj=$(jq -n --argjson rep "$i" --argjson rf "$rf" --argjson tcp "$tcp" \
+            --argjson udp "[$udp_json]" --argjson lat "$lat" \
+            '{rep:$rep, rf:$rf, tcp:$tcp, udp:$udp, latency:$lat}')
+          reps_json="${reps_json:+$reps_json,}$rep_obj"
+        done
+        write_cell "$outdir/${driver}_b${band}_ps${ps}_${dir}.json" \
+          "$run_id" "$meta" "$band" "$ps" "$dir" "$act_freq" "$act_width" "$exp_freq" "[$reps_json]"
+      done
+    done
+  done
+  note "playbook complete -> $outdir"
+  cmd_report "$outdir"
+}
+
+# ---- report (schema 2 + legacy) ---------------------------------------------
+cmd_report() {
+  local dir="${1:-$DATA_DIR}" files
+  mapfile -t files < <(find "$dir" -name '*.json' 2>/dev/null)
+  [ ${#files[@]} -gt 0 ] || die "no result files under $dir"
+  jq -s -r '
+    def pct(a; p): (a|map(select(.!=null))|sort) as $s | ($s|length) as $n
+      | if $n==0 then null else $s[((p*($n-1))|floor)] end;
+    def fmt(v; w): (v // "-" | tostring | .[0:w]);
+    def rows:
+      if .schema==2 then
+        if (.landed==false) then empty
+        else {driver:(.meta.driver//"?"), band:(.matrix.band//"?"),
+              ps:(.matrix.powersave//"?"), dir:(.matrix.direction//"?"),
+              tcp:((.summary.tcp_bps.median // 0)/1e6),
+              tcp95:((.summary.tcp_bps.p95 // 0)/1e6),
+              rate:(.summary.tx_bitrate_mbps.median),
+              bw:(.summary.battery_w.median),
+              lat:(.summary.latency_avg_ms.median),
+              sig:(.summary.signal_dbm.median),
+              busy:(pct(((.reps//[])|map(.rf.channel_busy_pct//empty));0.5)),
+              loss:(pct(((.reps//[])|map(.udp[]?.loss_pct//empty));0.5))}
+        end
+      else
+        (.meta.driver//"?") as $d
+        | ((.meta.band//""|tostring|gsub(" MHz";""))|tonumber? // 0) as $f
+        | (if $f>=5925 then "6" elif $f>=5000 then "5" else "2.4" end) as $b
+        | [ {driver:$d,band:$b,ps:"?",dir:"up",  tcp:(.throughput.tcp_up_mbps//0),  tcp95:null,lat:(.latency.target.avg_ms),sig:null,busy:null,loss:(.throughput.udp_loss_pct)},
+            {driver:$d,band:$b,ps:"?",dir:"down",tcp:(.throughput.tcp_down_mbps//0),tcp95:null,lat:(.latency.target.avg_ms),sig:null,busy:null,loss:(.throughput.udp_loss_pct)} ][]
+      end;
+    [ .[] | rows ]
+    | group_by([.driver,.band,.ps,.dir])
+    | map((.[0]) as $k | {
+        key:"\($k.driver)  \($k.band)GHz  ps:\($k.ps)  \($k.dir)", n:length,
+        tcp:pct(map(.tcp);0.5), tcp95:pct(map(.tcp95);0.95),
+        rate:pct(map(.rate);0.5), bw:pct(map(.bw);0.5),
+        lat:pct(map(.lat);0.5), sig:pct(map(.sig);0.5),
+        loss:pct(map(.loss);0.5), busy:pct(map(.busy);0.5)})
+    | (["card/band/ps/dir","n","tcp_med","tcp_p95","phy_mbps","lat_ms","signal","loss%","busy%","bat_w"]|@tsv),
+      (.[] | [.key, (.n|tostring), fmt(.tcp;7), fmt(.tcp95;7), fmt(.rate;7), fmt(.lat;6), fmt(.sig;5), fmt(.loss;6), fmt(.busy;5), fmt(.bw;5)]|@tsv)
+  ' "${files[@]}" | column -t -s $'\t'
+}
+
+# ---- compare two run files --------------------------------------------------
 cmd_compare() {
   [ $# -eq 2 ] || die "usage: wifi-bench compare A.json B.json"
   jq -n --slurpfile a "$1" --slurpfile b "$2" '
@@ -208,20 +423,17 @@ cmd_compare() {
       row("model";       $A.meta.model;            $B.meta.model),
       row("firmware";    $A.meta.firmware;         $B.meta.firmware),
       row("band/width";  ($A.meta.band+" "+$A.meta.chan_width); ($B.meta.band+" "+$B.meta.chan_width)),
-      row("signal dbm";  $A.phy.signal_dbm;        $B.phy.signal_dbm),
       row("tcp up Mbps"; $A.throughput.tcp_up_mbps; $B.throughput.tcp_up_mbps),
       row("tcp dn Mbps"; $A.throughput.tcp_down_mbps; $B.throughput.tcp_down_mbps),
-      row("tcp x4 Mbps"; $A.throughput.tcp_up_x4_mbps; $B.throughput.tcp_up_x4_mbps),
-      row("udp jitter";  $A.throughput.udp_jitter_ms; $B.throughput.udp_jitter_ms),
       row("udp loss %";  $A.throughput.udp_loss_pct; $B.throughput.udp_loss_pct),
-      row("gw lat ms";   $A.latency.gateway.avg_ms; $B.latency.gateway.avg_ms),
-      row("scan s";      $A.association.scan_seconds; $B.association.scan_seconds),
-      row("assoc s";     $A.association.associate_dhcp_seconds; $B.association.associate_dhcp_seconds)
+      row("gw lat ms";   $A.latency.gateway.avg_ms; $B.latency.gateway.avg_ms)
     ] | .[]' -r | column -t -s $'\t'
 }
 
 case "${1:-run}" in
-  run)     shift 2>/dev/null; cmd_run "$@" ;;
-  compare) shift; cmd_compare "$@" ;;
-  *)       die "usage: wifi-bench [run [--with-assoc] | compare A.json B.json]" ;;
+  run)      shift 2>/dev/null; cmd_run "$@" ;;
+  playbook) shift; cmd_playbook "$@" ;;
+  report)   shift; cmd_report "$@" ;;
+  compare)  shift; cmd_compare "$@" ;;
+  *)        die "usage: wifi-bench [run | playbook | report [dir] | compare A.json B.json]" ;;
 esac

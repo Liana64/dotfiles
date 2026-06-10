@@ -8,7 +8,7 @@
     enable = true;
     powerOnBoot = true;
   };
-  environment.systemPackages = [ pkgs.blueman ];
+  environment.systemPackages = [ pkgs.blueman pkgs.iw ];
 
   # Upstream unit has no Restart=; bluetoothd dying leaves blueman unable to
   # reach BlueZ until next boot. Always bring it back.

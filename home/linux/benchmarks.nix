@@ -1,10 +1,10 @@
 { pkgs, lib, ... }:
 let
   deps = with pkgs; [
-    iperf3 iw ethtool bluez iputils networkmanager
-    jq gawk gnused gnugrep coreutils util-linux pciutils iproute2
+    iperf3 iw ethtool bluez iputils networkmanager pulseaudio
+    jq gawk gnused gnugrep coreutils util-linux findutils pciutils iproute2
   ];
-  scripts = [ "wifi-bench" ];
+  scripts = [ "wifi-bench" "bt-bench" ];
   bin = name: pkgs.writeShellScriptBin name
     (builtins.readFile (../../modules/linux/bin + "/${name}"));
   benchmarks = pkgs.symlinkJoin {

@@ -1,0 +1,176 @@
+#!/usr/bin/env bash
+# Bluetooth benchmark for adapter A/B comparison.
+#   run         single-host metrics: caps, l2ping RTT, connect time, RSSI/LQ, A2DP codec
+#   throughput  L2CAP/RFCOMM throughput against a cooperative peer (l2test/rctest)
+#   report      aggregate runs into a comparison table
+# Never toggles rfkill; uses bluetoothctl power only.
+set -u
+
+# ---- CONFIG (override via env: VAR=... bt-bench run) -------------------------
+PEER="${BT_BENCH_PEER:-}"                 # peer adapter MAC (l2ping/connect/throughput)
+PEER_HOST="${BT_BENCH_PEER_HOST:-}"       # cooperative peer hostname (provenance only)
+L2_REPS="${BT_BENCH_L2_REPS:-50}"
+THRPUT_SECS="${BT_BENCH_SECS:-10}"
+THRPUT_BYTES="${BT_BENCH_BYTES:-2048}"    # l2test/rctest payload size
+PSM="${BT_BENCH_PSM:-0x1011}"
+RFCOMM_CHAN="${BT_BENCH_RFCOMM_CHAN:-1}"
+TIMEOUT="${BT_BENCH_TIMEOUT:-30}"
+A2DP_SINK="${BT_BENCH_A2DP_SINK:-}"
+DATA_DIR="${BT_BENCH_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/bt-bench}"
+# -----------------------------------------------------------------------------
+
+die()  { echo "bt-bench: $*" >&2; exit 1; }
+note() { echo "  $*" >&2; }
+
+WAS_ON=yes
+restore_power() { [ "$WAS_ON" = no ] && bluetoothctl power off >/dev/null 2>&1 || true; }
+
+adapter_meta() {
+  local show mac name
+  show=$(bluetoothctl show 2>/dev/null)
+  mac=$(echo "$show" | awk '/Controller/{print $2; exit}')
+  name=$(echo "$show" | awk -F': ' '/Name:/{print $2; exit}')
+  jq -n --arg mac "$mac" --arg name "$name" '{mac:$mac, name:$name}'
+}
+
+l2ping_stats() {
+  [ -n "$PEER" ] || { echo 'null'; return; }
+  local out rtt loss
+  out=$(timeout "$TIMEOUT" sudo l2ping -c "$L2_REPS" "$PEER" 2>/dev/null)
+  rtt=$(echo "$out" | awk '
+    match($0, /time [0-9.]+ms/) { t=substr($0,RSTART+5,RLENGTH-7)+0
+      n++; s+=t; if(n==1||t<mn)mn=t; if(t>mx)mx=t }
+    END{ if(n>0) printf "%.2f/%.2f/%.2f", mn, s/n, mx }')
+  loss=$(echo "$out" | grep -oE '[0-9]+% (packet )?loss' | grep -oE '[0-9]+' | head -1)
+  jq -n --arg rtt "${rtt:-///}" --argjson loss "${loss:-null}" '
+    def parse(s): (s|split("/")) as $p
+      | {min_ms:($p[0]|tonumber? // null), avg_ms:($p[1]|tonumber? // null), max_ms:($p[2]|tonumber? // null)};
+    parse($rtt) + {loss_pct:$loss}'
+}
+
+connect_seconds() {
+  [ -n "$PEER" ] || { echo 'null'; return; }
+  local t0 t1
+  t0=$(awk '{print $1; exit}' /proc/uptime)
+  timeout "$TIMEOUT" bluetoothctl connect "$PEER" >/dev/null 2>&1 || { echo 'null'; return; }
+  t1=$(awk '{print $1; exit}' /proc/uptime)
+  awk "BEGIN{printf \"%.2f\", $t1-$t0}"
+}
+
+link_metrics() {
+  [ -n "$PEER" ] || { echo '{"rssi_dbm":null,"link_quality":null}'; return; }
+  local rssi lq
+  rssi=$(sudo hcitool rssi "$PEER" 2>/dev/null | grep -oE '\-?[0-9]+' | head -1)
+  lq=$(sudo hcitool lq "$PEER" 2>/dev/null | grep -oE '[0-9]+' | head -1)
+  jq -n --argjson rssi "${rssi:-null}" --argjson lq "${lq:-null}" '{rssi_dbm:$rssi, link_quality:$lq}'
+}
+
+a2dp_codec() {
+  [ -n "$A2DP_SINK" ] || { echo 'null'; return; }
+  local c
+  c=$(pactl list sinks 2>/dev/null | awk -F': ' '/[Cc]odec/{print $2; exit}')
+  jq -n --arg c "${c:-}" 'if $c=="" then null else $c end'
+}
+
+cmd_run() {
+  command -v bluetoothctl >/dev/null || die "bluetoothctl missing"
+  command -v jq >/dev/null || die "jq missing"
+  echo "bt-bench: peer=${PEER:-<none>}" >&2
+  local meta l2 conn link codec ts adapter out out_json
+  WAS_ON=$(bluetoothctl show 2>/dev/null | grep -q 'Powered: yes' && echo yes || echo no)
+  trap restore_power EXIT
+  [ "$WAS_ON" = no ] && bluetoothctl power on >/dev/null 2>&1
+  meta=$(adapter_meta)
+  note "l2ping"; l2=$(l2ping_stats)
+  note "connect timing"; conn=$(connect_seconds)
+  note "rssi/lq"; link=$(link_metrics)
+  codec=$(a2dp_codec)
+  ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  out_json=$(jq -n --arg ts "$ts" --argjson meta "$meta" --arg peer "$PEER" --arg ph "$PEER_HOST" \
+    --argjson l2 "$l2" --argjson conn "${conn:-null}" --argjson link "$link" --argjson codec "$codec" '
+    {schema:1, timestamp:$ts, adapter:$meta,
+     peer:(if $peer=="" then null else $peer end),
+     peer_host:(if $ph=="" then null else $ph end),
+     l2ping:$l2, connect_seconds:$conn} + $link
+    + {a2dp_codec:$codec, throughput:null}')
+  mkdir -p "$DATA_DIR"
+  adapter=$(echo "$meta" | jq -r '.name // .mac // "bt"' | tr ' /' '__')
+  out="$DATA_DIR/$(date -u +%Y%m%dT%H%M%SZ)_${adapter}.json"
+  echo "$out_json" > "$out"
+  echo "$out_json" | jq -r '
+    "── \(.adapter.name // .adapter.mac)",
+    "l2ping     avg \(.l2ping.avg_ms // "-")ms  loss \(.l2ping.loss_pct // "-")%",
+    "connect    \(.connect_seconds // "-")s   rssi \(.rssi_dbm // "-")  lq \(.link_quality // "-")",
+    "a2dp       \(.a2dp_codec // "-")"'
+  echo "bt-bench: wrote $out" >&2
+}
+
+# ---- throughput (needs a cooperative peer running the matching tool) --------
+parse_kbps() {  # stdin: l2test/rctest output -> kbps or null
+  awk '/[0-9]+ bytes in/{b=$1; for(i=1;i<=NF;i++) if($i=="in") s=$(i+1)}
+       END{ if(b>0 && s>0) printf "%.1f", (b*8/1000)/s; else print "null" }'
+}
+
+cmd_throughput() {
+  [ -n "$PEER" ] || die "set BT_BENCH_PEER (peer adapter MAC)"
+  command -v l2test >/dev/null || die "l2test missing (bluez)"
+  command -v jq >/dev/null || die "jq missing"
+  cat >&2 <<EOF
+bt-bench throughput needs the peer host to listen FIRST:
+  L2CAP : peer\$ l2test -r -P $PSM
+  RFCOMM: peer\$ rctest -r -P $RFCOMM_CHAN
+Starting client side against $PEER in 3s...
+EOF
+  sleep 3
+  local l2 rf l2kbps rfkbps err meta ts adapter out out_json
+  l2=$(timeout "$TIMEOUT" l2test -s -P "$PSM" -B "$THRPUT_BYTES" -N "$THRPUT_SECS" "$PEER" 2>&1)
+  l2kbps=$(echo "$l2" | parse_kbps)
+  if command -v rctest >/dev/null; then
+    rf=$(timeout "$TIMEOUT" rctest -s -P "$RFCOMM_CHAN" -B "$THRPUT_BYTES" -N "$THRPUT_SECS" "$PEER" 2>&1)
+    rfkbps=$(echo "$rf" | parse_kbps)
+  else rfkbps="null"; fi
+  err="null"
+  [ "$l2kbps" = null ] && [ "$rfkbps" = null ] && err='"peer not listening or timeout"'
+  meta=$(adapter_meta)
+  ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  out_json=$(jq -n --arg ts "$ts" --argjson meta "$meta" --arg peer "$PEER" \
+    --argjson l2 "${l2kbps:-null}" --argjson rf "${rfkbps:-null}" --argjson err "$err" \
+    '{schema:1, timestamp:$ts, adapter:$meta, peer:$peer,
+      throughput:{l2cap_kbps:$l2, rfcomm_kbps:$rf, error:$err}}')
+  mkdir -p "$DATA_DIR"
+  adapter=$(echo "$meta" | jq -r '.name // .mac // "bt"' | tr ' /' '__')
+  out="$DATA_DIR/$(date -u +%Y%m%dT%H%M%SZ)_${adapter}_throughput.json"
+  echo "$out_json" > "$out"
+  echo "$out_json" | jq -r '
+    "l2cap      \(.throughput.l2cap_kbps // "-") kbps",
+    "rfcomm     \(.throughput.rfcomm_kbps // "-") kbps"'
+  echo "bt-bench: wrote $out" >&2
+}
+
+cmd_report() {
+  local dir="${1:-$DATA_DIR}" files
+  mapfile -t files < <(find "$dir" -name '*.json' 2>/dev/null)
+  [ ${#files[@]} -gt 0 ] || die "no result files under $dir"
+  jq -s -r '
+    def pct(a; p): (a|map(select(.!=null))|sort) as $s | ($s|length) as $n
+      | if $n==0 then null else $s[((p*($n-1))|floor)] end;
+    def fmt(v; w): (v // "-" | tostring | .[0:w]);
+    [ .[] | {adapter:(.adapter.name//.adapter.mac//"?"),
+             rtt:(.l2ping.avg_ms), loss:(.l2ping.loss_pct),
+             conn:(.connect_seconds), rssi:(.rssi_dbm),
+             l2:(.throughput.l2cap_kbps), rf:(.throughput.rfcomm_kbps)} ]
+    | group_by(.adapter)
+    | map((.[0]) as $k | {adapter:$k.adapter, n:length,
+        rtt:pct(map(.rtt);0.5), loss:pct(map(.loss);0.5), conn:pct(map(.conn);0.5),
+        rssi:pct(map(.rssi);0.5), l2:pct(map(.l2);0.5), rf:pct(map(.rf);0.5)})
+    | (["adapter","n","rtt_ms","loss%","conn_s","rssi","l2_kbps","rf_kbps"]|@tsv),
+      (.[] | [.adapter,(.n|tostring),fmt(.rtt;6),fmt(.loss;5),fmt(.conn;6),fmt(.rssi;5),fmt(.l2;8),fmt(.rf;8)]|@tsv)
+  ' "${files[@]}" | column -t -s $'\t'
+}
+
+case "${1:-run}" in
+  run)        shift 2>/dev/null; cmd_run "$@" ;;
+  throughput) shift; cmd_throughput "$@" ;;
+  report)     shift; cmd_report "$@" ;;
+  *)          die "usage: bt-bench [run | throughput | report [dir]]" ;;
+esac
