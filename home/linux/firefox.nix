@@ -12,6 +12,9 @@ in {
   programs.firefox = {
     enable = true;
     package = pkgs.firefox;
+    # nixpkgs firefox sets MOZ_LEGACY_PROFILES, so it reads ~/.mozilla/firefox.
+    # stateVersion 26.05 would otherwise default this to the XDG path the browser ignores.
+    configPath = ".mozilla/firefox";
     profiles.liana = {
       search = {
         force = true;
