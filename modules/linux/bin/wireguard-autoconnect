@@ -1,42 +1,37 @@
-# Body of the NetworkManager dispatcher script. wireguard.nix prepends the
-# shebang, PATH (openresolv first), $WG_CONFIG and $TRUSTED_NETWORKS.
+# Body of the wg-autoconnect service. wireguard.nix prepends the shebang,
+# PATH (openresolv first) and $WG_CONFIG.
 
-ACTION="$2"
-NM_STATUS=$(nmcli -t -f type,state,connection dev)
 WG_INTERFACE="wg0"
+TRUSTED_NETWORKS="Milberry"
 
-is_up() {
-  ip link show "$WG_INTERFACE" &>/dev/null
-}
-
-is_ethernet() {
-  echo "$NM_STATUS" | grep -q '^ethernet:connected'
-}
+is_up()       { ip link show "$WG_INTERFACE" &>/dev/null; }
+is_ethernet() { nmcli -t -f type,state dev | grep -q '^ethernet:connected'; }
+is_online()   { [[ "$(nmcli -t -f CONNECTIVITY general)" == full ]]; }
 
 is_trusted() {
-  local current_ssid=$(nmcli -t -f active,ssid dev wifi | grep '^yes:' | cut -d: -f2-)
+  local ssid current_ssid
+  current_ssid=$(nmcli -t -f active,ssid dev wifi | grep '^yes:' | cut -d: -f2-)
   [[ -z "$current_ssid" ]] && return 1
-  [[ ! -f "$TRUSTED_NETWORKS" ]] && return 1
   while IFS= read -r ssid; do
     [[ "$ssid" =~ ^#.*$ || -z "$ssid" ]] && continue
     ssid=$(echo "$ssid" | xargs)
     [[ "$current_ssid" == "$ssid" ]] && return 0
-  done < "$TRUSTED_NETWORKS"
+  done <<< "$TRUSTED_NETWORKS"
   return 1
 }
 
-case "$ACTION" in
-  up) ;;
-  connectivity-change)
-    [[ "$CONNECTIVITY_STATE" = "FULL" ]] || exit 0
-    ;;
-  *) exit 0 ;;
-esac
+evaluate() {
+  if is_ethernet || is_trusted; then
+    echo safe > /run/wg-network-state
+    is_up && wg-quick down "$WG_CONFIG"
+  elif is_online; then
+    echo untrusted > /run/wg-network-state
+    is_up || wg-quick up "$WG_CONFIG"
+  else
+    echo offline > /run/wg-network-state
+    is_up && wg-quick down "$WG_CONFIG"
+  fi
+}
 
-if is_ethernet || is_trusted; then
-  echo safe > /run/wg-network-state
-  is_up && wg-quick down "$WG_CONFIG"
-else
-  echo untrusted > /run/wg-network-state
-  is_up || wg-quick up "$WG_CONFIG"
-fi
+evaluate
+nmcli monitor | while read -r _; do evaluate; done

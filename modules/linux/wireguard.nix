@@ -12,7 +12,6 @@ let
       pkgs.wireguard-tools pkgs.findutils pkgs.gnugrep pkgs.coreutils
     ]}:$PATH
     export WG_CONFIG="${wireguardConfigFile}"
-    export TRUSTED_NETWORKS="${trustedNetworksFile}"
   '' + builtins.readFile ./bin/wireguard-autoconnect);
 in
 {
@@ -29,17 +28,22 @@ in
 
   # Connect to our VPN whenever we are on a network that isn't trusted. This isn't
   # entirely foolproof because someone could still spoof an SSID and BSSID, but it's
-  # good enough for *me*
+  # good enough for *me*. The trusted SSID list is hardcoded in the script body.
   #
-  # Format for trustedNetworksFile:
-  # SSID
-
-  networking.networkmanager.dispatcherScripts = [
-    {
-      source = wgAutoconnect;
-      type = "basic";
-    }
-  ];
+  # Runs as a long-lived service driven by `nmcli monitor` rather than a
+  # NetworkManager dispatcher script, so the same body works under SELinux on
+  # Fedora, where the dispatcher domain is confined and blocks ip/wg-quick.
+  systemd.services.wg-autoconnect = {
+    description = "Auto-toggle WireGuard by network trust";
+    after = [ "NetworkManager.service" ];
+    wants = [ "NetworkManager.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = wgAutoconnect;
+      Restart = "always";
+      RestartSec = 2;
+    };
+  };
 
   networking.networkmanager.unmanaged = [ "interface-name:wg0" ];
 
