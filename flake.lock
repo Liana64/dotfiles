@@ -90,11 +90,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781137600,
-        "narHash": "sha256-R5ZI1+aFfQQE2g/h9CryWJmw5hpd94Ska/Xrv/vf0bs=",
+        "lastModified": 1781141573,
+        "narHash": "sha256-si3+Ghs6INRra+fTE3VTPK8d5Mod+1dSh4q6rPTuV6s=",
         "ref": "refs/heads/main",
-        "rev": "9bfd81eb6d4beddc6bdc599e1f20cc7d5514bbec",
-        "revCount": 4,
+        "rev": "467cfece354bbf298bd25c6aec59da9c324f76f8",
+        "revCount": 6,
         "type": "git",
         "url": "ssh://git@git.milberry.org/liana/dice.git"
       },
