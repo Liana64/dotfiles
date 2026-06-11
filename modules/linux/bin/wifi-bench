@@ -199,7 +199,7 @@ band_pin_and_verify() {
 
 set_powersave() {
   local v; [ "$1" = off ] && v=2 || v=3
-  sudo nmcli con modify "$NM_CON" 802-11-wireless-powersave "$v" >/dev/null 2>&1
+  sudo nmcli con modify "$NM_CON" 802-11-wireless.powersave "$v" >/dev/null 2>&1
   sudo nmcli con up "$NM_CON" >/dev/null 2>&1
   sleep 2
 }
@@ -211,7 +211,7 @@ ORIG_PS=""
 ORIG_PS_STATE=""
 restore_nm() {
   sudo nmcli con modify "$NM_CON" 802-11-wireless.bssid "$ORIG_BSSID" >/dev/null 2>&1
-  sudo nmcli con modify "$NM_CON" 802-11-wireless-powersave "${ORIG_PS:-0}" >/dev/null 2>&1
+  sudo nmcli con modify "$NM_CON" 802-11-wireless.powersave "${ORIG_PS:-0}" >/dev/null 2>&1
   sudo nmcli con up "$NM_CON" >/dev/null 2>&1 || true
   sleep 2
   local now; now=$(ps_actual)
@@ -310,7 +310,7 @@ cmd_playbook() {
   nmcli -t -f NAME con show 2>/dev/null | grep -qx "$NM_CON" || die "NM connection '$NM_CON' not found"
 
   ORIG_BSSID=$(nmcli -g 802-11-wireless.bssid con show "$NM_CON" 2>/dev/null)
-  ORIG_PS=$(nmcli -g 802-11-wireless-powersave con show "$NM_CON" 2>/dev/null)
+  ORIG_PS=$(nmcli -g 802-11-wireless.powersave con show "$NM_CON" 2>/dev/null)
   ORIG_PS_STATE=$(ps_actual)
   note "baseline powersave: ${ORIG_PS_STATE:-unknown} (restored on exit)"
   trap restore_nm EXIT
