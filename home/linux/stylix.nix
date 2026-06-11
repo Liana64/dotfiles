@@ -35,7 +35,7 @@ in {
   stylix = {
     enable = true;
     polarity = "dark";
-    image = ../../wallpapers/flower.png;
+    image = ../../share/wallpapers/flower.png;
 
     base16Scheme = lib.mapAttrs (_: lib.removePrefix "#") palette;
 
@@ -115,7 +115,7 @@ in {
     rgba = hex: (lib.removePrefix "#" hex) + "ff";
     transparent = "00000000";
   in {
-    image              = "${../../wallpapers/flower.png}";
+    image              = "${../../share/wallpapers/flower.png}";
     color              = rgba background;
     ring-color         = rgba indigo;
     inside-color       = rgba mbg;

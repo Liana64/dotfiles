@@ -11,7 +11,7 @@
   ];
 
   home.file.".wallpapers" = {
-    source = ../../wallpapers;
+    source = ../../share/wallpapers;
     recursive = true;
   };
 
