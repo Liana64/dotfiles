@@ -1,4 +1,4 @@
 lazy-lock.json
 .DS_Store
 .env
-.claude
+.claude/
