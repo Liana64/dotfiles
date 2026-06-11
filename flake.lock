@@ -83,6 +83,26 @@
         "type": "github"
       }
     },
+    "dice": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1781137600,
+        "narHash": "sha256-R5ZI1+aFfQQE2g/h9CryWJmw5hpd94Ska/Xrv/vf0bs=",
+        "ref": "refs/heads/main",
+        "rev": "9bfd81eb6d4beddc6bdc599e1f20cc7d5514bbec",
+        "revCount": 4,
+        "type": "git",
+        "url": "ssh://git@git.milberry.org/liana/dice.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@git.milberry.org/liana/dice.git"
+      }
+    },
     "disko": {
       "inputs": {
         "nixpkgs": [
@@ -452,6 +472,7 @@
     },
     "root": {
       "inputs": {
+        "dice": "dice",
         "disko": "disko",
         "framework-dsp": "framework-dsp",
         "home-manager": "home-manager",

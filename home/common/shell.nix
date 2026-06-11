@@ -25,7 +25,7 @@
         bindkey "^E" edit-command-line
         bindkey '^[[1;5C' forward-word
         bindkey '^[[1;5D' backward-word
-        fortune
+        if (( RANDOM % 2 )); then fortune; else dice; fi
       '';
 
       historySubstringSearch.enable = true;

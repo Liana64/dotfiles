@@ -32,6 +32,12 @@
       inputs.nixpkgs-stable.follows = "nixpkgs";
     };
 
+    # Curated fortune file + dice wrapper; single source of truth for the data.
+    dice = {
+      url = "git+ssh://git@git.milberry.org/liana/dice.git";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Staged for impermanence migration. Not yet consumed by any host.
     disko = {
       url = "github:nix-community/disko";
