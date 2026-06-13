@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Audit subsystem status: daemon state, loaded rules, events by key.
+#   austatus        show status
+#   austatus ack    acknowledge tripwires (reset the shell-alert baseline to now)
+set -euo pipefail
+[ "$(id -u)" -eq 0 ] || exec sudo "$0" "$@"
+
+ack=/var/lib/audit-tripwires/ack # must match modules/linux/auditd.nix
+
+if [ "${1:-}" = ack ]; then
+  date '+%m/%d/%Y %T' >"$ack"
+  systemctl start audit-tripwires
+  echo "tripwire alert acknowledged"
+  exit 0
+fi
+
+section() { printf '\n== %s ==\n' "$1"; }
+
+section "daemon"
+auditctl -s
+section "loaded rules"
+auditctl -l
+section "acknowledged since"
+cat "$ack" 2>/dev/null || echo "(never)"
+section "events by key (full log)"
+aureport -k --summary -i 2>/dev/null || echo "none"
+section "events today"
+aureport -k -i --start today 2>/dev/null || echo "none"

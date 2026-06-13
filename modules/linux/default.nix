@@ -1,5 +1,6 @@
 {
   imports = [
+    ./auditd.nix
     ./drawio.nix
     ./email.nix
     ./files.nix
