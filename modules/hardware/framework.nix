@@ -22,7 +22,7 @@
 
   # Enable the fingerprint reader
   services.fprintd.enable = true;
-  # Duplicate of keyring.nix; kept here commented for reference.
+
   #security.pam.services.swaylock = {
   #  fprintAuth = true;
   #};
