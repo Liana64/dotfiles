@@ -23,12 +23,10 @@ in
       color: ${colors.white} !important;
     }
 
-    /* Write button: accent fill auto-computes a black foreground; force white. */
-    .write-message .unified-toolbar-button,
-    .write-message .button-icon,
-    .write-message .button-label {
+    /* Folder-pane "New Message" (.button-primary): black-on-accent by default. Text and
+       icon both derive from currentColor, so color alone recolors both. */
+    #folderPaneWriteMessage {
       color: ${colors.white} !important;
-      fill: ${colors.white} !important;
     }
 
     ${selection}
