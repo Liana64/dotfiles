@@ -12,6 +12,8 @@ in
 {
   home.file."${profile}/user.js".text = ''
     user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+    // Render at the exact fractional output scale (1.8) instead of 2x-then-downscale, which blurs text.
+    user_pref("widget.wayland.fractional-scale.enabled", true);
   '';
 
   home.file."${profile}/chrome/userChrome.css".text = ''
