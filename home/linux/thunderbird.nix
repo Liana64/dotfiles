@@ -4,6 +4,7 @@ let
   profile = ".var/app/org.mozilla.Thunderbird/.thunderbird/rciub5to.default-esr";
   selection = ''
     ::selection {
+      background-color: ${colors.indigo} !important;
       color: ${colors.white} !important;
     }
   '';
@@ -18,6 +19,14 @@ in
     #threadTree tr.selected td,
     #threadTree tr.selected .subject {
       color: ${colors.white} !important;
+    }
+
+    /* Write button: accent fill auto-computes a black foreground; force white. */
+    .write-message .unified-toolbar-button,
+    .write-message .button-icon,
+    .write-message .button-label {
+      color: ${colors.white} !important;
+      fill: ${colors.white} !important;
     }
 
     ${selection}
