@@ -4,7 +4,7 @@
   lib,
   ...
 }: let
-  services = ["greetd" "swaylock"];
+  services = ["swaylock"];
   pamFaillock = "${pkgs.pam}/lib/security/pam_faillock.so";
   mkFaillock = svc: let
     cur = config.security.pam.services.${svc}.rules;
@@ -29,6 +29,8 @@
   };
 in {
   security.pam.services = lib.genAttrs services mkFaillock;
+
+  systemd.tmpfiles.rules = ["d /run/faillock 0700 liana users -"];
 
   environment.etc."security/faillock.conf".text = ''
     deny = 5
