@@ -39,8 +39,7 @@ spiritual trapdoors, engineering, memento mori, comedy), and insert beside
 the most resonant neighbor. Adjacency jokes are house style — a solemn
 entry may be answered by a deadpan one.
 
-**Finish:** in `~/Projects/Software/dice`: count entries with
-`grep -c '^%$' share/fortune`, then commit with a
-terse message and `git push` (pushes to both remotes; best-effort, never
-force). Return: the exact entry as written, the neighbor it was placed
-beside and why, verification notes, and the new count.
+**Finish:** count entries with `grep -c '^%$' share/fortune`. Do NOT
+commit or push — additions are batched; leave the working tree dirty.
+Return: the exact entry as written, the neighbor it was placed beside
+and why, verification notes, and the new count.

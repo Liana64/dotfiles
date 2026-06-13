@@ -36,6 +36,10 @@ in
     #   type = "sse";
     #   url = "http://qdrant.mcp.milberry.org:8000/sse";
     # };
+    #mcpServers.nixos-mcp = {
+    #  type = "http";
+    #  url = "http://nixos.mcp.milberry.org:8000/mcp";
+    #};
     settings = {
       autoMemoryEnabled = true;
       autoDreamEnabled = true;
