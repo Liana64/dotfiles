@@ -3,6 +3,7 @@
     ./auditd.nix
     ./drawio.nix
     ./email.nix
+    ./faillock.nix
     ./files.nix
     ./flatpak.nix
     ./fonts.nix
