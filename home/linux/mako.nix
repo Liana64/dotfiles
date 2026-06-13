@@ -12,7 +12,7 @@
       text-color       = foreground;
       border-size      = 1;
       border-radius    = 8;
-      padding          = "10 14";
+      padding          = "10,14";
       font             = "Cantarell 11";
       progress-color   = "over ${indigo}33";
 
