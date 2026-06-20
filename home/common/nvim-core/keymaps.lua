@@ -70,3 +70,11 @@ keymap.set("n", "<leader>xs", "<cmd>Trouble symbols toggle<cr>", { desc = "Symbo
 keymap.set("n", "<leader>xt", "<cmd>Trouble todo toggle<cr>", { desc = "Todo" })
 keymap.set("n", "]t", function() require("todo-comments").jump_next() end, { desc = "Next todo comment" })
 keymap.set("n", "[t", function() require("todo-comments").jump_prev() end, { desc = "Prev todo comment" })
+
+-- Tasks (Taskwarrior)
+keymap.set("n", "<leader>aa", function() Snacks.terminal("taskwarrior-tui") end, { desc = "Taskwarrior TUI" })
+keymap.set("n", "<leader>at", function()
+  vim.ui.input({ prompt = "task add " }, function(i)
+    if i and #i > 0 then vim.fn.system(vim.list_extend({ "task", "add" }, vim.split(i, " "))) end
+  end)
+end, { desc = "Add task" })

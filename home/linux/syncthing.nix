@@ -87,6 +87,16 @@
             params.cleanoutDays = "90";
           };
         };
+
+        "liana-data" = {
+          label = "Liana Data";
+          path = "~/Sync/Data";
+          devices = ["Milberry Cluster"];
+          versioning = {
+            type = "trashcan";
+            params.cleanoutDays = "90";
+          };
+        };
       };
 
       options = {
@@ -94,4 +104,13 @@
       };
     };
   };
+
+  # SQLite sidecars must never sync — live WAL/shared-memory files tear across
+  # peers. taskchampion.sqlite3 itself rides along as a single-writer backup.
+  home.file."Sync/Data/.stignore".text = ''
+    *-wal
+    *-shm
+    *-journal
+    *.log
+  '';
 }

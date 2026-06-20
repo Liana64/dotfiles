@@ -30,6 +30,7 @@ let
     clip = "wl-copy";
     thisip = "curl ifconfig.me -j";
     weather = "curl wttr.in/Chicago";
+    tt = "taskwarrior-tui";
   };
   
   nixos = {

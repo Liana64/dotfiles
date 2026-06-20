@@ -48,14 +48,14 @@ in
       # Inhibit idle if any window is fullscreen
       for_window [app_id=".*"] inhibit_idle fullscreen
 
-      assign [app_id="kitty"] workspace 1:q
+      #assign [app_id="kitty"] workspace 1:q
       assign [app_id="Thunderbird"] workspace 3:e
+      assign [class="Todoist"] workspace 4:a
       assign [app_id="Element"] workspace 5:s
       assign [app_id="signal"] workspace 5:s
       assign [app_id="vesktop"] workspace 5:s
       assign [class="obsidian"] workspace 6:d
       assign [class="Cider"] workspace 7:z
-      assign [class="Todoist"] workspace 9:c
 
       # Settings
       font pango:JetBrainsMono Nerd Font 10
@@ -225,7 +225,7 @@ in
           "${mod}+Shift+c" = "move container to workspace 9:c";
           "${mod}+Control+Shift+x" = "workspace 8:x; exec thunar";
           "${mod}+Control+Return" = "exec thunar";
-          "${mod}+Control+Shift+c" = "workspace 9:c; exec flatpak run com.todoist.Todoist";
+          "${mod}+Control+Shift+c" = "workspace 4:a; exec flatpak run com.todoist.Todoist";
           "${mod}+Control+Shift+z" = "exec zoom-web";
 
           "${sup}+Shift+q" = "kill";

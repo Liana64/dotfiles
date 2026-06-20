@@ -10,5 +10,6 @@
     ./packages.nix
     ./shell.nix
     ./starship.nix
+    ./taskwarrior.nix
   ];
 }
