@@ -153,7 +153,7 @@ in
         # App launchers; placement is handled by window-rules above.
         "${mod}+Ctrl+Shift+w".action.spawn = "firefox";
         "${mod}+Ctrl+Shift+e".action.spawn = [ "flatpak" "run" "org.mozilla.Thunderbird" ];
-        "${mod}+Ctrl+Shift+a".action.spawn = [ "firefox" "https://claude.ai" ];
+        "${mod}+Ctrl+Shift+a".action.spawn = [ "kitty" "--title task" "taskwarrior-tui" ];
         "${mod}+Ctrl+Shift+s".action.spawn = [ "flatpak" "run" "org.signal.Signal" ];
         "${mod}+Ctrl+Shift+d".action.spawn = [ "flatpak" "run" "md.obsidian.Obsidian" ];
         "${mod}+Ctrl+Shift+x".action.spawn = "thunar";

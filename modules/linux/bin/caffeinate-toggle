@@ -1,0 +1,9 @@
+#!/bin/sh
+flag="${XDG_RUNTIME_DIR}/caffeinate"
+if [ -e "$flag" ]; then
+    rm -f "$flag"
+else
+    : > "$flag"
+fi
+pkill -RTMIN+8 waybar 2>/dev/null
+exit 0

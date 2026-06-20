@@ -1,5 +1,4 @@
-{}:
-rec {
+{}: rec {
   name = "blueberry";
   wallpaper = "/nix/dotfiles/share/wallpapers/flower.png";
   foreground = "#fbf1c7";
@@ -9,33 +8,35 @@ rec {
   mbg = "#282828";
 
   cursorColor = "#fbf1c7";
-  white   = "#ffffff";
+  white = "#ffffff";
   comment = "#928374";
 
-  color0  = "#3c3836";
-  gray    = "#3c3836";
+  color0 = "#3c3836";
+  gray = "#3c3836";
 
-  color1  = "#ea6962";
-  red     = "#ea6962";
+  color1 = "#ea6962";
+  red = "#ea6962";
 
-  color2  = "#a9b665";
-  lime    = "#a9b665";
+  color2 = "#a9b665";
+  lime = "#a9b665";
 
-  color3  = "#e79a4e";
-  orange  = "#e79a4e";
+  color3 = "#e79a4e";
+  orange = "#e79a4e";
 
-  color4  = "#7daea3";
+  yellow = "#d8a657";
+
+  color4 = "#7daea3";
   emerald = "#7daea3";
 
-  indigo    = "#5b6ee8";
+  indigo = "#5b6ee8";
   indigoDim = "#4654b8";
 
-  color5  = "#d3869b";
-  pink    = "#d3869b";
+  color5 = "#d3869b";
+  pink = "#d3869b";
 
-  color6  = "#89b482";
-  green   = "#89b482";
+  color6 = "#89b482";
+  green = "#89b482";
 
-  color7  = "#d4be98";
-  tan     = "#d4be98";
+  color7 = "#d4be98";
+  tan = "#d4be98";
 }

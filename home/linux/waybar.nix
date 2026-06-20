@@ -1,16 +1,26 @@
-{ config, pkgs, colors, osConfig, ... }:
-let
+{
+  config,
+  pkgs,
+  colors,
+  osConfig,
+  ...
+}: let
   useNiri = (osConfig.compositor or "sway") == "niri";
-  wsModules = if useNiri then [ "niri/workspaces" ] else [ "sway/workspaces" "sway/mode" ];
+  wsModules =
+    if useNiri
+    then ["niri/workspaces"]
+    else ["sway/workspaces" "sway/mode"];
   app = pkgs.symlinkJoin {
     name = "waybar-scripts";
     paths = with pkgs; [
       (writeShellScriptBin "waybar-usbguard" (builtins.readFile ../../modules/linux/bin/waybar-usbguard))
       (writeShellScriptBin "waybar-yubikey" (builtins.readFile ../../modules/linux/bin/waybar-yubikey))
       (writeShellScriptBin "waybar-vpn" (builtins.readFile ../../modules/linux/bin/waybar-vpn))
+      (writeShellScriptBin "waybar-caffeine" (builtins.readFile ../../modules/linux/bin/waybar-caffeine))
+      (writeShellScriptBin "caffeinate-toggle" (builtins.readFile ../../modules/linux/bin/caffeinate-toggle))
       usbguard
     ];
-    buildInputs = [ pkgs.makeWrapper ];
+    buildInputs = [pkgs.makeWrapper];
     postBuild = ''
       wrapProgram $out/bin/waybar-usbguard      --prefix PATH : $out/bin
       wrapProgram $out/bin/waybar-yubikey       --prefix PATH : $out/bin
@@ -25,13 +35,12 @@ let
       ${pkgs.bluez}/bin/bluetoothctl power on
     fi
   '';
-in
-{
+in {
   programs.waybar = with colors; {
     enable = true;
     systemd = {
       enable = true;
-      targets = [ "graphical-session.target" ];
+      targets = ["graphical-session.target"];
     };
 
     style = ''
@@ -75,6 +84,7 @@ in
       #custom-vpn,
       #custom-usbguard,
       #custom-yubikey,
+      #custom-caffeine,
       #custom-syncthing {
         color: ${white};
         margin: 3px 2px;
@@ -170,6 +180,12 @@ in
       #bluetooth.connected {
         background: ${green};
       }
+
+      #custom-caffeine.active {
+        background: ${yellow};
+        color: ${darker};
+        padding: 2px 10px 2px 6px;
+      }
     '';
 
     settings = {
@@ -177,12 +193,12 @@ in
         layer = "top";
         position = "top";
         height = 14;
-        output = [ "*" ];
+        output = ["*"];
 
-        modules-left = [ "custom/launcher" ] ++ wsModules;
-        modules-center = [ "clock" ];
-        modules-right = [ "custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/vpn" "network" "battery" "bluetooth" "pulseaudio" "tray" ];
-        
+        modules-left = ["custom/launcher"] ++ wsModules;
+        modules-center = ["clock"];
+        modules-right = ["custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/vpn" "network" "custom/caffeine" "battery" "bluetooth" "pulseaudio" "tray"];
+
         "custom/launcher" = {
           format = " ";
           tooltip = false;
@@ -201,6 +217,14 @@ in
         "custom/yubikey" = {
           exec = "${app}/bin/waybar-yubikey";
           return-type = "json";
+        };
+
+        "custom/caffeine" = {
+          exec = "${app}/bin/waybar-caffeine";
+          return-type = "json";
+          interval = "once";
+          signal = 8;
+          on-click = "${app}/bin/caffeinate-toggle";
         };
 
         "sway/workspaces" = {
@@ -239,7 +263,7 @@ in
         battery = {
           format = "{icon}  {capacity}%";
           format-charging = " {capacity}%";
-          format-icons = [ "" "" "" "" "" ];
+          format-icons = ["" "" "" "" ""];
           format-plugged = " ";
           states = {
             critical = 15;
@@ -280,7 +304,7 @@ in
           tooltip-format-ethernet = "{ifname}\n{ipaddr}/{cidr}\nvia {gwaddr}\n  {bandwidthDownBits}    {bandwidthUpBits}";
           on-click = "${pkgs.networkmanagerapplet}/bin/nm-connection-editor";
         };
-        
+
         bluetooth = {
           format = "󰂯";
           format-disabled = "󰂲";
@@ -302,7 +326,7 @@ in
             phone = "";
             portable = "";
             car = "";
-            default = [ "" "" "" ];
+            default = ["" "" ""];
           };
           on-click = "pavucontrol";
         };
