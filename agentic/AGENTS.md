@@ -25,7 +25,6 @@ These are **important**
 
 These rules override conflicting guidance
 
-- When you finish writing an implementation from scratch, spawn a code-review sub-agent ("fresh-eyes") to review that feature only.
 - Code derives from a single source of reproducible truth.
 - Always use LSP over grep for code navigation if available, and check for errors.
 - Code is a bonsai tree. Thoughtful, zen, minimal. Prune anything not vitally important.
