@@ -16,13 +16,15 @@ fortune file (strfile format: entries separated by lines containing only
 
 Request: $ARGUMENTS
 
-**Verify first.** WebSearch unless provenance is certain. Rules:
-- Verified → attribute plainly. Unproven → `attributed to X`. Deliberately
-  altered → `after X`. Translations name the translator. Fictional voices
-  cite character and work.
-- Known misattribution or unverifiable wording the user did not supply
-  verbatim → do NOT add; return findings and the nearest verified
-  alternative instead.
+**Trust the user by default.** Do NOT WebSearch — add the quote as
+supplied, attributing it plainly as given. Verify (WebSearch) only when the
+request explicitly asks: "verify", "confirm", "check", "is this really by",
+or similar. When you do verify — or when you already know from training that
+an attribution is a well-known misattribution — apply: Verified → attribute
+plainly. Unproven → `attributed to X`. Deliberately altered → `after X`.
+Translations name the translator. Fictional voices cite character and work.
+A known misattribution → flag it and offer the nearest verified alternative
+rather than silently adding, even without searching.
 
 **Format** (match the file exactly — read a few entries first):
 - ≤74 columns; two spaces between sentences; ASCII `--` and straight
