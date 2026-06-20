@@ -9,6 +9,10 @@
       "x-scheme-handler/about"      = "firefox.desktop";
       "x-scheme-handler/unknown"    = "firefox.desktop";
 
+      # Zoom → web client (Firefox)
+      "x-scheme-handler/zoommtg"    = "zoom-web.desktop";
+      "x-scheme-handler/zoomus"     = "zoom-web.desktop";
+
       # Terminal
       "x-scheme-handler/terminal"   = "kitty.desktop";
 

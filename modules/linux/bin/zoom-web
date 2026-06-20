@@ -1,0 +1,28 @@
+#!/bin/sh
+# Open Zoom in the web client (Firefox). Translates zoommtg:// / zoomus:// links.
+base="https://app.zoom.us/wc"
+arg="${1:-}"
+case "$arg" in
+  zoommtg://*|zoomus://*)
+    q="${arg#*\?}"
+    confno=""
+    pw=""
+    IFS='&'
+    for p in $q; do
+      case "$p" in
+        confno=*) confno="${p#confno=}" ;;
+        pwd=*) pw="${p#pwd=}" ;;
+      esac
+    done
+    unset IFS
+    if [ -n "$confno" ]; then
+      url="$base/join/$confno"
+      [ -n "$pw" ] && url="$url?pwd=$pw"
+    else
+      url="$base/home"
+    fi
+    ;;
+  http://*|https://*) url="$arg" ;;
+  *) url="$base/home" ;;
+esac
+exec firefox --new-window "$url"

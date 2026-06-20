@@ -23,6 +23,7 @@
     ./vicinae.nix
     ./waybar.nix
     ./xdg-userdirs.nix
+    ./zoom.nix
   ];
   
   home.sessionVariables = {

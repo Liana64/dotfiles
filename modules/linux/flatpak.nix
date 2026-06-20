@@ -56,7 +56,6 @@ in
       # Unverified packages
       unverified=(
         me.proton.Mail
-        us.zoom.Zoom
       )
 
       desired=( "''${verified[@]}" "''${unverified[@]}" )

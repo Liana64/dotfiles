@@ -226,6 +226,7 @@ in
           "${mod}+Control+Shift+x" = "workspace 8:x; exec thunar";
           "${mod}+Control+Return" = "exec thunar";
           "${mod}+Control+Shift+c" = "workspace 9:c; exec flatpak run com.todoist.Todoist";
+          "${mod}+Control+Shift+z" = "exec zoom-web";
 
           "${sup}+Shift+q" = "kill";
           "${sup}+Shift+e" =
