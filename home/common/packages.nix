@@ -36,7 +36,6 @@
     #procs
     ripgrep
     ripgrep-all
-    rust-analyzer
     rustscan
     shellcheck
     sops
