@@ -30,7 +30,13 @@ let
     clip = "wl-copy";
     thisip = "curl ifconfig.me -j";
     weather = "curl wttr.in/Chicago";
+  };
+
+  tasks = {
     tt = "taskwarrior-tui";
+    # AI task store — separate db from human tasks (see todo skill)
+    ai-task = "task rc.data.location=$HOME/Sync/Data/ai-tasks rc.context=none";
+    ai-task-tui = "taskwarrior-tui --taskdata $HOME/Sync/Data/ai-tasks";
   };
   
   nixos = {
@@ -91,7 +97,7 @@ let
     flushdns = "sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder";
   };
 
-  aliases = editors // ls // grep // personal // nixos // containers // rust-tools // networking // utility // git // darwin;
+  aliases = editors // ls // grep // personal // tasks // nixos // containers // rust-tools // networking // utility // git // darwin;
   
   helpText = lib.concatStringsSep "\\n" (
     lib.mapAttrsToList (name: value: "  ${name} = ${value}") aliases

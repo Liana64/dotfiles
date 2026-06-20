@@ -1,0 +1,20 @@
+#!/bin/sh
+# Waybar Taskwarrior indicator (JSON). Shows the started (active) task with an
+# `active` class for the in-progress highlight; falls back to the next due task.
+active=$(task +ACTIVE export 2>/dev/null | jq -c 'sort_by(.modified) | last // empty')
+if [ -n "$active" ]; then
+  printf '%s' "$active" | jq -c '{
+    text: ("▶ " + .description),
+    class: "active",
+    tooltip: ((.goal // "") | if . == "" then "active" else "Upstream: " + . end)
+  }'
+  exit 0
+fi
+due=$(task status:pending due.any: export 2>/dev/null | jq -c 'sort_by(.due) | first // empty')
+if [ -n "$due" ]; then
+  printf '%s' "$due" | jq -c '{
+    text: .description,
+    class: "due",
+    tooltip: ((.due // "") | if . == "" then "next" else "due " + . end)
+  }'
+fi

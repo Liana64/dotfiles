@@ -17,6 +17,7 @@
       (writeShellScriptBin "waybar-yubikey" (builtins.readFile ../../modules/linux/bin/waybar-yubikey))
       (writeShellScriptBin "waybar-vpn" (builtins.readFile ../../modules/linux/bin/waybar-vpn))
       (writeShellScriptBin "waybar-caffeine" (builtins.readFile ../../modules/linux/bin/waybar-caffeine))
+      (writeShellScriptBin "waybar-task" (builtins.readFile ../../modules/linux/bin/waybar-task))
       (writeShellScriptBin "caffeinate-toggle" (builtins.readFile ../../modules/linux/bin/caffeinate-toggle))
       usbguard
     ];
@@ -24,6 +25,7 @@
     postBuild = ''
       wrapProgram $out/bin/waybar-usbguard      --prefix PATH : $out/bin
       wrapProgram $out/bin/waybar-yubikey       --prefix PATH : $out/bin
+      wrapProgram $out/bin/waybar-task          --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [ taskwarrior3 jq coreutils ])}
     '';
   };
   # Toggle BT via BlueZ HCI power, never rfkill: rfkill power-gates the MT7925
@@ -109,6 +111,17 @@ in {
         font-size: 13px;
         background: @surface;
         padding: 2px 12px;
+      }
+
+      #custom-task {
+        color: ${tan};
+        margin: 3px 2px;
+        padding: 2px 8px;
+      }
+
+      #custom-task.active {
+        color: ${background};
+        background: ${indigo};
       }
 
       #tray {
@@ -197,7 +210,7 @@ in {
 
         modules-left = ["custom/launcher"] ++ wsModules;
         modules-center = ["clock"];
-        modules-right = ["custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/vpn" "network" "custom/caffeine" "battery" "bluetooth" "pulseaudio" "tray"];
+        modules-right = ["custom/task" "custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/vpn" "network" "custom/caffeine" "battery" "bluetooth" "pulseaudio" "tray"];
 
         "custom/launcher" = {
           format = " ";
@@ -258,6 +271,14 @@ in {
           format = "{:%a %b %e %I:%M %p}";
           tooltip-format = "{:%Y-%m-%d | %H:%M}";
           on-click = "flatpak run org.mozilla.Thunderbird -calendar";
+        };
+
+        "custom/task" = {
+          exec = "${app}/bin/waybar-task";
+          interval = 10;
+          return-type = "json";
+          format = "{}";
+          on-click = "kitty --title task taskwarrior-tui";
         };
 
         battery = {
