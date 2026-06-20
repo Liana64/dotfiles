@@ -16,6 +16,8 @@
       font.size = 11;
       popToRootOnClose = true;
       rootSearch.searchFiles = false;
+      # Disable clipboard history: stop the clipboard server recording selections.
+      providers.clipboard.preferences.monitoring = false;
       window = {
         csd = true;
         rounding = 10;
