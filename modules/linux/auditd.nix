@@ -54,11 +54,14 @@ in {
       [ -s "$ack" ] || date '+%m/%d/%Y %T' > "$ack"
       summary=""
       for key in ${toString tripwireKeys}; do
-        count=$(${pkgs.audit}/bin/ausearch -k "$key" -ts $(cat "$ack") 2>/dev/null | grep -c 'type=SYSCALL' || true)
+        # Rule (re)loads tag the key on a CONFIG_CHANGE bundled with an auditctl
+        # SYSCALL keyed (null); match key on SYSCALL so reboots/switches don't trip.
+        count=$(${pkgs.audit}/bin/ausearch -k "$key" -ts $(cat "$ack") 2>/dev/null | grep 'type=SYSCALL' | grep -Ec 'key="?'"$key" || true)
         if [ "$count" -gt 0 ]; then summary="$summary $key:$count"; fi
       done
       if [ -n "$summary" ]; then
-        echo "audit tripwires:$summary (austatus for details, 'austatus ack' clears)" > /run/audit-tripwires
+        echo "audit tripwires: $summary (austatus for details, 'austatus ack' clears)" > /run/audit-tripwires
+        echo ""
       else
         : > /run/audit-tripwires
       fi
