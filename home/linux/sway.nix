@@ -22,6 +22,23 @@
       wrapProgram $out/bin/nix-rebuild-sway         --prefix PATH : $out/bin
     '';
   };
+  # Cogwheel "task" mode actions. waybar custom/task listens on signal 9.
+  taskDisplayToggle = pkgs.writeShellScript "task-display-toggle" ''
+    f="$XDG_RUNTIME_DIR/waybar-task-hidden"
+    if [ -e "$f" ]; then rm -f "$f"; else : > "$f"; fi
+    ${pkgs.procps}/bin/pkill -RTMIN+9 waybar
+  '';
+  taskStartStop = pkgs.writeShellScript "task-start-stop" ''
+    task=${pkgs.taskwarrior3}/bin/task
+    if [ -n "$($task rc.context=none +ACTIVE _ids 2>/dev/null)" ]; then
+      $task rc.context=none +ACTIVE stop
+    else
+      id=$($task rc.context=none status:pending -ACTIVE export 2>/dev/null \
+        | ${pkgs.jq}/bin/jq -r 'sort_by(-.urgency) | first | .id // empty')
+      [ -n "$id" ] && $task rc.context=none "$id" start
+    fi
+    ${pkgs.procps}/bin/pkill -RTMIN+9 waybar
+  '';
 in {
   programs.swaylock = {
     enable = true;
@@ -134,7 +151,8 @@ in {
         sup = "Mod4";
       in {
         "${sup}+Escape" = ''mode "(p)oweroff, (s)uspend, (h)ibernate, (r)eboot, lo(g)out, (l)ock, (c)affeinate"'';
-        "XF86AudioMedia" = ''mode "(p)oweroff, (s)uspend, (h)ibernate, (r)eboot, lo(g)out, (l)ock, (c)affeinate"'';
+
+        "XF86AudioMedia" = ''mode "task: (a) toggle task · (s) start/stop · (g) toggle goal · (c) choose goal"'';
 
         "print" = "exec '${app}/bin/sway-screenshot-area'";
         "Shift+print" = "exec '${app}/bin/sway-screenshot-all'";
@@ -299,6 +317,17 @@ in {
           g = "exec swaymsg 'mode default' && systemctl --user stop sway-session.target && systemctl --user stop graphical-session.target && swaymsg exit";
           l = "exec swaymsg 'mode default' && swaylock -f";
           c = "exec swaymsg 'mode default' && ${app}/bin/caffeinate-toggle";
+          Return = "mode default";
+          Escape = "mode default";
+        };
+
+        "task: (a) toggle task · (s) start/stop · (g) toggle goal · (c) choose goal" = {
+          a = "exec swaymsg 'mode default' && ${taskDisplayToggle}";
+          s = "exec swaymsg 'mode default' && ${taskStartStop}";
+          # TODO(unwired): (g) toggle the active-goal waybar display.
+          g = "mode default";
+          # TODO(unwired): (c) choose/pin the active goal via a picker.
+          c = "mode default";
           Return = "mode default";
           Escape = "mode default";
         };

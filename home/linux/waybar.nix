@@ -124,6 +124,14 @@ in {
         background: ${indigo};
       }
 
+      #custom-task.due-today {
+        color: ${orange};
+      }
+
+      #custom-task.overdue {
+        color: ${red};
+      }
+
       #tray {
         background: @surface;
         margin-right: 5px;
@@ -276,6 +284,7 @@ in {
         "custom/task" = {
           exec = "${app}/bin/waybar-task";
           interval = 10;
+          signal = 9;
           return-type = "json";
           format = "{}";
           on-click = "kitty --title task taskwarrior-tui";

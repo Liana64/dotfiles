@@ -72,7 +72,7 @@ keymap.set("n", "]t", function() require("todo-comments").jump_next() end, { des
 keymap.set("n", "[t", function() require("todo-comments").jump_prev() end, { desc = "Prev todo comment" })
 
 -- Tasks (Taskwarrior)
-keymap.set("n", "<leader>aa", function() Snacks.terminal("taskwarrior-tui") end, { desc = "Taskwarrior TUI" })
+keymap.set("n", "<leader>aa", function() Snacks.terminal("taskwarrior-tui -r today") end, { desc = "Taskwarrior TUI" })
 keymap.set("n", "<leader>at", function()
   vim.ui.input({ prompt = "task add " }, function(i)
     if i and #i > 0 then vim.fn.system(vim.list_extend({ "task", "add" }, vim.split(i, " "))) end

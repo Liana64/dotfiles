@@ -14,6 +14,21 @@
     taskwarrior-tui
     # keep go-task, but invoke it as `go-task` so `task` is free for Taskwarrior
     (writeShellScriptBin "go-task" ''exec ${go-task}/bin/task "$@"'')
+    # snooze <id> [when] — defer a task until a wait date (default tomorrow)
+    (writeShellScriptBin "task-snooze" ''
+      [ -z "$1" ] && { echo "usage: snooze <id> [when]" >&2; exit 1; }
+      exec ${taskwarrior3}/bin/task "$1" modify wait:"''${2:-tomorrow}"
+    '')
+    # subtask <parent-id> <description…> — add a child in the partof tree,
+    # inheriting the parent's project.
+    (writeShellScriptBin "subtask" ''
+      [ -z "$2" ] && { echo "usage: subtask <parent-id> <description…>" >&2; exit 1; }
+      p=$(${taskwarrior3}/bin/task _get "$1".uuid)
+      [ -z "$p" ] && { echo "subtask: no such task: $1" >&2; exit 1; }
+      proj=$(${taskwarrior3}/bin/task _get "$1".project)
+      shift
+      exec ${taskwarrior3}/bin/task rc.context=none add partof:"$p" ''${proj:+project:"$proj"} "$@"
+    '')
   ];
 
   # taskwarrior-tui's own logs/history (separate from the task DB) live there too.
@@ -34,9 +49,7 @@
     run mkdir -p "$HOME/Sync/Data/ai-tasks"
   '';
 
-  # taskwarrior must write mutable state (active context, news.version, sync creds)
-  # to its taskrc, but the declarative config is a read-only symlink. So the
-  # declarative bits live in managed.taskrc and a writable taskrc includes them.
+  # Writable taskrc including managed.taskrc — taskwarrior must write context/sync state.
   home.activation.seedTaskrc = lib.hm.dag.entryAfter ["writeBoundary"] ''
     rc="$HOME/.config/task/taskrc"
     if [ ! -f "$rc" ] || [ -L "$rc" ]; then

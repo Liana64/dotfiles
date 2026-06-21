@@ -3,7 +3,6 @@
   colors,
   ...
 }: let
-  # "#rrggbb" -> taskwarrior "rgbRGB" 6x6x6 cube code (nearest level).
   # Taskwarrior has no truecolor, so the palette is approximated onto the cube.
   hexToCube = hex: let
     h = lib.toLower (lib.removePrefix "#" hex);
@@ -42,10 +41,10 @@
       then "4"
       else "5";
   in "rgb${d (byte 0)}${d (byte 2)}${d (byte 4)}";
+  columns = "due.relative,description,upstream,subproject,tags,entry.age,goal,id";
+  labels = "Due,Description,Upstream,Project,Tags,Age,Goal,ID";
 in {
-  # Declarative config, read-only — included from a writable ~/.config/task/taskrc
-  # (seeded in default.nix) so taskwarrior can persist mutable state: active context,
-  # news.version, sync creds. Change settings here, not via `task config`.
+  # Change settings here, not via `task config`.
   xdg.configFile."task/managed.taskrc".text = ''
     data.location=~/Sync/Data/task
     news.version=3.4.2
@@ -54,39 +53,54 @@ in {
     weekstart=monday
     calendar.details=full
     default.project=Inbox
+    editor=nvim
 
-    # Goal/subproject are UDAs the hooks populate from `project` — taskwarrior-tui
-    # can't render project.parent/.indented, so expose them as plain columns.
-    uda.goal.type=string
-    uda.goal.label=Upstream
+    # upstream/subproject: hook-derived from project. goal: manual.
+    uda.upstream.type=string
+    uda.upstream.label=Upstream
     uda.subproject.type=string
     uda.subproject.label=Project
+    uda.goal.type=string
+    uda.goal.label=Goal
+
+    # details: long-form body, shown in the detail pane.
+    uda.details.type=string
+    uda.details.label=Details
+
+    # partof: parent UUID for subtasks (`parent` is reserved).
+    uda.partof.type=string
+    uda.partof.label=Part of
 
     # --- Views (Todoist-style reports) ---
-    # `goal` (Upstream) sits to the right of description; blocked tasks hidden.
-    report.next.columns=id,entry.age,subproject,tags,due.relative,description,goal
-    report.next.labels=ID,Age,Project,Tags,Due,Description,Upstream
-    report.next.filter=status:pending +UNBLOCKED
+    # next = primary view (default.command + tui default), kept populated.
+    report.next.columns=${columns}
+    report.next.labels=${labels}
+    report.next.filter=status:pending +UNBLOCKED partof.none: -goal
+    report.next.sort=urgency-
 
     # Today = overdue + due today; Upcoming = the week ahead.
     report.today.description=Today
-    report.today.columns=id,subproject,tags,priority,due.relative,description,goal
-    report.today.labels=ID,Project,Tags,P,Due,Description,Upstream
-    report.today.filter=status:pending +UNBLOCKED (+OVERDUE or +TODAY)
+    report.today.columns=${columns}
+    report.today.labels=${labels}
+    report.today.filter=status:pending +UNBLOCKED partof.none: -goal (+OVERDUE or +TODAY)
     report.today.sort=urgency-
 
     report.upcoming.description=Upcoming
-    report.upcoming.columns=id,subproject,tags,priority,due.relative,description,goal
-    report.upcoming.labels=ID,Project,Tags,P,Due,Description,Upstream
-    report.upcoming.filter=status:pending due.after:today due.before:today+8d
+    report.upcoming.columns=${columns}
+    report.upcoming.labels=${labels}
+    report.upcoming.filter=status:pending partof.none: -goal due.after:today due.before:today+8d
     report.upcoming.sort=due+,urgency-
 
-    # Goal rollup — keeps Upstream first since it's the grouping/sort key.
+    report.list.columns=${columns}
+    report.list.labels=${labels}
+    report.list.filter=status:pending -WAITING -goal
+
+    # Goals: the +goal objective list (own columns).
     report.goals.description=Goals
-    report.goals.columns=goal,subproject,priority,due.relative,description
-    report.goals.labels=Upstream,Project,P,Due,Description
-    report.goals.filter=status:pending
-    report.goals.sort=goal+,urgency-
+    report.goals.columns=id,priority,due.relative,description
+    report.goals.labels=ID,P,Due,Description
+    report.goals.filter=status:pending +goal
+    report.goals.sort=due+,priority-
 
     # Dependency navigation — depends.list surfaces the blocking task IDs.
     report.blocked.description=Blocked tasks
@@ -102,14 +116,15 @@ in {
     report.blocking.sort=urgency-
 
     # --- Contexts (project selectors — switch with `c` in taskwarrior-tui) ---
-    # Areas are project roots; switching a context also auto-files new tasks into
-    # that project. Loose captures fall to Inbox via default.project.
-    context.home.read=project:Home
-    context.home.write=project:Home
-    context.lab.read=project:Lab
-    context.lab.write=project:Lab
-    context.inbox.read=project:Inbox
+    # Project-root areas; write filter auto-files new tasks. -goal hides objectives.
+    context.inbox.read=project:Inbox -goal
     context.inbox.write=project:Inbox
+    context.home.read=project:Home -goal
+    context.home.write=project:Home
+    context.personal.read=project:Personal -goal
+    context.personal.write=project:Personal
+    context.software.read=project:Software -goal
+    context.software.write=project:Software
 
     # --- Theme: blueberry palette, nearest 256-color cube (no truecolor) ---
     color.active=${hexToCube colors.foreground} on ${hexToCube colors.indigo}
@@ -136,5 +151,12 @@ in {
     uda.taskwarrior-tui.style.navbar=${hexToCube colors.foreground} on ${hexToCube colors.mbg}
     uda.taskwarrior-tui.style.command=${hexToCube colors.foreground}
     uda.taskwarrior-tui.style.calendar.title=${hexToCube colors.background} on ${hexToCube colors.indigo}
+  '';
+
+  # AI store: same config, AI db, no context. ai-task-tui loads it via --taskrc.
+  xdg.configFile."task/ai.taskrc".text = ''
+    include ~/.config/task/managed.taskrc
+    data.location=~/Sync/Data/ai-tasks
+    default.project=
   '';
 }

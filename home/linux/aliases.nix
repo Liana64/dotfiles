@@ -33,10 +33,14 @@ let
   };
 
   tasks = {
-    tt = "taskwarrior-tui";
-    # AI task store — separate db from human tasks (see todo skill)
-    ai-task = "task rc.data.location=$HOME/Sync/Data/ai-tasks rc.context=none";
-    ai-task-tui = "taskwarrior-tui --taskdata $HOME/Sync/Data/ai-tasks";
+    # Open on the Today view (Todoist-style home screen).
+    tt = "taskwarrior-tui -r today";
+    # Snooze a task out of view until a wait date (default tomorrow): snooze <id> [when]
+    snooze = "task-snooze";
+    # AI task store — separate db from human tasks (see todo skill). ai.taskrc
+    # points at the AI db, runs context-free, and clears default.project.
+    ai-task = "task rc:$HOME/.config/task/ai.taskrc";
+    ai-task-tui = "taskwarrior-tui --taskrc $HOME/.config/task/ai.taskrc";
   };
   
   nixos = {
