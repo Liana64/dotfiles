@@ -10,9 +10,10 @@ working on TODO items, use {TaskCreate, TaskGet, TaskList, TaskUpdate} to show t
 status to the user.
 
 ## Usage
-Prefix every command (`TASK`):
+Prefix every command (`TASK`). The store shares the human taskrc, so override its
+context and default project to stay isolated:
 
-    task rc.data.location=~/Sync/Data/ai-tasks
+    task rc.data.location=~/Sync/Data/ai-tasks rc.context=none rc.default.project=
 
 ## Commands
 
