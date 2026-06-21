@@ -3,6 +3,7 @@
   home.packages = with pkgs; [
     age
     ansible
+    asciinema
     bat
     bitwarden-cli
     btop
