@@ -151,6 +151,9 @@ in {
     uda.taskwarrior-tui.style.navbar=${hexToCube colors.foreground} on ${hexToCube colors.mbg}
     uda.taskwarrior-tui.style.command=${hexToCube colors.foreground}
     uda.taskwarrior-tui.style.calendar.title=${hexToCube colors.background} on ${hexToCube colors.indigo}
+
+    # enable experimental nested tasks feature
+    uda.taskwarrior-tui.nested=true
   '';
 
   # AI store: same config, AI db, no context. ai-task-tui loads it via --taskrc.

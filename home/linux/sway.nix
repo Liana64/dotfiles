@@ -39,6 +39,22 @@
     fi
     ${pkgs.procps}/bin/pkill -RTMIN+9 waybar
   '';
+  # Floating quick-add: prompt for a description, file it via the active context.
+  taskAdd = pkgs.writeShellScript "task-add" ''
+    task=${pkgs.taskwarrior3}/bin/task
+    printf 'Add task: '
+    IFS= read -r desc
+    [ -n "$desc" ] && $task add "$desc" && sleep 0.6
+  '';
+  # Floating fzf picker over all pending tasks; mark the selection done.
+  taskDone = pkgs.writeShellScript "task-done" ''
+    task=${pkgs.taskwarrior3}/bin/task
+    sel=$($task rc.context=none status:pending export 2>/dev/null \
+      | ${pkgs.jq}/bin/jq -r '.[] | "\(.id)\t\(.description)"' \
+      | ${pkgs.fzf}/bin/fzf --delimiter '\t' --with-nth 2.. --prompt 'done> ') || exit 0
+    id=$(printf '%s' "$sel" | ${pkgs.coreutils}/bin/cut -f1)
+    [ -n "$id" ] && $task rc.context=none "$id" done && sleep 0.6
+  '';
 in {
   programs.swaylock = {
     enable = true;
@@ -125,6 +141,14 @@ in {
           command = "floating enable, resize set 800 400";
         }
         {
+          criteria = {title = "task-add";};
+          command = "floating enable, resize set 600 120, move position center";
+        }
+        {
+          criteria = {title = "task-done";};
+          command = "floating enable, resize set 720 500, move position center";
+        }
+        {
           criteria = {
             app_id = "firefox";
             title = "^(Save|Open|Enter name of|Select).*";
@@ -150,9 +174,9 @@ in {
         mod = cfg.modifier;
         sup = "Mod4";
       in {
-        "${sup}+Escape" = ''mode "(p)oweroff, (s)uspend, (h)ibernate, (r)eboot, lo(g)out, (l)ock, (c)affeinate"'';
+        "${sup}+Escape" = ''mode "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate"'';
 
-        "XF86AudioMedia" = ''mode "task: (a) toggle task · (s) start/stop · (g) toggle goal · (c) choose goal"'';
+        "XF86AudioMedia" = ''mode "task: (a) add · (s) start/stop · (h) hide/show · (t) TUI · (d) done · (g) goal · (c) choose"'';
 
         "print" = "exec '${app}/bin/sway-screenshot-area'";
         "Shift+print" = "exec '${app}/bin/sway-screenshot-all'";
@@ -309,7 +333,7 @@ in {
       bars = [];
 
       modes = {
-        "(p)oweroff, (s)uspend, (h)ibernate, (r)eboot, lo(g)out, (l)ock, (c)affeinate" = {
+        "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate" = {
           p = "exec swaymsg 'mode default' && systemctl poweroff";
           s = "exec swaymsg 'mode default' && systemctl suspend";
           h = "exec swaymsg 'mode default' && systemctl hibernate";
@@ -321,9 +345,12 @@ in {
           Escape = "mode default";
         };
 
-        "task: (a) toggle task · (s) start/stop · (g) toggle goal · (c) choose goal" = {
-          a = "exec swaymsg 'mode default' && ${taskDisplayToggle}";
+        "task: (a) add · (s) start/stop · (h) hide/show · (t) TUI · (d) done · (g) goal · (c) choose" = {
+          a = "exec swaymsg 'mode default' && kitty --title task-add ${taskAdd}";
           s = "exec swaymsg 'mode default' && ${taskStartStop}";
+          h = "exec swaymsg 'mode default' && ${taskDisplayToggle}";
+          t = "exec swaymsg 'mode default' && kitty --title task taskwarrior-tui";
+          d = "exec swaymsg 'mode default' && kitty --title task-done ${taskDone}";
           # TODO(unwired): (g) toggle the active-goal waybar display.
           g = "mode default";
           # TODO(unwired): (c) choose/pin the active goal via a picker.

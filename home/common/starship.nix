@@ -4,9 +4,17 @@
     enable = true;
     enableZshIntegration = true;
     settings = {
-      add_newline = false;
-      format = "$all$username$hostname:$directory$character";
+      add_newline = true;
+      format = "\${custom.goal}$all$username$hostname:$directory$character";
       right_format = "$kubernetes@$time";
+
+      custom.goal = {
+        command = "cat $HOME/.local/state/task/active-goal";
+        when = "test -s $HOME/.local/state/task/active-goal";
+        format = "[$output]($style) ";
+        style = "yellow bold";
+        disabled = false;
+      };
 
       directory = {
         format = "[$path]($style)[$read_only]($read_only_style) ";

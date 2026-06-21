@@ -45,6 +45,12 @@
     };
     #impermanence.url = "github:nix-community/impermanence";
 
+    # Fork for nested tasks
+    taskwarrior-tui-src = {
+      url = "github:Liana64/taskwarrior-tui/feature/nested-tasks";
+      flake = false;
+    };
+
     # Pinned firmware source for the Keychron Q11 build (embedded/keychron-q11).
     # Locked in flake.lock incl. submodules; fetched only when the app is run.
     qmk-firmware = {
