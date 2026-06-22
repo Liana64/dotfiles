@@ -80,6 +80,7 @@ keymap.set("n", "<leader>at", function()
 end, { desc = "Add task" })
 
 -- Emacs-style C-x prefix
+keymap.set("n", "<C-x>", "<Nop>", { desc = "C-x prefix" })
 keymap.set("n", "<C-x><C-f>", function() Snacks.picker.files() end, { desc = "Find files" })
 keymap.set("n", "<C-x><C-g>", function() Snacks.picker.grep() end, { desc = "Grep" })
 keymap.set("n", "<C-x>b", function() Snacks.picker.buffers() end, { desc = "Buffers" })
@@ -98,3 +99,8 @@ keymap.set("n", "<C-x>gb", function() Snacks.git.blame_line() end, { desc = "Git
 
 keymap.set("n", "<C-x><C-c>", "<cmd>wqa<cr>", { desc = "Write and quit all" })
 keymap.set("n", "<C-x>u", vim.cmd.UndotreeToggle, { desc = "Undotree" })
+
+keymap.set("n", "<C-x>ld", function() Snacks.picker.lsp_definitions() end, { desc = "Go to Definition" })
+keymap.set("n", "<C-x>lr", function() Snacks.picker.lsp_references() end, { desc = "References" })
+keymap.set("n", "<C-x>ls", function() Snacks.picker.lsp_symbols() end, { desc = "Document Symbols" })
+keymap.set("n", "<C-x>lt", function() Snacks.picker.diagnostics() end, { desc = "Diagnostics" })
