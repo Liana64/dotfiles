@@ -252,8 +252,8 @@ in {
         "${mod}+underscore" = "resize shrink height 50px";
         "${mod}+equal" = "resize grow height 50px";
 
-        "${mod}+g" = "layout stacking";
-        "${mod}+t" = "layout tabbed";
+        # "${mod}+g" = "layout stacking";
+        # "${mod}+t" = "layout tabbed";
 
         "${mod}+b" = "layout toggle split";
 
