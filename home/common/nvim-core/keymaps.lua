@@ -78,3 +78,23 @@ keymap.set("n", "<leader>at", function()
     if i and #i > 0 then vim.fn.system(vim.list_extend({ "task", "add" }, vim.split(i, " "))) end
   end)
 end, { desc = "Add task" })
+
+-- Emacs-style C-x prefix
+keymap.set("n", "<C-x><C-f>", function() Snacks.picker.files() end, { desc = "Find files" })
+keymap.set("n", "<C-x><C-g>", function() Snacks.picker.grep() end, { desc = "Grep" })
+keymap.set("n", "<C-x>b", function() Snacks.picker.buffers() end, { desc = "Buffers" })
+keymap.set("n", "<C-x><C-r>", function() Snacks.picker.recent() end, { desc = "Recent files" })
+keymap.set("n", "<C-x><C-j>", function() Snacks.explorer() end, { desc = "Explorer" })
+
+keymap.set("n", "<C-x>2", "<C-w>s", { desc = "Split below" })
+keymap.set("n", "<C-x>3", "<C-w>v", { desc = "Split right" })
+keymap.set("n", "<C-x>0", "<cmd>close<CR>", { desc = "Close window" })
+keymap.set("n", "<C-x>1", "<C-w>o", { desc = "Only window" })
+keymap.set("n", "<C-x>+", "<C-w>=", { desc = "Balance windows" })
+
+keymap.set("n", "<C-x>gg", function() Snacks.lazygit() end, { desc = "Lazygit" })
+keymap.set("n", "<C-x>gs", function() Snacks.picker.git_status() end, { desc = "Git status" })
+keymap.set("n", "<C-x>gb", function() Snacks.git.blame_line() end, { desc = "Git blame line" })
+
+keymap.set("n", "<C-x><C-c>", "<cmd>wqa<cr>", { desc = "Write and quit all" })
+keymap.set("n", "<C-x>u", vim.cmd.UndotreeToggle, { desc = "Undotree" })
