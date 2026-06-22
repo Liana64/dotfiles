@@ -1,0 +1,21 @@
+#!/bin/sh
+# Waybar Todoist indicator: top overdue task, else top task due today. Hidden via the toggle flag.
+[ -e "$XDG_RUNTIME_DIR/waybar-task-hidden" ] && exit 0
+# No token configured → hide (and never trigger the CLI's interactive token prompt).
+[ -f "$HOME/.config/todoist/config.json" ] || exit 0
+
+todoist sync >/dev/null 2>&1 || true
+
+# CSV columns are id,priority,due,project,labels,content — content is the trailing field.
+top() {
+  todoist --csv list --filter "$1" 2>/dev/null | head -n1 | cut -d, -f6- | sed 's/^"//; s/"$//'
+}
+
+content=$(top "overdue & !today"); class="overdue"; rel="overdue"
+if [ -z "$content" ]; then
+  content=$(top "today"); class="due-today"; rel="due today"
+fi
+[ -z "$content" ] && exit 0
+
+jq -cn --arg t "$content · $rel" --arg c "$class" --arg tt "$rel" \
+  '{text: $t, class: $c, tooltip: $tt}'

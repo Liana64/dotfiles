@@ -6,6 +6,7 @@
   ...
 }: let
   useNiri = (osConfig.compositor or "sway") == "niri";
+  taskManager = osConfig.taskManager or "taskwarrior";
   wsModules =
     if useNiri
     then ["niri/workspaces"]
@@ -18,6 +19,7 @@
       (writeShellScriptBin "waybar-vpn" (builtins.readFile ../../modules/linux/bin/waybar-vpn))
       (writeShellScriptBin "waybar-caffeine" (builtins.readFile ../../modules/linux/bin/waybar-caffeine))
       (writeShellScriptBin "waybar-task" (builtins.readFile ../../modules/linux/bin/waybar-task))
+      (writeShellScriptBin "waybar-todoist" (builtins.readFile ../../modules/linux/bin/waybar-todoist))
       (writeShellScriptBin "caffeinate-toggle" (builtins.readFile ../../modules/linux/bin/caffeinate-toggle))
       usbguard
     ];
@@ -25,7 +27,8 @@
     postBuild = ''
       wrapProgram $out/bin/waybar-usbguard      --prefix PATH : $out/bin
       wrapProgram $out/bin/waybar-yubikey       --prefix PATH : $out/bin
-      wrapProgram $out/bin/waybar-task          --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [ taskwarrior3 jq coreutils ])}
+      wrapProgram $out/bin/waybar-task          --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [taskwarrior3 jq coreutils])}
+      wrapProgram $out/bin/waybar-todoist       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [todoist jq coreutils gnused])}
     '';
   };
   # Toggle BT via BlueZ HCI power, never rfkill: rfkill power-gates the MT7925
@@ -281,14 +284,24 @@ in {
           on-click = "flatpak run org.mozilla.Thunderbird -calendar";
         };
 
-        "custom/task" = {
-          exec = "${app}/bin/waybar-task";
-          interval = 10;
-          signal = 9;
-          return-type = "json";
-          format = "{}";
-          on-click = "kitty --title task taskwarrior-tui";
-        };
+        "custom/task" =
+          if taskManager == "todoist"
+          then {
+            exec = "${app}/bin/waybar-todoist";
+            interval = 45;
+            signal = 9;
+            return-type = "json";
+            format = "{}";
+            on-click = "flatpak run com.todoist.Todoist";
+          }
+          else {
+            exec = "${app}/bin/waybar-task";
+            interval = 10;
+            signal = 9;
+            return-type = "json";
+            format = "{}";
+            on-click = "kitty --title task taskwarrior-tui";
+          };
 
         battery = {
           format = "{icon}  {capacity}%";

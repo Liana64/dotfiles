@@ -13,6 +13,7 @@
     ./networking.nix
     ./nix.nix
     ./packages.nix
+    ./tasks.nix
     ./users.nix
     #../common/systemd-hardening.nix
     ./virtualization.nix

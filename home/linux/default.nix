@@ -19,6 +19,7 @@
     ./syncthing.nix
     ./stylix.nix
     ./thunderbird.nix
+    ./todoist.nix
     ./vesktop.nix
     ./vicinae.nix
     ./waybar.nix
