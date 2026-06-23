@@ -19,6 +19,7 @@
       (writeShellScriptBin "waybar-vpn" (builtins.readFile ../../modules/linux/bin/waybar-vpn))
       (writeShellScriptBin "waybar-caffeine" (builtins.readFile ../../modules/linux/bin/waybar-caffeine))
       (writeShellScriptBin "waybar-task" (builtins.readFile ../../modules/linux/bin/waybar-task))
+      (writeShellScriptBin "waybar-countdown" (builtins.readFile ../../modules/linux/bin/waybar-countdown))
       (writeShellScriptBin "waybar-todoist" (builtins.readFile ../../modules/linux/bin/waybar-todoist))
       (writeShellScriptBin "caffeinate-toggle" (builtins.readFile ../../modules/linux/bin/caffeinate-toggle))
       usbguard
@@ -28,6 +29,7 @@
       wrapProgram $out/bin/waybar-usbguard      --prefix PATH : $out/bin
       wrapProgram $out/bin/waybar-yubikey       --prefix PATH : $out/bin
       wrapProgram $out/bin/waybar-task          --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [taskwarrior3 jq coreutils])}
+      wrapProgram $out/bin/waybar-countdown     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils])}
       wrapProgram $out/bin/waybar-todoist       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [todoist jq coreutils gnused])}
     '';
   };
@@ -120,6 +122,22 @@ in {
         color: ${tan};
         margin: 3px 2px;
         padding: 2px 8px;
+      }
+
+      #custom-countdown {
+        color: ${white};
+        margin: 3px 6px;
+        padding: 2px 8px;
+        border-radius: 8px;
+      }
+
+      #custom-countdown.today {
+        color: ${darker};
+        background: ${green};
+      }
+
+      #custom-countdown.past {
+        color: ${comment};
       }
 
       #custom-task.active {
@@ -219,7 +237,7 @@ in {
         height = 14;
         output = ["*"];
 
-        modules-left = ["custom/launcher"] ++ wsModules;
+        modules-left = ["custom/launcher"] ++ wsModules ++ ["custom/countdown"];
         modules-center = ["clock"];
         modules-right = ["custom/task" "custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/vpn" "network" "custom/caffeine" "battery" "bluetooth" "pulseaudio" "tray"];
 
@@ -241,6 +259,13 @@ in {
         "custom/yubikey" = {
           exec = "${app}/bin/waybar-yubikey";
           return-type = "json";
+        };
+
+        "custom/countdown" = {
+          exec = "${app}/bin/waybar-countdown";
+          return-type = "json";
+          interval = 3600;
+          format = "{}";
         };
 
         "custom/caffeine" = {
@@ -288,7 +313,7 @@ in {
           if taskManager == "todoist"
           then {
             exec = "${app}/bin/waybar-todoist";
-            interval = 45;
+            interval = 30;
             signal = 9;
             return-type = "json";
             format = "{}";

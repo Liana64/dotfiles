@@ -1,0 +1,21 @@
+#!/bin/sh
+# Waybar countdown: days until a target date in /var/secrets/date ("timestamp","event").
+f=/var/secrets/date
+[ -r "$f" ] || exit 0
+line=$(head -n1 "$f")
+ts=$(printf '%s' "$line" | cut -d, -f1 | tr -d '"')
+event=$(printf '%s' "$line" | cut -d, -f2- | tr -d '"')
+case "$ts" in
+  ''|*[!0-9]*) exit 0 ;;
+esac
+# Classify by CALENDAR day in local time (not a rolling 24h window).
+jq -cn --argjson ts "$ts" --arg event "$event" '
+  ((now | localtime | mktime) - now) as $off
+  | (((now + $off) / 86400) | floor) as $today
+  | ((($ts + $off) / 86400) | floor) as $target
+  | ($target - $today) as $days
+  | (if $days < 0 then {class: "past", rel: "\(-$days)d ago"}
+     elif $days == 0 then {class: "today", rel: "today"}
+     elif $days == 1 then {class: "", rel: "tomorrow"}
+     else {class: "", rel: "\($days)d"} end) as $s
+  | {text: (" " + $s.rel), class: $s.class, tooltip: ($event + " · " + $s.rel)}'
