@@ -7,6 +7,8 @@
   programs.neovim = {
     enable = true;
 
+    extraPackages = with pkgs; [ fd ];
+
     plugins = with pkgs.vimPlugins; [
       bufferline-nvim
       cmp-buffer
