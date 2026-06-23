@@ -20,6 +20,7 @@
       (writeShellScriptBin "waybar-caffeine" (builtins.readFile ../../modules/linux/bin/waybar-caffeine))
       (writeShellScriptBin "waybar-task" (builtins.readFile ../../modules/linux/bin/waybar-task))
       (writeShellScriptBin "waybar-countdown" (builtins.readFile ../../modules/linux/bin/waybar-countdown))
+      (writeShellScriptBin "track-date" (builtins.readFile ../../modules/linux/bin/track-date))
       (writeShellScriptBin "waybar-todoist" (builtins.readFile ../../modules/linux/bin/waybar-todoist))
       (writeShellScriptBin "caffeinate-toggle" (builtins.readFile ../../modules/linux/bin/caffeinate-toggle))
       usbguard
@@ -30,6 +31,7 @@
       wrapProgram $out/bin/waybar-yubikey       --prefix PATH : $out/bin
       wrapProgram $out/bin/waybar-task          --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [taskwarrior3 jq coreutils])}
       wrapProgram $out/bin/waybar-countdown     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils])}
+      wrapProgram $out/bin/track-date           --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils])}
       wrapProgram $out/bin/waybar-todoist       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [todoist jq coreutils gnused])}
     '';
   };
@@ -51,7 +53,7 @@ in {
     };
 
     style = ''
-      @define-color surface mix(${darker}, ${indigo}, 0.5);
+      @define-color surface mix(${darker}, ${highlight}, 0.5);
       @define-color alert   mix(${color0}, ${red}, 0.5);
 
       * {
@@ -126,14 +128,12 @@ in {
 
       #custom-countdown {
         color: ${white};
-        margin: 3px 6px;
+        margin: 3px 2px;
         padding: 2px 8px;
-        border-radius: 8px;
       }
 
       #custom-countdown.today {
-        color: ${darker};
-        background: ${green};
+        color: ${green};
       }
 
       #custom-countdown.past {
@@ -142,7 +142,7 @@ in {
 
       #custom-task.active {
         color: ${background};
-        background: ${indigo};
+        background: ${highlight};
       }
 
       #custom-task.due-today {
@@ -190,7 +190,7 @@ in {
       }
 
       #workspaces button.focused {
-        background: ${indigo};
+        background: ${highlight};
         color: ${white};
       }
 
@@ -237,9 +237,9 @@ in {
         height = 14;
         output = ["*"];
 
-        modules-left = ["custom/launcher"] ++ wsModules ++ ["custom/countdown"];
+        modules-left = ["custom/launcher"] ++ wsModules;
         modules-center = ["clock"];
-        modules-right = ["custom/task" "custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/vpn" "network" "custom/caffeine" "battery" "bluetooth" "pulseaudio" "tray"];
+        modules-right = ["custom/task" "custom/countdown" "custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/vpn" "network" "custom/caffeine" "battery" "bluetooth" "pulseaudio" "tray"];
 
         "custom/launcher" = {
           format = " ";

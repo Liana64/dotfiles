@@ -1,0 +1,17 @@
+#!/bin/sh
+# track-date <YYYY-MM-DD> [event] — set the waybar countdown target in /var/secrets/date.
+# Preserves the existing event name when none is given.
+f=/var/secrets/date
+[ -n "$1" ] || { echo "usage: track-date <YYYY-MM-DD> [event]" >&2; exit 1; }
+ts=$(date -d "$1" +%s 2>/dev/null) || { echo "track-date: invalid date: $1" >&2; exit 1; }
+if [ -n "$2" ]; then
+  event=$2
+elif [ -r "$f" ]; then
+  line=$(head -n1 "$f")
+  a=$(printf '%s' "$line" | cut -d, -f1 | tr -d '"')
+  b=$(printf '%s' "$line" | cut -d, -f2- | tr -d '"')
+  case "$a" in ''|*[!0-9]*) event=$a ;; *) event=$b ;; esac
+else
+  event=""
+fi
+printf '"%s","%s"\n' "$event" "$ts" > "$f"

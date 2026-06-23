@@ -115,19 +115,29 @@ in {
     report.blocking.filter=status:pending +BLOCKING
     report.blocking.sort=urgency-
 
-    # --- Contexts (project selectors — switch with `c` in taskwarrior-tui) ---
-    # Project-root areas; write filter auto-files new tasks. -goal hides objectives.
-    context.inbox.read=project:Inbox -goal
-    context.inbox.write=project:Inbox
-    context.home.read=project:Home -goal
-    context.home.write=project:Home
+    # --- Contexts (one per Todoist project; switch with `c` in taskwarrior-tui) ---
+    # write filter auto-files new tasks. -goal hides objectives.
+    context.family.read=project:Family -goal
+    context.family.write=project:Family
+    context.finance.read=project:Finance -goal
+    context.finance.write=project:Finance
+    context.medical.read=project:Medical -goal
+    context.medical.write=project:Medical
+    context.organization.read=project:Organization -goal
+    context.organization.write=project:Organization
     context.personal.read=project:Personal -goal
     context.personal.write=project:Personal
-    context.software.read=project:Software -goal
-    context.software.write=project:Software
+    context.projects.read=project:Projects -goal
+    context.projects.write=project:Projects
+    context.rhca.read=project:RHCA -goal
+    context.rhca.write=project:RHCA
+    context.travel.read=project:Travel -goal
+    context.travel.write=project:Travel
+    context.wishlist.read=project:Wishlist -goal
+    context.wishlist.write=project:Wishlist
 
     # --- Theme: blueberry palette, nearest 256-color cube (no truecolor) ---
-    color.active=${hexToCube colors.foreground} on ${hexToCube colors.indigo}
+    color.active=${hexToCube colors.foreground} on ${hexToCube colors.highlight}
     color.overdue=${hexToCube colors.red}
     color.due=${hexToCube colors.orange}
     color.due.today=${hexToCube colors.orange}
@@ -140,17 +150,17 @@ in {
     # Priority palette = Todoist P1/P2/P3 (P4 = unset, no color).
     color.uda.priority.H=${hexToCube colors.red}
     color.uda.priority.M=${hexToCube colors.orange}
-    color.uda.priority.L=${hexToCube colors.indigo}
+    color.uda.priority.L=${hexToCube colors.highlight}
 
     # --- taskwarrior-tui chrome + layout ---
     uda.taskwarrior-tui.task-report.info-location=bottom
-    uda.taskwarrior-tui.style.report.selection=${hexToCube colors.foreground} on ${hexToCube colors.indigo}
+    uda.taskwarrior-tui.style.report.selection=${hexToCube colors.foreground} on ${hexToCube colors.highlight}
     uda.taskwarrior-tui.selection.bold=yes
     uda.taskwarrior-tui.selection.indicator=•
     uda.taskwarrior-tui.style.context.active=${hexToCube colors.background} on ${hexToCube colors.lime}
     uda.taskwarrior-tui.style.navbar=${hexToCube colors.foreground} on ${hexToCube colors.mbg}
     uda.taskwarrior-tui.style.command=${hexToCube colors.foreground}
-    uda.taskwarrior-tui.style.calendar.title=${hexToCube colors.background} on ${hexToCube colors.indigo}
+    uda.taskwarrior-tui.style.calendar.title=${hexToCube colors.background} on ${hexToCube colors.highlight}
 
     # enable experimental nested tasks feature
     uda.taskwarrior-tui.nested=true

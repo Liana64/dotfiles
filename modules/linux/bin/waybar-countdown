@@ -1,10 +1,15 @@
 #!/bin/sh
-# Waybar countdown: days until a target date in /var/secrets/date ("timestamp","event").
+# Waybar countdown: days until a target date in /var/secrets/date. Either field
+# order works ("timestamp","event" or "event","timestamp"); the numeric one wins.
 f=/var/secrets/date
 [ -r "$f" ] || exit 0
 line=$(head -n1 "$f")
-ts=$(printf '%s' "$line" | cut -d, -f1 | tr -d '"')
-event=$(printf '%s' "$line" | cut -d, -f2- | tr -d '"')
+a=$(printf '%s' "$line" | cut -d, -f1 | tr -d '"')
+b=$(printf '%s' "$line" | cut -d, -f2- | tr -d '"')
+case "$a" in
+  ''|*[!0-9]*) ts=$b event=$a ;;
+  *)           ts=$a event=$b ;;
+esac
 case "$ts" in
   ''|*[!0-9]*) exit 0 ;;
 esac
@@ -18,4 +23,4 @@ jq -cn --argjson ts "$ts" --arg event "$event" '
      elif $days == 0 then {class: "today", rel: "today"}
      elif $days == 1 then {class: "", rel: "tomorrow"}
      else {class: "", rel: "\($days)d"} end) as $s
-  | {text: (" " + $s.rel), class: $s.class, tooltip: ($event + " · " + $s.rel)}'
+  | {text: (" " + $event + " · " + $s.rel), class: $s.class, tooltip: ($event + " · " + $s.rel)}'
