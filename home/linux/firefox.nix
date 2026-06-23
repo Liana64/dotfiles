@@ -6,7 +6,7 @@
   ...
 }: let
   stylixColors = config.lib.stylix.colors;
-  indigo = "#${stylixColors.base0D}";
+  highlight = "#${stylixColors.base0D}";
   white  = "#${stylixColors.base07}";
 in {
   programs.firefox = {
@@ -296,13 +296,13 @@ in {
       .urlbarView-row[selected] .urlbarView-title-separator,
       .urlbarView-row[selected] .urlbarView-action,
       .urlbarView-row[selected] .urlbarView-secondary-action {
-        background-color: ${indigo} !important;
+        background-color: ${highlight} !important;
         color: ${white} !important;
       }
 
       #urlbar-input::selection,
       #urlbar .urlbar-input-box ::selection {
-        background-color: ${indigo} !important;
+        background-color: ${highlight} !important;
         color: ${white} !important;
       }
     '';

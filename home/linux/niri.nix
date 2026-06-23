@@ -40,7 +40,7 @@ in
         border.enable = false;
         focus-ring = {
           enable = true;
-          active.color = colors.indigo;
+          active.color = colors.highlight;
         };
         # New windows open mid-size so they never cover existing ones; niri keeps
         # column widths fixed, so this is one default, not count-driven.

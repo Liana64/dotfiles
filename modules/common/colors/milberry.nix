@@ -1,11 +1,11 @@
 {}: rec {
-  name = "blueberry";
+  name = "milberry";
   wallpaper = "/nix/dotfiles/share/wallpapers/flower.png";
   foreground = "#fbf1c7";
   background = "#222222";
-  darker = "#18182c";
+  darker = "#222222";
   accent = "#a9b665";
-  mbg = "#282828";
+  mbg = "#32302f";
 
   cursorColor = "#fbf1c7";
   white = "#ffffff";
@@ -28,8 +28,8 @@
   color4 = "#7daea3";
   emerald = "#7daea3";
 
-  highlight = "#5b6ee8";
-  highlightDim = "#4654b8";
+  highlight = "#d96a92";
+  highlightDim = "#a8567a";
 
   color5 = "#d3869b";
   pink = "#d3869b";

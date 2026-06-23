@@ -11,6 +11,7 @@
     ./packages.nix
     ./shell.nix
     ./starship.nix
+    ./theme.nix
     ./taskwarrior
   ];
 }

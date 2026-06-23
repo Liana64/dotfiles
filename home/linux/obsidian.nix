@@ -34,7 +34,7 @@
       --color-yellow: ${colors.orange}; --color-yellow-rgb: ${rgb colors.orange};
       --color-green: ${colors.lime};    --color-green-rgb: ${rgb colors.lime};
       --color-cyan: ${colors.emerald};  --color-cyan-rgb: ${rgb colors.emerald};
-      --color-blue: ${colors.indigo};   --color-blue-rgb: ${rgb colors.indigo};
+      --color-blue: ${colors.highlight};   --color-blue-rgb: ${rgb colors.highlight};
       --color-purple: ${colors.pink};   --color-purple-rgb: ${rgb colors.pink};
       --color-pink: ${colors.pink};     --color-pink-rgb: ${rgb colors.pink};
 
@@ -49,9 +49,9 @@
       --bold-color: ${colors.orange};
       --code-normal: ${colors.emerald};
       --link-external-color: ${colors.green};
-      --blockquote-border-color: ${colors.indigo};
+      --blockquote-border-color: ${colors.highlight};
 
-      --text-selection: rgba(${rgb colors.indigo}, 0.25);
+      --text-selection: rgba(${rgb colors.highlight}, 0.25);
       --text-highlight-bg: rgba(${rgb colors.orange}, 0.4);
 
       --tag-color: ${colors.emerald};
@@ -61,10 +61,10 @@
     body {
       --tag-radius: 0.5em;
 
-      --callout-default: ${rgb colors.indigo};
-      --callout-note: ${rgb colors.indigo};
-      --callout-info: ${rgb colors.indigo};
-      --callout-todo: ${rgb colors.indigo};
+      --callout-default: ${rgb colors.highlight};
+      --callout-note: ${rgb colors.highlight};
+      --callout-info: ${rgb colors.highlight};
+      --callout-todo: ${rgb colors.highlight};
       --callout-summary: ${rgb colors.emerald};
       --callout-tip: ${rgb colors.emerald};
       --callout-important: ${rgb colors.emerald};
@@ -121,13 +121,13 @@ in {
     defaultSettings = {
       app.alwaysUpdateLinks = true;
 
-      # Fonts mirror stylix.nix; accent is the desktop indigo.
+      # Fonts mirror stylix.nix; accent is the desktop highlight.
       appearance = {
         baseFontSize = 16;
         theme = "obsidian";
         interfaceFontFamily = "Cantarell";
         monospaceFontFamily = "JetBrainsMono Nerd Font";
-        accentColor = colors.indigo;
+        accentColor = colors.highlight;
       };
 
       # `bases` is too new for the module's plugin enum; it rides along via the

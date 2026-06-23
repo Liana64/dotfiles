@@ -8,6 +8,8 @@
 
   networking.hostName = "framework";
   compositor = "sway";
+  taskManager = "todoist";
+  theme = "milberry";
 
   users.users.liana.initialHashedPassword = "$y$j9T$kWRrNhfqdXExcsRTmxSIg1$n4jTrwnDRfr814vE2su6d1fELLrVEEaTBoWeSrvqq08";
 

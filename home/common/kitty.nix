@@ -42,7 +42,7 @@
       input_delay = 1;
       sync_to_monitor = "no";
 
-      # blueberry palette
+      # theme palette
       background = colors.background;
       foreground = colors.white;
       cursor = colors.cursorColor;

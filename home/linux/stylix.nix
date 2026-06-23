@@ -1,34 +1,16 @@
 { inputs, pkgs, lib, colors, osConfig, ... }: let
-  # Single literal palette. Stored with `#` for IDE color preview.
-  # base16Scheme below strips `#` because stylix wants raw hex.
-  palette = {
-    base00 = "#222222"; # background
-    base01 = "#282828"; # light background
-    base02 = "#3c3836"; # selection / gray
-    base03 = "#928374"; # comments
-    base04 = "#bdae93";
-    base05 = "#fffefb"; # light foreground
-    base06 = "#ddc7a1";
-    base07 = "#ffffff"; # white
-    base08 = "#ea6962"; # red
-    base09 = "#e79a4e"; # orange
-    base0A = "#d8a657"; # yellow
-    base0B = "#a9b665"; # green / accent
-    base0C = "#89b482"; # aqua
-    base0D = "#5b6ee8"; # indigo (primary accent)
-    base0E = "#d3869b"; # magenta
-    base0F = "#7daea3"; # emerald
-  };
+  # base16 palette comes from the active colors theme.
+  inherit (colors) base16;
 
   # Named aliases for readability in overrides below.
-  background = palette.base00;
-  mbg        = palette.base01;
-  foreground = palette.base05;
-  white      = palette.base07;
-  red        = palette.base08;
-  orange     = palette.base09;
-  green      = palette.base0B;
-  indigo     = palette.base0D;
+  background = base16.base00;
+  mbg        = base16.base01;
+  foreground = base16.base05;
+  white      = base16.base07;
+  red        = base16.base08;
+  orange     = base16.base09;
+  green      = base16.base0B;
+  highlight  = base16.base0D;
 in {
   imports = [ inputs.stylix.homeModules.stylix inputs.niri.homeModules.stylix ];
 
@@ -37,7 +19,7 @@ in {
     polarity = "dark";
     image = ../../share/wallpapers/flower.png;
 
-    base16Scheme = lib.mapAttrs (_: lib.removePrefix "#") palette;
+    base16Scheme = lib.mapAttrs (_: lib.removePrefix "#") base16;
 
     fonts = {
       monospace = {
@@ -96,9 +78,9 @@ in {
   gtk.gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;
   gtk.gtk4.extraConfig.gtk-application-prefer-dark-theme = 1;
 
-  # Override stylix' sway colors: translucent indigo on focused, invisible otherwise.
+  # Override stylix' sway colors: translucent highlight on focused, invisible otherwise.
   wayland.windowManager.sway.config.colors = let
-    focus = "${indigo}cc";
+    focus = "${highlight}cc";
     invisible = {
       border = "#00000000"; background = "#00000000";
       text = white; indicator = "#00000000"; childBorder = "#00000000";
@@ -110,14 +92,14 @@ in {
     urgent          = lib.mkForce { border = red;   background = red;   text = white; indicator = red;   childBorder = red;   };
   };
 
-  # Swaylock: indigo ring, dark inside. Swaylock wants RRGGBBAA (no #).
+  # Swaylock: highlight ring, dark inside. Swaylock wants RRGGBBAA (no #).
   programs.swaylock.settings = let
     rgba = hex: (lib.removePrefix "#" hex) + "ff";
     transparent = "00000000";
   in {
     image              = "${../../share/wallpapers/flower.png}";
     color              = rgba background;
-    ring-color         = rgba indigo;
+    ring-color         = rgba highlight;
     inside-color       = rgba mbg;
     text-color         = rgba foreground;
     line-color         = transparent;

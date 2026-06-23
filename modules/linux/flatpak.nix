@@ -80,7 +80,7 @@ in
       flatpak override --env=SIGNAL_PASSWORD_STORE=gnome-libsecret org.signal.Signal
       flatpak override --env=ELECTRON_OZONE_PLATFORM_HINT=wayland
 
-      # Share the stylix GTK theme (indigo accent) with flatpaks; gtk.css and the Obsidian vault symlink into /nix/store.
+      # Share the stylix GTK theme (highlight accent) with flatpaks; gtk.css and the Obsidian vault symlink into /nix/store.
       flatpak override --filesystem=xdg-config/gtk-3.0:ro
       flatpak override --filesystem=xdg-config/gtk-4.0:ro
       flatpak override --filesystem=/nix/store:ro

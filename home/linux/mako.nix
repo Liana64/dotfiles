@@ -8,13 +8,13 @@
       icons = true;
 
       background-color = darker;
-      border-color     = indigo;
+      border-color     = highlight;
       text-color       = foreground;
       border-size      = 1;
       border-radius    = 8;
       padding          = "10,14";
       font             = "Cantarell 11";
-      progress-color   = "over ${indigo}33";
+      progress-color   = "over ${highlight}33";
 
       # Muted red parallel to waybar @alert = mix(color0, red, 0.5).
       "urgency=high" = {

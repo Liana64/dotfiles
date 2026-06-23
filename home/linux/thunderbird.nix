@@ -4,7 +4,7 @@ let
   profile = ".var/app/org.mozilla.Thunderbird/.thunderbird/rciub5to.default-esr";
   selection = ''
     ::selection {
-      background-color: ${colors.indigo} !important;
+      background-color: ${colors.highlight} !important;
       color: ${colors.white} !important;
     }
   '';
