@@ -26,6 +26,21 @@ keymap.set("n", "<leader>qq", "<cmd>qa!<cr>", { desc = "Dangerously close everyt
 keymap.set("n", "<leader>+", "<C-a>", { desc = "Increment number" })
 keymap.set("n", "<leader>-", "<C-x>", { desc = "Decrement number" })
 
+-- gx: open URL/path under cursor or selection; add https:// when schemeless
+local function open_url(url)
+  url = vim.trim(url or "")
+  if url == "" then return end
+  if not (url:match("^%a[%w+.-]*://") or url:match("^mailto:")) then
+    url = "https://" .. url
+  end
+  vim.ui.open(url)
+end
+keymap.set("n", "gx", function() open_url(vim.fn.expand("<cfile>")) end, { desc = "Open URL under cursor" })
+keymap.set("x", "gx", function()
+  vim.cmd('noautocmd normal! "zy')
+  open_url(vim.fn.getreg("z"))
+end, { desc = "Open selected URL" })
+
 -- Window management
 keymap.set("n", "<leader>sv", "<C-w>v", { desc = "Split window vertically" })
 keymap.set("n", "<leader>sh", "<C-w>s", { desc = "Split window horizontally" })
