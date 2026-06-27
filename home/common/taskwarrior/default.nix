@@ -23,6 +23,16 @@ in {
     # keep go-task, but invoke as `go-task` so `task` is free for Taskwarrior
     (writeShellScriptBin "go-task" ''exec ${go-task}/bin/task "$@"'')
 
+    # ai-todo <args…> — Taskwarrior against the isolated AI todo store. The three
+    # overrides are load-bearing as a unit: omit rc.context=none and the active
+    # human context silently hides every AI todo. Baked here so callers (the
+    # /todo skill) can never partially apply or misquote them.
+    (writeShellScriptBin "ai-todo" ''
+      exec ${taskwarrior3}/bin/task \
+        rc.data.location="$HOME/Sync/Data/ai-tasks" \
+        rc.context=none rc.default.project= "$@"
+    '')
+
     # snooze <id> [when] — defer a task until a wait date (default tomorrow)
     (writeShellScriptBin "task-snooze" ''
       [ -z "$1" ] && { echo "usage: snooze <id> [when]" >&2; exit 1; }
