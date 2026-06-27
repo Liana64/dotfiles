@@ -22,7 +22,6 @@ in {
       color: ${colors.white} !important;
     }
 
-    /* New Message button: text and icon both follow currentColor, so color recolors both */
     #folderPaneWriteMessage {
       color: ${colors.white} !important;
     }

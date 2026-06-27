@@ -22,7 +22,6 @@
       pkiBundle = "/var/lib/sbctl";
     };
 
-    # Kernel 7.0
     initrd.luks.cryptoModules = [
       "aes"
       # "aes_generic"

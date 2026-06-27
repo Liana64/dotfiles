@@ -7,7 +7,6 @@ in {
   services.udev = {
     packages = [pkgs.yubikey-personalization];
     extraRules = ''
-      # CalDigit TS4 dock: start/stop the sleep inhibitor on connect/disconnect
       ACTION=="add", SUBSYSTEM=="thunderbolt", ATTR{device_name}=="TS4", ATTR{vendor_name}=="CalDigit, Inc.", TAG+="systemd", ENV{SYSTEMD_WANTS}="inhibit-sleep-when-docked.service"
       ACTION=="remove", SUBSYSTEM=="thunderbolt", ATTR{device_name}=="TS4", ATTR{vendor_name}=="CalDigit, Inc.", RUN+="${pkgs.systemd}/bin/systemctl stop inhibit-sleep-when-docked.service"
     '';
@@ -22,19 +21,16 @@ in {
 
       echo "$(date): CalDigit dock connected, holding sleep inhibitor"
 
-      # Wait a few seconds to authorize
+      # Let the dock authorize before polling boltctl
       sleep 3
 
-      # Monitor dock connection status
       while true; do
         DOCK_INFO=$(${pkgs.bolt}/bin/boltctl list 2>/dev/null || true)
 
         if echo "$DOCK_INFO" | ${pkgs.gnugrep}/bin/grep -q "CalDigit" && \
            echo "$DOCK_INFO" | ${pkgs.gnugrep}/bin/grep -A10 "CalDigit" | ${pkgs.gnugrep}/bin/grep -qE "status:[[:space:]]+(connected|authorized)"; then
-          # Still connected, keep holding inhibitor
           sleep 10
         else
-          # Dock disconnected, exit to release inhibitor
           echo "$(date): CalDigit dock disconnected, releasing sleep inhibitor"
           exit 0
         fi
@@ -72,9 +68,9 @@ in {
   services.logind.settings.Login.HandleLidSwitchDocked = "ignore";
 
   # Disable light sensors and accelerometers
+
   hardware.sensor.iio.enable = false;
 
-  # Power settings
   services = {
     upower = {
       enable = true;

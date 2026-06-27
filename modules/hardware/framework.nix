@@ -17,16 +17,13 @@
 
   # Exposes battery charge limit, privacy switches, and LEDs as driver interfaces
   hardware.framework.enableKmod = true;
-
-  # Enable the fingerprint reader
   services.fprintd.enable = true;
 
   #security.pam.services.swaylock = {
   #  fprintAuth = true;
   #};
 
-  # Enable Thunderbolt 3 support for CalDigit TS4 (enroll with `boltctl`)
-  # This uses the gnome bolt daemon
+  # CalDigit TS4 must be enrolled with `boltctl`
   services.hardware.bolt.enable = true;
   environment.systemPackages = with pkgs; [
     dmidecode # BIOS troubleshooting

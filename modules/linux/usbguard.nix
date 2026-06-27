@@ -10,7 +10,7 @@
     if cfg.rules != null
     then pkgs.writeText "usbguard-rules" cfg.rules
     else cfg.ruleFile;
-  # Forks the nixpkgs daemon conf for AuditBackend=LinuxAudit, routing device events to auditd
+  # Forked daemon conf for AuditBackend=LinuxAudit (events → auditd)
   daemonConf = pkgs.writeText "usbguard-daemon-conf" ''
     RuleFile=${ruleFile}
     ImplicitPolicyTarget=${cfg.implicitPolicyTarget}
@@ -26,7 +26,6 @@
     AuditBackend=LinuxAudit
   '';
 in {
-  # Prevent unauthorized USBs from mounting
   services.usbguard = {
     enable = true;
     presentControllerPolicy = "apply-policy";
@@ -40,7 +39,6 @@ in {
     ruleFile = "/etc/usbguard/rules.conf";
   };
 
-  # Automount external USB drives for the active user
   services.devmon.enable = true;
   services.gvfs.enable = true;
   services.udisks2.enable = true;
