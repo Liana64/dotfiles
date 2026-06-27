@@ -1,3 +1,4 @@
+# @desc: Claude Code config: hooks, settings, LSP, materialized agentic/
 { lib, pkgs, nixpkgs-unstable, ... }:
 let
   linkMd = srcDir: destDir:
@@ -19,13 +20,20 @@ let
         (builtins.readFile ../../modules/linux/bin/claude-secrets-guard))
       (writeShellScriptBin "claude-statusline"
         (builtins.readFile ../../modules/linux/bin/claude-statusline))
+      (writeShellScriptBin "claude-nix-fmt"
+        (builtins.readFile ../../modules/linux/bin/claude-nix-fmt))
+      (writeShellScriptBin "dotfiles-verify"
+        (builtins.readFile ../../modules/linux/bin/dotfiles-verify))
     ];
     buildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/claude-secrets-guard --prefix PATH : ${pkgs.jq}/bin
       wrapProgram $out/bin/claude-statusline    --prefix PATH : ${pkgs.jq}/bin
+      wrapProgram $out/bin/claude-nix-fmt       --prefix PATH : ${lib.makeBinPath [ pkgs.jq pkgs.alejandra ]}
+      wrapProgram $out/bin/dotfiles-verify      --prefix PATH : ${lib.makeBinPath [ pkgs.nix pkgs.coreutils ]}
     '';
   };
+  hardening = import ../../modules/common/systemd-hardening.nix;
 in
 {
   programs.claude-code = {
@@ -85,6 +93,14 @@ in
           ];
         }
       ];
+      hooks.PostToolUse = [
+        {
+          matcher = "Edit|MultiEdit|Write";
+          hooks = [
+            { type = "command"; command = "${claudeScripts}/bin/claude-nix-fmt"; }
+          ];
+        }
+      ];
       statusLine = {
         type = "command";
         command = "${claudeScripts}/bin/claude-statusline";
@@ -97,4 +113,20 @@ in
   }
   // linkMd ../../agentic/agents ".claude/agents"
   // linkSkills ../../agentic/skills ".claude/skills";
+
+  systemd.user.services.insights-reminder = {
+    Unit.Description = "Remind to run /insights in Claude Code";
+    Service = {
+      Type = "oneshot";
+      ExecStart = ''${pkgs.libnotify}/bin/notify-send -u normal "Claude Code" "Run /insights to review this month's usage"'';
+    } // hardening.airgapped;
+  };
+  systemd.user.timers.insights-reminder = {
+    Unit.Description = "Monthly /insights reminder";
+    Timer = {
+      OnCalendar = "*-*-01 09:07:00";
+      Persistent = true;
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
 }
