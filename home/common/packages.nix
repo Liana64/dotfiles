@@ -1,6 +1,5 @@
 # @desc: Cross-platform user CLI packages
- { pkgs, ... }:
- {
+{pkgs, ...}: {
   home.packages = with pkgs; [
     age
     ansible
@@ -33,6 +32,7 @@
     marksman
     nil
     nixd
+    nix-tree
     pre-commit
     #procs
     ripgrep
@@ -50,4 +50,4 @@
     yq-go
     zoxide
   ];
- }
+}
