@@ -1,4 +1,5 @@
-{ ... }: {
+# @desc: Kernel hardening: polkit, rtkit, kernel params
+{...}: {
   security = {
     polkit.enable = true;
     rtkit.enable = true;
@@ -14,6 +15,7 @@
     "randomize_kstack_offset=on"
     "vsyscall=none"
     "lockdown=integrity"
+    "ia32_emulation=0"
   ];
 
   boot.kernel.sysctl = {
