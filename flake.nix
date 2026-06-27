@@ -26,11 +26,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    niri = {
-      url = "github:sodiboo/niri-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.nixpkgs-stable.follows = "nixpkgs";
-    };
+    #niri = {
+    #  url = "github:sodiboo/niri-flake";
+    #  inputs.nixpkgs.follows = "nixpkgs";
+    #  inputs.nixpkgs-stable.follows = "nixpkgs";
+    #};
 
     # Curated fortune file + dice wrapper; single source of truth for the data.
     dice = {
@@ -72,7 +72,6 @@
       "x86_64-linux"
     ];
     forAllSystems = nixpkgs.lib.genAttrs systems;
-    colors = import ./modules/common/colors/blueberry.nix { };
     lib = nixpkgs.lib;
 
     mkUnstable = system: import nixpkgs-unstable {
@@ -80,16 +79,16 @@
       config.allowUnfree = true;
     };
 
-    homeArgs = { system, unstable }: { inherit inputs colors; }
+    homeArgs = { system, unstable }: { inherit inputs; }
       // lib.optionalAttrs unstable { nixpkgs-unstable = mkUnstable system; };
 
     mkNixos = { host, system ? "x86_64-linux", withUnstable ? true }:
       lib.nixosSystem {
-        specialArgs = { inherit inputs colors; };
+        specialArgs = { inherit inputs; };
         modules = [
           ./hosts/${host}/configuration.nix
           lanzaboote.nixosModules.lanzaboote
-          inputs.niri.nixosModules.niri
+          # inputs.niri.nixosModules.niri
           home-manager.nixosModules.home-manager
           {
             home-manager.useUserPackages = true;
@@ -104,7 +103,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
         extraSpecialArgs = homeArgs { inherit system; unstable = withUnstable; };
         modules = [
-          inputs.niri.homeModules.niri
+          # inputs.niri.homeModules.niri
           ./hosts/${host}/home.nix
         ];
       };
@@ -127,9 +126,54 @@
           --set QMK_SRC ${inputs.qmk-firmware}
       '';
     };
+
+    # Module index: a CLAUDE.md map derived from per-file `# @desc:` comments.
+    # `nix run .#gen-index` rewrites the marker block; `nix flake check` gates drift.
+    moduleIndexBody = let
+      descOf = path: let
+        hit = lib.findFirst (l: lib.hasInfix "@desc:" l) null
+          (lib.splitString "\n" (builtins.readFile path));
+      in if hit == null then "" else lib.trim (lib.elemAt (lib.splitString "@desc:" hit) 1);
+      rel = p: lib.removePrefix (toString ./. + "/") (toString p);
+      leaves = dir: lib.filter
+        (p: lib.hasSuffix ".nix" (toString p) && baseNameOf (toString p) != "default.nix")
+        (lib.filesystem.listFilesRecursive dir);
+      files = lib.sort (a: b: rel a < rel b) (leaves ./modules ++ leaves ./home);
+      rows = map (p: "| `${rel p}` | ${descOf p} |") files;
+    in lib.concatStringsSep "\n" ([ "| File | Description |" "| --- | --- |" ] ++ rows);
+
+    mkIndexFile = system:
+      nixpkgs.legacyPackages.${system}.writeText "module-index.md" (moduleIndexBody + "\n");
+
+    genIndexApp = system: let
+      pkgs = nixpkgs.legacyPackages.${system};
+    in {
+      type = "app";
+      program = toString (pkgs.writeShellScript "gen-index" ''
+        set -eu
+        target=''${1:-CLAUDE.md}
+        ${pkgs.gawk}/bin/awk -v blockfile=${mkIndexFile system} '
+          BEGIN { while ((getline line < blockfile) > 0) block = block line "\n" }
+          /<!-- BEGIN module-index -->/ { print; printf "%s", block; skip=1; next }
+          /<!-- END module-index -->/ { skip=0 }
+          !skip { print }
+        ' "$target" > "$target.tmp" && mv "$target.tmp" "$target"
+      '');
+    };
+
+    checkModuleIndex = system: let
+      pkgs = nixpkgs.legacyPackages.${system};
+    in pkgs.runCommand "check-module-index" { } ''
+      ${pkgs.gawk}/bin/awk '/<!-- BEGIN module-index -->/{f=1;next} /<!-- END module-index -->/{f=0} f' \
+        ${./CLAUDE.md} > current
+      if diff -u ${mkIndexFile system} current; then touch $out; else
+        echo "CLAUDE.md module-index is stale; run: nix run .#gen-index" >&2; exit 1
+      fi
+    '';
   in {
     packages = forAllSystems (system: {
       keychron-q11 = mkKeychronQ11 system;
+      module-index = mkIndexFile system;
     });
 
     apps = forAllSystems (system: {
@@ -137,6 +181,11 @@
         type = "app";
         program = "${mkKeychronQ11 system}/bin/keychron-q11";
       };
+      gen-index = genIndexApp system;
+    });
+
+    checks = forAllSystems (system: {
+      module-index = checkModuleIndex system;
     });
 
     formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
