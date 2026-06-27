@@ -1,75 +1,77 @@
 # @desc: Boot configuration
-{
-  lib,
-  pkgs,
-  ...
-}: {
-  boot = {
-    loader = {
-      systemd-boot.enable = lib.mkForce false;
-      #systemd-boot.memtest86.enable = true;
-      efi.canTouchEfiVariables = true;
+{...}: {
+  flake.modules.nixos.boot = {
+    lib,
+    pkgs,
+    ...
+  }: {
+    boot = {
+      loader = {
+        systemd-boot.enable = lib.mkForce false;
+        #systemd-boot.memtest86.enable = true;
+        efi.canTouchEfiVariables = true;
+      };
+
+      plymouth.enable = true;
+
+      kernelPackages = pkgs.linuxPackages_latest;
+      # Pin a kernel if the latest breaks:
+      #kernelPackages = pkgs.linuxPackagesFor (pkgs.linuxKernel.kernels.linux_6_17);
+
+      lanzaboote = {
+        enable = true;
+        pkiBundle = "/var/lib/sbctl";
+      };
+
+      initrd.luks.cryptoModules = [
+        "aes"
+        # "aes_generic"
+        "blowfish"
+        "twofish"
+        "serpent"
+        "cbc"
+        "xts"
+        "lrw"
+        "sha1"
+        "sha256"
+        "sha512"
+        "af_alg"
+        "algif_skcipher"
+        "cryptd"
+        "input_leds" # for capslock LED on most keyboards in case decryption requires password
+      ];
+
+      # TODO: Review kernel modules and disable unused
+      #blacklistedKernelModules = [];
+      blacklistedKernelModules = [
+        # Obscure network protocols
+        "ax25"
+        "netrom"
+        "rose"
+
+        # Old or rare or insufficiently audited filesystems
+        "adfs"
+        "affs"
+        "bfs"
+        "befs"
+        "cramfs"
+        "efs"
+        "erofs"
+        "exofs"
+        "freevxfs"
+        "f2fs"
+        "hfs"
+        "hpfs"
+        "jfs"
+        "minix"
+        "nilfs2"
+        "ntfs"
+        "omfs"
+        "qnx4"
+        "qnx6"
+        "sysv"
+        "ufs"
+      ];
     };
-
-    plymouth.enable = true;
-
-    kernelPackages = pkgs.linuxPackages_latest;
-    # Pin a kernel if the latest breaks:
-    #kernelPackages = pkgs.linuxPackagesFor (pkgs.linuxKernel.kernels.linux_6_17);
-
-    lanzaboote = {
-      enable = true;
-      pkiBundle = "/var/lib/sbctl";
-    };
-
-    initrd.luks.cryptoModules = [
-      "aes"
-      # "aes_generic"
-      "blowfish"
-      "twofish"
-      "serpent"
-      "cbc"
-      "xts"
-      "lrw"
-      "sha1"
-      "sha256"
-      "sha512"
-      "af_alg"
-      "algif_skcipher"
-      "cryptd"
-      "input_leds" # for capslock LED on most keyboards in case decryption requires password
-    ];
-
-    # TODO: Review kernel modules and disable unused
-    #blacklistedKernelModules = [];
-    blacklistedKernelModules = [
-      # Obscure network protocols
-      "ax25"
-      "netrom"
-      "rose"
-
-      # Old or rare or insufficiently audited filesystems
-      "adfs"
-      "affs"
-      "bfs"
-      "befs"
-      "cramfs"
-      "efs"
-      "erofs"
-      "exofs"
-      "freevxfs"
-      "f2fs"
-      "hfs"
-      "hpfs"
-      "jfs"
-      "minix"
-      "nilfs2"
-      "ntfs"
-      "omfs"
-      "qnx4"
-      "qnx6"
-      "sysv"
-      "ufs"
-    ];
   };
 }

@@ -6,28 +6,29 @@ NixOS + home-manager dotfiles via Nix Flakes.
 - Use stylix theming for component design and lib.mkForce when applicable.
 - Hardening (kernel params, usbguard, portal masking, module blacklists) is intentional. Don't relax it to fix symptoms.
 
+Structured as the **dendritic pattern** (flake-parts + `vic/import-tree`): every `.nix` under `modules/` is a flake-parts module, auto-imported.
+
 ## Layout
-- `flake.nix` — entry point. `nixosConfigurations`: `framework`, `portable`. `homeConfigurations`: `liana@{framework,portable}`.
-- `hosts/<name>/` — thin: hostname, password, hardware-configuration, host deviations. Anything shared by both hosts belongs in `modules/`.
-  - `framework` — active dev host. x86_64-linux, Ryzen AI 300, lanzaboote.
-  - `portable` — x86_64-linux secondary.
-- `modules/{common,linux,hardware}/` — NixOS modules. `modules/common/colors/blueberry.nix` is injected as the `colors` specialArg.
-  - Known debt: `modules/hardware/` is imported by both hosts but bakes in Framework-specific config.
-- `home/{common,linux}/` — home-manager modules. `home/linux/default.nix` imports `../common`.
-- `agentic/` — materialized into `~/.claude/` by `home/linux/agentic.nix`: `AGENTS.md` → global user `~/.claude/CLAUDE.md`, `agents/*.md` → `~/.claude/agents/`, `skills/<name>/SKILL.md` → `~/.claude/skills/<name>/`. Edits take effect only after a home-manager switch.
-  - `home/linux/agentic.nix` also owns all Claude Code config: MCP servers, settings, hooks, statusline, LSP servers. `~/.claude/settings.json` is a read-only store symlink — change it here, not in `~/.claude/`.
+- `flake.nix` — inputs + a one-line `mkFlake (import-tree ./modules)`; logic here would bypass import-tree.
+- `modules/` — the dendritic tree. A leaf registers config under `flake.modules.<class>.<aspect>` (`class` = `nixos` | `homeManager`); the same aspect from many files merges. No `default.nix` aggregators — adding a file is enough.
+  - `modules/flake/` — plumbing: `hosts.nix` (assembles the configs), `modules-option.nix` (declares the aspect store), `keychron`/`index`/`formatter`.
+  - `modules/{hardware,security,graphical,shell,system}/` — feature aspects grouped by domain (navigation only; import loads them all). A file may declare both a `nixos.*` and a `homeManager.*` aspect.
+  - `modules/features/` — cross-class cells: `theme` (theme option + `colors` arg), `tasks` (taskManager option + todoist).
+  - `modules/agentic/` — the Claude Code config module **and** its materialized content (`AGENTS.md` → `~/.claude/CLAUDE.md`, `agents/*.md`, `skills/<name>/SKILL.md`). Owns all Claude Code config (MCP, settings, hooks, statusline, LSP). `~/.claude/settings.json` is a read-only store symlink — change it here. Edits apply only after a home-manager switch.
+  - `modules/bin/` — shell scripts wrapped into derivations (non-`.nix`, so import-tree ignores them). `modules/_lib/` + any `/_` path — data/library files (colors, k9s/taskwarrior data, systemd-hardening) and disabled modules; import-tree skips every path containing `/_`.
+- `hosts/<name>/` — thin, NOT auto-imported: `hardware-configuration.nix` + `configuration.nix` (hostname, password, theme/compositor/taskManager) + `home.nix`. Both hosts run on the same Framework laptop; `portable` is an option-variant, so both import *all* aspects and differ only via options.
 - `embedded/keychron-q11/` — QMK keymap. Build/flash on demand: `nix run .#keychron-q11`.
 
 ## Staged, not wired
 Inert by design — do not import or "fix":
-- `hosts/framework/{disko,impermanence}.nix` — impermanence migration plan. Disk is shared with a Bazzite install; see file headers for hazards.
-- `modules/common/systemd-hardening.nix` — commented import in `modules/linux/default.nix`.
+- `hosts/framework/{disko,impermanence}.nix` — impermanence migration plan. Disk is shared with a Bazzite install; see file headers for hazards. (Outside `modules/`, so never auto-imported.)
+- `/_`-prefixed paths under `modules/` (e.g. `graphical/_drawio.nix`, `graphical/_niri.nix`, `graphical/_element.nix`) — disabled modules kept for recovery; import-tree skips them.
 
 ## Conventions
-- One feature per `.nix`; `default.nix` aggregates siblings. New module → add to the relevant `default.nix`.
-- Give each leaf module a first-line `# @desc: <one line>` comment; it feeds the Module index below.
-- `specialArgs`/`extraSpecialArgs` carry `inputs`, `nixpkgs-unstable`, `colors`.
-- User `liana`, email `liana@lianas.org` hardcoded in `home/common/git.nix`.
+- One feature per file; wrap the body as `flake.modules.<class>.<aspect> = <module>`. Disable a module by prefixing its path with `_`.
+- Keep `# @desc: <one line>` as the first line, above the wrapper; it feeds the Module index below.
+- Aspects get `inputs`/`nixpkgs-unstable` via `specialArgs`/`extraSpecialArgs` (set in `modules/flake/hosts.nix`); `colors` flows from the `theme` cell via `_module.args`.
+- User `liana`, email `liana@lianas.org` hardcoded in `modules/shell/git.nix`.
 - `stateVersion`: NixOS `23.05`, home-manager `26.05`. Do not change.
 
 ## Build
@@ -36,7 +37,7 @@ Inert by design — do not import or "fix":
 
 ## Verify
 After editing `.nix` files, check evaluation (no build, no switch) with `dotfiles-verify`.
-It evaluates all three configs and prints `framework ✓ portable ✓ liana@framework ✓`, or the
+It evaluates all four configs and prints `framework ✓ portable ✓ liana@framework ✓ liana@portable ✓`, or the
 failing target with a trimmed trace. New files must be `git add`ed before flake eval sees them.
 
 ## Module index
@@ -44,78 +45,69 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 <!-- BEGIN module-index -->
 | File | Description |
 | --- | --- |
-| `home/common/anki.nix` | Anki spaced repetition |
-| `home/common/atuin.nix` | Atuin shell history |
-| `home/common/develop.nix` | Rust toolchain (cargo, rustc, clippy, rust-analyzer) |
-| `home/common/dice.nix` | Curated fortune file + dice wrapper |
-| `home/common/git.nix` | Git config; hardcodes user liana / email |
-| `home/common/k9s.nix` | k9s Kubernetes TUI |
-| `home/common/k9s/aliases.nix` | k9s command aliases |
-| `home/common/k9s/plugins.nix` | k9s plugins (kubectl/flux actions) |
-| `home/common/k9s/settings.nix` | k9s settings |
-| `home/common/kitty.nix` | Kitty terminal |
-| `home/common/nvim.nix` | Neovim config |
-| `home/common/packages.nix` | Cross-platform user CLI packages |
-| `home/common/shell.nix` | Zsh: history, completion, autosuggestion |
-| `home/common/starship.nix` | Starship prompt |
-| `home/common/taskwarrior/config.nix` | Taskwarrior config |
-| `home/common/taskwarrior/hooks.nix` | Taskwarrior hooks |
-| `home/common/taskwarrior/reminders.nix` | Taskwarrior due/overdue reminders |
-| `home/common/theme.nix` | Resolves color palette from host theme into the colors arg |
-| `home/linux/agentic.nix` | Claude Code config: hooks, settings, LSP, materialized agentic/ |
-| `home/linux/aliases.nix` | Shell aliases (rust-tool replacements) |
-| `home/linux/benchmarks.nix` | wifi-bench / bt-bench wrappers with bundled deps |
-| `home/linux/dconf.nix` | dconf/gsettings defaults |
-| `home/linux/element.nix` | Element Matrix client |
-| `home/linux/firefox.nix` | Firefox |
-| `home/linux/framework.nix` | EasyEffects DSP for Framework 13 speakers, bound to sway |
-| `home/linux/gpg.nix` | GPG keys/config |
-| `home/linux/mako.nix` | Mako notification daemon |
-| `home/linux/mime.nix` | Default applications per MIME type |
-| `home/linux/niri.nix` | Niri scrollable-tiling compositor |
-| `home/linux/obsidian.nix` | Obsidian |
-| `home/linux/packages.nix` | Linux-only user packages (GUI + desktop) |
-| `home/linux/stylix.nix` | Stylix theming (home) |
-| `home/linux/sway.nix` | Sway WM + session env vars |
-| `home/linux/swaybg.nix` | swaybg wallpaper |
-| `home/linux/syncthing.nix` | Syncthing |
-| `home/linux/thunderbird.nix` | Thunderbird |
-| `home/linux/todoist.nix` | Todoist (flatpak) |
-| `home/linux/vesktop.nix` | Vesktop (Discord) |
-| `home/linux/vicinae.nix` | Vicinae launcher |
-| `home/linux/waybar.nix` | Waybar status bar |
-| `home/linux/xdg-userdirs.nix` | XDG user directories |
-| `home/linux/zoom.nix` | Zoom (web client via Firefox) |
-| `modules/common/colors/blueberry.nix` | Color palette: blueberry |
-| `modules/common/colors/carbon.nix` | Color palette: carbon |
-| `modules/common/colors/milberry.nix` | Color palette: milberry |
-| `modules/common/systemd-hardening.nix` | Staged systemd unit hardening (not imported) |
-| `modules/common/theme.nix` | theme option + colors module arg (blueberry|milberry) |
+| `modules/agentic/agentic.nix` | Claude Code config: hooks, settings, LSP, materialized agentic/ |
+| `modules/features/tasks.nix` | taskManager option (nixos) + Todoist app (home) |
+| `modules/features/theme.nix` | Theme option + colors arg, across nixos + home |
+| `modules/flake/formatter.nix` | Code formatter (alejandra) |
+| `modules/flake/hosts.nix` | Assembles nixosConfigurations + homeConfigurations from aspects |
+| `modules/flake/index.nix` | Module index generator + staleness check (nix run .#gen-index) |
+| `modules/flake/keychron.nix` | Keychron Q11 firmware builder/flasher (nix run .#keychron-q11) |
+| `modules/flake/modules-option.nix` | Declares the dendritic aspect store flake.modules.<class>.<aspect> |
+| `modules/graphical/desktop-packages.nix` | Linux-only user packages (GUI + desktop) |
+| `modules/graphical/files.nix` | Thunar file manager |
+| `modules/graphical/firefox.nix` | Firefox |
+| `modules/graphical/mako.nix` | Mako notification daemon |
+| `modules/graphical/obsidian.nix` | Obsidian |
+| `modules/graphical/stylix.nix` | Stylix theming (home) |
+| `modules/graphical/sway.nix` | Sway WM + session env vars |
+| `modules/graphical/swaybg.nix` | swaybg wallpaper |
+| `modules/graphical/thunderbird.nix` | Thunderbird |
+| `modules/graphical/vesktop.nix` | Vesktop (Discord) |
+| `modules/graphical/vicinae.nix` | Vicinae launcher |
+| `modules/graphical/waybar.nix` | Waybar status bar |
+| `modules/graphical/wayland.nix` | compositor option (sway|niri) + Wayland session |
+| `modules/graphical/zoom.nix` | Zoom (web client via Firefox) |
 | `modules/hardware/audio.nix` | Audio mixer fixes (ALC285 internal mic) |
 | `modules/hardware/boot.nix` | Boot configuration |
 | `modules/hardware/framework.nix` | Framework AMD AI 300 hardware module + firmware |
 | `modules/hardware/laptop.nix` | Laptop udev rules + power tuning |
 | `modules/hardware/ssd.nix` | SSD tuning (fstrim) |
 | `modules/hardware/wireless.nix` | Bluetooth + printing toggle |
-| `modules/linux/auditd.nix` | auditd audit logging |
-| `modules/linux/drawio.nix` | drawio diagram editor |
-| `modules/linux/email.nix` | Protonmail Bridge |
-| `modules/linux/faillock.nix` | PAM faillock lockout for swaylock |
-| `modules/linux/files.nix` | Thunar file manager |
-| `modules/linux/flatpak.nix` | Flatpak |
-| `modules/linux/fonts.nix` | System fonts |
-| `modules/linux/hardening.nix` | Kernel hardening: polkit, rtkit, kernel params |
-| `modules/linux/journald.nix` | journald config |
-| `modules/linux/keyring.nix` | GnuPG agent (SSH support) + gnome-keyring via PAM |
-| `modules/linux/networking.nix` | NetworkManager + nftables firewall |
-| `modules/linux/nix.nix` | Nix daemon: gc, optimise, flake registry |
-| `modules/linux/packages.nix` | System packages and base env vars (EDITOR, BROWSER) |
-| `modules/linux/tasks.nix` | taskManager option (taskwarrior|todoist) surfaced in the bar |
-| `modules/linux/time.nix` | Timezone (America/Chicago) + i18n |
-| `modules/linux/usbguard.nix` | USBGuard device authorization |
-| `modules/linux/users.nix` | User account liana (groups, zsh) |
-| `modules/linux/virtualization.nix` | Podman + qemu/skopeo |
-| `modules/linux/wayland.nix` | compositor option (sway|niri) + Wayland session |
-| `modules/linux/wireguard.nix` | WireGuard VPN |
-| `modules/linux/yubikey.nix` | YubiKey (PAM/U2F) |
+| `modules/security/auditd.nix` | auditd audit logging |
+| `modules/security/faillock.nix` | PAM faillock lockout for swaylock |
+| `modules/security/gpg.nix` | GPG keys/config |
+| `modules/security/hardening.nix` | Kernel hardening: polkit, rtkit, kernel params |
+| `modules/security/keyring.nix` | GnuPG agent (SSH support) + gnome-keyring via PAM |
+| `modules/security/usbguard.nix` | USBGuard device authorization |
+| `modules/security/wireguard.nix` | WireGuard VPN |
+| `modules/security/yubikey.nix` | YubiKey (PAM/U2F) |
+| `modules/shell/aliases.nix` | Shell aliases (rust-tool replacements) |
+| `modules/shell/anki.nix` | Anki spaced repetition |
+| `modules/shell/atuin.nix` | Atuin shell history |
+| `modules/shell/benchmarks.nix` | wifi-bench / bt-bench wrappers with bundled deps |
+| `modules/shell/cli-packages.nix` | Cross-platform user CLI packages |
+| `modules/shell/develop.nix` | Rust toolchain (cargo, rustc, clippy, rust-analyzer) |
+| `modules/shell/dice.nix` | Curated fortune file + dice wrapper |
+| `modules/shell/git.nix` | Git config; hardcodes user liana / email |
+| `modules/shell/k9s.nix` | k9s Kubernetes TUI |
+| `modules/shell/kitty.nix` | Kitty terminal |
+| `modules/shell/nvim.nix` | Neovim config |
+| `modules/shell/shell.nix` | Zsh: history, completion, autosuggestion |
+| `modules/shell/starship.nix` | Starship prompt |
+| `modules/shell/taskwarrior.nix` | Taskwarrior + nested-task tooling |
+| `modules/system/dconf.nix` | dconf/gsettings defaults |
+| `modules/system/email.nix` | Protonmail Bridge |
+| `modules/system/flatpak.nix` | Flatpak |
+| `modules/system/fonts.nix` | System fonts |
+| `modules/system/framework-dsp.nix` | EasyEffects DSP for Framework 13 speakers, bound to sway |
+| `modules/system/journald.nix` | journald config |
+| `modules/system/mime.nix` | Default applications per MIME type |
+| `modules/system/networking.nix` | NetworkManager + nftables firewall |
+| `modules/system/nix.nix` | Nix daemon: gc, optimise, flake registry |
+| `modules/system/packages.nix` | System packages and base env vars (EDITOR, BROWSER) |
+| `modules/system/syncthing.nix` | Syncthing |
+| `modules/system/time.nix` | Timezone (America/Chicago) + i18n |
+| `modules/system/users.nix` | User account liana (groups, zsh) |
+| `modules/system/virtualization.nix` | Podman + qemu/skopeo |
+| `modules/system/xdg-userdirs.nix` | XDG user directories |
 <!-- END module-index -->

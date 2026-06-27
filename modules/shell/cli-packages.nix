@@ -1,0 +1,55 @@
+# @desc: Cross-platform user CLI packages
+{...}: {
+  flake.modules.homeManager.cliPackages = {pkgs, ...}: {
+    home.packages = with pkgs; [
+      age
+      ansible
+      asciinema
+      bat
+      btop
+      cilium-cli
+      delta
+      dig
+      distrobox
+      duf
+      dust
+      eza
+      fastfetch
+      #fd
+      ffmpeg
+      fluxcd
+      fortune
+      fzf
+      hexyl
+      imagemagick
+      just
+      jq
+      ktop
+      kubeconform
+      kubectl
+      kubernetes-helm
+      lazygit
+      lua-language-server
+      marksman
+      nil
+      nixd
+      nix-tree
+      pre-commit
+      #procs
+      ripgrep
+      ripgrep-all
+      rustscan
+      shellcheck
+      sops
+      talosctl
+      tealdeer
+      usbutils
+      watchexec
+      #xh
+      yaml-language-server
+      yazi
+      yq-go
+      zoxide
+    ];
+  };
+}
