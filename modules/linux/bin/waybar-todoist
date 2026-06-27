@@ -6,9 +6,20 @@
 
 todoist sync >/dev/null 2>&1 || true
 
+# The CLI filter grammar has no assignee predicate, so exclude tasks assigned to
+# someone other than the user from the sync cache (responsible_uid: null = mine).
+cache="$HOME/.cache/todoist/cache.json"
+others=$(jq -r '(.user.id|tostring) as $me | .items[]
+  | select(.responsible_uid != null and (.responsible_uid|tostring) != $me) | .id' "$cache" 2>/dev/null)
+
 # CSV columns are id,priority,due,project,labels,content — content is the trailing field.
 top() {
-  todoist --csv list --filter "$1" 2>/dev/null | head -n1 | cut -d, -f6- | sed 's/^"//; s/"$//'
+  { printf '%s\n' "$others"; echo "==="; todoist --csv list --filter "$1" 2>/dev/null; } \
+    | awk -F, '
+        $0=="===" { body=1; next }
+        !body { if ($0 != "") excl[$0]=1; next }
+        !($1 in excl) { print; exit }' \
+    | cut -d, -f6- | sed 's/^"//; s/"$//'
 }
 
 content=$(top "overdue & !today"); class="overdue"; rel="overdue"
