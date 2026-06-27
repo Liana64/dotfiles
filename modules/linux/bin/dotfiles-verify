@@ -1,0 +1,22 @@
+#!/bin/sh
+# Quiet flake-eval check for the three configs. Prints pass/fail per target;
+# on failure, only the last ~20 lines of the trace. Pass a flake ref to override '.'.
+
+flake=${1:-.}
+status=0
+
+check() {
+  label=$1 attr=$2
+  if err=$(nix eval "$flake#$attr" 2>&1 >/dev/null); then
+    printf '%s ✓\n' "$label"
+  else
+    status=1
+    printf '%s ✗\n%s\n' "$label" "$(printf '%s\n' "$err" | tail -n 20)"
+  fi
+}
+
+check framework         'nixosConfigurations.framework.config.system.build.toplevel.drvPath'
+check portable          'nixosConfigurations.portable.config.system.build.toplevel.drvPath'
+check 'liana@framework' 'homeConfigurations."liana@framework".activationPackage.drvPath'
+
+exit $status

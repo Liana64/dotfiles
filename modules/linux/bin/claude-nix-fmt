@@ -1,0 +1,15 @@
+#!/bin/sh
+# Claude Code PostToolUse hook: format edited .nix files in place with alejandra.
+# Silent on success; exit 2 with the parse error if the file does not format.
+
+file=$(jq -r '.tool_input.file_path // empty')
+case "$file" in
+  *.nix) ;;
+  *) exit 0 ;;
+esac
+[ -f "$file" ] || exit 0
+
+err=$(alejandra -q "$file" 2>&1) && exit 0
+
+printf 'alejandra could not format %s:\n%s\n' "$file" "$err" >&2
+exit 2
