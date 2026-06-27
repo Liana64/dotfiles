@@ -1,3 +1,4 @@
+# @desc: k9s settings
 {
   k9s = {
     liveViewAutoRefresh = false;

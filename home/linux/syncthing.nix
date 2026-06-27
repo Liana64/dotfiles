@@ -1,3 +1,4 @@
+# @desc: Syncthing
 {
   services.syncthing = {
     enable = true;

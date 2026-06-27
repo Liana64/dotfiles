@@ -1,3 +1,4 @@
+# @desc: USBGuard device authorization
 {
   pkgs,
   lib,
@@ -9,9 +10,7 @@
     if cfg.rules != null
     then pkgs.writeText "usbguard-rules" cfg.rules
     else cfg.ruleFile;
-  # Fork of the nixpkgs daemon conf: AuditBackend=LinuxAudit routes device
-  # events into auditd instead of the AuditFilePath=/dev/null journal hack.
-  # Values come from cfg so option changes stay in sync.
+  # Forks the nixpkgs daemon conf for AuditBackend=LinuxAudit, routing device events to auditd
   daemonConf = pkgs.writeText "usbguard-daemon-conf" ''
     RuleFile=${ruleFile}
     ImplicitPolicyTarget=${cfg.implicitPolicyTarget}
@@ -41,11 +40,7 @@ in {
     ruleFile = "/etc/usbguard/rules.conf";
   };
 
-  # Configure the automatic mounting of external
-  # USB drives; note that they are mounted according
-  # to the user that is active, meaning that it can
-  # be the lightdm user when the system is booting
-  # or, otherwise, the user that is logged in
+  # Automount external USB drives for the active user
   services.devmon.enable = true;
   services.gvfs.enable = true;
   services.udisks2.enable = true;

@@ -1,3 +1,4 @@
+# @desc: Vesktop (Discord)
 # Recolors the Vesktop (flatpak) Discord client from the stylix palette via Vencord QuickCSS.
 { config, ... }: let
   inherit (config.lib.stylix.colors.withHashtag)

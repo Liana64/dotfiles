@@ -1,3 +1,4 @@
+# @desc: Timezone (America/Chicago) + i18n
 {
   lib,
   config,

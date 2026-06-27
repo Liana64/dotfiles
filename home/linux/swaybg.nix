@@ -1,3 +1,4 @@
+# @desc: swaybg wallpaper
 {
   config,
   pkgs,

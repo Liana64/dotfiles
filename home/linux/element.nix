@@ -1,3 +1,4 @@
+# @desc: Element Matrix client
 {
   pkgs,
   inputs,

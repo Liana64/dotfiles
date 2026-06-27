@@ -1,3 +1,4 @@
+# @desc: Taskwarrior due/overdue reminders
 {pkgs, ...}: let
   hardening = import ../../../modules/common/systemd-hardening.nix;
   task = "${pkgs.taskwarrior3}/bin/task";

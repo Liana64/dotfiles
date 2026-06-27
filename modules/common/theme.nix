@@ -1,3 +1,4 @@
+# @desc: theme option + colors module arg (blueberry|milberry)
 {
   config,
   lib,

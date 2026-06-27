@@ -1,3 +1,4 @@
+# @desc: System packages and base env vars (EDITOR, BROWSER)
 { pkgs, ... }: {
   environment.variables = {
     EDITOR = "vim";

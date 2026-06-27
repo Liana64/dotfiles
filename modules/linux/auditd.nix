@@ -1,3 +1,4 @@
+# @desc: auditd audit logging
 {pkgs, ...}: let
   austatus = pkgs.writeShellScriptBin "austatus" (builtins.readFile ./bin/austatus);
   # Keys that are silent in normal operation; excludes boot/rebuild noise

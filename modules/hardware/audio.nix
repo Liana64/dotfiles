@@ -1,3 +1,4 @@
+# @desc: Audio mixer fixes (ALC285 internal mic)
 {
   config,
   pkgs,
@@ -24,10 +25,7 @@ in {
     pulse.enable = true;
     jack.enable = true;
 
-    alsa = {
-      enable = true;
-      support32Bit = true;
-    };
+    alsa.enable = true;
 
     # Auto-switch the default sink to newly-connected devices (e.g. bluetooth
     # headphones). When the device disappears, wireplumber falls back to the

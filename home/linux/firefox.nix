@@ -1,3 +1,4 @@
+# @desc: Firefox
 {
   pkgs,
   inputs,
@@ -7,7 +8,7 @@
 }: let
   stylixColors = config.lib.stylix.colors;
   highlight = "#${stylixColors.base0D}";
-  white  = "#${stylixColors.base07}";
+  white = "#${stylixColors.base07}";
 in {
   programs.firefox = {
     enable = true;
@@ -87,11 +88,6 @@ in {
             definedAliases = ["@rh8"];
           };
 
-
-
-
-
-
           protondb = {
             name = "ProtonDB";
             urls = [{template = "https://www.protondb.com/search?q={searchTerms}";}];
@@ -109,7 +105,6 @@ in {
       #  #youtube-shorts-block
       #];
       settings = {
-        
         # Required for sidebery customization
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
@@ -245,67 +240,63 @@ in {
       #  "sync.services.mozilla.com"
       #];
 
-    # Sidebery customization
-    userChrome = ''
-      :root {
-        --toolbar-bgcolor: ${colors.darker} !important;
-        --lwt-accent-color: ${colors.darker} !important;
-        --newtab-background-color: ${colors.darker} !important;
-        --sidebar-background-color: ${colors.darker} !important;
-      }
+      # Sidebery customization
+      userChrome = ''
+        :root {
+          --toolbar-bgcolor: ${colors.darker} !important;
+          --lwt-accent-color: ${colors.darker} !important;
+          --newtab-background-color: ${colors.darker} !important;
+          --sidebar-background-color: ${colors.darker} !important;
+        }
 
-      /**
-      * Hide sidebar-panel-header (sidebar.revamp: true)
-      */
+        #sidebar-main,
+        #sidebar-launcher-splitter {
+          display: none !important;
+        }
 
-      #sidebar-main,
-      #sidebar-launcher-splitter {
-        display: none !important;
-      }
+        /* Hide sidebar-panel-header (sidebar.revamp: true) */
+        #sidebar-panel-header {
+          display: none;
+        }
 
-      /* Hide sidebar-panel-header (sidebar.revamp: true) */
-      #sidebar-panel-header {
-        display: none;
-      }
+        /* Sidebery styles applied globally (title preface gate removed) */
+        #TabsToolbar > * { display: none !important; }
+        #nav-bar { border-color: transparent !important; }
 
-      /* Sidebery styles applied globally (title preface gate removed) */
-      #TabsToolbar > * { display: none !important; }
-      #nav-bar { border-color: transparent !important; }
+        #sidebar-box { padding: 0 !important; }
+        #sidebar-box #sidebar {
+          box-shadow: none !important;
+          border: none !important;
+          outline: none !important;
+          border-radius: 0 !important;
+        }
+        #sidebar-splitter {
+          --splitter-width: 3px !important;
+          min-width: var(--splitter-width) !important;
+          width: var(--splitter-width) !important;
+          padding: 0 !important;
+          margin: 0 calc(-1*var(--splitter-width) + 1px) 0 0 !important;
+          border: 0 !important;
+          opacity: 0 !important;
+        }
+        #sidebar-header { display: none !important; }
 
-      #sidebar-box { padding: 0 !important; }
-      #sidebar-box #sidebar {
-        box-shadow: none !important;
-        border: none !important;
-        outline: none !important;
-        border-radius: 0 !important;
-      }
-      #sidebar-splitter {
-        --splitter-width: 3px !important;
-        min-width: var(--splitter-width) !important;
-        width: var(--splitter-width) !important;
-        padding: 0 !important;
-        margin: 0 calc(-1*var(--splitter-width) + 1px) 0 0 !important;
-        border: 0 !important;
-        opacity: 0 !important;
-      }
-      #sidebar-header { display: none !important; }
+        .urlbarView-row[selected],
+        .urlbarView-row[selected] .urlbarView-title,
+        .urlbarView-row[selected] .urlbarView-url,
+        .urlbarView-row[selected] .urlbarView-title-separator,
+        .urlbarView-row[selected] .urlbarView-action,
+        .urlbarView-row[selected] .urlbarView-secondary-action {
+          background-color: ${highlight} !important;
+          color: ${white} !important;
+        }
 
-      .urlbarView-row[selected],
-      .urlbarView-row[selected] .urlbarView-title,
-      .urlbarView-row[selected] .urlbarView-url,
-      .urlbarView-row[selected] .urlbarView-title-separator,
-      .urlbarView-row[selected] .urlbarView-action,
-      .urlbarView-row[selected] .urlbarView-secondary-action {
-        background-color: ${highlight} !important;
-        color: ${white} !important;
-      }
-
-      #urlbar-input::selection,
-      #urlbar .urlbar-input-box ::selection {
-        background-color: ${highlight} !important;
-        color: ${white} !important;
-      }
-    '';
+        #urlbar-input::selection,
+        #urlbar .urlbar-input-box ::selection {
+          background-color: ${highlight} !important;
+          color: ${white} !important;
+        }
+      '';
     };
   };
 

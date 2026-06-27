@@ -1,3 +1,4 @@
+# @desc: Vicinae launcher
 { pkgs, ... }:
 {
   programs.vicinae = {

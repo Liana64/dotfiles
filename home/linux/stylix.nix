@@ -1,3 +1,4 @@
+# @desc: Stylix theming (home)
 { inputs, pkgs, lib, colors, osConfig, ... }: let
   # base16 palette comes from the active colors theme.
   inherit (colors) base16;
@@ -12,7 +13,7 @@
   green      = base16.base0B;
   highlight  = base16.base0D;
 in {
-  imports = [ inputs.stylix.homeModules.stylix inputs.niri.homeModules.stylix ];
+  imports = [ inputs.stylix.homeModules.stylix ];
 
   stylix = {
     enable = true;
@@ -57,7 +58,7 @@ in {
     targets = {
       # Must be gated: enabling writes programs.niri.settings, which would emit a
       # niri/config.kdl even on sway hosts (settings defaults null → no file).
-      niri.enable     = (osConfig.compositor or "sway") == "niri";
+      # niri.enable     = (osConfig.compositor or "sway") == "niri";
       waybar.enable   = false;
       kitty.enable    = false;
       neovim.enable   = false;

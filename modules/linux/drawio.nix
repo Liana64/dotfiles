@@ -1,3 +1,4 @@
+# @desc: drawio diagram editor
 { pkgs, ... }: {
   environment.systemPackages = [
     (pkgs.symlinkJoin {

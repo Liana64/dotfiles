@@ -1,3 +1,4 @@
+# @desc: Podman + qemu/skopeo
 { pkgs, ... }: {
   virtualisation.podman = {
     enable = true;

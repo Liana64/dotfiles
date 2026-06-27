@@ -1,3 +1,4 @@
+# @desc: Neovim config
 { pkgs, ... }:
 {
   # Need this otherwise lazygit-nvim won't work

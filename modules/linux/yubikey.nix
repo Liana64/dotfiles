@@ -1,3 +1,4 @@
+# @desc: YubiKey (PAM/U2F)
 { pkgs, ... }: {
   # Smart card daemon for YubiKey
   services.pcscd.enable = true;

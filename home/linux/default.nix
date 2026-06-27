@@ -5,13 +5,13 @@
     ./agentic.nix
     ./benchmarks.nix
     ./dconf.nix
-    ./element.nix
+    # ./element.nix
     ./firefox.nix
     ./framework.nix
     ./gpg.nix
     ./mako.nix
     ./mime.nix
-    ./niri.nix
+    # ./niri.nix
     ./obsidian.nix
     ./packages.nix
     ./sway.nix

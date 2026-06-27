@@ -1,3 +1,4 @@
+# @desc: Taskwarrior config
 {
   lib,
   colors,

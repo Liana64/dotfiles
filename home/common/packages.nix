@@ -1,3 +1,4 @@
+# @desc: Cross-platform user CLI packages
  { pkgs, ... }:
  {
   home.packages = with pkgs; [
@@ -5,7 +6,6 @@
     ansible
     asciinema
     bat
-    bitwarden-cli
     btop
     cilium-cli
     delta

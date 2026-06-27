@@ -1,3 +1,4 @@
+# @desc: Nix daemon: gc, optimise, flake registry
 { lib, inputs, ... }: {
   nix = let
     flakeInputs = lib.filterAttrs (_: lib.isType "flake") inputs;

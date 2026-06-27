@@ -1,3 +1,4 @@
+# @desc: Taskwarrior hooks
 {pkgs, ...}: let
   task = "${pkgs.taskwarrior3}/bin/task";
   jq = "${pkgs.jq}/bin/jq";

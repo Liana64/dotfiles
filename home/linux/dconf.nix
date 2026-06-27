@@ -1,3 +1,4 @@
+# @desc: dconf/gsettings defaults
 {...}: {
   dconf.settings = let
     fileChooser = {

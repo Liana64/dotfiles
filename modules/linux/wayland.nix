@@ -1,3 +1,4 @@
+# @desc: compositor option (sway|niri) + Wayland session
 {
   config,
   lib,
@@ -26,10 +27,10 @@ in {
         package = pkgs.sway;
       };
 
-      niri = {
-        enable = useNiri;
-        package = pkgs.niri;
-      };
+      # niri = {
+      #   enable = useNiri;
+      #   package = pkgs.niri;
+      # };
 
       dconf.enable = true;
     };
@@ -38,7 +39,7 @@ in {
     users.users.liana.extraGroups = ["video"];
 
     # Don't add sodiboo's cachix; niri comes from nixpkgs (pkgs.niri).
-    niri-flake.cache.enable = false;
+    # niri-flake.cache.enable = false;
 
     services = {
       dbus.enable = true;

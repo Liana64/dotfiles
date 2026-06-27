@@ -1,3 +1,4 @@
+# @desc: Starship prompt
 { ... }:
 {
   programs.starship = {

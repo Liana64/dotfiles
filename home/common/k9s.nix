@@ -1,3 +1,4 @@
+# @desc: k9s Kubernetes TUI
 { pkgs, config, lib, ... }: let
   inherit (config.lib.stylix.colors.withHashtag) base04 base07 base0D;
 in {

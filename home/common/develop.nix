@@ -1,3 +1,4 @@
+# @desc: Rust toolchain (cargo, rustc, clippy, rust-analyzer)
 { pkgs, ... }:
 {
   home.packages = with pkgs; [

@@ -1,4 +1,9 @@
-{ lib, pkgs, ... }: {
+# @desc: Boot configuration
+{
+  lib,
+  pkgs,
+  ...
+}: {
   boot = {
     loader = {
       systemd-boot.enable = lib.mkForce false;
@@ -8,14 +13,8 @@
 
     plymouth.enable = true;
 
-    # Linux kernel: two options, with the second one being useful
-    # when there are problems with the latest kernel and thus there
-    # is a need to pin the installation to a specific version
-
-    # Option (1): Latest kernel from the NixOS channel
     kernelPackages = pkgs.linuxPackages_latest;
-
-    # Option (2): Pinned kernel version from the NixOS channel
+    # Pin a kernel if the latest breaks:
     #kernelPackages = pkgs.linuxPackagesFor (pkgs.linuxKernel.kernels.linux_6_17);
 
     lanzaboote = {
@@ -46,20 +45,30 @@
     #blacklistedKernelModules = [];
     blacklistedKernelModules = [
       # Obscure network protocols
-      "ax25" "netrom" "rose"
+      "ax25"
+      "netrom"
+      "rose"
 
       # Old or rare or insufficiently audited filesystems
-      "adfs" "affs"
-      "bfs" "befs"
+      "adfs"
+      "affs"
+      "bfs"
+      "befs"
       "cramfs"
-      "efs" "erofs" "exofs"
-      "freevxfs" "f2fs"
-      "hfs" "hpfs"
+      "efs"
+      "erofs"
+      "exofs"
+      "freevxfs"
+      "f2fs"
+      "hfs"
+      "hpfs"
       "jfs"
       "minix"
-      "nilfs2" "ntfs"
+      "nilfs2"
+      "ntfs"
       "omfs"
-      "qnx4" "qnx6"
+      "qnx4"
+      "qnx6"
       "sysv"
       "ufs"
     ];

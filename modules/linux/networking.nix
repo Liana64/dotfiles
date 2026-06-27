@@ -1,3 +1,4 @@
+# @desc: NetworkManager + nftables firewall
 {config, lib, pkgs, ...}:
 {
   networking.networkmanager.enable = true;

@@ -1,3 +1,4 @@
+# @desc: Flatpak
 { pkgs, ... }:
 let
   hardening = import ../common/systemd-hardening.nix;

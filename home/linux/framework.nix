@@ -1,3 +1,4 @@
+# @desc: EasyEffects DSP for Framework 13 speakers, bound to sway
 { inputs, lib, ... }: {
   # Improve the quality of the Framework 13 speakers with a DSP audio configuration
   services.easyeffects.enable = true;

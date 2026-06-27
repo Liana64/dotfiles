@@ -1,3 +1,4 @@
+# @desc: Sway WM + session env vars
 {
   config,
   lib,
@@ -6,6 +7,11 @@
   ...
 }: let
   useSway = (osConfig.compositor or "sway") == "sway";
+  taskManager = osConfig.taskManager or "taskwarrior";
+  taskApp =
+    if taskManager == "todoist"
+    then "flatpak run com.todoist.Todoist"
+    else "kitty --title task taskwarrior-tui";
   app = pkgs.symlinkJoin {
     name = "sway-scripts";
     paths = with pkgs; [
@@ -276,7 +282,7 @@ in {
         "${mod}+Shift+e" = "move container to workspace 3:e";
         "${mod}+Control+Shift+e" = "workspace 3:e; exec flatpak run org.mozilla.Thunderbird";
         "${mod}+Shift+a" = "move container to workspace 4:a";
-        "${mod}+Ctrl+Shift+a" = "exec 'kitty --title task taskwarrior-tui'";
+        "${mod}+Ctrl+Shift+a" = "exec '${taskApp}'";
         "${mod}+Shift+s" = "move container to workspace 5:s";
         "${mod}+Control+Shift+s" = "workspace 5:s; exec flatpak run org.signal.Signal";
         "${mod}+Shift+d" = "move container to workspace 6:d";

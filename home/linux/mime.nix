@@ -1,3 +1,4 @@
+# @desc: Default applications per MIME type
 {
   xdg.mimeApps = {
     enable = true;

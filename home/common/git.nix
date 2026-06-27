@@ -1,3 +1,4 @@
+# @desc: Git config; hardcodes user liana / email
 { ... }:
 {
   programs.git = {

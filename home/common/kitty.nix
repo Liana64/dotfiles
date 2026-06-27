@@ -1,3 +1,4 @@
+# @desc: Kitty terminal
 { colors, ... }:
 {
   programs.kitty = {

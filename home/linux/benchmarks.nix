@@ -1,3 +1,4 @@
+# @desc: wifi-bench / bt-bench wrappers with bundled deps
 { pkgs, lib, ... }:
 let
   deps = with pkgs; [

@@ -1,3 +1,4 @@
+# @desc: GnuPG agent (SSH support) + gnome-keyring via PAM
 { pkgs, ... }: {
   programs.gnupg.agent = {
     enable = true;

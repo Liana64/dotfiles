@@ -1,3 +1,4 @@
+# @desc: Mako notification daemon
 { colors, ... }: {
   services.mako = {
     enable = true;

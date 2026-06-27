@@ -1,3 +1,4 @@
+# @desc: taskManager option (taskwarrior|todoist) surfaced in the bar
 {lib, ...}: {
   options.taskManager = lib.mkOption {
     type = lib.types.enum ["taskwarrior" "todoist"];

@@ -1,3 +1,4 @@
+# @desc: k9s command aliases
 {
   aliases = {
     dp = "deployments";

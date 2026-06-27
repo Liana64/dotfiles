@@ -1,3 +1,4 @@
+# @desc: Zsh: history, completion, autosuggestion
 {...}: {
   programs.zsh = {
     enable = true;

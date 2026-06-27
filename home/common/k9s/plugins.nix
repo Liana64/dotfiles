@@ -1,3 +1,4 @@
+# @desc: k9s plugins (kubectl/flux actions)
 {
   debug = {
     shortCut = "Shift-D";

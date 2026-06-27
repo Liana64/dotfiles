@@ -1,3 +1,4 @@
+# @desc: Todoist (flatpak)
 {
   pkgs,
   lib,

@@ -1,3 +1,4 @@
+# @desc: Obsidian
 { pkgs, lib, colors, ... }: let
   vault = "Notebook";
 

@@ -1,3 +1,4 @@
+# @desc: Shell aliases (rust-tool replacements)
 { pkgs, lib, ... }:
 let
   editors = {

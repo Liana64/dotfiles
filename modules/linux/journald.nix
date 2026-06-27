@@ -1,3 +1,4 @@
+# @desc: journald config
 { ... }: {
   services.journald.extraConfig = ''
     Storage=persistent

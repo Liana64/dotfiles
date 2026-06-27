@@ -1,3 +1,4 @@
+# @desc: Framework AMD AI 300 hardware module + firmware
 {
   inputs,
   lib,
@@ -14,10 +15,7 @@
   # $ fwupdmgr update
   services.fwupd.enable = true;
 
-  # Framework kernel module
-  # Enables battery charge limit, privacy switches, and system LEDs as
-  # standard driver interfaces. Enabled by default on NixOS >= 24.05 and
-  # Kernel >= 6.10
+  # Exposes battery charge limit, privacy switches, and LEDs as driver interfaces
   hardware.framework.enableKmod = true;
 
   # Enable the fingerprint reader
@@ -31,21 +29,20 @@
   # This uses the gnome bolt daemon
   services.hardware.bolt.enable = true;
   environment.systemPackages = with pkgs; [
-    dmidecode         # BIOS troubleshooting
-    ethtool           # Manage networking
-    hdparm            # Manage drives
-    nvme-cli          # Manage NVMes
-    perf              # Benchmarking
-    sbctl             # Sign our own EFI shim
-    smartmontools     # Check smart data on disks
-    sysstat           # Troubleshoot performance
-    tcpdump           # Troubleshoot networking
-    inotify-tools     # Use inotify
-    lm_sensors        # Temperature sensors
+    dmidecode # BIOS troubleshooting
+    ethtool # Manage networking
+    hdparm # Manage drives
+    nvme-cli # Manage NVMes
+    perf # Benchmarking
+    sbctl # Sign our own EFI shim
+    smartmontools # Check smart data on disks
+    sysstat # Troubleshoot performance
+    tcpdump # Troubleshoot networking
+    inotify-tools # Use inotify
+    lm_sensors # Temperature sensors
   ];
 
-  # pcie_aspm=off used to prevent link drops under load for the Caldigit TS4,
-  # now it's probably not needed anymore.
+  # pcie_aspm=off prevents CalDigit TS4 link drops under load
   boot.kernelParams = [
     #"pcie_aspm=off"
     "quiet"

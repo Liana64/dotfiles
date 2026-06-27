@@ -1,3 +1,4 @@
+# @desc: Color palette: carbon
 # based on https://github.com/nyoom-engineering/oxocarbon.nvim
 {}: rec {
   name = "carbon";

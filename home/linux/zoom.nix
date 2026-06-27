@@ -1,3 +1,4 @@
+# @desc: Zoom (web client via Firefox)
 {
   pkgs,
   config,

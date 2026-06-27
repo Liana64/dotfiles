@@ -1,3 +1,4 @@
+# @desc: PAM faillock lockout for swaylock
 {
   config,
   pkgs,

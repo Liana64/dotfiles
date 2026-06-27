@@ -1,3 +1,4 @@
+# @desc: Color palette: milberry
 {}: rec {
   name = "milberry";
   wallpaper = "/nix/dotfiles/share/wallpapers/flower.png";

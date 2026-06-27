@@ -1,3 +1,4 @@
+# @desc: GPG keys/config
 {
   services.gpg-agent = {
     enable = true;

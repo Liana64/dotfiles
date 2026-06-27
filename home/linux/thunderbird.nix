@@ -1,5 +1,5 @@
-{ colors, ... }:
-let
+# @desc: Thunderbird
+{colors, ...}: let
   # Flatpak Thunderbird ESR profile; symlinks resolve in-sandbox via the /nix/store grant in flatpak.nix.
   profile = ".var/app/org.mozilla.Thunderbird/.thunderbird/rciub5to.default-esr";
   selection = ''
@@ -8,8 +8,7 @@ let
       color: ${colors.white} !important;
     }
   '';
-in
-{
+in {
   home.file."${profile}/user.js".text = ''
     user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
     // Render at the exact fractional output scale (1.8) instead of 2x-then-downscale, which blurs text.
@@ -23,8 +22,7 @@ in
       color: ${colors.white} !important;
     }
 
-    /* Folder-pane "New Message" (.button-primary): black-on-accent by default. Text and
-       icon both derive from currentColor, so color alone recolors both. */
+    /* New Message button: text and icon both follow currentColor, so color recolors both */
     #folderPaneWriteMessage {
       color: ${colors.white} !important;
     }

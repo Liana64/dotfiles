@@ -1,3 +1,4 @@
+# @desc: Bluetooth + printing toggle
 {pkgs, ...}:
 {
   # Enable printing if needed

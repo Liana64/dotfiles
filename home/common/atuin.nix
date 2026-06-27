@@ -1,3 +1,4 @@
+# @desc: Atuin shell history
 { lib, ... }: {
   programs.atuin = {
     enable = true;

@@ -1,3 +1,4 @@
+# @desc: Staged systemd unit hardening (not imported)
 rec {
   base = {
     NoNewPrivileges = true;

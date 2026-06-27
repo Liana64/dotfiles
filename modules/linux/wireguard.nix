@@ -1,3 +1,4 @@
+# @desc: WireGuard VPN
 {config, pkgs, lib, ...}:
 let
   dnsEndpoint = "172.17.0.1";

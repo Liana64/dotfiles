@@ -1,3 +1,4 @@
+# @desc: XDG user directories
 { config, ... }: {
   xdg.userDirs = {
     enable = true;

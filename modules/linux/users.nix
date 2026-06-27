@@ -1,3 +1,4 @@
+# @desc: User account liana (groups, zsh)
 { pkgs, ... }: {
   users.users.liana = {
     isNormalUser = true;
