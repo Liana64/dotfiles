@@ -5,7 +5,8 @@ argument-hint: "[name]"
 allowed-tools: [Read, Write, Edit, Bash]
 ---
 Store: `S=~/Projects/Software/ai-memory` (missing → stop, never init).
-Idempotent — skip what's already wired; report created vs existing.
+`ai-memory pull` first (best-effort). Idempotent — skip what's already
+wired; report created vs existing.
 
 1. Root = `git rev-parse --show-toplevel` (else cwd). Name = `$1` or basename
    (lowercase; must be path-safe, else ask). Slug = root path, `/` → `-`.
@@ -26,7 +27,7 @@ Idempotent — skip what's already wired; report created vs existing.
 4. If the project git tracks `.claude/todo.md`: `git rm --cached` it and
    gitignore `.claude/todo.md` (not all of `.claude/`). Leave these project-repo
    changes uncommitted.
-5. In S: `pull --rebase`, `add -A`, commit `onboard: <name>`, push —
-   pull/push best-effort, never force.
+5. `ai-memory sync "onboard: <name>"` — commit, rebase onto remote, push
+   (best-effort, never force).
 
 Confirm created paths, one line each.
