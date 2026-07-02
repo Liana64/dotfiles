@@ -1,0 +1,4 @@
+# empty_pattern fights the dendritic `{...}:` leaf convention; repeated_keys
+# fights the flat dotted-key style used across the tree.
+disabled = ["empty_pattern", "repeated_keys"]
+ignore = ["hosts/**", "**/_*"]
