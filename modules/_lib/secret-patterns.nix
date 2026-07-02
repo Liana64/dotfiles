@@ -1,0 +1,36 @@
+# @desc: Secret file globs + dirs (not imported); feeds permissions.deny and claude-secrets-guard
+{
+  globs = [
+    "*.pem"
+    "*.key"
+    "*.p12"
+    "*.pfx"
+    "*.ppk"
+    "*.p8"
+    "*.jks"
+    "*.keystore"
+    "id_rsa"
+    "id_ed25519"
+    "id_ecdsa"
+    "id_dsa"
+    "*.env"
+    ".env*"
+    "*.tfvars"
+    "*.tfstate*"
+    "*.ovpn"
+    "*.gpg"
+    "*.asc"
+    "*.kdbx"
+    "*.age"
+    "*.enc"
+    "credentials"
+    "*kubeconfig"
+    ".git-credentials"
+    ".netrc"
+    ".pgpass"
+    ".npmrc"
+    ".htpasswd"
+    ".vault-token"
+  ];
+  dirs = [".ssh" ".gnupg" ".aws" ".kube" ".password-store" "secrets"];
+}

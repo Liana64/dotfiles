@@ -37,44 +37,15 @@
             --set HARDENING_BASE ${lib.escapeShellArg (toProps hardening.base)} \
             --set HARDENING_CONFINED ${lib.escapeShellArg (toProps hardening.confined)} \
             --set HARDENING_AIRGAPPED ${lib.escapeShellArg (toProps hardening.airgapped)}
+          wrapProgram $out/bin/claude-secrets-guard \
+            --set CLAUDE_SECRET_GLOBS ${lib.escapeShellArg (lib.concatStringsSep " " secretPatterns.globs)} \
+            --set CLAUDE_SECRET_DIRS ${lib.escapeShellArg (lib.concatStringsSep " " secretPatterns.dirs)}
         '';
     };
 
-    # Mirrors claude-secrets-guard's lists: deny pre-empts hooks and reaches
-    # file tools outside the hook matcher (Grep, Glob).
-    secretGlobs = [
-      "*.pem"
-      "*.key"
-      "*.p12"
-      "*.pfx"
-      "*.ppk"
-      "*.p8"
-      "*.jks"
-      "*.keystore"
-      "id_rsa"
-      "id_ed25519"
-      "id_ecdsa"
-      "id_dsa"
-      "*.env"
-      ".env*"
-      "*.tfvars"
-      "*.tfstate*"
-      "*.ovpn"
-      "*.gpg"
-      "*.asc"
-      "*.kdbx"
-      "*.age"
-      "*.enc"
-      "credentials"
-      "*kubeconfig"
-      ".git-credentials"
-      ".netrc"
-      ".pgpass"
-      ".npmrc"
-      ".htpasswd"
-      ".vault-token"
-    ];
-    secretDirs = [".ssh" ".gnupg" ".aws" ".kube" ".password-store" "secrets"];
+    # Deny pre-empts hooks and reaches file tools outside the hook matcher
+    # (Grep, Glob); the guard hook gets the same lists injected at wrap time.
+    secretPatterns = import ../_lib/secret-patterns.nix;
 
     hardening = import ../_lib/systemd-hardening.nix;
     # one systemd-run property line per attr; list attrs get a line per element
@@ -110,8 +81,8 @@
         lspRecommendationDisabled = true;
         env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
         permissions.deny =
-          map (g: "Read(${g})") secretGlobs
-          ++ lib.concatMap (d: ["Read(**/${d}/**)" "Read(~/${d}/**)"]) secretDirs;
+          map (g: "Read(${g})") secretPatterns.globs
+          ++ lib.concatMap (d: ["Read(**/${d}/**)" "Read(~/${d}/**)"]) secretPatterns.dirs;
         # Wildcards only on binaries with no eval/exec flags plus own scripts;
         # evaluators (nix eval/build, cargo, nix fmt with args) stay prompted.
         # Compound commands decompose: every segment must match a rule.

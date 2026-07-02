@@ -4,19 +4,19 @@ NixOS + home-manager dotfiles via Nix Flakes.
 
 ## Design
 - Use stylix theming for component design and lib.mkForce when applicable.
-- Hardening (kernel params, usbguard, portal masking, module blacklists) is intentional. Don't relax it to fix symptoms.
+- Hardening (kernel params, usbguard, portal masking, module blacklists) is intentional. Don't relax it to fix symptoms. Prove any per-unit exception minimal with `hardening-probe <preset> [--sweep] -- <cmd>`.
 
 Structured as the **dendritic pattern** (flake-parts + `vic/import-tree`): every `.nix` under `modules/` is a flake-parts module, auto-imported.
 
 ## Layout
 - `flake.nix` — inputs + a one-line `mkFlake (import-tree ./modules)`; logic here would bypass import-tree.
 - `modules/` — the dendritic tree. A leaf registers config under `flake.modules.<class>.<aspect>` (`class` = `nixos` | `homeManager`); the same aspect from many files merges. No `default.nix` aggregators — adding a file is enough.
-  - `modules/flake/` — plumbing: `hosts.nix` (assembles the configs), `modules-option.nix` (declares the aspect store), `keychron`/`index`/`formatter`.
+  - `modules/flake/` — plumbing: `hosts.nix` (assembles the configs), `modules-option.nix` (declares the aspect store), `keychron`/`index`/`formatter`/`checks`.
   - `modules/{hardware,security,graphical,shell,system}/` — feature aspects grouped by domain (navigation only; import loads them all). A file may declare both a `nixos.*` and a `homeManager.*` aspect.
   - `modules/features/` — cross-class cells: `theme` (theme option + `colors` arg), `tasks` (taskManager option + todoist).
   - `modules/agentic/` — the Claude Code config module **and** its materialized content (`AGENTS.md` → `~/.claude/CLAUDE.md`, `agents/*.md`, `skills/<name>/SKILL.md`). Owns all Claude Code config (MCP, settings, hooks, statusline, LSP). `~/.claude/settings.json` is a read-only store symlink — change it here. Edits apply only after a home-manager switch.
   - `modules/bin/` — shell scripts wrapped into derivations (non-`.nix`, so import-tree ignores them). `modules/_lib/` + any `/_` path — data/library files (colors, k9s/taskwarrior data, systemd-hardening) and disabled modules; import-tree skips every path containing `/_`.
-- `hosts/<name>/` — thin, NOT auto-imported: `hardware-configuration.nix` + `configuration.nix` (hostname, password, theme/compositor/taskManager) + `home.nix`. Both hosts run on the same Framework laptop; `portable` is an option-variant, so both import *all* aspects and differ only via options.
+- `hosts/<name>/` — thin, NOT auto-imported: `hardware-configuration.nix` + `options.nix` (hostname, password, theme/compositor/taskManager); the shared home base (`hmShared`) lives in `modules/flake/hosts.nix`. Both hosts run on the same Framework laptop; `portable` is an option-variant, so both import *all* aspects and differ only via options.
 - `embedded/keychron-q11/` — QMK keymap. Build/flash on demand: `nix run .#keychron-q11`.
 
 ## Staged, not wired
@@ -25,7 +25,7 @@ Inert by design — do not import or "fix":
 - `/_`-prefixed paths under `modules/` (e.g. `graphical/_drawio.nix`, `graphical/_niri.nix`, `graphical/_element.nix`) — disabled modules kept for recovery; import-tree skips them.
 
 ## Conventions
-- One feature per file; wrap the body as `flake.modules.<class>.<aspect> = <module>`. Disable a module by prefixing its path with `_`.
+- One feature per file; wrap the body as `flake.modules.<class>.<aspect> = <module>`. Disable a module by prefixing its path with `_`. `/new-module` scaffolds a leaf plus its gates (git add, gen-index, verify).
 - Keep `# @desc: <one line>` as the first line, above the wrapper; it feeds the Module index below.
 - Aspects get `inputs`/`nixpkgs-unstable` via `specialArgs`/`extraSpecialArgs` (set in `modules/flake/hosts.nix`); `colors` flows from the `theme` cell via `_module.args`.
 - User `liana`, email `liana@lianas.org` hardcoded in `modules/shell/git.nix`.
@@ -33,12 +33,15 @@ Inert by design — do not import or "fix":
 
 ## Build
 - `nh os switch ~/.dotfiles`. Don't offer to build.
+- `/flake-update` updates inputs with staged verification (lock diff → eval → checks → build scope); it never switches.
 - Format/lint: `.nix` edits auto-format and lint in place via the `claude-nix-check` PostToolUse hook (alejandra, statix, deadnix; `statix.toml` disables lints that fight house style). `nix fmt` is for bulk reformatting only (and fails on the staged `impermanence.nix` — format files explicitly instead).
 
 ## Verify
 After editing `.nix` files, check evaluation (no build, no switch) with `dotfiles-verify`.
 It evaluates all four configs and prints `framework ✓ portable ✓ liana@framework ✓ liana@portable ✓`, or the
-failing target with a trimmed trace. New files must be `git add`ed before flake eval sees them.
+failing target with a trimmed trace. New files must be `git add`ed before flake eval sees them (the script warns).
+`nix flake check` additionally gates the module index, the secrets-guard fixture, and shellcheck on all `modules/bin` scripts.
+After a switch that adds systemd units, fire oneshots once (`systemctl --user start <unit>`) — passing eval doesn't prove a unit starts.
 
 ## Module index
 Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`; `nix flake check` gates staleness. Consult it before fanning out search agents.

@@ -2,12 +2,17 @@
 {lib, ...}: {
   perSystem = {pkgs, ...}: let
     bin = ../bin;
-    scripts = ["ai-memory" "claude-nix-check" "claude-secrets-guard" "claude-statusline" "dotfiles-verify" "hardening-probe"];
+    scripts = lib.attrNames (lib.filterAttrs (_: type: type == "regular") (builtins.readDir bin));
   in {
-    checks.secrets-guard = pkgs.runCommand "secrets-guard-test" {nativeBuildInputs = [pkgs.jq];} ''
-      set -o pipefail
-      sh ${bin}/claude-secrets-guard --test | tee $out
-    '';
+    checks.secrets-guard = let
+      patterns = import ../_lib/secret-patterns.nix;
+    in
+      pkgs.runCommand "secrets-guard-test" {nativeBuildInputs = [pkgs.jq];} ''
+        set -o pipefail
+        CLAUDE_SECRET_GLOBS=${lib.escapeShellArg (lib.concatStringsSep " " patterns.globs)} \
+          CLAUDE_SECRET_DIRS=${lib.escapeShellArg (lib.concatStringsSep " " patterns.dirs)} \
+          sh ${bin}/claude-secrets-guard --test | tee $out
+      '';
     checks.bin-shellcheck = pkgs.runCommand "bin-shellcheck" {nativeBuildInputs = [pkgs.shellcheck];} ''
       shellcheck -S warning ${lib.concatMapStringsSep " " (s: "${bin}/${s}") scripts}
       touch $out
