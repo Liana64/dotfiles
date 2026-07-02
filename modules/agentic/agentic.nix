@@ -237,9 +237,10 @@
         }
         // hardening.airgapped
         // {
-          # ProtectSystem=strict mounts /run read-only; connecting to the
-          # session bus socket needs write
-          ReadWritePaths = ["%t/bus"];
+          # ProtectHome hides /run/user with it, severing the session bus;
+          # tmpfs + bind exposes only the socket (verified: hardening-probe)
+          ProtectHome = "tmpfs";
+          BindPaths = ["%t/bus"];
         };
     };
     systemd.user.timers.insights-reminder = {
