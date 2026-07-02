@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+# ai-memory — manage the ai-memory store with token-frugal output.
+# Returns slug + description lines, not whole files, so an agent pulls the
+# single fact it needs instead of reading the tree into context.
+set -euo pipefail
+
+# Packaged into /nix/store, so the store can't be located via $0 — use the
+# known repo path (override with AI_MEMORY_DIR).
+ROOT="${AI_MEMORY_DIR:-$HOME/Projects/Software/ai-memory}"
+[ -d "$ROOT/global" ] || { echo "ai-memory: no store at $ROOT" >&2; exit 1; }
+cd "$ROOT"
+
+# field <file> <key> — print a frontmatter scalar (between the --- fences).
+# Keys are literals from this script, never file content.
+field() {
+  awk -v k="$2" '
+    /^---[[:space:]]*$/ { f++; next }
+    f==1 && index($0, k":")==1 { sub("^"k":[[:space:]]*",""); print; exit }
+  ' "$1"
+}
+
+# memfiles — every memory file, excluding index/task lists.
+memfiles() {
+  find global projects -type f -name '*.md' \
+    ! -name MEMORY.md ! -name TODO.md ! -name README.md | sort
+}
+
+scope() { # global/foo.md -> global ; projects/x/foo.md -> x (no newline)
+  case "$1" in
+    global/*) printf 'global' ;;
+    projects/*) printf '%s' "$(basename "$(dirname "$1")")" ;;
+  esac
+}
+
+cmd_list() { # list [scope] — one terse line per memory
+  local want="${1:-}" f s
+  while read -r f; do
+    s="$(scope "$f")"
+    if [ -z "$want" ] || [ "$s" = "$want" ]; then
+      printf '[%s] %s — %s\n' "$s" "$(field "$f" name)" "$(field "$f" description)"
+    fi
+  done < <(memfiles)
+}
+
+cmd_search() { # search <term> — files whose name/desc/body match; slug + desc only
+  [ $# -ge 1 ] || { echo "usage: ai-memory search <term>" >&2; exit 2; }
+  local f
+  while read -r f; do
+    if grep -qiF -- "$1" "$f"; then
+      printf '[%s] %s — %s\n' "$(scope "$f")" "$(field "$f" name)" "$(field "$f" description)"
+    fi
+  done < <(memfiles)
+}
+
+cmd_show() { # show <slug> — print one memory (resolves by filename or name field)
+  [ $# -ge 1 ] || { echo "usage: ai-memory show <slug>" >&2; exit 2; }
+  local q="${1%.md}" f
+  while read -r f; do
+    if [ "$(basename "$f" .md)" = "$q" ] || [ "$(field "$f" name)" = "$q" ]; then
+      cat "$f"; return 0
+    fi
+  done < <(memfiles)
+  echo "no memory: $q" >&2; return 1
+}
+
+cmd_check() { # check — index<->file drift and missing frontmatter; nonzero if any
+  local rc=0 idx dir f ref
+  for idx in global/MEMORY.md projects/*/MEMORY.md; do
+    dir="$(dirname "$idx")"
+    for f in "$dir"/*.md; do
+      case "$(basename "$f")" in MEMORY.md|TODO.md|README.md) continue ;; esac
+      if ! grep -qF "($(basename "$f"))" "$idx"; then
+        echo "orphan: $f not in $idx"; rc=1
+      fi
+    done
+    while read -r ref; do
+      [ -e "$dir/$ref" ] || { echo "dangling: $idx -> $ref missing"; rc=1; }
+    done < <(grep -oE '\(([a-z0-9_-]+\.md)\)' "$idx" | tr -d '()')
+  done
+  while read -r f; do
+    for k in name description; do
+      [ -n "$(field "$f" "$k")" ] || { echo "nofield: $f missing '$k'"; rc=1; }
+    done
+  done < <(memfiles)
+  return $rc
+}
+
+cmd_stats() { # stats — memory count per scope
+  local f
+  while read -r f; do printf '%s\n' "$(scope "$f")"; done < <(memfiles) | sort | uniq -c
+}
+
+cmd_pull() { # pull — rebase local onto remote (best-effort, bounded)
+  timeout 30 git pull --rebase --autostash -q 2>/dev/null &&
+    echo "pulled" || echo "pull skipped (offline?)"
+}
+
+cmd_sync() { # sync [msg] — commit, rebase onto remote, push (never forced)
+  git add -A
+  git diff --cached --quiet || git commit -q -m "${1:-ai-memory: update memories}"
+  timeout 30 git pull --rebase --autostash -q 2>/dev/null || true
+  if [ -z "$(git log --branches --not --remotes 2>/dev/null)" ]; then
+    echo "in sync"
+  elif timeout 30 git push -q 2>/dev/null; then
+    echo "pushed"
+  else
+    echo "committed (push failed)"
+  fi
+}
+
+case "${1:-}" in
+  pull)   shift; cmd_pull "$@" ;;
+  list)   shift; cmd_list "$@" ;;
+  search) shift; cmd_search "$@" ;;
+  show)   shift; cmd_show "$@" ;;
+  check)  shift; cmd_check "$@" ;;
+  stats)  shift; cmd_stats "$@" ;;
+  sync)   shift; cmd_sync "$@" ;;
+  *) cat >&2 <<'EOF'
+ai-memory — token-frugal ai-memory management
+  ai-memory list [scope]    one line per memory (optionally one scope)
+  ai-memory search <term>   slug + desc for memories matching term
+  ai-memory show <slug>     print one memory file
+  ai-memory check           report index/file drift + missing frontmatter
+  ai-memory stats           memory count per scope
+  ai-memory pull            rebase onto remote (best-effort)
+  ai-memory sync [msg]      commit, rebase, push (best-effort)
+EOF
+    exit 2 ;;
+esac
