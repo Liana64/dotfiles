@@ -1,0 +1,63 @@
+#!/bin/sh
+# Probe a command under a systemd-hardening preset (property lines arrive in
+# HARDENING_* env vars, serialized from modules/_lib/systemd-hardening.nix at
+# wrap time). Single run by default; --sweep leaves each property out in turn
+# to name the one that breaks the command. A sweep finds single culprits;
+# interacting pairs need manual composition via -p (last assignment wins, so
+# -p can also override a preset property, e.g. -p ProtectHome=read-only).
+#
+#   hardening-probe <base|confined|airgapped> [-p Prop=val]... [--sweep] -- <command...>
+
+usage() {
+  echo 'usage: hardening-probe <base|confined|airgapped> [-p Prop=val]... [--sweep] -- <command...>' >&2
+  exit 2
+}
+
+case "${1:-}" in
+  base) props=${HARDENING_BASE:?not set — run the wrapped binary} ;;
+  confined) props=${HARDENING_CONFINED:?not set — run the wrapped binary} ;;
+  airgapped) props=${HARDENING_AIRGAPPED:?not set — run the wrapped binary} ;;
+  *) usage ;;
+esac
+shift
+
+sweep=''
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -p)
+      [ $# -ge 2 ] || usage
+      props="$props
+$2"
+      shift 2
+      ;;
+    --sweep) sweep=1; shift ;;
+    --) shift; break ;;
+    *) usage ;;
+  esac
+done
+[ $# -gt 0 ] || usage
+
+probe() { # $1 = label, rest = probed command; property lines on stdin
+  label=$1
+  shift
+  args=$(sed 's/^/-p /' | tr '\n' ' ')
+  # shellcheck disable=SC2086  # args is a -p flag list, splitting intended
+  if systemd-run --user --wait --collect --quiet $args "$@" >/dev/null 2>&1; then
+    printf 'pass  %s\n' "$label"
+  else
+    printf 'FAIL  %s\n' "$label"
+    return 1
+  fi
+}
+
+printf '%s\n' "$props" | probe 'full set' "$@"
+rc=$?
+
+[ -n "$sweep" ] || exit "$rc"
+
+n=1
+printf '%s\n' "$props" | while read -r p; do
+  printf '%s\n' "$props" | sed "${n}d" | probe "without $p" "$@"
+  n=$((n + 1))
+done
+exit "$rc"
