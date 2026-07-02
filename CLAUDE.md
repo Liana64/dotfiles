@@ -33,7 +33,7 @@ Inert by design — do not import or "fix":
 
 ## Build
 - `nh os switch ~/.dotfiles`. Don't offer to build.
-- Format: `.nix` edits auto-format in place via the `claude-nix-fmt` PostToolUse hook (alejandra). `nix fmt` is for bulk reformatting only.
+- Format/lint: `.nix` edits auto-format and lint in place via the `claude-nix-check` PostToolUse hook (alejandra, statix, deadnix; `statix.toml` disables lints that fight house style). `nix fmt` is for bulk reformatting only (and fails on the staged `impermanence.nix` — format files explicitly instead).
 
 ## Verify
 After editing `.nix` files, check evaluation (no build, no switch) with `dotfiles-verify`.
@@ -48,6 +48,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/agentic/agentic.nix` | Claude Code config: hooks, settings, LSP, materialized agentic/ |
 | `modules/features/tasks.nix` | taskManager option (nixos) + Todoist app (home) |
 | `modules/features/theme.nix` | Theme option + colors arg, across nixos + home |
+| `modules/flake/checks.nix` | Flake checks: secrets-guard fixture + shellcheck on the wrapped scripts |
 | `modules/flake/formatter.nix` | Code formatter (alejandra) |
 | `modules/flake/hosts.nix` | Assembles nixosConfigurations + homeConfigurations from aspects |
 | `modules/flake/index.nix` | Module index generator + staleness check (nix run .#gen-index) |
