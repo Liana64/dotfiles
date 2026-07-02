@@ -1,23 +1,40 @@
 #!/bin/sh
-# Quiet flake-eval check for the four configs. Prints pass/fail per target;
-# on failure, only the last ~20 lines of the trace. Pass a flake ref to override '.'.
+# Quiet flake-eval check for the four configs, evaluated concurrently.
+# Prints pass/fail per target; on failure, only the last ~20 lines of the
+# trace. Pass a flake ref to override '.'.
 
 flake=${1:-.}
-status=0
 
-check() {
-  label=$1 attr=$2
-  if err=$(nix eval "$flake#$attr" 2>&1 >/dev/null); then
-    printf '%s ✓\n' "$label"
-  else
-    status=1
-    printf '%s ✗\n%s\n' "$label" "$(printf '%s\n' "$err" | tail -n 20)"
-  fi
-}
+# Untracked .nix files are invisible to flake eval — a green result would lie.
+if git -C "$flake" rev-parse --git-dir >/dev/null 2>&1; then
+  untracked=$(git -C "$flake" ls-files --others --exclude-standard -- '*.nix')
+  [ -n "$untracked" ] &&
+    printf 'untracked .nix (git add before trusting results):\n%s\n' "$untracked"
+fi
 
-check framework         'nixosConfigurations.framework.config.system.build.toplevel.drvPath'
-check portable          'nixosConfigurations.portable.config.system.build.toplevel.drvPath'
-check 'liana@framework' 'homeConfigurations."liana@framework".activationPackage.drvPath'
-check 'liana@portable'  'homeConfigurations."liana@portable".activationPackage.drvPath'
+tmp=$(mktemp -d) || exit 1
+trap 'rm -rf "$tmp"' EXIT
 
-exit $status
+# Each job writes its formatted result to an indexed file; cat after wait
+# restores declaration order regardless of completion order.
+i=0
+while IFS='=' read -r label attr; do
+  i=$((i + 1))
+  {
+    if err=$(nix eval "$flake#$attr" 2>&1 >/dev/null); then
+      printf '%s ✓\n' "$label"
+    else
+      touch "$tmp/failed"
+      printf '%s ✗\n%s\n' "$label" "$(printf '%s\n' "$err" | tail -n 20)"
+    fi
+  } >"$tmp/$(printf '%02d' "$i").out" &
+done <<EOF
+framework=nixosConfigurations.framework.config.system.build.toplevel.drvPath
+portable=nixosConfigurations.portable.config.system.build.toplevel.drvPath
+liana@framework=homeConfigurations."liana@framework".activationPackage.drvPath
+liana@portable=homeConfigurations."liana@portable".activationPackage.drvPath
+EOF
+wait
+
+cat "$tmp"/*.out
+[ ! -e "$tmp/failed" ]
