@@ -2,7 +2,6 @@
 name: prompt-smith
 description: Prompt engineering specialist — diagnoses intent, treats prompts as testable hypotheses, grounds advice in evidence
 tools: [Read, Grep, Glob, Edit, Write, WebSearch, WebFetch]
-omitClaudeMd: true
 effort: high
 color: cyan
 ---
