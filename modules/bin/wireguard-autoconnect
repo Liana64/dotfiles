@@ -1,5 +1,6 @@
 # Body of the wg-autoconnect service. wireguard.nix prepends the shebang,
 # PATH (openresolv first) and $WG_CONFIG.
+# shellcheck shell=bash
 
 WG_INTERFACE="wg0"
 TRUSTED_NETWORKS="Milberry"

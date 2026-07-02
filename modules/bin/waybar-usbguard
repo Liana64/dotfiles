@@ -3,7 +3,7 @@
 
 listen() {
     dbus-monitor --system --profile "interface='org.usbguard.Devices1'" |
-        while read -r line; do
+        while read -r _; do
             blocked="$(usbguard list-devices -b | head -n1 | grep -Po 'name "\K[^"]+')"
             if [ -n "$blocked" ]; then
                 printf '{"text": " %s", "class": "blocked"}\n' "$blocked"

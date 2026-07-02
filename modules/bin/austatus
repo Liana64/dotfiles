@@ -5,7 +5,7 @@
 set -euo pipefail
 [ "$(id -u)" -eq 0 ] || exec sudo "$0" "$@"
 
-ack=/var/lib/audit-tripwires/ack # must match modules/linux/auditd.nix
+ack=/var/lib/audit-tripwires/ack # must match modules/security/auditd.nix
 
 if [ "${1:-}" = ack ]; then
   date '+%m/%d/%Y %T' >"$ack"

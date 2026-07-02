@@ -14,8 +14,6 @@
       wants = ["network-online.target" "nss-lookup.target"];
       path = [pkgs.flatpak pkgs.gawk];
       script = ''
-        STAMP="/var/lib/flatpak/.nixos-setup-done"
-
         flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
         # Verified packages
@@ -84,8 +82,6 @@
         flatpak override --filesystem=xdg-config/gtk-3.0:ro
         flatpak override --filesystem=xdg-config/gtk-4.0:ro
         flatpak override --filesystem=/nix/store:ro
-
-        touch "$STAMP"
       '';
       # needs network, /var writes, and bwrap user namespaces.
       serviceConfig =
