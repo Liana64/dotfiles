@@ -1,7 +1,7 @@
 # @desc: auditd audit logging
 {...}: {
   flake.modules.nixos.auditd = {pkgs, ...}: let
-    austatus = pkgs.writeShellScriptBin "austatus" (builtins.readFile ../../modules/bin/austatus);
+    austatus = pkgs.writeShellScriptBin "austatus" (builtins.readFile ../bin/austatus);
     # Keys that are silent in normal operation; excludes boot/rebuild noise
     # (module-load, identity, audit-tamper)
     tripwireKeys = ["usbguard" "code-injection" "data-injection" "register-injection" "32bit-abi"];
@@ -58,12 +58,12 @@
         for key in ${toString tripwireKeys}; do
           # Rule (re)loads tag the key on a CONFIG_CHANGE bundled with an auditctl
           # SYSCALL keyed (null); match key on SYSCALL so reboots/switches don't trip.
+          # $ack is "date time": -ts needs it as two args, so it must stay unquoted
           count=$(${pkgs.audit}/bin/ausearch -k "$key" -ts $(cat "$ack") 2>/dev/null | grep 'type=SYSCALL' | grep -Ec 'key="?'"$key" || true)
           if [ "$count" -gt 0 ]; then summary="$summary $key:$count"; fi
         done
         if [ -n "$summary" ]; then
           echo "audit tripwires: $summary (austatus for details, 'austatus ack' clears)" > /run/audit-tripwires
-          echo ""
         else
           : > /run/audit-tripwires
         fi
