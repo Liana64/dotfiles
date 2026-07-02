@@ -5,7 +5,6 @@
     pkgs,
     lib,
     colors,
-    osConfig,
     ...
   }: let
     # base16 palette comes from the active colors theme.

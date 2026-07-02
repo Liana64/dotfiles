@@ -1,7 +1,6 @@
 # @desc: swaybg wallpaper
 {...}: {
   flake.modules.homeManager.swaybg = {
-    config,
     pkgs,
     colors,
     ...

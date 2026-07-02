@@ -2,7 +2,6 @@
 {...}: {
   flake.modules.homeManager.firefox = {
     pkgs,
-    inputs,
     config,
     colors,
     ...

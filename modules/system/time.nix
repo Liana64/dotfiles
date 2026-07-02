@@ -1,10 +1,6 @@
 # @desc: Timezone (America/Chicago) + i18n
 {...}: {
-  flake.modules.nixos.time = {
-    lib,
-    config,
-    ...
-  }: {
+  flake.modules.nixos.time = {...}: {
     # Set your time zone
     time.timeZone = "America/Chicago";
 

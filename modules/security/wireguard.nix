@@ -1,7 +1,6 @@
 # @desc: WireGuard VPN
 {...}: {
   flake.modules.nixos.wireguard = {
-    config,
     pkgs,
     lib,
     ...

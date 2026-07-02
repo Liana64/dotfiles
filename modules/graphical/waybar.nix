@@ -1,7 +1,6 @@
 # @desc: Waybar status bar
 {...}: {
   flake.modules.homeManager.waybar = {
-    config,
     pkgs,
     colors,
     osConfig,

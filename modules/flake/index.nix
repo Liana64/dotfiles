@@ -4,7 +4,7 @@
   lib,
   ...
 }: let
-  self = inputs.self;
+  inherit (inputs) self;
   descOf = path: let
     hit =
       lib.findFirst (l: lib.hasInfix "@desc:" l) null

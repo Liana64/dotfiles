@@ -44,26 +44,18 @@
         sync_to_monitor = "no";
 
         # theme palette
-        background = colors.background;
+        inherit (colors) background color0 color1 color2 color3 color4 color5 color6 color7;
         foreground = colors.white;
         cursor = colors.cursorColor;
         selection_background = colors.gray;
         selection_foreground = colors.foreground;
-        color0 = colors.color0;
         color8 = colors.comment;
-        color1 = colors.color1;
         color9 = colors.color1;
-        color2 = colors.color2;
         color10 = colors.color2;
-        color3 = colors.color3;
         color11 = colors.color3;
-        color4 = colors.color4;
         color12 = colors.color4;
-        color5 = colors.color5;
         color13 = colors.color5;
-        color6 = colors.color6;
         color14 = colors.color6;
-        color7 = colors.color7;
         color15 = colors.white;
       };
 

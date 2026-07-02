@@ -1,10 +1,6 @@
 # @desc: Shell aliases (rust-tool replacements)
 {...}: {
-  flake.modules.homeManager.aliases = {
-    pkgs,
-    lib,
-    ...
-  }: let
+  flake.modules.homeManager.aliases = {lib, ...}: let
     editors = {
       vi = "nvim";
       vim = "nvim";

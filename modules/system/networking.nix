@@ -1,11 +1,6 @@
 # @desc: NetworkManager + nftables firewall
 {...}: {
-  flake.modules.nixos.networking = {
-    config,
-    lib,
-    pkgs,
-    ...
-  }: {
+  flake.modules.nixos.networking = {lib, ...}: {
     networking.networkmanager.enable = true;
     networking.useDHCP = lib.mkDefault true;
 

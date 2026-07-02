@@ -1,6 +1,6 @@
 # @desc: Thunar file manager
 {...}: {
-  flake.modules.nixos.files = {pkgs, ...}: {
+  flake.modules.nixos.files = {...}: {
     programs.thunar.enable = true;
   };
 }

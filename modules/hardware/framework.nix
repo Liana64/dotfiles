@@ -2,8 +2,6 @@
 {...}: {
   flake.modules.nixos.frameworkHardware = {
     inputs,
-    lib,
-    config,
     pkgs,
     ...
   }: {

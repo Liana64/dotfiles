@@ -1,10 +1,6 @@
 # @desc: Audio mixer fixes (ALC285 internal mic)
 {...}: {
-  flake.modules.nixos.audio = {
-    config,
-    pkgs,
-    ...
-  }: let
+  flake.modules.nixos.audio = {pkgs, ...}: let
     # ALC285 internal mic distorts above ~50%: the stock ACP mixer path merges the
     # analog "Internal Mic Boost" amp into the capture slider, so high settings drive
     # that boost stage (noise/distortion). Drop the boost from the volume curve so the
