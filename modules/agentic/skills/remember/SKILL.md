@@ -26,7 +26,7 @@ Project slug = git root path (else cwd), `/` → `-`. Target dir: `readlink
    <fact; feedback/project add **Why:** and **How to apply:**; link [[name]]>
    ```
 3. Append `- [Title](<fact_slug>.md) — <hook>` to MEMORY.md. Index lines only.
-4. In the store repo: `pull --rebase`, `add -A`, commit `memory: <fact_slug>`,
-   push — pull/push best-effort, never force.
+4. `ai-memory sync "memory: <fact_slug>"` — commit, rebase onto remote, push
+   (best-effort, never force).
 
 One fact per file. Don't restate what repos/CLAUDE.md record. Confirm in one line.
