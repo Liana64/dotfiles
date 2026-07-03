@@ -5,9 +5,7 @@
     lib,
     ...
   }: let
-    dnsEndpoint = "172.17.0.1";
     wireguardConfigFile = "/var/secrets/wireguard/wg0.conf";
-    trustedNetworksFile = "/var/secrets/wireguard/trusted-networks";
 
     # openresolv first: systemd's resolvconf symlink resolves to resolvectl
     # otherwise, hijacking wg-quick's DNS setup and rolling the tunnel back.
@@ -83,13 +81,5 @@
         }
       });
     '';
-
-    # Keep openresolv from invoking systemd-resolved (not enabled on this host);
-    # otherwise wg-quick's `resolvconf -a wg0` rolls the tunnel back when the
-    # resolvectl/systemd-resolved subscribers try to dbus-activate resolved.
-    #networking.resolvconf.extraConfig = ''
-    #  resolvectl=NO
-    #  systemd_resolved=NO
-    #'';
   };
 }
