@@ -471,6 +471,7 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "qmk-firmware": "qmk-firmware",
+        "secrets": "secrets",
         "stylix": "stylix",
         "taskwarrior-tui-src": "taskwarrior-tui-src"
       }
@@ -494,6 +495,22 @@
         "owner": "oxalica",
         "repo": "rust-overlay",
         "type": "github"
+      }
+    },
+    "secrets": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1783111122,
+        "narHash": "sha256-tuJ/y8gFof7XchNoS6VhR0T1u5n4cgmTXt1HquRdBhk=",
+        "ref": "refs/heads/main",
+        "rev": "5086a79a596a0c56c35f1e1af2490537d6ea242c",
+        "revCount": 1,
+        "type": "git",
+        "url": "ssh://git@git.milberry.org/liana/secrets.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@git.milberry.org/liana/secrets.git"
       }
     },
     "stylix": {

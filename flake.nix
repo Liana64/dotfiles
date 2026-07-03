@@ -35,10 +35,20 @@
     #  inputs.nixpkgs-stable.follows = "nixpkgs";
     #};
 
-    # Curated fortune file + dice wrapper; single source of truth for the data.
     dice = {
       url = "git+ssh://git@git.milberry.org/liana/dice.git";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    sops-nix = {
+      url = "github:Liana64/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # sops-encrypted state, PQ age recipients only (see secretstore README).
+    secrets = {
+      url = "git+ssh://git@git.milberry.org/liana/secrets.git";
+      flake = false;
     };
 
     # Staged for impermanence migration. Not yet consumed by any host.
@@ -48,7 +58,6 @@
     };
     #impermanence.url = "github:nix-community/impermanence";
 
-    # Fork for nested tasks
     taskwarrior-tui-src = {
       url = "github:Liana64/taskwarrior-tui/feature/nested-tasks";
       flake = false;

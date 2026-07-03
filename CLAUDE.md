@@ -83,6 +83,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/security/gpg.nix` | GPG keys/config |
 | `modules/security/hardening.nix` | Kernel hardening: polkit, rtkit, kernel params |
 | `modules/security/keyring.nix` | GnuPG agent (SSH support) + gnome-keyring via PAM |
+| `modules/security/secrets.nix` | sops-nix secrets from the PQ-encrypted secretstore repo |
 | `modules/security/usbguard.nix` | USBGuard device authorization |
 | `modules/security/wireguard.nix` | WireGuard VPN |
 | `modules/security/yubikey.nix` | YubiKey (PAM/U2F) |
