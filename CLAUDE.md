@@ -22,7 +22,7 @@ Structured as the **dendritic pattern** (flake-parts + `vic/import-tree`): every
 ## Staged, not wired
 Inert by design — do not import or "fix":
 - `hosts/framework/{disko,impermanence}.nix` — impermanence migration plan. Disk is shared with a Bazzite install; see file headers for hazards. (Outside `modules/`, so never auto-imported.)
-- `/_`-prefixed paths under `modules/` (e.g. `graphical/_drawio.nix`, `graphical/_niri.nix`, `graphical/_element.nix`) — disabled modules kept for recovery; import-tree skips them.
+- `/_`-prefixed paths under `modules/` (e.g. `graphical/_drawio.nix`, `graphical/_niri.nix`, `graphical/_element.nix`) — disabled modules kept for recovery; import-tree skips them. All predate the dendritic migration: revival needs the `flake.modules` wrapper (plus, for `_niri`, its commented-out flake input), not just a rename.
 
 ## Conventions
 - One feature per file; wrap the body as `flake.modules.<class>.<aspect> = <module>`. Disable a module by prefixing its path with `_`. `/new-module` scaffolds a leaf plus its gates (git add, gen-index, verify).
@@ -65,6 +65,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/graphical/stylix.nix` | Stylix theming (home) |
 | `modules/graphical/sway.nix` | Sway WM + session env vars |
 | `modules/graphical/swaybg.nix` | swaybg wallpaper |
+| `modules/graphical/swayidle.nix` | swayidle idle/lock daemon as a restarting user service |
 | `modules/graphical/thunderbird.nix` | Thunderbird |
 | `modules/graphical/vesktop.nix` | Vesktop (Discord) |
 | `modules/graphical/vicinae.nix` | Vicinae launcher |
