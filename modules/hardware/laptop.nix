@@ -45,25 +45,15 @@
           Type = "simple";
           ExecStart = "${pkgs.systemd}/bin/systemd-inhibit --what=sleep:handle-lid-switch --who='CalDigit TS4 Dock Monitor' --why='Prevent sleep while docked' --mode=block ${monitorScript}";
           Restart = "on-failure";
-          CapabilityBoundingSet = ["CAP_BLOCK_SUSPEND"];
-          AmbientCapabilities = ["CAP_BLOCK_SUSPEND"];
-          DynamicUser = true;
+          # logind inhibitors are polkit-gated: session-less DynamicUser is
+          # denied (crash-looped 2026-06-22); root is implicitly authorized,
+          # and no capability is involved, so the bounding set stays empty
+          CapabilityBoundingSet = "";
         };
     };
 
-    systemd.user.services.lock-before-sleep = {
-      description = "Lock the screen prior to sleep";
-      before = ["sleep.target"];
-      wantedBy = ["sleep.target"];
-      serviceConfig =
-        hardening.base
-        // {
-          Type = "oneshot";
-          ExecStart = "swaylock -f";
-        };
-    };
-
-    # Suspend on lid close, except when docked (dock monitor holds the inhibitor)
+    # Suspend on lid close, except when docked (dock monitor holds the
+    # inhibitor); swayidle's before-sleep hook handles locking (sway.nix)
     services.logind.settings.Login.HandleLidSwitch = "suspend";
     services.logind.settings.Login.HandleLidSwitchExternalPower = "suspend";
     services.logind.settings.Login.HandleLidSwitchDocked = "ignore";

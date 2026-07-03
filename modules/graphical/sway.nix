@@ -125,14 +125,6 @@
 
         exec_always --no-startup-id autotiling-rs
 
-        # after-resume works around waybar duplicating bars on resume (Alexays/Waybar#3344, #3964; fix in draft PR #3669)
-        exec swayidle -w \
-          timeout 300 '[ -e "$XDG_RUNTIME_DIR/caffeinate" ] || swaylock -f' \
-          timeout 600 '[ -e "$XDG_RUNTIME_DIR/caffeinate" ] || swaymsg "output * power off"' \
-          resume 'swaymsg "output * power on"' \
-          before-sleep 'swaylock -f' \
-          after-resume 'systemctl --user try-restart waybar.service'
-
         exec gnome-keyring-daemon --start --components=secrets,pkcs11
       '';
       config = {
