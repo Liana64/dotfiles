@@ -472,6 +472,7 @@
         "nixpkgs-unstable": "nixpkgs-unstable",
         "qmk-firmware": "qmk-firmware",
         "secrets": "secrets",
+        "sops-nix": "sops-nix",
         "stylix": "stylix",
         "taskwarrior-tui-src": "taskwarrior-tui-src"
       }
@@ -500,17 +501,37 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1783111122,
-        "narHash": "sha256-tuJ/y8gFof7XchNoS6VhR0T1u5n4cgmTXt1HquRdBhk=",
+        "lastModified": 1783114167,
+        "narHash": "sha256-x0EamM/aDkTQq9S6Z5rOElbiQj7ZQ8Kja10EyImHuRg=",
         "ref": "refs/heads/main",
-        "rev": "5086a79a596a0c56c35f1e1af2490537d6ea242c",
-        "revCount": 1,
+        "rev": "a530f110ea50dda624d680f3a48a6a17db040067",
+        "revCount": 3,
         "type": "git",
         "url": "ssh://git@git.milberry.org/liana/secrets.git"
       },
       "original": {
         "type": "git",
         "url": "ssh://git@git.milberry.org/liana/secrets.git"
+      }
+    },
+    "sops-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783104586,
+        "narHash": "sha256-vSLKc7m34/g5xH4dwmNZSqxc5OcHeE3qiG3EIz6bJKs=",
+        "owner": "Liana64",
+        "repo": "sops-nix",
+        "rev": "1ebd41717762d837d5115f7108522c29cdb00fbb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Liana64",
+        "repo": "sops-nix",
+        "type": "github"
       }
     },
     "stylix": {

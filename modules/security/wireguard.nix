@@ -6,6 +6,7 @@
     ...
   }: let
     wireguardConfigFile = "/var/secrets/wireguard/wg0.conf";
+    trustedNetworksFile = "/var/secrets/wireguard/trusted-networks";
 
     # openresolv first: systemd's resolvconf symlink resolves to resolvectl
     # otherwise, hijacking wg-quick's DNS setup and rolling the tunnel back.
@@ -20,6 +21,7 @@
           pkgs.coreutils
         ]}:$PATH
         export WG_CONFIG="${wireguardConfigFile}"
+        export TRUSTED_NETWORKS_FILE="${trustedNetworksFile}"
       ''
       + builtins.readFile ../../modules/bin/wireguard-autoconnect);
   in {
@@ -36,7 +38,8 @@
 
     # Connect to our VPN whenever we are on a network that isn't trusted. This isn't
     # entirely foolproof because someone could still spoof an SSID and BSSID, but it's
-    # good enough for *me*. The trusted SSID list is hardcoded in the script body.
+    # good enough for *me*. The trusted SSID list is a sops secret — SSIDs stay
+    # out of the repo, and a missing file fails safe (nothing trusted).
     #
     # Runs as a long-lived service driven by `nmcli monitor` rather than a
     # NetworkManager dispatcher script, so the same body works under SELinux on

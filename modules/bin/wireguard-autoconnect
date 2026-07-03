@@ -1,9 +1,11 @@
 # Body of the wg-autoconnect service. wireguard.nix prepends the shebang,
-# PATH (openresolv first) and $WG_CONFIG.
+# PATH (openresolv first), $WG_CONFIG and $TRUSTED_NETWORKS_FILE.
 # shellcheck shell=bash
 
 WG_INTERFACE="wg0"
-TRUSTED_NETWORKS="Milberry"
+# One SSID per line; comments and blanks skipped by is_trusted. A missing
+# file trusts nothing: the tunnel comes up on every wifi.
+TRUSTED_NETWORKS=$(cat "$TRUSTED_NETWORKS_FILE" 2>/dev/null || true)
 
 is_up()       { ip link show "$WG_INTERFACE" &>/dev/null; }
 is_ethernet() { nmcli -t -f type,state dev | grep -q '^ethernet:connected'; }

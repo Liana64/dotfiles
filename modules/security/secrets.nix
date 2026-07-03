@@ -2,25 +2,27 @@
 {...}: {
   flake.modules.nixos.secrets = {
     inputs,
-    lib,
     pkgs,
     ...
   }: let
-    # sops may exec SOPS_AGE_KEY_CMD without a shell; the script owns the
-    # $HOME expansion and the tty passphrase prompt
+    # cache identity in the kernel user keyring; born in @s (possessed, so
+    # setperm is allowed) then published to @u with uid-scope perms — session
+    # keyrings differ per tab/launcher lineage, @u reaches them all
     editorKey = pkgs.writeShellScript "sops-editor-key" ''
-      exec ${pkgs.age}/bin/age -d "$HOME/.config/sops/age/keys.txt.age"
+      keyctl=${pkgs.keyutils}/bin/keyctl
+      "$keyctl" pipe %user:sops-editor 2>/dev/null && exit
+      id=$(${pkgs.age}/bin/age -d "$HOME/.config/sops/age/nix.age") || exit 1
+      kid=$(printf %s "$id" | "$keyctl" padd user sops-editor @s)
+      "$keyctl" setperm "$kid" 0x3f3f0000
+      "$keyctl" link "$kid" @u && "$keyctl" unlink "$kid" @s
+      "$keyctl" timeout "$kid" 300
+      printf %s "$id"
     '';
-    sopsWrapped = pkgs.symlinkJoin {
-      name = "sops-wrapped";
-      paths = [pkgs.sops pkgs.age];
-      buildInputs = [pkgs.makeWrapper];
-      postBuild = ''
-        wrapProgram $out/bin/sops \
-          --prefix PATH : ${lib.makeBinPath [pkgs.age]} \
-          --set-default SOPS_AGE_KEY_CMD ${editorKey}
-      '';
-    };
+    sopsStore = pkgs.runCommand "sops-store" {buildInputs = [pkgs.makeWrapper];} ''
+      mkdir -p $out/bin
+      makeWrapper ${pkgs.sops}/bin/sops $out/bin/sops-store \
+        --set-default SOPS_AGE_KEY_CMD ${editorKey}
+    '';
   in {
     imports = [inputs.sops-nix.nixosModules.sops];
 
@@ -32,14 +34,23 @@
     sops.age.sshKeyPaths = [];
     sops.gnupg.sshKeyPaths = [];
 
-    # gate probes: default placement + the custom-path mechanism the real
-    # migrations rely on
+    # canary: cheap decrypt-chain check at every activation
     sops.secrets.test = {};
-    sops.secrets.test-path = {
-      key = "test";
-      path = "/var/secrets/test-path";
+
+    sops.secrets."wireguard/wg0.conf" = {
+      path = "/var/secrets/wireguard/wg0.conf";
+      mode = "0400";
+    };
+    sops.secrets."wireguard/trusted-networks" = {
+      path = "/var/secrets/wireguard/trusted-networks";
+      mode = "0400";
+    };
+    sops.secrets."syncthing/gui-passwd" = {
+      path = "/var/secrets/syncthing/gui-passwd";
+      owner = "liana";
+      mode = "0400";
     };
 
-    environment.systemPackages = [sopsWrapped];
+    environment.systemPackages = [sopsStore];
   };
 }
