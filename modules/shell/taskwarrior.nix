@@ -6,12 +6,22 @@
     inputs,
     ...
   }: let
-    taskwarrior-tui = pkgs.taskwarrior-tui.overrideAttrs (_: {
-      src = inputs.taskwarrior-tui-src;
-      cargoDeps = pkgs.rustPlatform.importCargoLock {
-        lockFile = "${inputs.taskwarrior-tui-src}/Cargo.lock";
-      };
-    });
+    taskwarrior-tui = pkgs.symlinkJoin {
+      name = "taskwarrior-tui";
+      paths = [
+        (pkgs.taskwarrior-tui.overrideAttrs (_: {
+          src = inputs.taskwarrior-tui-src;
+          cargoDeps = pkgs.rustPlatform.importCargoLock {
+            lockFile = "${inputs.taskwarrior-tui-src}/Cargo.lock";
+          };
+        }))
+      ];
+      nativeBuildInputs = [pkgs.makeWrapper];
+      # the tui shells out to `task`, which in PATH is go-task — pin Taskwarrior
+      postBuild = ''
+        wrapProgram $out/bin/taskwarrior-tui --prefix PATH : ${pkgs.taskwarrior3}/bin
+      '';
+    };
   in {
     imports = [
       ./_taskwarrior/config.nix
@@ -20,10 +30,9 @@
     ];
 
     home.packages = with pkgs; [
-      taskwarrior3
       taskwarrior-tui
-      # keep go-task, but invoke as `go-task` so `task` is free for Taskwarrior
-      (writeShellScriptBin "go-task" ''exec ${go-task}/bin/task "$@"'')
+      # `task` belongs to go-task (cli-packages); Taskwarrior lives at `tw`
+      (writeShellScriptBin "tw" ''exec ${taskwarrior3}/bin/task "$@"'')
 
       # ai-todo <args…> — Taskwarrior against the isolated AI todo store. The three
       # overrides are load-bearing as a unit: omit rc.context=none and the active

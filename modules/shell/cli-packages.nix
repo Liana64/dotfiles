@@ -20,6 +20,7 @@
       fluxcd
       fortune
       fzf
+      go-task
       hexyl
       imagemagick
       just

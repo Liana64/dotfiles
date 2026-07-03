@@ -40,7 +40,7 @@
       snooze = "task-snooze";
       # AI task store — separate db from human tasks (see todo skill). ai.taskrc
       # points at the AI db, runs context-free, and clears default.project.
-      ai-task = "task rc:$HOME/.config/task/ai.taskrc";
+      ai-task = "tw rc:$HOME/.config/task/ai.taskrc";
       ai-task-tui = "taskwarrior-tui --taskrc $HOME/.config/task/ai.taskrc";
     };
 
