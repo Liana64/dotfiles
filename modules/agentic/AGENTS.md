@@ -14,7 +14,7 @@ These are **important**
 
 - The underlying OS is NixOS, and python is not available.
 - Avoid offering to rebuild NixOS or run nix os switch for the user.
-- The Bash tool runs zsh: quote `=words`; no bash-isms.
+- The Bash tool runs zsh with profile aliases; coreutils are rust-replaced (`ls`→eza with icons, `grep`→rg, `cat`→bat, `diff`→delta, `du`→dust, `df`→duf, `top`→btop, `nmap`→rustscan). For parseable output use `command <tool>`, globs, or `command -v`. Quote `=words`; no bash-isms.
 - `~/.claude` is materialized (read-only store symlinks) from `/nix/dotfiles/modules/agentic`; change harness config there — it applies after a home-manager switch.
 
 # Software architecture
