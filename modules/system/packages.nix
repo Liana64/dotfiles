@@ -10,7 +10,6 @@
       android-tools
       backblaze-b2
       gptfdisk
-      just
       lsof
       nh
       seahorse

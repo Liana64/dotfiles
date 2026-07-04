@@ -15,7 +15,6 @@
       dust
       eza
       fastfetch
-      #fd
       ffmpeg
       fluxcd
       fortune
@@ -36,7 +35,6 @@
       nixd
       nix-tree
       pre-commit
-      #procs
       ripgrep
       ripgrep-all
       rustscan
@@ -46,11 +44,9 @@
       tealdeer
       usbutils
       watchexec
-      #xh
       yaml-language-server
       yazi
       yq-go
-      zoxide
     ];
   };
 }
