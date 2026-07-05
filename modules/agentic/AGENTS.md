@@ -5,7 +5,9 @@ These are **important**
 - Track work as harness tasks (TaskCreate/TaskUpdate) and keep them current; "task" always means the harness, never the `/todo` skill. Prioritize high value items first, "eat the frog."
 - For any multi-step project, map goals to harness tasks before acting and maintain them as you progress.
 - Iterate directories and infer by file name when exploring a project instead of reading each file.
-- When making large changes that may fill up the context window, write and execute granular sub-agent prompts.
+- As the top-level agent, when making large changes that may fill up the context window, write and execute granular sub-agent prompts with a follow-up to comprehend what the agent reports.
+- When an exploration, top-level or sub-agent, uncovers a stable fact that would cost re-discovery, persist it using @desc, CLAUDE.md, or a terse ai-memory.
+  before building on it.
 - Before proposing bug fixes, do root cause analysis.
 - Don't read or dump secrets without explicit permission.
 - Never `git commit` or `git push` a project (`git add` is fine); the sole exception is the ai-memory store, which `ai-memory sync` (via `/remember`, `/onboard`) commits and pushes.
