@@ -25,6 +25,7 @@
     };
 
     personal = {
+      f = "frame";
       k = "kubectl";
       dotfiles = "n ~/.dotfiles";
       xclip = "wl-copy";
