@@ -32,7 +32,7 @@ Inert by design — do not import or "fix":
 - `stateVersion`: NixOS `23.05`, home-manager `26.05`. Do not change.
 
 ## Build
-- `nh os switch ~/.dotfiles`. Don't offer to build.
+- `nh os switch /nix/dotfiles`. Don't offer to build.
 - `/flake-update` updates inputs with staged verification (lock diff → eval → checks → build scope); it never switches.
 - Format/lint: `.nix` edits auto-format and lint in place via the `claude-nix-check` PostToolUse hook (alejandra, statix, deadnix; `statix.toml` disables lints that fight house style). `nix fmt` is for bulk reformatting only (and fails on the staged `impermanence.nix` — format files explicitly instead).
 
@@ -40,7 +40,8 @@ Inert by design — do not import or "fix":
 After editing `.nix` files, check evaluation (no build, no switch) with `dotfiles-verify`.
 It evaluates all four configs and prints `framework ✓ portable ✓ liana@framework ✓ liana@portable ✓`, or the
 failing target with a trimmed trace. New files must be `git add`ed before flake eval sees them (the script warns).
-`nix flake check` additionally gates the module index, the secrets-guard fixture, and shellcheck on all `modules/bin` scripts.
+`nix flake check` additionally gates the module index, the secrets-guard fixture, shellcheck on all `modules/bin` scripts, and the root `justfile`.
+`frame` (or bare `just` at the repo root) lists all repo/system tasks; recipes shell out to the same commands documented here.
 After a switch that adds systemd units, fire oneshots once (`systemctl --user start <unit>`) — passing eval doesn't prove a unit starts.
 
 ## Module index
@@ -94,7 +95,9 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/shell/cli-packages.nix` | Cross-platform user CLI packages |
 | `modules/shell/develop.nix` | Rust toolchain (cargo, rustc, clippy, rust-analyzer) |
 | `modules/shell/dice.nix` | Curated fortune file + dice wrapper |
+| `modules/shell/frame.nix` | frame — global just runner for repo/system/hardware/ai tasks |
 | `modules/shell/git.nix` | Git config; hardcodes user liana / email |
+| `modules/shell/infra.nix` | infra — home-infra Taskfile runner with bare-name task resolution |
 | `modules/shell/k9s.nix` | k9s Kubernetes TUI |
 | `modules/shell/kitty.nix` | Kitty terminal |
 | `modules/shell/nvim.nix` | Neovim config |

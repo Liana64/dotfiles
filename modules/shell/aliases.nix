@@ -27,7 +27,7 @@
     personal = {
       f = "frame";
       k = "kubectl";
-      dotfiles = "n ~/.dotfiles";
+      dotfiles = "n /nix/dotfiles";
       xclip = "wl-copy";
       clip = "wl-copy";
       thisip = "curl ifconfig.me -j";

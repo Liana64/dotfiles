@@ -36,4 +36,4 @@ breaks. Leave the lock fully updated except the culprit (restore again,
 update the others) and report the culprit with its error tail.
 
 **Report.** Per-input rev/date table, the verification matrix, culprits if
-any. Rebuild stays manual: `nh os switch ~/.dotfiles`.
+any. Rebuild stays manual: `nh os switch /nix/dotfiles`.
