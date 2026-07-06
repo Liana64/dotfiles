@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Front the home-infra Taskfile from any cwd; bare task names resolve
+# across namespaces (exact match wins, unique suffix runs, ambiguous lists).
+#   infra | infra list        list all tasks
+#   infra reconcile           -> flux:reconcile
+#   infra ping -- proxmox     -> ansible:ping -- proxmox
+#   infra t:health            namespaced/flag args pass straight through
+set -euo pipefail
+
+dir="$HOME/Projects/Software/home-infra"
+
+case ${1:-list} in
+list) exec task -d "$dir" --list-all ;;
+-* | *:*) exec task -d "$dir" "$@" ;;
+esac
+
+name=$1
+shift
+mapfile -t hits < <(
+  task -d "$dir" --list-all --json |
+    jq -r --arg n "$name" \
+      '[.tasks[].name] | if index($n) then [$n] else map(select(endswith(":" + $n))) end | .[]'
+)
+
+# 0 hits falls through to task's own unknown-task error
+if [ ${#hits[@]} -le 1 ]; then
+  exec task -d "$dir" "${hits[0]:-$name}" "$@"
+fi
+printf 'infra: %s is ambiguous:\n' "$name" >&2
+printf '  %s\n' "${hits[@]}" >&2
+exit 1
