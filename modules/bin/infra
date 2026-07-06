@@ -2,15 +2,21 @@
 # Front the home-infra Taskfile from any cwd; bare task names resolve
 # across namespaces (exact match wins, unique suffix runs, ambiguous lists).
 #   infra | infra list        list all tasks
+#   infra mon | infra k9s     k9s
+#   infra renovate            kick a manual renovate job off the cronjob
 #   infra reconcile           -> flux:reconcile
 #   infra ping -- proxmox     -> ansible:ping -- proxmox
 #   infra t:health            namespaced/flag args pass straight through
 set -euo pipefail
 
 dir="$HOME/Projects/Software/home-infra"
+# tasks require cluster; the repo .envrc only exports it inside the repo
+export cluster="${cluster:-main}"
 
 case ${1:-list} in
 list) exec task -d "$dir" --list-all ;;
+mon | k9s) exec k9s ;;
+renovate) exec kubectl -n renovate create job --from=cronjob/renovate "renovate-manual-infra-$(date +%Y%m%d-%H%M%S)" ;;
 -* | *:*) exec task -d "$dir" "$@" ;;
 esac
 

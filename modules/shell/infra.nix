@@ -8,7 +8,7 @@
         buildInputs = [pkgs.makeWrapper];
         postBuild = ''
           wrapProgram $out/bin/infra \
-            --prefix PATH : ${pkgs.lib.makeBinPath [pkgs.go-task pkgs.jq]}
+            --prefix PATH : ${pkgs.lib.makeBinPath [pkgs.go-task pkgs.jq pkgs.k9s pkgs.kubectl]}
         '';
       })
     ];
