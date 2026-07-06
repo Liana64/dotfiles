@@ -76,6 +76,17 @@ gc:
 flash:
     nix run .#keychron-q11
 
+# Firmware updates
+[group('hardware')]
+firmware:
+    -fwupdmgr refresh
+    fwupdmgr update
+
+# SMART health
+[group('hardware')]
+disk:
+    sudo smartctl -a /dev/nvme0n1
+
 [group('hardware')]
 wifi *args:
     wifi-bench {{ args }}
