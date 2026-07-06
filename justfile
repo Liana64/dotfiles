@@ -3,7 +3,7 @@
 _default:
     @just --list --unsorted
 
-# Eval all four configs (framework/portable × nixos/home), no build
+# Eval all configs, no build
 [group('repo')]
 verify:
     dotfiles-verify
@@ -13,35 +13,45 @@ verify:
 check:
     nix flake check
 
-# Regenerate the CLAUDE.md module index
+# Regenerate module index for CLAUDE.md
 [group('repo')]
 index:
     nix run .#gen-index
 
-# Format given files (repo-wide `nix fmt` breaks on staged impermanence.nix)
+# Format nix files
 [group('repo')]
 fmt +files:
     nix fmt -- {{ files }}
 
-# For the staged flow (lock diff -> eval -> checks -> build) use /flake-update.
-# Update all inputs, or a named subset, then re-verify
+# Update input(s) and verify
 [group('repo')]
 update *inputs:
     nix flake update {{ inputs }}
     dotfiles-verify
 
-# Build and activate the system
+# Build and show diff
+[group('repo')]
+diff:
+    nh os build /nix/dotfiles --diff always
+
+# Build and activate system
 [group('repo')]
 [confirm("rebuild + switch now?")]
 switch:
     nh os switch /nix/dotfiles
 
-# Audit subsystem status
+# Failed systemd units
+[group('system')]
+health:
+    systemctl --failed
+    systemctl --user --failed
+
+# Auditd status
 [group('system')]
 status:
     austatus
 
-# Acknowledge audit tripwires
+# Acknowledge auditd tripwires
 [group('system')]
 ack:
     austatus ack
@@ -60,7 +70,7 @@ generations:
 gc:
     nix-collect-garbage -d
 
-# Build + flash Keychron Q11 firmware
+# Flash Keychron Q11 firmware
 [group('hardware')]
 [confirm("flash the keyboard?")]
 flash:
