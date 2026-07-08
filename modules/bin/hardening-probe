@@ -1,17 +1,62 @@
 #!/bin/sh
-# Probe a command under a systemd-hardening preset (property lines arrive in
-# HARDENING_* env vars, serialized from modules/_lib/systemd-hardening.nix at
-# wrap time). Single run by default; --sweep leaves each property out in turn
-# to name the one that breaks the command. A sweep finds single culprits;
-# interacting pairs need manual composition via -p (last assignment wins, so
-# -p can also override a preset property, e.g. -p ProtectHome=read-only).
+# @desc: Probe a command or live unit under a systemd-hardening preset
+# (Property lines arrive in HARDENING_* env vars, serialized from
+# modules/_lib/systemd-hardening.nix at wrap time). A control run with no
+# properties fires first, so a broken invocation is named as such instead of
+# reading as a preset FAIL. -p replaces any preset line with the same key —
+# a true override, list properties included; space-separate multiple values
+# inside one -p (a repeated -p with the same key replaces the earlier one).
 #
-#   hardening-probe <base|confined|airgapped> [-p Prop=val]... [--sweep] -- <command...>
+# Transient mode runs <command> in a throwaway unit with the caller's PATH.
+# Probe the unit's real ExecStart, not the bare binary (bare swayidle exits
+# at once, proving nothing). --daemon[=secs]: surviving secs (default 5) is a
+# pass — startup evidence only; children and event paths stay unexercised.
+#
+# --live <unit> probes the deployed unit itself: preset applied as a runtime
+# drop-in (under /run, gone on reboot), unit restarted, watched for
+# --soak[=secs] (default 5), then rolled back and restarted clean. Real env,
+# ExecStart and children — the high-fidelity mode. Denial/crash/error journal
+# lines during the soak print as warnings (graceful degradation does not
+# flip exit codes — read them; a pass with crash warnings is not a pass).
+# The control run prints warnings too, as a baseline: only warnings that
+# appear on a preset run but not on control are hardening-caused.
+# Drop-in lines merge with the unit's own config, as they would in the final
+# serviceConfig. On FAIL: unit result/exit (main=dumped/31 is SIGSYS, a
+# syscall-filter kill), restart delta, manager+app journal, and any audit
+# SECCOMP records naming the filtered syscall.
+#
+# Single run by default; --sweep leaves each property out in turn to name a
+# single culprit; interacting pairs need manual composition via -p.
+#
+#   hardening-probe [--system] <preset> [-p Prop=val]... [--daemon[=secs]] [--sweep] -- <command...>
+#   hardening-probe [--system] --live <unit> <preset> [-p Prop=val]... [--soak[=secs]] [--sweep]
 
+# shellcheck disable=SC2329  # probe/live_probe dispatch via $probe_fn, cleanup via trap
 usage() {
-  echo 'usage: hardening-probe <base|confined|airgapped> [-p Prop=val]... [--sweep] -- <command...>' >&2
+  echo 'usage: hardening-probe [--system] <base|confined|airgapped> [-p Prop=val]... [--daemon[=secs]] [--sweep] -- <command...>' >&2
+  echo '       hardening-probe [--system] --live <unit> <base|confined|airgapped> [-p Prop=val]... [--soak[=secs]] [--sweep]' >&2
   exit 2
 }
+
+scope='--user'
+asroot=''
+if [ "${1:-}" = --system ]; then
+  scope='--system'
+  asroot=1
+  shift
+fi
+
+su_() { if [ -n "$asroot" ]; then sudo "$@"; else "$@"; fi; }
+ctl() { su_ systemctl "$scope" "$@"; }
+jrn() { su_ journalctl "$scope" "$@"; }
+
+live=''
+if [ "${1:-}" = --live ]; then
+  [ $# -ge 2 ] || usage
+  live=$2
+  case "$live" in *.*) ;; *) live=$live.service ;; esac
+  shift 2
+fi
 
 case "${1:-}" in
   base) props=${HARDENING_BASE:?not set — run the wrapped binary} ;;
@@ -22,42 +67,153 @@ esac
 shift
 
 sweep=''
+daemon=''
+soak=5
 while [ $# -gt 0 ]; do
   case "$1" in
     -p)
       [ $# -ge 2 ] || usage
+      props=$(printf '%s\n' "$props" | sed "/^${2%%=*}=/d")
       props="$props
 $2"
       shift 2
       ;;
+    --daemon) daemon=5; shift ;;
+    --daemon=*) daemon=${1#--daemon=}; shift ;;
+    --soak=*) soak=${1#--soak=}; shift ;;
     --sweep) sweep=1; shift ;;
     --) shift; break ;;
     *) usage ;;
   esac
 done
-[ $# -gt 0 ] || usage
+case "$daemon$soak" in *[!0-9]*) usage ;; esac
 
+if [ -n "$live" ]; then
+  { [ $# -eq 0 ] && [ -z "$daemon" ]; } || usage
+  ctl cat "$live" >/dev/null 2>&1 || { echo "unknown unit: $live" >&2; exit 2; }
+  if [ "$scope" = --system ]; then
+    dropin="/run/systemd/system/$live.d"
+  else
+    dropin="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/systemd/user/$live.d"
+  fi
+  cleanup() {
+    su_ rm -f "$dropin/hardening-probe.conf"
+    su_ rmdir "$dropin" 2>/dev/null
+    ctl daemon-reload
+    ctl reset-failed "$live" 2>/dev/null
+    ctl restart "$live" >/dev/null 2>&1
+  }
+  trap cleanup EXIT INT TERM
+  su_ mkdir -p "$dropin"
+else
+  [ $# -gt 0 ] || usage
+  if [ -n "$daemon" ]; then
+    set -- sh -c 'timeout '"$daemon"' "$@"; [ "$?" = 124 ]' daemon "$@"
+  fi
+fi
+
+seccomp_hint() { # $1 = window; audit records live in the system journal only
+  su_ journalctl --since "-$1" -o cat --no-pager 2>/dev/null |
+    sed -n 's/.*SECCOMP.*comm="\([^"]*\)".*syscall=\([0-9]*\).*/\1 \2/p' |
+    sort -u | sed 3q | while read -r comm nr; do
+      name=''
+      command -v ausyscall >/dev/null 2>&1 && name=$(ausyscall "$nr" 2>/dev/null)
+      printf '      seccomp kill: comm=%s syscall=%s%s\n' "$comm" "$nr" "${name:+ ($name)}"
+    done
+}
+
+probe_n=0
 probe() { # $1 = label, rest = probed command; property lines on stdin
   label=$1
   shift
-  args=$(sed 's/^/-p /' | tr '\n' ' ')
-  # shellcheck disable=SC2086  # args is a -p flag list, splitting intended
-  if systemd-run --user --wait --collect --quiet $args "$@" >/dev/null 2>&1; then
+  probe_n=$((probe_n + 1))
+  unit="hardening-probe-$$-$probe_n"
+  # prepend -p per line, preserving spaces in values; input arrives pre-reversed
+  # (sed tac) so the final argv keeps stdin order — repeated keys like
+  # SystemCallFilter= are order-sensitive (first item picks allow/deny mode)
+  while IFS= read -r line; do
+    [ -n "$line" ] && set -- -p "$line" "$@"
+  done <<EOF
+$(sed '1!G;h;$!d')
+EOF
+  if out=$(su_ systemd-run "$scope" --wait --collect --quiet --unit="$unit" --setenv=PATH="$PATH" "$@" 2>&1); then
     printf 'pass  %s\n' "$label"
   else
     printf 'FAIL  %s\n' "$label"
+    if [ -z "$sweep" ]; then
+      [ -z "$out" ] || printf '%s\n' "$out" | sed 's/^/      /'
+      jrn -u "$unit" -n 3 -o cat --no-pager 2>/dev/null | sed 's/^/      /'
+      seccomp_hint "$((${daemon:-5} + 30))s"
+    fi
     return 1
   fi
 }
 
-printf '%s\n' "$props" | probe 'full set' "$@"
+live_probe() { # $1 = label; property lines on stdin
+  label=$1
+  { echo '[Service]'; sed ''; } | su_ tee "$dropin/hardening-probe.conf" >/dev/null
+  ctl daemon-reload
+  ctl reset-failed "$live" 2>/dev/null
+  if ! err=$(ctl restart "$live" 2>&1); then
+    printf 'FAIL  %s (restart refused)\n' "$label"
+    [ -n "$sweep" ] || printf '%s\n' "$err" | sed 's/^/      /'
+    return 1
+  fi
+  inv=$(ctl show -p InvocationID --value "$live")
+  n0=$(ctl show -p NRestarts --value "$live")
+  sleep "$soak"
+  n1=$(ctl show -p NRestarts --value "$live")
+  if ctl is-failed --quiet "$live" || [ "$n1" != "$n0" ]; then
+    printf 'FAIL  %s\n' "$label"
+    if [ -z "$sweep" ]; then
+      code=$(ctl show -p ExecMainCode --value "$live")
+      st=$(ctl show -p ExecMainStatus --value "$live")
+      sig=''
+      case "$code" in
+        2 | 3 | killed | dumped) # CLD_KILLED / CLD_DUMPED
+          case "$st" in
+            31) sig=' (SIGSYS: syscall-filter kill)' ;;
+            11) sig=' (SIGSEGV)' ;;
+            6) sig=' (SIGABRT)' ;;
+          esac
+          ;;
+      esac
+      printf '      result=%s main=%s/%s%s restarts+%s\n' \
+        "$(ctl show -p Result --value "$live")" "$code" "$st" "$sig" "$((n1 - ${n0:-0}))"
+      # + is an OR: app lines carry _SYSTEMD_INVOCATION_ID, the manager's
+      # "Main process exited" verdicts only INVOCATION_ID
+      jrn "_SYSTEMD_INVOCATION_ID=$inv" + "INVOCATION_ID=$inv" -n 8 -o cat --no-pager 2>/dev/null | sed 's/^/      /'
+      seccomp_hint "$((soak + 30))s"
+    fi
+    return 1
+  fi
+  printf 'pass  %s\n' "$label"
+  [ -n "$sweep" ] || jrn "_SYSTEMD_INVOCATION_ID=$inv" + "INVOCATION_ID=$inv" -o cat --no-pager 2>/dev/null |
+    sed -n '/[Pp]ermission denied/p;/[Oo]peration not permitted/p;/[Rr]ead-only file system/p;/[Cc]rash/p;/[Ff]ail/p;/[Ee]rror/p' |
+    uniq | sed 's/^/  warn  /' | sed 5q
+  return 0
+}
+
+probe_fn=probe
+[ -n "$live" ] && probe_fn=live_probe
+
+$probe_fn 'control (no hardening)' "$@" </dev/null || {
+  echo 'control failed — it breaks with no hardening at all; fix the invocation or unit first' >&2
+  exit 2
+}
+
+printf '%s\n' "$props" | $probe_fn 'full set' "$@"
 rc=$?
 
 [ -n "$sweep" ] || exit "$rc"
 
-n=1
-printf '%s\n' "$props" | while read -r p; do
-  printf '%s\n' "$props" | sed "${n}d" | probe "without $p" "$@"
-  n=$((n + 1))
-done
+printf '%s\n' "$props" | {
+  n=1
+  culprit=''
+  while read -r p; do
+    printf '%s\n' "$props" | sed "${n}d" | $probe_fn "without $p" "$@" && culprit=1
+    n=$((n + 1))
+  done
+  [ -n "$culprit" ] || echo 'no single culprit — compose interacting pairs manually with -p'
+}
 exit "$rc"
