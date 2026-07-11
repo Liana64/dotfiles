@@ -1,46 +1,38 @@
 # Directives
 
-These are **important**
-
-- Track work as harness tasks (TaskCreate/TaskUpdate) and keep them current; "task" always means the harness, never the `/todo` skill. Prioritize high value items first, "eat the frog."
-- For any multi-step project, map goals to harness tasks before acting and maintain them as you progress.
-- Iterate directories and infer by file name when exploring a project instead of reading each file.
-- As the top-level agent, when making large changes that may fill up the context window, write and execute granular sub-agent prompts with a follow-up to comprehend what the agent reports.
-- When an exploration, top-level or sub-agent, uncovers a stable fact that would cost re-discovery, persist it using @desc, CLAUDE.md, or a terse ai-memory.
-  before building on it.
-- Before proposing bug fixes, do root cause analysis.
+- Conserve tokens wherever it doesn't hurt results.
+- Map work to harness tasks upfront and keep them current; highest-impact first.
+- If an approach fails, stop and reassess.
+- Explore by directory iteration and file names, not file-by-file reads.
+- When a change may fill the context window, delegate granular sub-agent prompts; if the work needs session history, fork (`/fork`, Agent fork type) — it inherits the transcript.
+- Persist stable facts worth their re-discovery cost (@desc, CLAUDE.md, ai-memory); fix or delete wrong memories on contact, never route around.
+- After multi-step work, offer `/dream`; never auto-run.
 - Don't read or dump secrets without explicit permission.
-- Never `git commit` or `git push` a project (`git add` is fine); the sole exception is the ai-memory store, which `ai-memory sync` (via `/remember`, `/onboard`) commits and pushes.
+- Never `git commit` or `git push` (`git add` is fine); sole exception: `ai-memory sync`.
 
 # Platform
 
-- The underlying OS is NixOS, and python is not available.
-- Avoid offering to rebuild NixOS or run nix os switch for the user.
-- The Bash tool runs zsh with profile aliases; coreutils are rust-replaced (`ls`→eza with icons, `grep`→rg, `cat`→bat, `diff`→delta, `du`→dust, `df`→duf, `top`→btop, `nmap`→rustscan). For parseable output use `command <tool>`, globs, or `command -v`. Quote `=words`; no bash-isms.
-- `~/.claude` is materialized (read-only store symlinks) from `/nix/dotfiles/modules/agentic`; change harness config there — it applies after a home-manager switch.
+- NixOS (no python); don't offer to rebuild or switch.
+- Bash tool = zsh with rust-replaced coreutils (`ls`→eza with icons, `grep`→rg, `cat`→bat, `diff`→delta, `du`→dust, `df`→duf, `top`→btop, `nmap`→rustscan); use `command <tool>` or globs for parseable output; quote `=words`; no bash-isms.
+- `~/.claude` is materialized read-only from `/nix/dotfiles/modules/agentic`; edit there — applies after a home-manager switch.
 
 # Software architecture
 
-These rules override conflicting guidance
+These override conflicting guidance.
 
+- Root-cause before proposing fixes.
 - Code derives from a single source of reproducible truth.
-- Always use LSP over grep for code navigation if available, and check for errors.
-- Code is a bonsai tree. Thoughtful, zen, minimal. Prune anything not vitally important.
-- Comment only what the code can't state itself — a non-obvious constraint or the failure it prevents, one terse line. Cut narration, history, and restatement ("used to", "now", code echoes). Multi-line only when one line can't hold the constraint; when trimming, compress the fact, don't delete it.
+- LSP over grep for navigation when available; check for errors.
+- Code is a bonsai: thoughtful, zen, minimal — prune what isn't vital.
+- Comments only for what code can't express — a vital constraint or failure, one terse line; never narration, history, or restatement. Trim by compressing facts, not deleting them. Overrides a file's comment density.
 - Design to minimize surprise.
 
 # Collaboration
 
-- Minimize use of possessive pronouns.
-- Minimize use of "AI style" writing
-- Minimize apologies and performative language.
-- When wrong, correct concisely and continue.
+Replies terse unless detail earns it; minimal possessive pronouns and "AI style" writing; when wrong, correct concisely and continue.
 
 # Harness
-## Memory and tasks
 
-- "Task(s)" = the in-session harness task tools (TaskCreate/TaskUpdate). "Todo(s)" = the durable `/todo` skill. They never refer to the same thing.
-- Durable todos are Taskwarrior tasks in the dedicated AI store (`~/Sync/Data/ai-tasks`) via the `/todo` skill — a separate database from the human task store, never crossing into it. In-session tracking stays on harness tasks.
-- Memories live in the ai-memory repo at `~/Projects/Software/ai-memory` (remote `ssh://git@git.milberry.org/liana/ai-memory.git`); the `~/.claude` memory path is a symlink into it. After writing memories, `ai-memory sync "<terse message>"` — commit, rebase, push best-effort, never force. Model-agnostic — no harness-specific schema.
-- Recall through the `ai-memory` CLI before reading memory files: `list [scope]` / `search <term>` return slug + description lines, `show <slug>` prints one memory, `check` reports index drift.
-- Onboarding a new project: `/onboard` creates `projects/<name>/` and symlinks `~/.claude/projects/<slug>/memory` into it.
+- "Tasks" = in-session harness tools (TaskCreate/TaskUpdate); "todos" = the durable `/todo` skill (Taskwarrior, `~/Sync/Data/ai-tasks`, never crossing into the human task store).
+- Memories: ai-memory repo at `~/Projects/Software/ai-memory`; `~/.claude` memory paths symlink into it; model-agnostic. After writes: `ai-memory sync "<msg>"`, never force.
+- Recall via the `ai-memory` CLI (`list`/`search`/`show`/`check`) before reading memory files.

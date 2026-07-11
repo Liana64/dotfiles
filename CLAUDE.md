@@ -4,7 +4,7 @@ NixOS + home-manager dotfiles via Nix Flakes.
 
 ## Design
 - Use stylix theming for component design and lib.mkForce when applicable.
-- Hardening (kernel params, usbguard, portal masking, module blacklists) is intentional. Don't relax it to fix symptoms. Prove any per-unit exception minimal with `hardening-probe <preset> [--sweep] -- <cmd>`.
+- Hardening (kernel params, usbguard, portal masking, module blacklists) is intentional. Don't relax it to fix symptoms. Prove any per-unit exception minimal with `hardening-probe` — `--live <unit>` against the deployed unit, `--count` behavior gate for maintenance jobs whose failure mode is doing less (exit codes lie), `--sweep` to name a culprit. Wired-but-unproven hardening stays unstaged.
 
 Structured as the **dendritic pattern** (flake-parts + `vic/import-tree`): every `.nix` under `modules/` is a flake-parts module, auto-imported.
 
@@ -14,7 +14,7 @@ Structured as the **dendritic pattern** (flake-parts + `vic/import-tree`): every
   - `modules/flake/` — plumbing: `hosts.nix` (assembles the configs), `modules-option.nix` (declares the aspect store), `keychron`/`index`/`formatter`/`checks`.
   - `modules/{hardware,security,graphical,shell,system}/` — feature aspects grouped by domain (navigation only; import loads them all). A file may declare both a `nixos.*` and a `homeManager.*` aspect.
   - `modules/features/` — cross-class cells: `theme` (theme option + `colors` arg), `tasks` (taskManager option + todoist).
-  - `modules/agentic/` — the Claude Code config module **and** its materialized content (`AGENTS.md` → `~/.claude/CLAUDE.md`, `agents/*.md`, `skills/<name>/SKILL.md`). Owns all Claude Code config (MCP, settings, hooks, statusline, LSP). `~/.claude/settings.json` is a read-only store symlink — change it here. Edits apply only after a home-manager switch.
+  - `modules/agentic/` — the Claude Code config module **and** its materialized content (`AGENTS.md` → `~/.claude/CLAUDE.md`, `agents/*.md`, `skills/<name>/SKILL.md`). Owns all Claude Code config (MCP, settings, hooks, statusline, LSP). `~/.claude/settings.json` is a read-only store symlink — change it here. Edits apply only after a home-manager switch. System map: `modules/agentic/AGENTIC.md` — read it instead of exploring this module (tables regenerate via `nix run .#gen-agentic-index`).
   - `modules/bin/` — shell scripts wrapped into derivations (non-`.nix`, so import-tree ignores them). `modules/_lib/` + any `/_` path — data/library files (colors, k9s/taskwarrior data, systemd-hardening) and disabled modules; import-tree skips every path containing `/_`.
 - `hosts/<name>/` — thin, NOT auto-imported: `hardware-configuration.nix` + `options.nix` (hostname, password, theme/compositor/taskManager); the shared home base (`hmShared`) lives in `modules/flake/hosts.nix`. Both hosts run on the same Framework laptop; `portable` is an option-variant, so both import *all* aspects and differ only via options.
 - `embedded/keychron-q11/` — QMK keymap. Build/flash on demand: `nix run .#keychron-q11`.
@@ -39,7 +39,7 @@ Inert by design — do not import or "fix":
 ## Verify
 After editing `.nix` files, check evaluation (no build, no switch) with `dotfiles-verify`.
 It evaluates all four configs and prints `framework ✓ portable ✓ liana@framework ✓ liana@portable ✓`, or the
-failing target with a trimmed trace. New files must be `git add`ed before flake eval sees them (the script warns).
+failing target with a trimmed trace. New files must be `git add`ed before flake eval sees them (the script warns); `gen-index` likewise skips untracked leaves — running it then silently drops their index lines.
 `nix flake check` additionally gates the module index, the secrets-guard fixture, shellcheck on all `modules/bin` scripts, and the root `justfile`.
 `frame` (or bare `just` at the repo root) lists all repo/system tasks; recipes shell out to the same commands documented here.
 After a switch that adds systemd units, fire oneshots once (`systemctl --user start <unit>`) — passing eval doesn't prove a unit starts.
@@ -52,7 +52,9 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/agentic/agentic.nix` | Claude Code config: hooks, settings, LSP, materialized agentic/ |
 | `modules/features/tasks.nix` | taskManager option (nixos) + Todoist app (home) |
 | `modules/features/theme.nix` | Theme option + colors arg, across nixos + home |
-| `modules/flake/checks.nix` | Flake checks: secrets-guard fixture + shellcheck on the wrapped scripts |
+| `modules/flake/agentic-index.nix` | Agentic map table generator + staleness check (nix run .#gen-agentic-index) |
+| `modules/flake/budgets.nix` | Token-budget tripwires on always-loaded agentic artifacts |
+| `modules/flake/checks.nix` | Flake checks: secrets-guard + ai-memory fixtures, shellcheck on the wrapped scripts |
 | `modules/flake/formatter.nix` | Code formatter (alejandra) |
 | `modules/flake/hosts.nix` | Assembles nixosConfigurations + homeConfigurations from aspects |
 | `modules/flake/index.nix` | Module index generator + staleness check (nix run .#gen-index) |
@@ -101,6 +103,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/shell/k9s.nix` | k9s Kubernetes TUI |
 | `modules/shell/kitty.nix` | Kitty terminal |
 | `modules/shell/nvim.nix` | Neovim config |
+| `modules/shell/probe.nix` | probe — cluster-side connectivity checks through the netshoot pod |
 | `modules/shell/shell.nix` | Zsh: history, completion, autosuggestion |
 | `modules/shell/starship.nix` | Starship prompt |
 | `modules/shell/taskwarrior.nix` | Taskwarrior + nested-task tooling |
