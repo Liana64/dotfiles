@@ -1,40 +1,35 @@
 #!/bin/sh
 # @desc: Probe a command or live unit under a systemd-hardening preset
-# (Property lines arrive in HARDENING_* env vars, serialized from
-# modules/_lib/systemd-hardening.nix at wrap time). A control run with no
-# properties fires first, so a broken invocation is named as such instead of
-# reading as a preset FAIL. -p replaces any preset line with the same key —
-# a true override, list properties included; space-separate multiple values
-# inside one -p (a repeated -p with the same key replaces the earlier one).
+# Presets arrive in HARDENING_* env vars, serialized at wrap time. A control
+# run with no properties fires first, so a broken invocation never reads as a
+# preset FAIL. -p is a true override: it replaces preset lines with the same
+# key, lists included; space-separate multiple values inside one -p.
 #
 # Transient mode runs <command> in a throwaway unit with the caller's PATH.
-# Probe the unit's real ExecStart, not the bare binary (bare swayidle exits
-# at once, proving nothing). --daemon[=secs]: surviving secs (default 5) is a
-# pass — startup evidence only; children and event paths stay unexercised.
+# Probe the unit's real ExecStart, not the bare binary. --daemon[=secs]:
+# surviving secs (default 5) is a pass — startup evidence only. --count[=pct]:
+# stdout line count must stay within pct (default 5) of the control's —
+# catches quiet behavior loss (fewer roots found) that exit codes miss.
 #
-# --live <unit> probes the deployed unit itself: preset applied as a runtime
-# drop-in (under /run, gone on reboot), unit restarted, watched for
-# --soak[=secs] (default 5), then rolled back and restarted clean. Real env,
-# ExecStart and children — the high-fidelity mode. Denial/crash/error journal
-# lines during the soak print as warnings (graceful degradation does not
-# flip exit codes — read them; a pass with crash warnings is not a pass).
-# The control run prints warnings too, as a baseline: only warnings that
-# appear on a preset run but not on control are hardening-caused.
-# Drop-in lines merge with the unit's own config, as they would in the final
-# serviceConfig. On FAIL: unit result/exit (main=dumped/31 is SIGSYS, a
-# syscall-filter kill), restart delta, manager+app journal, and any audit
-# SECCOMP records naming the filtered syscall.
+# --live <unit> restarts the deployed unit with the preset as a /run drop-in
+# (gone on reboot), watches it for --soak[=secs] (default 5), then rolls back.
+# Read the warn lines: a pass with crash warnings is not a pass, and only
+# warnings absent from the control run are hardening-caused. FAILs print the
+# exit/signal decode, journal, and audit SECCOMP records naming the syscall.
 #
-# Single run by default; --sweep leaves each property out in turn to name a
-# single culprit; interacting pairs need manual composition via -p.
+# --sweep leaves each property out in turn — single culprits only; compose
+# interacting pairs manually with -p.
 #
-#   hardening-probe [--system] <preset> [-p Prop=val]... [--daemon[=secs]] [--sweep] -- <command...>
-#   hardening-probe [--system] --live <unit> <preset> [-p Prop=val]... [--soak[=secs]] [--sweep]
+# --from-flake[=unit] takes the preset's place: the property set is generated
+# from the wired flake config ($FLAKE, default /nix/dotfiles) — no hand-copied
+# -p drift, and composed with --live it validates wired-but-unbuilt config
+# against the deployed unit before a switch. Eval takes seconds; the generated
+# lines print to stderr for audit. -p still overrides afterwards.
 
 # shellcheck disable=SC2329  # probe/live_probe dispatch via $probe_fn, cleanup via trap
 usage() {
-  echo 'usage: hardening-probe [--system] <base|confined|airgapped> [-p Prop=val]... [--daemon[=secs]] [--sweep] -- <command...>' >&2
-  echo '       hardening-probe [--system] --live <unit> <base|confined|airgapped> [-p Prop=val]... [--soak[=secs]] [--sweep]' >&2
+  echo 'usage: hardening-probe [--system] <base|confined|airgapped|--from-flake=unit> [-p Prop=val]... [--daemon[=secs]] [--count[=pct]] [--sweep] -- <command...>' >&2
+  echo '       hardening-probe [--system] --live <unit> <base|confined|airgapped|--from-flake> [-p Prop=val]... [--soak[=secs]] [--sweep]' >&2
   exit 2
 }
 
@@ -51,23 +46,75 @@ ctl() { su_ systemctl "$scope" "$@"; }
 jrn() { su_ journalctl "$scope" "$@"; }
 
 live=''
+live_rae=''
 if [ "${1:-}" = --live ]; then
   [ $# -ge 2 ] || usage
   live=$2
   case "$live" in *.*) ;; *) live=$live.service ;; esac
   shift 2
+  # pre-flight is read-only: skip sudo so refusals land before a password prompt
+  systemctl "$scope" cat "$live" >/dev/null 2>&1 || { echo "unknown unit: $live" >&2; exit 2; }
+  utype=$(systemctl "$scope" show -p Type --value "$live")
+  timer=''
+  case "$(systemctl "$scope" show -p TriggeredBy --value "$live")" in *.timer*) timer=1 ;; esac
+  if [ "$utype" = oneshot ] || { [ -n "$timer" ] && ! systemctl "$scope" is-active --quiet "$live"; }; then
+    echo "$live is a job unit (Type=$utype${timer:+, timer-triggered}) — restarting it runs the real work; gate its ExecStart command with a transient probe instead" >&2
+    exit 2
+  fi
+  if [ "$(systemctl "$scope" show -p RefuseManualStart --value "$live")" = yes ]; then
+    echo "$live sets RefuseManualStart=yes — the probe cannot restart it; apply the drop-in yourself and use the service's own reload path (e.g. gpgconf --kill gpg-agent for socket-activated agents)" >&2
+    exit 2
+  fi
+  live_rae=$(systemctl "$scope" show -p RemainAfterExit --value "$live")
 fi
 
+ff_unit=''
 case "${1:-}" in
   base) props=${HARDENING_BASE:?not set — run the wrapped binary} ;;
   confined) props=${HARDENING_CONFINED:?not set — run the wrapped binary} ;;
   airgapped) props=${HARDENING_AIRGAPPED:?not set — run the wrapped binary} ;;
+  --from-flake | --from-flake=*)
+    ff_unit=${1#--from-flake}
+    ff_unit=${ff_unit#=}
+    [ -n "$ff_unit" ] || ff_unit=$live
+    [ -n "$ff_unit" ] || { echo '--from-flake needs a unit: give --live <unit> or --from-flake=<unit>' >&2; exit 2; }
+    ;;
   *) usage ;;
 esac
 shift
 
+if [ -n "$ff_unit" ]; then
+  name=${ff_unit%.service}
+  host=$(uname -n)
+  flake=${FLAKE:-/nix/dotfiles}
+  if [ "$scope" = --system ]; then
+    json=$(nix eval --json "$flake#nixosConfigurations.\"$host\".config.systemd.services.\"$name\".serviceConfig") || exit 2
+  else
+    json=$(nix eval --json "$flake#homeConfigurations.\"$USER@$host\".config.systemd.user.services.\"$name\".Service" 2>/dev/null) ||
+      json=$(nix eval --json "$flake#nixosConfigurations.\"$host\".config.systemd.user.services.\"$name\".serviceConfig") || exit 2
+  fi
+  # lifecycle/exec keys stay the deployed unit's own — the probe confines, it
+  # must not re-run the job differently. Array order is kept verbatim: the
+  # first SystemCallFilter element decides allow- vs deny-list mode.
+  deny='ExecStart ExecStartPre ExecStartPost ExecStop ExecStopPost ExecReload ExecCondition
+Type BusName Restart RestartSec RestartSteps KillMode KillSignal
+Environment EnvironmentFile PassEnvironment Slice Nice IOSchedulingClass IOSchedulingPriority
+CPUSchedulingPolicy CPUWeight OOMScoreAdjust WatchdogSec TimeoutStartSec TimeoutStopSec RemainAfterExit'
+  props=$(printf '%s\n' "$json" | jq -r --arg deny "$deny" '
+    ($deny | [splits("[ \n]+")]) as $d
+    | to_entries[]
+    | .key as $k
+    | select(($k | startswith("X-") | not) and (($d | index($k)) | not))
+    | (if (.value | type) == "array" then .value[] else .value end)
+    | "\($k)=\(.)"') || exit 2
+  [ -n "$props" ] || { echo "from-flake: no confinement properties for $name after exclusions" >&2; exit 2; }
+  { printf 'from-flake: %s properties\n' "$(printf '%s\n' "$props" | grep -c .)"
+    printf '%s\n' "$props" | sed 's/^/  /'; } >&2
+fi
+
 sweep=''
 daemon=''
+count=''
 soak=5
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -80,17 +127,18 @@ $2"
       ;;
     --daemon) daemon=5; shift ;;
     --daemon=*) daemon=${1#--daemon=}; shift ;;
+    --count) count=5; shift ;;
+    --count=*) count=${1#--count=}; shift ;;
     --soak=*) soak=${1#--soak=}; shift ;;
     --sweep) sweep=1; shift ;;
     --) shift; break ;;
     *) usage ;;
   esac
 done
-case "$daemon$soak" in *[!0-9]*) usage ;; esac
+case "$daemon$soak$count" in *[!0-9]*) usage ;; esac
 
 if [ -n "$live" ]; then
-  { [ $# -eq 0 ] && [ -z "$daemon" ]; } || usage
-  ctl cat "$live" >/dev/null 2>&1 || { echo "unknown unit: $live" >&2; exit 2; }
+  { [ $# -eq 0 ] && [ -z "$daemon" ] && [ -z "$count" ]; } || usage
   if [ "$scope" = --system ]; then
     dropin="/run/systemd/system/$live.d"
   else
@@ -122,20 +170,41 @@ seccomp_hint() { # $1 = window; audit records live in the system journal only
     done
 }
 
+base_n=''
 probe_n=0
 probe() { # $1 = label, rest = probed command; property lines on stdin
   label=$1
   shift
   probe_n=$((probe_n + 1))
   unit="hardening-probe-$$-$probe_n"
-  # prepend -p per line, preserving spaces in values; input arrives pre-reversed
-  # (sed tac) so the final argv keeps stdin order — repeated keys like
-  # SystemCallFilter= are order-sensitive (first item picks allow/deny mode)
+  # -p per line, prepended over pre-reversed input (sed tac) so argv keeps
+  # stdin order — repeated keys like SystemCallFilter= are order-sensitive
   while IFS= read -r line; do
     [ -n "$line" ] && set -- -p "$line" "$@"
   done <<EOF
 $(sed '1!G;h;$!d')
 EOF
+  if [ -n "$count" ]; then
+    errf="${TMPDIR:-/tmp}/hardening-probe-$$.err"
+    out=$(su_ systemd-run "$scope" --wait --collect --quiet --pipe --unit="$unit" --setenv=PATH="$PATH" "$@" 2>"$errf")
+    st=$?
+    n=$(printf '%s' "$out" | grep -c '')
+    [ -n "$base_n" ] || base_n=$n
+    d=$((n - base_n))
+    case $d in -*) d=$((0 - d)) ;; esac
+    if [ "$st" -eq 0 ] && [ $((d * 100)) -le $((base_n * count)) ]; then
+      printf 'pass  %s (%s/%s lines)\n' "$label" "$n" "$base_n"
+      rm -f "$errf"
+      return 0
+    fi
+    printf 'FAIL  %s (%s/%s lines)\n' "$label" "$n" "$base_n"
+    if [ -z "$sweep" ]; then
+      sed 's/^/      /' "$errf" | sed 5q
+      seccomp_hint '35s'
+    fi
+    rm -f "$errf"
+    return 1
+  fi
   if out=$(su_ systemd-run "$scope" --wait --collect --quiet --unit="$unit" --setenv=PATH="$PATH" "$@" 2>&1); then
     printf 'pass  %s\n' "$label"
   else
@@ -163,31 +232,54 @@ live_probe() { # $1 = label; property lines on stdin
   n0=$(ctl show -p NRestarts --value "$live")
   sleep "$soak"
   n1=$(ctl show -p NRestarts --value "$live")
+  dead=''
+  fail=''
   if ctl is-failed --quiet "$live" || [ "$n1" != "$n0" ]; then
+    fail=1
+  elif [ "$live_rae" != yes ]; then
+    # a clean exit-0 death leaves is-failed/NRestarts silent (Restart=on-failure
+    # never fires) — a unit meant to keep running must still be active
+    state=$(ctl show -p ActiveState --value "$live")
+    case "$state" in active | activating | reloading) ;; *)
+      fail=1
+      dead=$state
+      ;;
+    esac
+  fi
+  strays=''
+  jrn "_SYSTEMD_INVOCATION_ID=$inv" + "INVOCATION_ID=$inv" -o cat --no-pager 2>/dev/null |
+    grep -q -e 'Found left-over process' -e 'remains running after unit stopped' && strays=1
+  if [ -n "$fail" ]; then
     printf 'FAIL  %s\n' "$label"
     if [ -z "$sweep" ]; then
-      code=$(ctl show -p ExecMainCode --value "$live")
-      st=$(ctl show -p ExecMainStatus --value "$live")
-      sig=''
-      case "$code" in
-        2 | 3 | killed | dumped) # CLD_KILLED / CLD_DUMPED
-          case "$st" in
-            31) sig=' (SIGSYS: syscall-filter kill)' ;;
-            11) sig=' (SIGSEGV)' ;;
-            6) sig=' (SIGABRT)' ;;
-          esac
-          ;;
-      esac
-      printf '      result=%s main=%s/%s%s restarts+%s\n' \
-        "$(ctl show -p Result --value "$live")" "$code" "$st" "$sig" "$((n1 - ${n0:-0}))"
-      # + is an OR: app lines carry _SYSTEMD_INVOCATION_ID, the manager's
-      # "Main process exited" verdicts only INVOCATION_ID
+      if [ -n "$dead" ]; then
+        printf '      result=%s state=%s — clean exit, Restart= did not trigger\n' \
+          "$(ctl show -p Result --value "$live")" "$dead"
+      else
+        code=$(ctl show -p ExecMainCode --value "$live")
+        st=$(ctl show -p ExecMainStatus --value "$live")
+        sig=''
+        case "$code" in
+          2 | 3 | killed | dumped) # CLD_KILLED / CLD_DUMPED
+            case "$st" in
+              31) sig=' (SIGSYS: syscall-filter kill)' ;;
+              11) sig=' (SIGSEGV)' ;;
+              6) sig=' (SIGABRT)' ;;
+            esac
+            ;;
+        esac
+        printf '      result=%s main=%s/%s%s restarts+%s\n' \
+          "$(ctl show -p Result --value "$live")" "$code" "$st" "$sig" "$((n1 - ${n0:-0}))"
+      fi
+      # + is OR: app lines carry _SYSTEMD_INVOCATION_ID, manager verdicts only INVOCATION_ID
       jrn "_SYSTEMD_INVOCATION_ID=$inv" + "INVOCATION_ID=$inv" -n 8 -o cat --no-pager 2>/dev/null | sed 's/^/      /'
       seccomp_hint "$((soak + 30))s"
     fi
+    [ -z "$strays" ] || echo '  warn  left-over processes (KillMode=) outlive the restart and pollute subsequent probes'
     return 1
   fi
   printf 'pass  %s\n' "$label"
+  [ -z "$strays" ] || echo '  warn  left-over processes (KillMode=) outlive the restart and pollute subsequent probes'
   [ -n "$sweep" ] || jrn "_SYSTEMD_INVOCATION_ID=$inv" + "INVOCATION_ID=$inv" -o cat --no-pager 2>/dev/null |
     sed -n '/[Pp]ermission denied/p;/[Oo]peration not permitted/p;/[Rr]ead-only file system/p;/[Cc]rash/p;/[Ff]ail/p;/[Ee]rror/p' |
     uniq | sed 's/^/  warn  /' | sed 5q
