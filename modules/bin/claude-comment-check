@@ -1,0 +1,79 @@
+#!/bin/sh
+# @desc: Pre/PostToolUse hook — flag net-new comment lines from file edits, for a necessity check
+set -f
+
+umask 077
+input=$(cat)
+event=$(printf '%s' "$input" | jq -r '.hook_event_name // empty')
+file=$(printf '%s' "$input" | jq -r '.tool_input | .file_path // .notebook_path // empty')
+[ -n "$file" ] || exit 0
+base=${file##*/}
+
+cache="${XDG_RUNTIME_DIR:-/tmp}/claude-comment-check.$(printf '%s' "$file" | cksum | tr -cd '[:digit:]')"
+
+# consume before any early exit (no orphans); no snapshot = no baseline
+# (Pre skipped) — silence beats flagging pre-existing comments as new
+if [ "$event" != "PreToolUse" ]; then
+  [ -f "$cache" ] || exit 0
+  preimg=$(cat "$cache" 2>/dev/null || :)
+  rm -f "$cache"
+fi
+
+# guarded paths are never snapshotted — this hook runs even when
+# secrets-guard denies the tool call; missing env fails closed (no snapshot)
+if [ "$event" = "PreToolUse" ]; then
+  [ -n "${CLAUDE_SECRET_GLOBS:-}" ] || exit 0
+  for pat in $CLAUDE_SECRET_GLOBS; do
+    # shellcheck disable=SC2254  # unquoted: $pat must match as a glob
+    case "$base" in $pat) exit 0 ;; esac
+  done
+  for d in ${CLAUDE_SECRET_DIRS:-}; do
+    case "$file" in *"$d/"*) exit 0 ;; esac
+  done
+fi
+
+case "$base" in
+  *.*) ext=${base##*.} ;;
+  *) # extensionless: shell scripts (modules/bin) identified by shebang
+    case "$(head -c 2 "$file" 2>/dev/null)" in
+      '#!') ext="sh" ;;
+      *) exit 0 ;;
+    esac ;;
+esac
+
+# full-line comments only; trailing comments would false-positive on strings
+case "$ext" in
+  nix | sh | bash | zsh | py | ipynb | rb | toml | yaml | yml | conf) re='^[[:space:]]*#' ;;
+  rs | go | c | h | cpp | hpp | js | jsx | ts | tsx | java) re='^[[:space:]]*//' ;;
+  lua | sql | hs) re='^[[:space:]]*--' ;;
+  *) exit 0 ;;
+esac
+
+if [ "$event" = "PreToolUse" ]; then
+  case "$file" in
+    *.ipynb) jq -r '.cells[]?.source[]?' "$file" 2>/dev/null ;;
+    *) cat "$file" 2>/dev/null ;;
+  esac >"$cache"
+  exit 0
+fi
+
+# trim-normalized (reindenting isn't new); count only — the offending
+# lines are already in context from the tool call
+count=$(printf '%s' "$input" | jq -r --arg re "$re" --arg pre "${preimg:-}" '
+  def trim: sub("^[[:space:]]+"; "") | sub("[[:space:]]+$"; "");
+  if .tool_input.cell_type == "markdown" then 0 else
+    ([$pre, .tool_input.old_string // empty, .tool_input.edits[]?.old_string]
+      | join("\n") | split("\n") | map(trim)) as $old
+    | [.tool_input.new_string // empty, .tool_input.edits[]?.new_string,
+       .tool_input.content // empty, .tool_input.new_source // empty]
+    | join("\n") | split("\n")
+    | map(select(
+        test($re)
+        and ((trim | IN($old[])) | not)
+        and ((trim | test("^#!|@desc:|shellcheck|noqa|deadnix|statix")) | not)))
+    | length
+  end')
+[ "$count" -gt 0 ] 2>/dev/null || exit 0
+
+printf '%s comment(s): justify or delete.\n' "$count" >&2
+exit 2
