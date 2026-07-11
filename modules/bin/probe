@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Connectivity checks from inside the cluster via the netshoot pod.
+#   probe <cmd...>    e.g. probe curl -s http://immich.home:2283/api/server/ping
+#   probe             interactive shell
+# App namespaces are default-deny; netshoot carries the probe-allowed CNP.
+set -euo pipefail
+
+if [ $# -eq 0 ]; then
+  exec kubectl exec -n networking -it deploy/netshoot -- bash
+fi
+exec kubectl exec -n networking -i deploy/netshoot -- "$@"
