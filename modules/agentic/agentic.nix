@@ -3,6 +3,7 @@
   flake.modules.homeManager.agentic = {
     lib,
     pkgs,
+    config,
     nixpkgs-unstable,
     ...
   }: let
@@ -104,6 +105,7 @@
           "Bash(dmesg)"
           "Bash(dotfiles-verify)"
           "Bash(dotfiles-verify *)"
+          "Bash(flux --context milberry get ks -A)"
           "Bash(git add *)"
           "Bash(journalctl *)"
           "Bash(kubectl get *)"
@@ -238,9 +240,18 @@
     home.file =
       {
         ".claude/CLAUDE.md".source = ./AGENTS.md;
+        "${config.programs.claude-code.configDir}/settings.json".enable = lib.mkForce false;
       }
       // link (name: type: type == "regular" && lib.hasSuffix ".md" name) ./agents ".claude/agents"
       // link (_: type: type == "directory") ./skills ".claude/skills";
+    home.activation.claudeSettings = lib.hm.dag.entryAfter ["linkGeneration"] ''
+      target="$HOME/.claude/settings.json"
+      if [ -L "$target" ]; then run rm "$target"; fi
+      [ -f "$target" ] && keep=$(${pkgs.jq}/bin/jq '{effortLevel} | with_entries(select(.value != null))' "$target" 2>/dev/null) || keep='{}'
+      merged=$(${pkgs.jq}/bin/jq --argjson keep "$keep" '$keep + .' \
+        ${config.home.file."${config.programs.claude-code.configDir}/settings.json".source})
+      run install -m 600 /dev/stdin "$target" <<< "$merged"
+    '';
 
     systemd.user.services.insights-reminder = {
       Unit.Description = "Remind to run /insights in Claude Code";

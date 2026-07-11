@@ -10,8 +10,10 @@ read-only store symlinks; edits land here and apply only after a
 home-manager switch (`nh os switch /nix/dotfiles` — user runs it).
 
 - `agentic.nix` — single owner of Claude Code config: `settings` attrset →
-  `~/.claude/settings.json` (via home-manager `builtins.toJSON`), hooks, LSP
-  servers, permissions, MCP servers (commented out pending audit).
+  `~/.claude/settings.json`, hooks, LSP servers, permissions, MCP servers
+  (commented out pending audit). Exception to read-only: settings.json is a
+  real file, re-based on the declaration at each switch with `effortLevel`
+  carried over so `/effort` persists.
 - `AGENTS.md` → `~/.claude/CLAUDE.md` (global directives).
 - `agents/*.md` → `~/.claude/agents/` (custom subagents).
 - `skills/<name>/` → `~/.claude/skills/` (a new skill dir is picked up

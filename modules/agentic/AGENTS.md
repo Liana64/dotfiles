@@ -15,6 +15,7 @@
 - NixOS (no python); don't offer to rebuild or switch.
 - Bash tool = zsh with rust-replaced coreutils (`ls`→eza with icons, `grep`→rg, `cat`→bat, `diff`→delta, `du`→dust, `df`→duf, `top`→btop, `nmap`→rustscan); use `command <tool>` or globs for parseable output; quote `=words`; no bash-isms.
 - `~/.claude` is materialized read-only from `/nix/dotfiles/modules/agentic`; edit there — applies after a home-manager switch.
+- `gh` unavailable.
 
 # Software architecture
 
@@ -24,7 +25,8 @@ These override conflicting guidance.
 - Code derives from a single source of reproducible truth.
 - LSP over grep for navigation when available; check for errors.
 - Code is a bonsai: thoughtful, zen, minimal — prune what isn't vital.
-- Comments only for what code can't express — a vital constraint or failure, one terse line; never narration, history, or restatement. Trim by compressing facts, not deleting them. Overrides a file's comment density.
+- Comments are exceptional: default zero, far fewer than feels natural — only a vital constraint or failure the code can't express, one terse line; narration, history, and restatement get deleted on contact. Trim a survivor by compressing facts, not deleting them. Overrides a file's comment density.
+- Comment voice: lowercase, one thought per line, commas as the only joint, warnings bare CAPS ("DO NOT RUN THIS"), "do not" over "never".
 - Design to minimize surprise.
 
 # Collaboration
