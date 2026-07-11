@@ -1,0 +1,13 @@
+#!/bin/sh
+# @desc: PreToolUse hook — deny skills listed in CLAUDE_DENIED_SKILLS
+# Surgical per-skill ban; disableBundledSkills is all-or-nothing.
+
+skill=$(jq -r '.tool_input.skill // empty')
+[ -n "$skill" ] || exit 0
+
+case " ${CLAUDE_DENIED_SKILLS:-} " in
+  *" $skill "*)
+    printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s skill is disabled by config; handle the request directly"}}\n' "$skill"
+    ;;
+esac
+exit 0
