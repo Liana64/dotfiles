@@ -1,5 +1,5 @@
 #!/bin/sh
-# Quiet flake-eval check for the four configs, evaluated concurrently.
+# @desc: Quiet flake-eval check for the four configs, evaluated concurrently
 # Prints pass/fail per target; on failure, only the last ~20 lines of the
 # trace. Pass a flake ref to override '.'.
 

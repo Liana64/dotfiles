@@ -1,5 +1,5 @@
 #!/bin/sh
-# Claude Code statusLine: context window and plan rate-limit usage.
+# @desc: statusLine — context window and plan rate-limit usage
 
 jq -r '
   (.model.display_name // "Claude") as $m
