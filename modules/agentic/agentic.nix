@@ -14,11 +14,13 @@
     # script in ../bin = its runtime PATH deps
     scripts = with pkgs; {
       ai-memory = [git gnugrep gawk findutils coreutils];
+      claude-comment-check = [jq coreutils];
       claude-nix-check = [jq alejandra statix deadnix];
       claude-secrets-guard = [jq];
+      claude-skill-guard = [jq];
       claude-statusline = [jq];
       dotfiles-verify = [nix git coreutils];
-      hardening-probe = [systemd coreutils gnused];
+      hardening-probe = [systemd coreutils gnused gnugrep jq nix];
     };
     claudeScripts = pkgs.symlinkJoin {
       name = "claude-scripts";
@@ -38,6 +40,11 @@
             --set HARDENING_CONFINED ${lib.escapeShellArg (toProps hardening.confined)} \
             --set HARDENING_AIRGAPPED ${lib.escapeShellArg (toProps hardening.airgapped)}
           wrapProgram $out/bin/claude-secrets-guard \
+            --set CLAUDE_SECRET_GLOBS ${lib.escapeShellArg (lib.concatStringsSep " " secretPatterns.globs)} \
+            --set CLAUDE_SECRET_DIRS ${lib.escapeShellArg (lib.concatStringsSep " " secretPatterns.dirs)}
+          wrapProgram $out/bin/claude-skill-guard \
+            --set CLAUDE_DENIED_SKILLS code-review
+          wrapProgram $out/bin/claude-comment-check \
             --set CLAUDE_SECRET_GLOBS ${lib.escapeShellArg (lib.concatStringsSep " " secretPatterns.globs)} \
             --set CLAUDE_SECRET_DIRS ${lib.escapeShellArg (lib.concatStringsSep " " secretPatterns.dirs)}
         '';
@@ -80,6 +87,9 @@
         alwaysThinkingEnabled = true;
         lspRecommendationDisabled = true;
         env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
+        # registers the Agent-tool "fork" subagent type (/dream evidence base);
+        # not on by default in 2.1.197 despite the /fork command being enabled
+        env.CLAUDE_CODE_FORK_SUBAGENT = "1";
         permissions.deny =
           map (g: "Read(${g})") secretPatterns.globs
           ++ lib.concatMap (d: ["Read(**/${d}/**)" "Read(~/${d}/**)"]) secretPatterns.dirs;
@@ -105,13 +115,16 @@
           "Bash(nix flake metadata)"
           "Bash(nix flake show)"
           "Bash(nix fmt)"
+          "Bash(nix run .#gen-agentic-index)"
           "Bash(nix run .#gen-index)"
           "Bash(systemctl --user is-enabled *)"
           "Bash(systemctl --user list-unit-files *)"
           "Bash(systemctl --user show *)"
           "Bash(systemctl --user status *)"
           "Bash(systemctl status *)"
-          "Skill(todo)"
+          "Read(~/Projects/Software/ai-memory/**)"
+          "Read(~/.claude/projects/**/memory/**)"
+          "Skill"
           "WebFetch(domain:www.anthropic.com)"
           "WebSearch"
         ];
@@ -151,11 +164,30 @@
         };
         hooks.PreToolUse = [
           {
-            matcher = "Read|Edit|Write|NotebookEdit|Bash";
+            matcher = "Read|Edit|MultiEdit|Write|NotebookEdit|Bash";
             hooks = [
               {
                 type = "command";
                 command = "${claudeScripts}/bin/claude-secrets-guard";
+              }
+            ];
+          }
+          {
+            matcher = "Skill";
+            hooks = [
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/claude-skill-guard";
+              }
+            ];
+          }
+          {
+            # pre-image snapshot so the PostToolUse leg flags only net-new comments
+            matcher = "Edit|MultiEdit|Write|NotebookEdit";
+            hooks = [
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/claude-comment-check";
               }
             ];
           }
@@ -170,6 +202,15 @@
               }
             ];
           }
+          {
+            matcher = "Edit|MultiEdit|Write|NotebookEdit";
+            hooks = [
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/claude-comment-check";
+              }
+            ];
+          }
         ];
         hooks.SessionStart = [
           {
@@ -177,8 +218,10 @@
             hooks = [
               {
                 type = "command";
-                # backgrounded: session start must not wait on the network
-                command = "(${claudeScripts}/bin/ai-memory pull >/dev/null 2>&1 &)";
+                # pull backgrounded: session start must not wait on the network;
+                # debt whispers one line only when the dream loop is stale
+                # (guarded: a fresh host without the store must not error every start)
+                command = "(${claudeScripts}/bin/ai-memory pull >/dev/null 2>&1 &); ${claudeScripts}/bin/ai-memory debt 2>/dev/null || true";
               }
             ];
           }
