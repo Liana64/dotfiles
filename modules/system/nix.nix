@@ -4,7 +4,32 @@
     lib,
     inputs,
     ...
-  }: {
+  }: let
+    hardening = import ../_lib/systemd-hardening.nix;
+    # gc/optimise run the client directly: it remounts /nix/store rw inside a
+    # private mount namespace (SYS_ADMIN + mnt). gc's root discovery must see
+    # /proc of every process (SYS_PTRACE, no invisible proc), traverse 700
+    # homes and 0400 /proc environ (DAC_READ_SEARCH), and resolve gcroot
+    # symlinks into homes — hiding any of these silently collects live paths.
+    # nix-daemon stays untouched — build isolation is the nix sandbox's own job
+    maintenance =
+      hardening.base
+      // {
+        CapabilityBoundingSet = "CAP_SYS_ADMIN CAP_SYS_PTRACE CAP_DAC_READ_SEARCH";
+        RestrictNamespaces = "mnt";
+        ProtectProc = "default";
+        ProtectHome = "read-only";
+        PrivateNetwork = true;
+        PrivateDevices = true;
+        RestrictAddressFamilies = "AF_UNIX";
+        SystemCallArchitectures = "native";
+      };
+  in {
+    # gc additionally resolves roots anchored in /tmp (nh result links) — a
+    # private /tmp would silently collect them
+    systemd.services.nix-gc.serviceConfig = maintenance // {PrivateTmp = false;};
+    systemd.services.nix-optimise.serviceConfig = maintenance;
+
     nix = let
       flakeInputs = lib.filterAttrs (_: lib.isType "flake") inputs;
     in {

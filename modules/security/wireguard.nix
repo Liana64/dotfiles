@@ -5,6 +5,7 @@
     lib,
     ...
   }: let
+    hardening = import ../_lib/systemd-hardening.nix;
     wireguardConfigFile = "/var/secrets/wireguard/wg0.conf";
     trustedNetworksFile = "/var/secrets/wireguard/trusted-networks";
 
@@ -49,11 +50,24 @@
       after = ["NetworkManager.service"];
       wants = ["NetworkManager.service"];
       wantedBy = ["multi-user.target"];
-      serviceConfig = {
-        ExecStart = wgAutoconnect;
-        Restart = "always";
-        RestartSec = 2;
-      };
+      serviceConfig =
+        hardening.base
+        // {
+          ExecStart = wgAutoconnect;
+          Restart = "always";
+          RestartSec = 2;
+          # wg-quick sysctls src_valid_mark (full tunnel) and openresolv rewrites
+          # /etc/resolv.conf in place — /proc/sys and /etc must stay writable
+          ProtectKernelTunables = false;
+          ProtectSystem = true;
+          ProtectHome = true;
+          # DAC_READ_SEARCH: the sops-managed /var/secrets tree denies plain owner
+          # traversal, so caps-restricted root can't stat the config without it
+          CapabilityBoundingSet = "CAP_NET_ADMIN CAP_DAC_READ_SEARCH";
+          RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK" "AF_INET" "AF_INET6"];
+          RestrictNamespaces = true;
+          SystemCallArchitectures = "native";
+        };
     };
 
     networking.networkmanager.unmanaged = ["interface-name:wg0"];

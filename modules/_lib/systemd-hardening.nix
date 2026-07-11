@@ -21,6 +21,8 @@ rec {
     base
     // {
       ProtectSystem = "strict";
+      # true also masks /run/user (wayland/dbus sockets) — graphical consumers
+      # override to read-only + ReadWritePaths=%t
       ProtectHome = true;
       PrivateDevices = true;
       ProtectControlGroups = true;
@@ -28,6 +30,8 @@ rec {
       RestrictNamespaces = true;
       MemoryDenyWriteExecute = true;
       SystemCallArchitectures = "native";
+      # Qt/GTK apps SIGSYS under ~@resources (affinity/priority/scheduler) —
+      # those consumers drop the third element
       SystemCallFilter = ["@system-service" "~@privileged" "~@resources"];
       UMask = "0077";
     };

@@ -6,6 +6,7 @@
     config,
     ...
   }: let
+    hardening = import ../_lib/systemd-hardening.nix;
     cfg = config.services.usbguard;
     ruleFile =
       if cfg.rules != null
@@ -41,12 +42,32 @@
     };
 
     services.devmon.enable = true;
-    services.gvfs.enable = true;
+    services.gvfs = {
+      enable = true;
+      package = (pkgs.gvfs.override {gnomeSupport = false;}).overrideAttrs (o: {
+        mesonFlags = o.mesonFlags ++ ["-Dmtp=false" "-Dgphoto2=false" "-Dafc=false"];
+      });
+    };
     services.udisks2.enable = true;
 
     environment.systemPackages = with pkgs; [
       usbguard
     ];
+
+    # dbus bridge: pure IPC client (system bus + usbguard socket as root),
+    # no caps, no network, no devices; failure only degrades the waybar
+    # indicator/GUI — policy enforcement lives in usbguard-daemon
+    systemd.services.usbguard-dbus.serviceConfig =
+      hardening.base
+      // {
+        ProtectHome = true;
+        PrivateNetwork = true;
+        PrivateDevices = true;
+        CapabilityBoundingSet = "";
+        RestrictAddressFamilies = "AF_UNIX";
+        RestrictNamespaces = true;
+        SystemCallArchitectures = "native";
+      };
 
     systemd.services.usbguard = {
       preStart = ''

@@ -17,10 +17,12 @@
         WantedBy = ["graphical-session.target"];
       };
       Service =
-        hardening.base
+        hardening.confined
         // {
           ExecStart = "${pkgs.swaybg}/bin/swaybg -i ${wallpaper} -m fill";
           Restart = "on-failure";
+          # ProtectHome=true would mask the wayland socket under /run/user
+          ProtectHome = "read-only";
         };
     };
   };

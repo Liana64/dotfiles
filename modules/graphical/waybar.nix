@@ -6,6 +6,7 @@
     osConfig,
     ...
   }: let
+    hardening = import ../_lib/systemd-hardening.nix;
     useNiri = (osConfig.compositor or "sway") == "niri";
     taskManager = osConfig.taskManager or "taskwarrior";
     wsModules =
@@ -46,6 +47,16 @@
       fi
     '';
   in {
+    # ProtectHome=true would also mask /run/user: read-only keeps ~/.config and the
+    # wayland socket reachable, %t stays writable for the caffeinate flag
+    systemd.user.services.waybar.Service =
+      hardening.confined
+      // {
+        ProtectHome = "read-only";
+        # todoist sync cache, and the click-set countdown target
+        ReadWritePaths = "%t %h/.cache/todoist -/var/secrets/date";
+      };
+
     programs.waybar = with colors; {
       enable = true;
       systemd = {
