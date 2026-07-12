@@ -7,7 +7,7 @@
     };
 
     environment.systemPackages = with pkgs; [
-      android-tools
+      # android-tools (nix shell on demand)
       backblaze-b2
       gptfdisk
       lsof
@@ -17,7 +17,7 @@
       unzip
       vim
       wget
-      wireshark
+      # wireshark (nix shell on demand, dissectors parse hostile input)
     ];
   };
 }

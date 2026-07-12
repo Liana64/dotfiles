@@ -18,7 +18,7 @@
         protonmail-bridge
       ])
       ++ (with nixpkgs-unstable; [
-        talhelper
+        # talhelper (home-infra devshell)
       ]);
   };
 }

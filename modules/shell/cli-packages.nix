@@ -3,11 +3,11 @@
   flake.modules.homeManager.cliPackages = {pkgs, ...}: {
     home.packages = with pkgs; [
       age
-      ansible
+      # ansible (home-infra devshell)
       asciinema
       bat
       btop
-      cilium-cli
+      # cilium-cli (home-infra devshell)
       delta
       dig
       distrobox
@@ -16,18 +16,18 @@
       eza
       fastfetch
       ffmpeg
-      fluxcd
+      # fluxcd (home-infra devshell)
       fortune
       fzf
       go-task
-      hexyl
       imagemagick
       just
       jq
-      ktop
-      kubeconform
+      # ktop (home-infra devshell)
+      # kubeconform (home-infra devshell)
       kubectl
-      kubernetes-helm
+      # kubernetes-helm (home-infra devshell)
+      # kustomize (home-infra devshell)
       lazygit
       lua-language-server
       marksman
@@ -40,7 +40,7 @@
       rustscan
       shellcheck
       sops
-      talosctl
+      # talosctl (home-infra devshell)
       tealdeer
       usbutils
       watchexec

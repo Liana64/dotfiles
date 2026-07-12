@@ -51,7 +51,6 @@
 
     containers = {
       claw = "kubectl exec -it deploy/claude-clode -- claude";
-      kustomize = "kubectl kustomize";
       blog = "kubectl rollout restart deployment blog -n default";
     };
 
