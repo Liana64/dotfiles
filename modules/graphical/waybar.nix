@@ -192,12 +192,15 @@
           border-radius: 6px;
         }
 
-        /* md shield and mug glyphs overhang their advance rightward, 7/5 pixel-measures balanced,
-           vpn scoped to its filled states, the plain shield sits like its siblings */
+        /* md shield and mug glyphs overhang their advance rightward, 7/5 pixel-measures balanced */
         #status #custom-caffeine,
-        #status #custom-vpn.connected,
-        #status #custom-vpn.untrusted {
+        #status #custom-vpn {
           padding: 0 7px 0 5px;
+        }
+
+        /* shield-off overhangs twice as hard, slot-measured 26v30 at 7/5 */
+        #status #custom-vpn.disconnected {
+          padding: 0 9px 0 3px;
         }
 
         /* the container's rounded end pinches filled corners, clear it */
@@ -206,9 +209,9 @@
           margin-right: 5px;
         }
 
-        /* battery icon has no left bearing and % a wide right one, 6/3 pixel-measures balanced */
+        /* battery icon has no left bearing and % a wide right one, right stays under left */
         #hw #battery {
-          padding: 0 3px 0 6px;
+          padding: 0 5.5px 0 8px;
         }
 
         #status #custom-yubikey:hover,
