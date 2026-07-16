@@ -34,11 +34,11 @@ Inert by design — do not import or "fix":
 ## Build
 - `nh os switch /nix/dotfiles`. Don't offer to build.
 - `/flake-update` updates inputs with staged verification (lock diff → eval → checks → build scope); it never switches.
-- Format/lint: `.nix` edits auto-format and lint in place via the `claude-nix-check` PostToolUse hook (alejandra, statix, deadnix; `statix.toml` disables lints that fight house style). `nix fmt` is for bulk reformatting only (and fails on the staged `impermanence.nix` — format files explicitly instead).
+- Format/lint: `.nix` edits auto-format and lint in place via the `claude-nix-check` PostToolUse hook (alejandra, statix, deadnix; `statix.toml` disables lints that fight house style); shell edits get `shellcheck` via `claude-shell-check`. `nix fmt` is for bulk reformatting only (and fails on the staged `impermanence.nix` — format files explicitly instead).
 
 ## Verify
-After editing `.nix` files, check evaluation (no build, no switch) with `dotfiles-verify`.
-It evaluates all four configs and prints `framework ✓ portable ✓ liana@framework ✓ liana@portable ✓`, or the
+After editing `.nix` files, check evaluation (no build, no switch) with `dotfiles-verify`; a Stop hook (`claude-stop-verify`) blocks once per turn until it has passed on the current tree.
+It evaluates all four configs and prints `all configs ✓`, or the
 failing target with a trimmed trace. New files must be `git add`ed before flake eval sees them (the script warns); `gen-index` likewise skips untracked leaves — running it then silently drops their index lines.
 `nix flake check` additionally gates the module index, the secrets-guard fixture, shellcheck on all `modules/bin` scripts, and the root `justfile`.
 `frame` (or bare `just` at the repo root) lists all repo/system tasks; recipes shell out to the same commands documented here.
@@ -55,6 +55,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/flake/agentic-index.nix` | Agentic map table generator + staleness check (nix run .#gen-agentic-index) |
 | `modules/flake/budgets.nix` | Token-budget tripwires on always-loaded agentic artifacts |
 | `modules/flake/checks.nix` | Flake checks: secrets-guard + ai-memory fixtures, shellcheck on the wrapped scripts |
+| `modules/flake/devshells.nix` | Dev shells (nix develop .#infra|rust) — project toolchains kept off the global profile |
 | `modules/flake/formatter.nix` | Code formatter (alejandra) |
 | `modules/flake/hosts.nix` | Assembles nixosConfigurations + homeConfigurations from aspects |
 | `modules/flake/index.nix` | Module index generator + staleness check (nix run .#gen-index) |
@@ -86,7 +87,11 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/security/gpg.nix` | GPG keys/config |
 | `modules/security/hardening.nix` | Kernel hardening: polkit, rtkit, kernel params |
 | `modules/security/keyring.nix` | GnuPG agent (SSH support) + gnome-keyring via PAM |
+| `modules/security/log-flood.nix` | Log flood tripwire: journal/audit event-rate + journal near-cap alert into audit-wall |
+| `modules/security/no-defaults.nix` | Strip default packages |
+| `modules/security/noexec.nix` | noexec mounts — /dev/shm, /var/tmp, /var/log, /boot |
 | `modules/security/secrets.nix` | sops-nix secrets from the PQ-encrypted secretstore repo |
+| `modules/security/store-verify.nix` | Weekly nix store verify with tamper alert |
 | `modules/security/usbguard.nix` | USBGuard device authorization |
 | `modules/security/wireguard.nix` | WireGuard VPN |
 | `modules/security/yubikey.nix` | YubiKey (PAM/U2F) |
@@ -95,7 +100,6 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/shell/atuin.nix` | Atuin shell history |
 | `modules/shell/benchmarks.nix` | wifi-bench / bt-bench wrappers with bundled deps |
 | `modules/shell/cli-packages.nix` | Cross-platform user CLI packages |
-| `modules/shell/develop.nix` | Rust toolchain (cargo, rustc, clippy, rust-analyzer) |
 | `modules/shell/dice.nix` | Curated fortune file + dice wrapper |
 | `modules/shell/frame.nix` | frame — global just runner for repo/system/hardware/ai tasks |
 | `modules/shell/git.nix` | Git config; hardcodes user liana / email |

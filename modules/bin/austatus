@@ -1,16 +1,31 @@
 #!/usr/bin/env bash
 # Audit subsystem status: daemon state, loaded rules, events by key.
 #   austatus        show status
-#   austatus ack    acknowledge tripwires (reset the shell-alert baseline to now)
+#   austatus ack    acknowledge wall alerts
+#   austatus rotate purge history: rotate the live log, drop rotated ones
 set -euo pipefail
 [ "$(id -u)" -eq 0 ] || exec sudo "$0" "$@"
 
-ack=/var/lib/audit-tripwires/ack # must match modules/security/auditd.nix
+ack=/var/lib/audit-wall/ack # must match modules/security/auditd.nix
 
 if [ "${1:-}" = ack ]; then
   date '+%m/%d/%Y %T' >"$ack"
-  systemctl start audit-tripwires
-  echo "tripwire alert acknowledged"
+  systemctl start audit-wall
+  echo "wall alert acknowledged"
+  exit 0
+fi
+
+if [ "${1:-}" = rotate ]; then
+  log=/var/log/audit/audit.log
+  old=$(stat -c %i "$log" 2>/dev/null || echo 0)
+  # DO NOT rm the live log, auditd would keep writing the unlinked fd
+  systemctl kill -s USR1 auditd
+  for _ in $(seq 50); do
+    [ "$(stat -c %i "$log" 2>/dev/null || echo 0)" != "$old" ] && break
+    sleep 0.1
+  done
+  rm -f "$log".*
+  echo "audit log history purged (keys one audit-tamper event, not wall-keyed)"
   exit 0
 fi
 
@@ -22,7 +37,21 @@ section "loaded rules"
 auditctl -l
 section "acknowledged since"
 cat "$ack" 2>/dev/null || echo "(never)"
+section "service alerts"
+found=0
+for f in /var/lib/audit-wall/alerts/*; do
+  [ -e "$f" ] || continue
+  found=1
+  printf '%s:\n' "${f##*/}"
+  cat "$f"
+done
+if [ "$found" -eq 0 ]; then echo "none"; fi
+
 section "events by key (full log)"
 aureport -k --summary -i 2>/dev/null || echo "none"
-section "events today"
-aureport -k -i --start today 2>/dev/null || echo "none"
+section "events since ack (count key exe auid success)"
+# shellcheck disable=SC2046 # ack is "date time", --start needs two args, DO NOT QUOTE
+aureport -k -i --start $(cat "$ack" 2>/dev/null || echo today) 2>/dev/null \
+  | awk '$1 ~ /^[0-9]+\.$/ {n=split($6,p,"/"); c[sprintf("%-20s %-30s %-8s %s", $4, p[n], $7, $5)]++}
+         END {for (k in c) printf "%5d  %s\n", c[k], k}' \
+  | sort -rn | grep . || echo "none"

@@ -51,10 +51,21 @@ health:
 status:
     austatus
 
-# Acknowledge auditd tripwires
+# Acknowledge auditd wall
 [group('system')]
 ack:
     austatus ack
+
+# Rotate auditd log
+[group('system')]
+rotate:
+    austatus rotate
+
+# Verify nix store integrity
+[group('system')]
+store-verify:
+    sudo systemctl start nix-store-verify
+    @cat /var/lib/audit-wall/alerts/store-verify 2>/dev/null || echo "store clean"
 
 # hardening-probe <preset> [--sweep] -- <cmd>
 [group('system')]
