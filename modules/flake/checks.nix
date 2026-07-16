@@ -13,6 +13,10 @@
           CLAUDE_SECRET_DIRS=${lib.escapeShellArg (lib.concatStringsSep " " patterns.dirs)} \
           sh ${bin}/claude-secrets-guard --test | tee $out
       '';
+    checks.git-guard = pkgs.runCommand "git-guard-test" {nativeBuildInputs = [pkgs.jq];} ''
+      set -o pipefail
+      sh ${bin}/claude-git-guard --test | tee $out
+    '';
     checks.ai-memory =
       pkgs.runCommand "ai-memory-test" {
         nativeBuildInputs = with pkgs; [git gnugrep gawk findutils coreutils];
