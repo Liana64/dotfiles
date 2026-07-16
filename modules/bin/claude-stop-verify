@@ -1,0 +1,27 @@
+#!/bin/sh
+# @desc: Stop hook — block once per turn when .nix changed since the last dotfiles-verify pass
+
+input=$(cat)
+[ "$(printf '%s' "$input" | jq -r '.stop_hook_active // false')" = "true" ] && exit 0
+
+cwd=$(printf '%s' "$input" | jq -r '.cwd // empty')
+root=$(git -C "${cwd:-$PWD}" rev-parse --show-toplevel 2>/dev/null) || exit 0
+[ -f "$root/flake.nix" ] || exit 0
+
+# stamp written by dotfiles-verify on success, same key derivation
+stamp="${XDG_RUNTIME_DIR:-/tmp}/dotfiles-verify.$(printf '%s' "$root" | cksum | tr -cd '[:digit:]')"
+cur=$(git -C "$root" status --porcelain -uall -- '*.nix')
+
+# clean tree needs no verify; a changed dirty-set (adds, deletes, reverts) does
+[ -z "$cur" ] && exit 0
+if [ -f "$stamp" ] && [ "$cur" = "$(cat "$stamp")" ]; then
+  # same set: catch in-place edits by mtime
+  pending=$(printf '%s\n' "$cur" | cut -c4- | while IFS= read -r f; do
+    [ -e "$root/$f" ] || continue
+    [ -n "$(find "$root/$f" -newer "$stamp" 2>/dev/null)" ] && { echo 1; break; }
+  done)
+  [ -z "$pending" ] && exit 0
+fi
+
+printf '.nix changed since the last dotfiles-verify pass — run dotfiles-verify\n' >&2
+exit 2

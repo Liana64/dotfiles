@@ -1,0 +1,22 @@
+#!/bin/sh
+# @desc: PostToolUse hook — shellcheck edited shell scripts
+# Exit 2 feeds findings back for an immediate fix.
+
+file=$(jq -r '.tool_input.file_path // empty')
+[ -f "$file" ] || exit 0
+base=${file##*/}
+
+case "$base" in
+  *.sh | *.bash) ;;
+  *.*) exit 0 ;;
+  *) # extensionless: sh-family shebang only, shellcheck cannot parse zsh
+    case "$(head -n 1 "$file" 2>/dev/null)" in
+      '#!'*zsh*) exit 0 ;;
+      '#!'*sh*) ;;
+      *) exit 0 ;;
+    esac ;;
+esac
+
+lint=$(shellcheck -S warning "$file" 2>&1) && exit 0
+printf '%s\n' "$lint" >&2
+exit 2

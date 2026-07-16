@@ -1,0 +1,68 @@
+#!/bin/sh
+# @desc: PreToolUse hook — deny git commit/push; publishing is user-run
+# Run `claude-git-guard --test` to execute the fixture.
+
+# <name> <ERE>. Segment-limited ([^|;&]*) so `git add x && echo commit` stays clean.
+rules='
+git-commit  \bgit\b[^|;&]*\bcommit\b
+git-push    \bgit\b[^|;&]*\bpush\b
+'
+
+deny() {
+  jq -n --arg r "$1" \
+    '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$r}}'
+  exit 0
+}
+
+scan() {
+  cmd=$1
+  hit=$(printf '%s\n' "$rules" | while read -r name re; do
+    [ -z "$name" ] && continue
+    printf '%s' "$cmd" | grep -Eq -- "$re" && { printf '%s' "$name"; break; }
+  done)
+  [ -n "$hit" ] && deny "$hit declined: commits and pushes are user-run; the memory repo publishes via ai-memory sync"
+}
+
+run_tests() {
+  fail=0
+  bash_in() { jq -nc --arg c "$1" '{tool_name:"Bash",tool_input:{command:$c}}'; }
+  t() {
+    name=$1 expect=$2 input=$3
+    # via sh: the source file carries no exec bit (in-repo or /nix/store)
+    out=$(printf '%s' "$input" | sh "$0")
+    if [ -z "$out" ]; then
+      got=allow
+    else
+      got=$(printf '%s' "$out" | jq -r '.hookSpecificOutput.permissionDecision // "allow"')
+    fi
+    if [ "$got" = "$expect" ]; then
+      printf 'PASS  %s\n' "$name"
+    else
+      printf 'FAIL  %s (want=%s got=%s)\n' "$name" "$expect" "$got"
+      fail=1
+    fi
+  }
+
+  t git-add          allow "$(bash_in 'git add -A')"
+  t git-status       allow "$(bash_in 'git status')"
+  t git-diff         allow "$(bash_in 'git diff --stat')"
+  t ai-memory-sync   allow "$(bash_in 'ai-memory sync "add fact"')"
+  t add-then-prose   allow "$(bash_in 'git add x && echo commit recorded')"
+
+  t git-commit       deny "$(bash_in 'git commit -m x')"
+  t git-c-commit     deny "$(bash_in 'git -C /tmp/repo commit --amend')"
+  t git-push         deny "$(bash_in 'git push origin main')"
+  t chained-commit   deny "$(bash_in 'cd /nix/dotfiles && git commit -m x')"
+  t git-push-force   deny "$(bash_in 'git push --force-with-lease')"
+
+  exit $fail
+}
+
+[ "$1" = "--test" ] && run_tests
+
+input=$(cat)
+tool=$(printf '%s' "$input" | jq -r '.tool_name // empty')
+[ "$tool" = "Bash" ] || exit 0
+cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
+[ -n "$cmd" ] && scan "$cmd"
+exit 0

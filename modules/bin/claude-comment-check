@@ -49,31 +49,25 @@ case "$ext" in
   *) exit 0 ;;
 esac
 
-if [ "$event" = "PreToolUse" ]; then
+extract() {
   case "$file" in
-    *.ipynb) jq -r '.cells[]?.source[]?' "$file" 2>/dev/null ;;
+    *.ipynb) jq -r '.cells[]? | select(.cell_type == "code") | .source[]?' "$file" 2>/dev/null ;;
     *) cat "$file" 2>/dev/null ;;
-  esac >"$cache"
+  esac
+}
+
+if [ "$event" = "PreToolUse" ]; then
+  extract >"$cache"
   exit 0
 fi
 
-# trim-normalized (reindenting isn't new); count only — the offending
-# lines are already in context from the tool call
-count=$(printf '%s' "$input" | jq -r --arg re "$re" --arg pre "${preimg:-}" '
-  def trim: sub("^[[:space:]]+"; "") | sub("[[:space:]]+$"; "");
-  if .tool_input.cell_type == "markdown" then 0 else
-    ([$pre, .tool_input.old_string // empty, .tool_input.edits[]?.old_string]
-      | join("\n") | split("\n") | map(trim)) as $old
-    | [.tool_input.new_string // empty, .tool_input.edits[]?.new_string,
-       .tool_input.content // empty, .tool_input.new_source // empty]
-    | join("\n") | split("\n")
-    | map(select(
-        test($re)
-        and ((trim | IN($old[])) | not)
-        and ((trim | test("^#!|@desc:|shellcheck|noqa|deadnix|statix")) | not)))
-    | length
-  end')
-[ "$count" -gt 0 ] 2>/dev/null || exit 0
+# net = post count minus snapshot count, deletes offset adds, moves cancel
+# count only — the offending lines are already in context from the tool call
+ccount() { grep -E "$re" | grep -Evc '^[[:space:]]*#!|@desc:|shellcheck|noqa|deadnix|statix'; }
+pre_n=$(printf '%s' "$preimg" | ccount)
+post_n=$(extract | ccount)
+net=$((post_n - pre_n))
+[ "$net" -gt 0 ] || exit 0
 
-printf '%s comment(s): justify or delete.\n' "$count" >&2
+printf '%s net new comment(s): justify or delete.\n' "$net" >&2
 exit 2

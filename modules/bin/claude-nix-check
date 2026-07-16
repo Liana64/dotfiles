@@ -15,10 +15,27 @@ if ! err=$(alejandra -q "$file" 2>&1); then
 fi
 
 # statix reads statix.toml from the cwd; judged by output, not exit codes
-lint=$({
+out=$({
   statix check -o errfmt "$file"
   deadnix "$file"
 } 2>&1)
-[ -z "$lint" ] && exit 0
-printf '%s\n' "$lint" >&2
+note() { out="$out${out:+
+}$1"; }
+
+# dotfiles-only: untracked files and missing @desc fail silently downstream
+abs=$(realpath "$file")
+case "$abs" in
+  /nix/dotfiles/*)
+    git -C /nix/dotfiles ls-files --error-unmatch "$abs" >/dev/null 2>&1 ||
+      note "untracked: git add before flake eval or gen-index sees it"
+    case "$abs" in
+      */_*) ;;
+      /nix/dotfiles/modules/*)
+        head -n 1 "$file" | grep -q '^# @desc:' ||
+          note "missing '# @desc:' first line (feeds the module index)" ;;
+    esac ;;
+esac
+
+[ -z "$out" ] && exit 0
+printf '%s\n' "$out" >&2
 exit 2
