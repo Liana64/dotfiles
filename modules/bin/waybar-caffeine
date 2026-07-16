@@ -1,6 +1,6 @@
 #!/bin/sh
 if [ -e "${XDG_RUNTIME_DIR}/caffeinate" ]; then
-    printf '{"text": "󰅶", "class": "active", "tooltip": "Disable sleep and automatic lock"}\n'
+    printf '{"text": "󰅶", "class": "active", "tooltip": "caffeinate on — sleep and lock disabled"}\n'
 else
     printf '{"text": ""}\n'
 fi

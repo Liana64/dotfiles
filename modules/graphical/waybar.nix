@@ -24,6 +24,7 @@
         (writeShellScriptBin "waybar-countdown" (builtins.readFile ../../modules/bin/waybar-countdown))
         (writeShellScriptBin "track-date" (builtins.readFile ../../modules/bin/track-date))
         (writeShellScriptBin "waybar-todoist" (builtins.readFile ../../modules/bin/waybar-todoist))
+        (writeShellScriptBin "waybar-sysinfo" (builtins.readFile ../../modules/bin/waybar-sysinfo))
         (writeShellScriptBin "caffeinate-toggle" (builtins.readFile ../../modules/bin/caffeinate-toggle))
         usbguard
       ];
@@ -33,8 +34,9 @@
         wrapProgram $out/bin/waybar-yubikey       --prefix PATH : $out/bin
         wrapProgram $out/bin/waybar-task          --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [taskwarrior3 jq coreutils])}
         wrapProgram $out/bin/waybar-countdown     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils])}
-        wrapProgram $out/bin/track-date           --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils])}
+        wrapProgram $out/bin/track-date           --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils procps])}
         wrapProgram $out/bin/waybar-todoist       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [todoist jq coreutils gnused gawk])}
+        wrapProgram $out/bin/waybar-sysinfo       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils gnused gawk procps jq])}
       '';
     };
     # Toggle BT via BlueZ HCI power, never rfkill: rfkill power-gates the MT7925
@@ -46,6 +48,8 @@
         ${pkgs.bluez}/bin/bluetoothctl power on
       fi
     '';
+    # on-click children inherit the unit confinement, bwrap/GPU die there, spawn via the user manager
+    launch = cmd: "systemd-run --user --quiet --collect -- ${cmd}";
   in {
     # ProtectHome=true would also mask /run/user: read-only keeps ~/.config and the
     # wayland socket reachable, %t stays writable for the caffeinate flag
@@ -53,12 +57,18 @@
       hardening.confined
       // {
         ProtectHome = "read-only";
-        # todoist sync cache, and the click-set countdown target
-        ReadWritePaths = "%t %h/.cache/todoist -/var/secrets/date";
+        # launcher sysinfo tooltip reads /proc stat+meminfo, the pid subset masks them
+        ProcSubset = "all";
+        # todoist sync cache
+        ReadWritePaths = "%t %h/.cache/todoist";
       };
 
     programs.waybar = with colors; {
       enable = true;
+      # pow_format fuses number and unit (2.5kb/s), patch in the SI space
+      package = pkgs.waybar.overrideAttrs (old: {
+        patches = (old.patches or []) ++ [../_lib/waybar-pow-space.patch];
+      });
       systemd = {
         enable = true;
         targets = ["graphical-session.target"];
@@ -66,6 +76,7 @@
 
       style = ''
         @define-color surface mix(${darker}, ${highlight}, 0.5);
+        @define-color raised  mix(${darker}, ${white}, 0.08);
         @define-color alert   mix(${color0}, ${red}, 0.5);
 
         * {
@@ -95,7 +106,7 @@
           font-size: 12px;
         }
 
-        #clock,
+        #custom-clock,
         #network,
         #battery,
         #bluetooth,
@@ -106,7 +117,9 @@
         #custom-usbguard,
         #custom-yubikey,
         #custom-caffeine,
-        #custom-syncthing {
+        #custom-syncthing,
+        #custom-task,
+        #custom-countdown {
           color: ${white};
           margin: 3px 2px;
           padding: 2px 8px;
@@ -115,17 +128,11 @@
         }
 
         #custom-launcher {
-          color: ${white};
           font-size: 14px;
           margin-left: 5px;
         }
 
-        #custom-launcher:hover {
-          background: @surface;
-          color: ${white};
-        }
-
-        #clock {
+        #custom-clock {
           font-family: "Cantarell";
           font-size: 13px;
           background: @surface;
@@ -134,14 +141,6 @@
 
         #custom-task {
           color: ${tan};
-          margin: 3px 2px;
-          padding: 2px 8px;
-        }
-
-        #custom-countdown {
-          color: ${white};
-          margin: 3px 2px;
-          padding: 2px 8px;
         }
 
         #custom-countdown.today {
@@ -166,12 +165,69 @@
         }
 
         #tray {
-          background: @surface;
+          background: @raised;
           margin-right: 5px;
         }
 
+        #status,
+        #hw {
+          background: @raised;
+          border-radius: 8px;
+          margin: 3px 6px;
+          /* end slots, filled segments need the same air as inter-icon gaps */
+          padding: 0 8px;
+        }
+
+        #status #custom-yubikey,
+        #status #custom-usbguard,
+        #status #custom-syncthing,
+        #status #custom-vpn,
+        #status #custom-caffeine,
+        #hw #network,
+        #hw #battery,
+        #hw #bluetooth,
+        #hw #pulseaudio {
+          margin: 3px 2px;
+          padding: 0 6px;
+          border-radius: 6px;
+        }
+
+        /* md shield and mug glyphs overhang their advance rightward, 7/5 pixel-measures balanced,
+           vpn scoped to its filled states, the plain shield sits like its siblings */
+        #status #custom-caffeine,
+        #status #custom-vpn.connected,
+        #status #custom-vpn.untrusted {
+          padding: 0 7px 0 5px;
+        }
+
+        /* the container's rounded end pinches filled corners, clear it */
+        #status #custom-vpn.connected,
+        #status #custom-vpn.untrusted {
+          margin-right: 5px;
+        }
+
+        /* battery icon has no left bearing and % a wide right one, 6/3 pixel-measures balanced */
+        #hw #battery {
+          padding: 0 3px 0 6px;
+        }
+
+        #status #custom-yubikey:hover,
+        #status #custom-usbguard:hover,
+        #status #custom-syncthing:hover,
+        #status #custom-vpn:hover,
+        #status #custom-caffeine:hover,
+        #hw #network:hover,
+        #hw #battery:hover,
+        #hw #bluetooth:hover,
+        #hw #pulseaudio:hover {
+          background: ${highlightDim};
+        }
+
         #workspaces {
+          background: @raised;
+          border-radius: 8px;
           margin: 3px 4px;
+          padding: 0 2px;
         }
 
         #workspaces button {
@@ -196,9 +252,14 @@
         #custom-vpn:hover,
         #custom-usbguard:hover,
         #custom-yubikey:hover,
-        #custom-syncthing:hover {
+        #custom-syncthing:hover,
+        #custom-launcher:hover {
           background: @surface;
           color: ${white};
+        }
+
+        #workspaces button:hover {
+          background: ${highlightDim};
         }
 
         #workspaces button.focused {
@@ -215,6 +276,12 @@
         #bluetooth.on {
           background: ${tan};
           color: ${darker};
+        }
+
+        #pulseaudio.muted,
+        #bluetooth.off,
+        #bluetooth.disabled {
+          color: ${comment};
         }
 
         #network.disconnected,
@@ -235,10 +302,9 @@
           background: ${green};
         }
 
-        #custom-caffeine.active {
+        #status #custom-caffeine.active {
           background: ${yellow};
           color: ${darker};
-          padding: 2px 10px 2px 6px;
         }
       '';
 
@@ -246,22 +312,36 @@
         mainBar = {
           layer = "top";
           position = "top";
-          height = 14;
           output = ["*"];
 
           modules-left = ["custom/launcher"] ++ wsModules;
-          modules-center = ["clock"];
-          modules-right = ["custom/task" "custom/countdown" "custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/vpn" "network" "custom/caffeine" "battery" "bluetooth" "pulseaudio" "tray"];
+          modules-center = ["custom/clock"];
+          modules-right = ["custom/task" "custom/countdown" "group/status" "group/hw" "tray"];
+
+          # groups stack vertically on a horizontal bar unless told otherwise
+          "group/status" = {
+            orientation = "horizontal";
+            # filled segments read cramped against the rounded end, keep caffeine mid-cluster
+            modules = ["custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/caffeine" "custom/vpn"];
+          };
+
+          "group/hw" = {
+            orientation = "horizontal";
+            modules = ["network" "battery" "bluetooth" "pulseaudio"];
+          };
 
           "custom/launcher" = {
+            # nixos logo U+F313 is BMP-PUA, edit tools strip it, patch via sed only
             format = " ";
-            tooltip = false;
+            exec = "${app}/bin/waybar-sysinfo";
+            interval = 30;
+            return-type = "json";
             on-click = "${pkgs.vicinae}/bin/vicinae toggle";
           };
 
           # Credit: KyleOndy
           "custom/usbguard" = {
-            format = " {text}";
+            format = "󰕓{text}";
             exec = "${app}/bin/waybar-usbguard";
             return-type = "json";
             on-click = "${app}/bin/waybar-usbguard allow";
@@ -276,7 +356,8 @@
           "custom/countdown" = {
             exec = "${app}/bin/waybar-countdown";
             return-type = "json";
-            interval = 3600;
+            interval = 900;
+            signal = 10;
             format = "{}";
           };
 
@@ -315,10 +396,12 @@
             format = "{value}";
           };
 
-          clock = {
-            format = "{:%a %b %e %I:%M %p}";
-            tooltip-format = "{:%Y-%m-%d | %H:%M}";
-            on-click = "flatpak run org.mozilla.Thunderbird -calendar";
+          # native clock formatter cannot drop the %I zero-pad, shell date can
+          "custom/clock" = {
+            exec = "date +'{\"text\": \"%a %b %-d %-I:%M %p\", \"tooltip\": \"%Y-%m-%d | %H:%M\"}'";
+            interval = 5;
+            return-type = "json";
+            on-click = launch "flatpak run org.mozilla.Thunderbird -calendar";
           };
 
           "custom/task" =
@@ -329,7 +412,8 @@
               signal = 9;
               return-type = "json";
               format = "{}";
-              on-click = "flatpak run com.todoist.Todoist";
+              max-length = 50;
+              on-click = launch "flatpak run com.todoist.Todoist";
             }
             else {
               exec = "${app}/bin/waybar-task";
@@ -337,21 +421,22 @@
               signal = 9;
               return-type = "json";
               format = "{}";
-              on-click = "kitty --title task taskwarrior-tui";
+              max-length = 50;
+              on-click = launch "kitty --title task taskwarrior-tui";
             };
 
           battery = {
-            format = "{icon}  {capacity}%";
-            format-charging = " {capacity}%";
-            format-icons = ["" "" "" "" ""];
-            format-plugged = " ";
+            format = "{icon} {capacity}%";
+            format-charging = "󰂄 {capacity}%";
+            format-icons = ["󰁺" "󰁼" "󰁾" "󰂀" "󰁹"];
+            format-plugged = "󰚥";
             states = {
               critical = 15;
               warning = 35;
             };
             tooltip = true;
-            tooltip-format = "{capacity}% — {time}";
-            tooltip-format-charging = "{capacity}% — {time} until full";
+            tooltip-format = "{capacity}% — {time} · {power}W";
+            tooltip-format-charging = "{capacity}% — {time} until full · {power}W";
           };
 
           "custom/vpn" = {
@@ -371,18 +456,18 @@
             '';
             return-type = "json";
             interval = 5;
-            on-click = "firefox \"https://127.0.0.1:8384/\"";
+            on-click = launch "firefox https://127.0.0.1:8384/";
           };
 
           network = {
             interval = 2;
-            format-wifi = "  {essid}";
+            format-wifi = "󰖩  {essid}";
             format-ethernet = "󰈀 {ifname}";
             format-linked = "󰌗 {ifname}";
-            format-disconnected = " ";
-            tooltip-format = "{essid} {ifname}\n{ipaddr}/{cidr}\nvia {gwaddr}\n  {bandwidthDownBits}    {bandwidthUpBits}";
-            tooltip-format-ethernet = "{ifname}\n{ipaddr}/{cidr}\nvia {gwaddr}\n  {bandwidthDownBits}    {bandwidthUpBits}";
-            on-click = "${pkgs.networkmanagerapplet}/bin/nm-connection-editor";
+            format-disconnected = "󰖪 ";
+            tooltip-format = "ap  {essid} · {signalStrength}%\nif  {ifname} · {ipaddr}/{cidr}\ngw  {gwaddr}\n\n↓ {bandwidthDownBits}\n↑ {bandwidthUpBits}";
+            tooltip-format-ethernet = "if  {ifname} · {ipaddr}/{cidr}\ngw  {gwaddr}\n\n↓ {bandwidthDownBits}\n↑ {bandwidthUpBits}";
+            on-click = launch "${pkgs.networkmanagerapplet}/bin/nm-connection-editor";
           };
 
           bluetooth = {
@@ -392,23 +477,23 @@
             tooltip-format = "{controller_alias}\t{controller_address}";
             tooltip-format-connected = "{controller_alias}\t{controller_address}\n\n{device_enumerate}";
             tooltip-format-enumerate-connected = "{device_alias}\t{device_address}";
-            on-click = "${pkgs.blueman}/bin/blueman-manager";
+            on-click = launch "${pkgs.blueman}/bin/blueman-manager";
             on-click-right = "${btToggle}";
           };
 
           pulseaudio = {
             format = "{icon} {volume}%";
-            format-muted = "";
-            format-source = "";
-            format-source-muted = "";
+            format-muted = "󰖁";
+            format-source = "󰍬";
+            format-source-muted = "󰍭";
             format-icons = {
-              headphone = "";
-              phone = "";
-              portable = "";
-              car = "";
-              default = ["" "" ""];
+              headphone = "󰋋";
+              phone = "󰏲";
+              portable = "󰄜";
+              car = "󰄋";
+              default = ["󰕿" "󰖀" "󰕾"];
             };
-            on-click = "pavucontrol";
+            on-click = launch "pavucontrol";
           };
 
           tray = {

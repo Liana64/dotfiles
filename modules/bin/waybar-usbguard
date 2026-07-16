@@ -1,15 +1,20 @@
 #!/bin/sh
 # Credit: KyleOndy
 
+status() {
+    blocked="$(usbguard list-devices -b | head -n1 | grep -Po 'name "\K[^"]+')"
+    if [ -n "$blocked" ]; then
+        printf '{"text": " %s", "class": "blocked"}\n' "$blocked"
+    else
+        printf '{"text": ""}\n'
+    fi
+}
+
 listen() {
+    status
     dbus-monitor --system --profile "interface='org.usbguard.Devices1'" |
         while read -r _; do
-            blocked="$(usbguard list-devices -b | head -n1 | grep -Po 'name "\K[^"]+')"
-            if [ -n "$blocked" ]; then
-                printf '{"text": " %s", "class": "blocked"}\n' "$blocked"
-            else
-                printf '{"text": ""}\n'
-            fi
+            status
         done
 }
 

@@ -15,3 +15,4 @@ else
   event=""
 fi
 printf '"%s","%s"\n' "$event" "$ts" > "$f"
+pkill -RTMIN+10 waybar 2>/dev/null || true

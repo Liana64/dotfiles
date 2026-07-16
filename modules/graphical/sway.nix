@@ -99,7 +99,7 @@
         # Inhibit idle if any window is fullscreen
         for_window [app_id=".*"] inhibit_idle fullscreen
 
-        #assign [app_id="kitty"] workspace 1:q
+        assign [app_id="kitty-startup"] workspace 1:q
         assign [app_id="Thunderbird"] workspace 3:e
         assign [class="Todoist"] workspace 4:a
         assign [app_id="Element"] workspace 5:s
@@ -132,7 +132,7 @@
         menu = "vicinae toggle";
         startup = [
           {command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";}
-          {command = "kitty --session startup.session";}
+          {command = "kitty --class kitty-startup";}
         ];
         window.commands = [
           {

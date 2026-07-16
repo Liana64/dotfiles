@@ -23,4 +23,4 @@ jq -cn --argjson ts "$ts" --arg event "$event" '
      elif $days == 0 then {class: "today", rel: "today"}
      elif $days == 1 then {class: "", rel: "tomorrow"}
      else {class: "", rel: "\($days)d"} end) as $s
-  | {text: (" " + $event + " · " + $s.rel), class: $s.class, tooltip: ($event + " · " + $s.rel)}'
+  | {text: ("󰃭 " + $event + " · " + $s.rel), class: $s.class, tooltip: ($event + " · " + $s.rel)}'

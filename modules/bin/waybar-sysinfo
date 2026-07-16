@@ -1,0 +1,20 @@
+#!/bin/sh
+# tooltip only, the launcher keeps its glyph in the nix format string
+# needs ProcSubset=all on the waybar unit, the pid subset masks /proc/stat
+sample() { awk '/^cpu /{print $2 + $3 + $4, $5 + $6}' /proc/stat; }
+s=$(sample)
+b1=${s% *} i1=${s#* }
+sleep 0.3
+s=$(sample)
+db=$((${s% *} - b1))
+dt=$((db + ${s#* } - i1))
+cpu=0
+[ "$dt" -gt 0 ] && cpu=$((100 * db / dt))
+load=$(cut -d' ' -f1-3 /proc/loadavg)
+mem=$(free -h | awk '/^Mem/{print $3 " / " $2}')
+disk=$(df -h / | awk 'NR==2{print $4 " free"}')
+up=$(uptime -p | sed 's/^up //')
+jq -cn --arg tt "cpu  $cpu% · $load
+mem  $mem
+/    $disk
+up   $up" '{text: "", tooltip: $tt}'
