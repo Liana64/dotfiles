@@ -1,6 +1,18 @@
 # @desc: Syncthing
 {...}: {
-  flake.modules.homeManager.syncthing = {
+  flake.modules.homeManager.syncthing = {lib, ...}: let
+    hardening = import ../_lib/systemd-hardening.nix;
+  in {
+    # setLowPriority calls setpriority/ioprio_set (@resources), home read-only
+    # with the synced folders and state db carved out
+    systemd.user.services.syncthing.Service =
+      hardening.confined
+      // {
+        SystemCallFilter = lib.mkForce ["@system-service" "~@privileged"];
+        ProtectHome = "read-only";
+        ReadWritePaths = "%t %h/.local/state/syncthing %h/Projects %h/Documents %h/Media/Photos %h/Media/Pictures %h/Notebook %h/Reference %h/Sync/Data";
+      };
+
     services.syncthing = {
       enable = true;
       overrideDevices = true;

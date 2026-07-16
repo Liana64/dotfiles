@@ -28,7 +28,7 @@
         bindkey "^E" edit-command-line
         bindkey '^[[1;5C' forward-word
         bindkey '^[[1;5D' backward-word
-        [[ -s /run/audit-tripwires ]] && cat /run/audit-tripwires && echo ""
+        [[ -s /run/audit-wall ]] && cat /run/audit-wall && echo ""
         if (( RANDOM % 2 )); then fortune; else dice; fi
       '';
 

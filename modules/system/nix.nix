@@ -1,6 +1,7 @@
 # @desc: Nix daemon: gc, optimise, flake registry
 {...}: {
   flake.modules.nixos.nixDaemon = {
+    config,
     lib,
     inputs,
     ...
@@ -52,6 +53,13 @@
       registry = lib.mapAttrs (_: flake: {inherit flake;}) flakeInputs;
       nixPath = lib.mapAttrsToList (n: _: "${n}=flake:${n}") flakeInputs;
     };
+
+    assertions = [
+      {
+        assertion = (config.nix.settings.trusted-users or ["root"]) == ["root"];
+        message = "nix.settings.trusted-users grew beyond root";
+      }
+    ];
 
     nixpkgs.config.allowUnfree = true;
 
