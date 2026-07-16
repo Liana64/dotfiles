@@ -16,10 +16,13 @@
     scripts = with pkgs; {
       ai-memory = [git gnugrep gawk findutils coreutils];
       claude-comment-check = [jq coreutils];
-      claude-nix-check = [jq alejandra statix deadnix];
+      claude-git-guard = [jq];
+      claude-nix-check = [jq alejandra statix deadnix git coreutils];
       claude-secrets-guard = [jq];
+      claude-shell-check = [jq shellcheck];
       claude-skill-guard = [jq];
       claude-statusline = [jq];
+      claude-stop-verify = [jq git coreutils findutils];
       dotfiles-verify = [nix git coreutils];
       hardening-probe = [systemd coreutils gnused gnugrep jq nix];
     };
@@ -187,6 +190,15 @@
             ];
           }
           {
+            matcher = "Bash";
+            hooks = [
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/claude-git-guard";
+              }
+            ];
+          }
+          {
             matcher = "Skill";
             hooks = [
               {
@@ -208,11 +220,15 @@
         ];
         hooks.PostToolUse = [
           {
-            matcher = "Edit|Write";
+            matcher = "Edit|MultiEdit|Write";
             hooks = [
               {
                 type = "command";
                 command = "${claudeScripts}/bin/claude-nix-check";
+              }
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/claude-shell-check";
               }
             ];
           }
@@ -222,6 +238,16 @@
               {
                 type = "command";
                 command = "${claudeScripts}/bin/claude-comment-check";
+              }
+            ];
+          }
+        ];
+        hooks.Stop = [
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/claude-stop-verify";
               }
             ];
           }

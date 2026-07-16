@@ -28,16 +28,20 @@ home-manager switch (`nh os switch /nix/dotfiles` — user runs it).
 | Event | Matcher | Script | Purpose |
 | --- | --- | --- | --- |
 | PreToolUse | `Read\|Edit\|MultiEdit\|Write\|NotebookEdit\|Bash` | `claude-secrets-guard` | deny secrets access; `--test` runs its fixture |
+| PreToolUse | `Bash` | `claude-git-guard` | deny git commit/push; `--test` runs its fixture |
 | PreToolUse | `Skill` | `claude-skill-guard` | deny skills in `CLAUDE_DENIED_SKILLS` (code-review) |
 | PreToolUse | `Edit\|MultiEdit\|Write\|NotebookEdit` | `claude-comment-check` | snapshot pre-image for the net-new diff |
-| PostToolUse | `Edit\|Write` | `claude-nix-check` | format + lint edited `.nix`; exit 2 feeds findings back |
+| PostToolUse | `Edit\|MultiEdit\|Write` | `claude-nix-check` | format + lint edited `.nix`, whisper untracked / missing `@desc`; exit 2 feeds findings back |
+| PostToolUse | `Edit\|MultiEdit\|Write` | `claude-shell-check` | shellcheck edited shell scripts |
 | PostToolUse | `Edit\|MultiEdit\|Write\|NotebookEdit` | `claude-comment-check` | flag net-new comment lines for a necessity check |
+| Stop | — | `claude-stop-verify` | block once per turn when `.nix` changed since the last `dotfiles-verify` pass (success stamp under `$XDG_RUNTIME_DIR`) |
 | SessionStart | `startup\|resume` | `ai-memory pull` (backgrounded) + `ai-memory debt` | rebase memory store; whisper when the dream loop is stale |
 | statusLine | — | `claude-statusline` | context + rate-limit line |
 
 Contract: hooks get JSON on stdin (`tool_name`, `tool_input`); exit 0 =
-silent allow, exit 2 = stderr fed back to the agent; PreToolUse decisions via
-`hookSpecificOutput.permissionDecision` JSON on stdout.
+silent allow, exit 2 = stderr fed back to the agent (on Stop: agent keeps
+working, `stop_hook_active` caps it at one round per turn); PreToolUse
+decisions via `hookSpecificOutput.permissionDecision` JSON on stdout.
 
 ## Permissions
 
@@ -121,10 +125,13 @@ Wrapped scripts with a `# @desc:` header; regenerate with
 | --- | --- |
 | `ai-memory` | Manage the ai-memory store with token-frugal output |
 | `claude-comment-check` | Pre/PostToolUse hook — flag net-new comment lines from file edits, for a necessity check |
+| `claude-git-guard` | PreToolUse hook — deny git commit/push; publishing is user-run |
 | `claude-nix-check` | PostToolUse hook — format edited .nix in place (alejandra), then lint it (statix, deadnix) |
 | `claude-secrets-guard` | PreToolUse hook — decline access to secrets files and commands |
+| `claude-shell-check` | PostToolUse hook — shellcheck edited shell scripts |
 | `claude-skill-guard` | PreToolUse hook — deny skills listed in CLAUDE_DENIED_SKILLS |
 | `claude-statusline` | statusLine — context window and plan rate-limit usage |
+| `claude-stop-verify` | Stop hook — block once per turn when .nix changed since the last dotfiles-verify pass |
 | `dotfiles-verify` | Quiet flake-eval check for the four configs, evaluated concurrently |
 | `hardening-probe` | Probe a command or live unit under a systemd-hardening preset |
 <!-- END agentic-scripts -->

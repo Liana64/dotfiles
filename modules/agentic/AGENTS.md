@@ -6,7 +6,6 @@
 - Explore by directory iteration and file names, not file-by-file reads.
 - When a change may fill the context window, delegate granular sub-agent prompts; if the work needs session history, fork (`/fork`, Agent fork type) — it inherits the transcript.
 - Persist stable facts worth their re-discovery cost (@desc, CLAUDE.md, ai-memory); fix or delete wrong memories on contact, never route around.
-- After multi-step work, offer `/dream`; never auto-run.
 - Don't read or dump secrets without explicit permission.
 - Never `git commit` or `git push` (`git add` is fine); sole exception: `ai-memory sync`.
 
