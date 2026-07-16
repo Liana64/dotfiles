@@ -1,0 +1,11 @@
+--- a/include/util/format.hpp
++++ b/include/util/format.hpp
+@@ -74,7 +74,7 @@
+         break;
+       case 0:
+       default:
+-        format = "{coefficient:.1f}{prefix}{unit}";
++        format = "{coefficient:.1f} {prefix}{unit}";
+         break;
+     }
+     return fmt::format_to(
