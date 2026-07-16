@@ -1,7 +1,7 @@
 #!/bin/sh
 # @desc: Quiet flake-eval check for the four configs, evaluated concurrently
-# Prints pass/fail per target; on failure, only the last ~20 lines of the
-# trace. Pass a flake ref to override '.'.
+# Prints "all configs ✓", or per-target results with the last ~20 lines of
+# the trace on failure. Pass a flake ref to override '.'.
 
 flake=${1:-.}
 
@@ -36,5 +36,13 @@ liana@portable=homeConfigurations."liana@portable".activationPackage.drvPath
 EOF
 wait
 
-cat "$tmp"/*.out
-[ ! -e "$tmp/failed" ]
+if [ -e "$tmp/failed" ]; then
+  cat "$tmp"/*.out
+  exit 1
+fi
+printf 'all configs ✓\n'
+
+# success stamp: .nix dirty-state baseline, read by the claude-stop-verify hook
+root=$(git -C "$flake" rev-parse --show-toplevel 2>/dev/null) || exit 0
+git -C "$root" status --porcelain -uall -- '*.nix' \
+  >"${XDG_RUNTIME_DIR:-/tmp}/dotfiles-verify.$(printf '%s' "$root" | cksum | tr -cd '[:digit:]')"
