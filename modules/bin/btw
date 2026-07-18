@@ -1,0 +1,19 @@
+#!/bin/sh
+# @desc: quick claude --safe-mode: --low/high/xhigh/max + --sonnet/haiku/fable tune effort/model anywhere in args, no prompt runs cc in-window, a prompt prints in place
+set -eu
+effort=medium model=opus
+n=$#
+i=0
+while [ "$i" -lt "$n" ]; do
+  case $1 in
+    --low | --high | --xhigh | --max) effort=${1#--} ;;
+    --sonnet | --haiku | --fable) model=${1#--} ;;
+    *) set -- "$@" "$1" ;;
+  esac
+  shift
+  i=$((i + 1))
+done
+cd /nix/dotfiles
+[ $# -eq 0 ] && exec claude --safe-mode --model "$model" --effort "$effort"
+claude --safe-mode --model "$model" --effort "$effort" --print "$*"
+echo
