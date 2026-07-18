@@ -6,7 +6,8 @@ input=$(cat)
 
 cwd=$(printf '%s' "$input" | jq -r '.cwd // empty')
 root=$(git -C "${cwd:-$PWD}" rev-parse --show-toplevel 2>/dev/null) || exit 0
-[ -f "$root/flake.nix" ] || exit 0
+# dotfiles repo only — hosts.nix assembles the configs dotfiles-verify checks
+[ -f "$root/modules/flake/hosts.nix" ] || exit 0
 
 # stamp written by dotfiles-verify on success, same key derivation
 stamp="${XDG_RUNTIME_DIR:-/tmp}/dotfiles-verify.$(printf '%s' "$root" | cksum | tr -cd '[:digit:]')"
