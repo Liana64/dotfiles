@@ -1,0 +1,80 @@
+#!/bin/sh
+# @desc: launch claude code against the eek fireworks gateway
+set -eu
+
+die() {
+  echo "eek: $1" >&2
+  exit 1
+}
+
+usage() {
+  cat <<'EOF'
+usage: eek [--model NAME] [--small NAME] [--effort LEVEL] [claude args...]
+
+launch Claude Code against the eek fireworks gateway (LAN only).
+
+  --model NAME    primary fireworks model (default glm-5p2)
+                  bare names get the accounts/fireworks/models/ prefix
+  --small NAME    cheap haiku + subagent tier (default minimax-m3)
+  --effort LEVEL  reasoning effort low|medium|high|xhigh|max (default medium)
+  -h, --help      show this message
+
+env: EEK_MODEL / EEK_SMALL_MODEL / EEK_EFFORT set the defaults;
+eek flags must precede any passthrough claude args.
+EOF
+}
+
+model=${EEK_MODEL:-glm-5p2}
+medium=${EEK_MEDIUM_MODEL:-deepseek-v4-pro}
+small=${EEK_SMALL_MODEL:-minimax-m3}
+effort=${EEK_EFFORT:-medium}
+
+while [ $# -gt 0 ]; do
+  case $1 in
+    --model) [ $# -ge 2 ] || die "--model needs a value"; model=$2; shift 2 ;;
+    --model=*) model=${1#*=}; shift ;;
+    --small) [ $# -ge 2 ] || die "--small needs a value"; small=$2; shift 2 ;;
+    --small=*) small=${1#*=}; shift ;;
+    --effort) [ $# -ge 2 ] || die "--effort needs a value"; effort=$2; shift 2 ;;
+    --effort=*) effort=${1#*=}; shift ;;
+    -h | --help) usage; exit 0 ;;
+    --) shift; break ;;
+    *) break ;;
+  esac
+done
+
+case $effort in
+  low | medium | high | xhigh | max) ;;
+  *) die "invalid effort '$effort' (low|medium|high|xhigh|max)" ;;
+esac
+
+[ -n "$model" ] || die "empty model"
+[ -n "$small" ] || die "empty small model"
+
+key_file=/var/secrets/eek/gateway-key
+[ -r "$key_file" ] || die "no gateway key at $key_file (provision eek/gateway-key via secretstore, then switch)"
+
+err=$(curl -fsS --max-time 3 https://eek.milberry.org/healthz 2>&1 >/dev/null) \
+  || die "gateway unreachable (LAN only): $err"
+
+qualify() {
+  case $1 in */*) printf %s "$1" ;; *) printf %s "accounts/fireworks/models/$1" ;; esac
+}
+model=$(qualify "$model")
+small=$(qualify "$small")
+medium=$(qualify "$medium")
+
+ANTHROPIC_AUTH_TOKEN=$(cat "$key_file")
+export ANTHROPIC_AUTH_TOKEN
+export ANTHROPIC_BASE_URL=https://eek.milberry.org/fireworks
+export ANTHROPIC_MODEL="$model"
+export ANTHROPIC_DEFAULT_OPUS_MODEL="$model"
+export ANTHROPIC_DEFAULT_SONNET_MODEL="$medium"
+# unset anthropic ids 404 at fireworks, settings bakes teammateDefaultModel,
+# so pin the cheap background + subagent tier explicitly
+export ANTHROPIC_DEFAULT_HAIKU_MODEL="$small"
+export CLAUDE_CODE_SUBAGENT_MODEL="$small"
+# session bills via fireworks, keep telemetry and update pings from anthropic
+export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+
+exec claude --effort "$effort" "$@"

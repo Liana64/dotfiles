@@ -45,6 +45,11 @@
       path = "/var/secrets/wireguard/trusted-networks";
       mode = "0400";
     };
+    sops.secrets."eek/gateway-key" = {
+      path = "/var/secrets/eek/gateway-key";
+      owner = "liana";
+      mode = "0400";
+    };
     sops.secrets."syncthing/gui-passwd" = {
       path = "/var/secrets/syncthing/gui-passwd";
       owner = "liana";
