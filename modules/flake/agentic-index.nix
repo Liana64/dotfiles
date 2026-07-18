@@ -40,7 +40,11 @@
     agentic-scripts = table (lib.mapAttrsToList
       (name: _: "| `${name}` | ${descOf (binDir + "/${name}")} |")
       (lib.filterAttrs
-        (name: type: type == "regular" && lib.hasInfix "@desc:" (builtins.readFile (binDir + "/${name}")))
+        (name: type:
+          type
+          == "regular"
+          && !lib.hasSuffix ".md" name
+          && lib.hasInfix "@desc:" (builtins.readFile (binDir + "/${name}")))
         (builtins.readDir binDir)));
   };
 in {
@@ -51,7 +55,7 @@ in {
       type = "app";
       program = toString (pkgs.writeShellScript "gen-agentic-index" ''
         set -eu
-        target=''${1:-modules/agentic/AGENTIC.md}
+        target=''${1:-modules/agentic/README.md}
         ${lib.concatStrings (lib.mapAttrsToList (name: file: ''
             ${pkgs.gawk}/bin/awk -v blockfile=${file} '
               BEGIN { while ((getline line < blockfile) > 0) block = block line "\n" }
@@ -66,9 +70,9 @@ in {
     checks.agentic-index = pkgs.runCommand "check-agentic-index" {} (
       lib.concatStrings (lib.mapAttrsToList (name: file: ''
           ${pkgs.gawk}/bin/awk '/<!-- BEGIN ${name} -->/{f=1;next} /<!-- END ${name} -->/{f=0} f' \
-            ${self}/modules/agentic/AGENTIC.md > current
+            ${self}/modules/agentic/README.md > current
           if ! diff -u ${file} current; then
-            echo "AGENTIC.md ${name} is stale; run: nix run .#gen-agentic-index" >&2
+            echo "agentic README.md ${name} is stale; run: nix run .#gen-agentic-index" >&2
             exit 1
           fi
         '')

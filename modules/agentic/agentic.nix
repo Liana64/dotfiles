@@ -15,16 +15,20 @@
     # script in ../bin = its runtime PATH deps
     scripts = with pkgs; {
       ai-memory = [git gnugrep gawk findutils coreutils];
+      btw = [nixpkgs-unstable.claude-code];
       claude-comment-check = [jq coreutils];
       claude-git-guard = [jq];
       claude-nix-check = [jq alejandra statix deadnix git coreutils];
+      claude-rust-check = [jq rustfmt gnused coreutils];
       claude-secrets-guard = [jq];
       claude-shell-check = [jq shellcheck];
       claude-skill-guard = [jq];
       claude-statusline = [jq];
       claude-stop-verify = [jq git coreutils findutils];
       dotfiles-verify = [nix git coreutils];
+      eek = [curl coreutils nixpkgs-unstable.claude-code];
       hardening-probe = [systemd coreutils gnused gnugrep jq nix];
+      harness-status = [jq procps coreutils];
     };
     claudeScripts = pkgs.symlinkJoin {
       name = "claude-scripts";
@@ -217,6 +221,14 @@
               }
             ];
           }
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/harness-status";
+              }
+            ];
+          }
         ];
         hooks.PostToolUse = [
           {
@@ -225,6 +237,10 @@
               {
                 type = "command";
                 command = "${claudeScripts}/bin/claude-nix-check";
+              }
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/claude-rust-check";
               }
               {
                 type = "command";
@@ -241,6 +257,14 @@
               }
             ];
           }
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/harness-status";
+              }
+            ];
+          }
         ];
         hooks.Stop = [
           {
@@ -248,6 +272,40 @@
               {
                 type = "command";
                 command = "${claudeScripts}/bin/claude-stop-verify";
+              }
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/harness-status";
+              }
+            ];
+          }
+        ];
+        hooks.Notification = [
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/harness-status";
+              }
+            ];
+          }
+        ];
+        hooks.UserPromptSubmit = [
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/harness-status";
+              }
+            ];
+          }
+        ];
+        hooks.SessionEnd = [
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/harness-status";
               }
             ];
           }
@@ -265,6 +323,14 @@
               }
             ];
           }
+          {
+            hooks = [
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/harness-status";
+              }
+            ];
+          }
         ];
         statusLine = {
           type = "command";
@@ -277,7 +343,7 @@
 
     home.file =
       {
-        ".claude/CLAUDE.md".source = ./AGENTS.md;
+        ".claude/CLAUDE.md".source = ./context/AGENTS.md;
         "${config.programs.claude-code.configDir}/settings.json".enable = lib.mkForce false;
       }
       // link (name: type: type == "regular" && lib.hasSuffix ".md" name) ./agents ".claude/agents"

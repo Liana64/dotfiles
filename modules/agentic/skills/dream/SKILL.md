@@ -18,7 +18,7 @@ unabridged; state which mode ran (fork or inline).
 
 You are a forked retrospective of this session. The subject is the *process*,
 not the project: improve the agentic system so the next session runs better.
-Read `/nix/dotfiles/modules/agentic/AGENTIC.md` first — its improvement-surface
+Read `/nix/dotfiles/modules/agentic/README.md` first — its improvement-surface
 table is the routing map for every finding.
 
 1. **Scope** — $ARGUMENTS names the focus; otherwise the multi-step work just
@@ -31,8 +31,8 @@ table is the routing map for every finding.
    status/diff, journal, memory store.
 3. **Diagnose** — root-cause each friction point. Drop one-offs; keep only
    what will recur.
-4. **Route** — map each root cause to exactly one lever via the AGENTIC.md
-   table. Prefer updating an existing memory, directive, or doc over adding
+4. **Route** — map each root cause to exactly one lever via the agentic
+   README's table. Prefer updating an existing memory, directive, or doc over adding
    a new one.
 5. **Journal audit** — read `~/Projects/Software/ai-memory/JOURNAL.md`
    (proposal lifecycle lines only). Judge prior `adopted` lines against this

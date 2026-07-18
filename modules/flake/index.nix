@@ -33,7 +33,7 @@ in {
       type = "app";
       program = toString (pkgs.writeShellScript "gen-index" ''
         set -eu
-        target=''${1:-CLAUDE.md}
+        target=''${1:-modules/README.md}
         ${pkgs.gawk}/bin/awk -v blockfile=${indexFile} '
           BEGIN { while ((getline line < blockfile) > 0) block = block line "\n" }
           /<!-- BEGIN module-index -->/ { print; printf "%s", block; skip=1; next }
@@ -44,9 +44,9 @@ in {
     };
     checks.module-index = pkgs.runCommand "check-module-index" {} ''
       ${pkgs.gawk}/bin/awk '/<!-- BEGIN module-index -->/{f=1;next} /<!-- END module-index -->/{f=0} f' \
-        ${self}/CLAUDE.md > current
+        ${self}/modules/README.md > current
       if diff -u ${indexFile} current; then touch $out; else
-        echo "CLAUDE.md module-index is stale; run: nix run .#gen-index" >&2
+        echo "modules/README.md module-index is stale; run: nix run .#gen-index" >&2
         exit 1
       fi
     '';

@@ -2,7 +2,7 @@
 {lib, ...}: {
   perSystem = {pkgs, ...}: let
     bin = ../bin;
-    scripts = lib.attrNames (lib.filterAttrs (_: type: type == "regular") (builtins.readDir bin));
+    scripts = lib.attrNames (lib.filterAttrs (name: type: type == "regular" && !lib.hasSuffix ".md" name) (builtins.readDir bin));
   in {
     checks.secrets-guard = let
       patterns = import ../_lib/secret-patterns.nix;
