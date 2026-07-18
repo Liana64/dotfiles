@@ -1,5 +1,5 @@
 #!/bin/sh
-# Waybar Taskwarrior indicator: active task, else next due. Hidden via the toggle flag.
+# Waybar Taskwarrior indicator: active task, else due/overdue counts. Hidden via the toggle flag.
 [ -e "$XDG_RUNTIME_DIR/waybar-task-hidden" ] && exit 0
 active=$(task rc.context=none +ACTIVE export 2>/dev/null | jq -c 'sort_by(.modified) | last // empty')
 if [ -n "$active" ]; then
@@ -10,20 +10,18 @@ if [ -n "$active" ]; then
   }'
   exit 0
 fi
-# Next due task. Classify by CALENDAR day in local time (not a rolling 24h window).
+# Due/overdue counts. Classify by CALENDAR day in local time (not a rolling 24h window).
 task rc.context=none status:pending due.any: export 2>/dev/null | jq -c '
   ((now | localtime | mktime) - now) as $off
   | ((now + $off) / 86400 | floor) as $today
-  | (sort_by(.due) | first // empty)
-  | (.due | strptime("%Y%m%dT%H%M%SZ") | mktime) as $d
-  | ((($d + $off) / 86400 | floor) - $today) as $days
-  | (if $days < 0 then
-       {class: "overdue", rel: (if $days == -1 then "due yesterday" else "\(-$days)d overdue" end)}
-     elif $days == 0 then
-       {class: "due-today", rel: "due today"}
-     elif $days == 1 then
-       {class: "due", rel: "due tomorrow"}
-     else
-       {class: "due", rel: "due in \($days)d"}
-     end) as $s
-  | {text: "\(.description) · \($s.rel)", class: $s.class, tooltip: $s.rel}'
+  | map(. + {days: ((((.due | strptime("%Y%m%dT%H%M%SZ") | mktime) + $off) / 86400 | floor) - $today)})
+  | map(select(.days <= 0))
+  | select(length > 0)
+  | (map(select(.days < 0)) | length) as $over
+  | (length - $over) as $due
+  | {
+      text: ([(if $due > 0 then "\($due) due" else empty end),
+              (if $over > 0 then "\($over) overdue" else empty end)] | join(" · ")),
+      class: (if $over > 0 then "overdue" else "due-today" end),
+      tooltip: (sort_by(.due) | map(.description) | join("\n"))
+    }'

@@ -1,5 +1,10 @@
 # @desc: Taskwarrior due/overdue reminders
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  osConfig,
+  ...
+}: let
   hardening = import ../../../modules/_lib/systemd-hardening.nix;
   task = "${pkgs.taskwarrior3}/bin/task";
   jq = "${pkgs.jq}/bin/jq";
@@ -25,39 +30,42 @@
     ${notify} -u normal -a Taskwarrior "$n task(s) today" "$body"
   '';
 in {
-  systemd.user.services.task-due-reminder = {
-    Unit.Description = "Notify about taskwarrior tasks coming due";
-    Service =
-      hardening.base
-      // {
-        Type = "oneshot";
-        ExecStart = "${dueScript}";
-      };
-  };
-  systemd.user.timers.task-due-reminder = {
-    Unit.Description = "Poll taskwarrior for tasks coming due";
-    Timer = {
-      OnCalendar = "*:0/10";
-      Persistent = false;
+  # unit names are shared with the todoist twin in features/tasks/reminders.nix
+  config = lib.mkIf ((osConfig.taskManager or "taskwarrior") == "taskwarrior") {
+    systemd.user.services.task-due-reminder = {
+      Unit.Description = "Notify about taskwarrior tasks coming due";
+      Service =
+        hardening.base
+        // {
+          Type = "oneshot";
+          ExecStart = "${dueScript}";
+        };
     };
-    Install.WantedBy = ["timers.target"];
-  };
+    systemd.user.timers.task-due-reminder = {
+      Unit.Description = "Poll taskwarrior for tasks coming due";
+      Timer = {
+        OnCalendar = "*:0/10";
+        Persistent = false;
+      };
+      Install.WantedBy = ["timers.target"];
+    };
 
-  systemd.user.services.task-daily-digest = {
-    Unit.Description = "Morning taskwarrior agenda notification";
-    Service =
-      hardening.base
-      // {
-        Type = "oneshot";
-        ExecStart = "${digestScript}";
-      };
-  };
-  systemd.user.timers.task-daily-digest = {
-    Unit.Description = "Daily taskwarrior agenda digest";
-    Timer = {
-      OnCalendar = "*-*-* 08:00:00";
-      Persistent = true;
+    systemd.user.services.task-daily-digest = {
+      Unit.Description = "Morning taskwarrior agenda notification";
+      Service =
+        hardening.base
+        // {
+          Type = "oneshot";
+          ExecStart = "${digestScript}";
+        };
     };
-    Install.WantedBy = ["timers.target"];
+    systemd.user.timers.task-daily-digest = {
+      Unit.Description = "Daily taskwarrior agenda digest";
+      Timer = {
+        OnCalendar = "*-*-* 08:00:00";
+        Persistent = true;
+      };
+      Install.WantedBy = ["timers.target"];
+    };
   };
 }
