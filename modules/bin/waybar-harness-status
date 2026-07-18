@@ -1,0 +1,62 @@
+#!/bin/sh
+# @desc: waybar icon — dim dot while harness sessions run, white when one awaits input (flags in $XDG_RUNTIME_DIR/harness-status)
+
+dir="${XDG_RUNTIME_DIR:-/tmp}/harness-status"
+
+if [ "$1" = clear ]; then
+  for f in "$dir"/*; do
+    [ -e "$f" ] && sed -i '3s/.*/running/' "$f"
+  done
+  pkill -RTMIN+11 waybar 2>/dev/null
+  exit 0
+fi
+
+if [ "$1" = focus ]; then
+  latest=$(for f in "$dir"/*; do
+    [ -e "$f" ] || continue
+    state=$(sed -n 3p "$f")
+    [ "$state" = awaiting ] || state=running
+    printf '%s %s %s\n' "$state" "$(stat -c %Y "$f")" "$f"
+  done | sort -k1,1 -k2,2rn | head -n1 | cut -d' ' -f3-)
+  [ -n "$latest" ] || exit 0
+  tree=$(swaymsg -t get_tree 2>/dev/null) || exit 0
+  wpid=$(sed -n 1p "$latest")
+  while [ -n "$wpid" ] && [ "$wpid" != 1 ]; do
+    case $wpid in *[!0-9]*) break ;; esac
+    id=$(printf '%s' "$tree" | jq --argjson p "$wpid" 'first(.. | objects | select(.pid? == $p) | .id) // empty')
+    [ -n "$id" ] && {
+      swaymsg "[con_id=$id] focus" >/dev/null 2>&1
+      exit 0
+    }
+    wpid=$(ps -o ppid= -p "$wpid" 2>/dev/null | tr -cd '0-9')
+  done
+  exit 0
+fi
+
+hide() {
+  printf '{"text": ""}\n'
+  exit 0
+}
+
+[ -d "$dir" ] || hide
+cls=""
+tips=""
+for f in "$dir"/*; do
+  [ -e "$f" ] || continue
+  pid=$(sed -n 1p "$f")
+  case $pid in
+  "" | *[!0-9]*) ;;
+  *) kill -0 "$pid" 2>/dev/null || {
+    rm -f "$f"
+    continue
+  } ;;
+  esac
+  state=$(sed -n 3p "$f")
+  [ "$state" = awaiting ] || state=running
+  [ "$state" = awaiting ] && cls=awaiting
+  tips="$tips$state  $(sed -n 2p "$f")
+"
+done
+[ -n "$tips" ] || hide
+[ -n "$cls" ] || cls=running
+printf '%s' "$tips" | jq -Rsc --arg c "$cls" '{text: "●", class: $c, tooltip: rtrimstr("\n")}'

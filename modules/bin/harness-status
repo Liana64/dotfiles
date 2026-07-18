@@ -1,0 +1,40 @@
+#!/bin/sh
+# @desc: hook adapter — mirror per-session harness state (running|awaiting) to $XDG_RUNTIME_DIR/harness-status for waybar
+
+input=$(cat)
+get() { printf '%s' "$input" | jq -r "$1 // empty"; }
+sid=$(get .session_id)
+case $sid in '' | *[!A-Za-z0-9._-]*) exit 0 ;; esac
+
+dir="${XDG_RUNTIME_DIR:-/tmp}/harness-status"
+flag="$dir/$sid"
+old=$(cat "$flag" 2>/dev/null)
+
+set_state() {
+  mkdir -p "$dir"
+  # line 1 pid for the liveness prune, line 2 cwd for the tooltip, line 3 state;
+  # blank pid when the parent is not the harness, prune disabled beats instant-prune
+  {
+    case $(cat "/proc/$PPID/comm" 2>/dev/null) in
+    *claude*) echo "$PPID" ;;
+    *) echo ;;
+    esac
+    get .cwd
+    echo "$1"
+  } >"$dir/.$sid.$$"
+  # dot prefix keeps the tmp out of reader globs, rename beats torn concurrent writes
+  mv "$dir/.$sid.$$" "$flag"
+}
+
+case $(get .hook_event_name) in
+Stop | Notification) set_state awaiting ;;
+PreToolUse)
+  # AskUserQuestion blocks for input, any other tool means the agent is working
+  if [ "$(get .tool_name)" = AskUserQuestion ]; then set_state awaiting; else set_state running; fi
+  ;;
+SessionEnd) rm -f "$flag" ;;
+*) set_state running ;;
+esac
+
+[ "$old" = "$(cat "$flag" 2>/dev/null)" ] || pkill -RTMIN+11 waybar 2>/dev/null
+exit 0

@@ -20,6 +20,7 @@
         (writeShellScriptBin "waybar-yubikey" (builtins.readFile ../../modules/bin/waybar-yubikey))
         (writeShellScriptBin "waybar-vpn" (builtins.readFile ../../modules/bin/waybar-vpn))
         (writeShellScriptBin "waybar-caffeine" (builtins.readFile ../../modules/bin/waybar-caffeine))
+        (writeShellScriptBin "waybar-harness-status" (builtins.readFile ../../modules/bin/waybar-harness-status))
         (writeShellScriptBin "waybar-task" (builtins.readFile ../../modules/bin/waybar-task))
         (writeShellScriptBin "waybar-countdown" (builtins.readFile ../../modules/bin/waybar-countdown))
         (writeShellScriptBin "track-date" (builtins.readFile ../../modules/bin/track-date))
@@ -33,6 +34,7 @@
         wrapProgram $out/bin/waybar-usbguard      --prefix PATH : $out/bin
         wrapProgram $out/bin/waybar-yubikey       --prefix PATH : $out/bin
         wrapProgram $out/bin/waybar-task          --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [taskwarrior3 jq coreutils])}
+        wrapProgram $out/bin/waybar-harness-status --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils gnused procps sway])}
         wrapProgram $out/bin/waybar-countdown     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils])}
         wrapProgram $out/bin/track-date           --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils procps])}
         wrapProgram $out/bin/waybar-todoist       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [todoist jq coreutils gnused gawk])}
@@ -80,7 +82,8 @@
         @define-color alert   mix(${color0}, ${red}, 0.5);
 
         * {
-          font-family: "JetBrainsMono Nerd Font";
+          /* propo variant, patched icons get ink-hugging advances, specimen-measured |L-R| <= 1 */
+          font-family: "JetBrainsMono Nerd Font Propo";
           font-size: 12px;
           min-height: 0;
         }
@@ -119,7 +122,8 @@
         #custom-caffeine,
         #custom-syncthing,
         #custom-task,
-        #custom-countdown {
+        #custom-countdown,
+        #custom-harness-status {
           color: ${white};
           margin: 3px 2px;
           padding: 2px 8px;
@@ -141,6 +145,10 @@
 
         #custom-task {
           color: ${tan};
+        }
+
+        #custom-harness-status.running {
+          color: ${comment};
         }
 
         #custom-countdown.today {
@@ -178,6 +186,7 @@
           padding: 0 8px;
         }
 
+        #status #custom-harness-status,
         #status #custom-yubikey,
         #status #custom-usbguard,
         #status #custom-syncthing,
@@ -192,28 +201,18 @@
           border-radius: 6px;
         }
 
-        /* md shield and mug glyphs overhang their advance rightward, 7/5 pixel-measures balanced */
-        #status #custom-caffeine,
-        #status #custom-vpn {
-          padding: 0 7px 0 5px;
-        }
-
-        /* shield-off overhangs twice as hard, slot-measured 26v30 at 7/5 */
-        #status #custom-vpn.disconnected {
-          padding: 0 9px 0 3px;
-        }
-
         /* the container's rounded end pinches filled corners, clear it */
         #status #custom-vpn.connected,
         #status #custom-vpn.untrusted {
           margin-right: 5px;
         }
 
-        /* battery icon has no left bearing and % a wide right one, right stays under left */
+        /* the % right bearing is base-font metric, propo does not change it, right stays under left */
         #hw #battery {
           padding: 0 5.5px 0 8px;
         }
 
+        #status #custom-harness-status:hover,
         #status #custom-yubikey:hover,
         #status #custom-usbguard:hover,
         #status #custom-syncthing:hover,
@@ -325,7 +324,7 @@
           "group/status" = {
             orientation = "horizontal";
             # filled segments read cramped against the rounded end, keep caffeine mid-cluster
-            modules = ["custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/caffeine" "custom/vpn"];
+            modules = ["custom/harness-status" "custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/caffeine" "custom/vpn"];
           };
 
           "group/hw" = {
@@ -370,6 +369,16 @@
             interval = "once";
             signal = 8;
             on-click = "${app}/bin/caffeinate-toggle";
+          };
+
+          "custom/harness-status" = {
+            exec = "${app}/bin/waybar-harness-status";
+            return-type = "json";
+            interval = 60;
+            signal = 11;
+            format = "{}";
+            on-click = "${app}/bin/waybar-harness-status focus";
+            on-click-right = "${app}/bin/waybar-harness-status clear";
           };
 
           "sway/workspaces" = {
