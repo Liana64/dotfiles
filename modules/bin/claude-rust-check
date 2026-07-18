@@ -1,0 +1,31 @@
+#!/bin/sh
+# @desc: PostToolUse hook — format edited .rs in place (rustfmt); parse errors feed back
+# Exit 2 feeds findings back for an immediate fix.
+# no clippy: whole-crate builds thrash target/ and need the network, semantic lints ride rust-analyzer
+
+file=$(jq -r '.tool_input.file_path // empty')
+case "$file" in
+  *.rs) ;;
+  *) exit 0 ;;
+esac
+[ -f "$file" ] || exit 0
+
+# rustfmt parses as 2015 unless told the edition, read it from the crate or workspace
+edition=2021
+dir=$(dirname "$file")
+while :; do
+  if [ -f "$dir/Cargo.toml" ]; then
+    e=$(sed -n 's/^edition *= *"\([0-9]\{4\}\)".*/\1/p' "$dir/Cargo.toml" | head -n 1)
+    if [ -n "$e" ]; then
+      edition=$e
+      break
+    fi
+  fi
+  next=$(dirname "$dir")
+  [ "$next" = "$dir" ] && break
+  dir=$next
+done
+
+err=$(rustfmt --quiet --edition "$edition" "$file" 2>&1) && exit 0
+printf 'rustfmt could not format %s:\n%s\n' "$file" "$err" >&2
+exit 2
