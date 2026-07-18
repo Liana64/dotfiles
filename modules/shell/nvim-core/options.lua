@@ -35,3 +35,5 @@ opt.mousescroll = "ver:10,hor:6"
 -- Undo
 opt.undofile = true
 opt.undodir = vim.fn.stdpath("data") .. "/undo"
+
+opt.modeline = false -- opened files must not set editor options

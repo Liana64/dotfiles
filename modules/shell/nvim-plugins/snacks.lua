@@ -142,7 +142,10 @@ Snacks.setup({
   scroll = { enabled = true },
   statuscolumn = { enabled = true },
   bufdelete = { enabled = true },
-  image = { enabled = true },
+  image = {
+    enabled = true,
+    doc = { enabled = false }, -- doc rendering curls remote image urls from untrusted files
+  },
   layout = { enabled = true },
   notify = { enabled = true },
   rename = { enabled = true },
