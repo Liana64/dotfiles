@@ -1,0 +1,33 @@
+#!/bin/sh
+# Waybar syncthing indicator: down or API unreachable = disconnected, folder or system errors = error.
+
+out() { jq -cn --arg c "$1" --arg tt "$2" '{text: "󰓦", class: $c, tooltip: $tt}'; exit 0; }
+
+pgrep -x syncthing >/dev/null || out disconnected "syncthing not running"
+
+apikey=$(sed -n 's|.*<apikey>\(.*\)</apikey>.*|\1|p' \
+  "${XDG_STATE_HOME:-$HOME/.local/state}/syncthing/config.xml")
+[ -n "$apikey" ] || out disconnected "no api key"
+
+api() { curl -sf -m 3 -H "X-API-Key: $apikey" "http://127.0.0.1:8384/rest/$1"; }
+
+folders=$(api config/folders) || out disconnected "API unreachable"
+
+failing=""
+for id in $(printf '%s' "$folders" | jq -r '.[].id'); do
+  status=$(api "db/status?folder=$id") || continue
+  bad=$(printf '%s' "$status" | jq '(.state == "error" or .state == "stopped")
+    or ((.errors // 0) + (.pullErrors // 0) > 0) or ((.error // "") != "")')
+  if [ "$bad" = true ]; then
+    label=$(printf '%s' "$folders" | jq -r --arg id "$id" '.[] | select(.id == $id).label')
+    failing="$failing, $label"
+  fi
+done
+failing=${failing#, }
+
+[ -n "$failing" ] && out error "folder errors: $failing"
+
+syserr=$(api system/error | jq '.errors | length')
+[ "${syserr:-0}" -gt 0 ] && out error "$syserr system errors"
+
+out connected "syncthing OK"

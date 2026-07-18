@@ -19,6 +19,7 @@
         (writeShellScriptBin "waybar-usbguard" (builtins.readFile ../../modules/bin/waybar-usbguard))
         (writeShellScriptBin "waybar-yubikey" (builtins.readFile ../../modules/bin/waybar-yubikey))
         (writeShellScriptBin "waybar-vpn" (builtins.readFile ../../modules/bin/waybar-vpn))
+        (writeShellScriptBin "waybar-syncthing" (builtins.readFile ../../modules/bin/waybar-syncthing))
         (writeShellScriptBin "waybar-caffeine" (builtins.readFile ../../modules/bin/waybar-caffeine))
         (writeShellScriptBin "waybar-harness-status" (builtins.readFile ../../modules/bin/waybar-harness-status))
         (writeShellScriptBin "waybar-task" (builtins.readFile ../../modules/bin/waybar-task))
@@ -34,6 +35,7 @@
         wrapProgram $out/bin/waybar-usbguard      --prefix PATH : $out/bin
         wrapProgram $out/bin/waybar-yubikey       --prefix PATH : $out/bin
         wrapProgram $out/bin/waybar-task          --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [taskwarrior3 jq coreutils])}
+        wrapProgram $out/bin/waybar-syncthing     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [curl jq gnused procps])}
         wrapProgram $out/bin/waybar-harness-status --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils gnused procps sway])}
         wrapProgram $out/bin/waybar-countdown     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils])}
         wrapProgram $out/bin/track-date           --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils procps])}
@@ -294,7 +296,8 @@
         }
 
         #battery.warning,
-        #custom-usbguard.blocked {
+        #custom-usbguard.blocked,
+        #custom-syncthing.error {
           background: ${orange};
         }
 
@@ -459,16 +462,10 @@
           };
 
           "custom/syncthing" = {
-            exec = ''
-              if pgrep -x syncthing >/dev/null; then
-                echo '{"text": "󰓦", "class": "connected"}'
-              else
-                echo '{"text": "󰓦", "class": "disconnected"}'
-              fi
-            '';
+            exec = "${app}/bin/waybar-syncthing";
             return-type = "json";
-            interval = 5;
-            on-click = launch "firefox https://127.0.0.1:8384/";
+            interval = 10;
+            on-click = launch "firefox http://127.0.0.1:8384/";
           };
 
           network = {
