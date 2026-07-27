@@ -1,0 +1,419 @@
+#!/bin/sh
+# @desc: launch Claude Code with an LLM proxy
+set -eu
+
+PROGRAM=${0##*/}
+GATEWAY_ORIGIN=${EEK_GATEWAY_ORIGIN:-https://eek.milberry.org}
+KEY_FILE=${EEK_GATEWAY_KEY_FILE:-/var/secrets/eek/gateway-key}
+
+die() {
+  printf '%s: %s\n' "$PROGRAM" "$1" >&2
+  exit 1
+}
+
+usage() {
+  cat <<'EOF'
+usage:
+  harness [options] [--] [claude args...]
+
+Launch Claude Code with an LLM proxy.
+
+Options:
+  --provider NAME      fireworks or openai
+                       default: EEK_PROVIDER or fireworks
+
+  --model NAME         primary/Opus model
+  --medium NAME        Sonnet/background model
+  --small NAME         Haiku/subagent model
+
+  --effort LEVEL       low|medium|high|xhigh|max
+                       default: EEK_EFFORT or medium
+
+  --resume             open Claude Code's session picker
+  --resume SESSION     resume a session by name or ID
+  --resume=SESSION     resume a session by name or ID
+
+  -c, --continue       continue the most recent local session
+
+  --preflight          run the authenticated proxy test
+  -h, --help           show this help
+
+Fireworks defaults:
+  primary              kimi-k3
+  medium               qwen3p7-plus
+  small                minimax-m3
+
+OpenAI defaults:
+  primary              gpt-5.6-sol
+  medium               gpt-5.6-terra
+  small                gpt-5.6-luna
+
+Environment:
+  EEK_PROVIDER
+  EEK_MODEL
+  EEK_MEDIUM_MODEL
+  EEK_SMALL_MODEL
+  EEK_EFFORT
+
+  EEK_GATEWAY_ORIGIN
+  EEK_GATEWAY_KEY_FILE
+  EEK_PREFLIGHT
+
+  EEK_FIREWORKS_MODEL
+  EEK_FIREWORKS_MEDIUM_MODEL
+  EEK_FIREWORKS_SMALL_MODEL
+
+  EEK_OPENAI_MODEL
+  EEK_OPENAI_MEDIUM_MODEL
+  EEK_OPENAI_SMALL_MODEL
+
+Bare Fireworks model names automatically receive the
+accounts/fireworks/models/ prefix.
+
+All eek options must precede passthrough Claude Code arguments.
+Use -- to explicitly separate eek options from Claude Code arguments.
+
+Examples:
+  eek
+  eek --provider fireworks
+  eek --provider fireworks --model kimi-k3
+  eek --provider openai --model gpt-5.6-sol
+  eek --resume
+  eek --resume my-session
+  eek --continue
+  eek -- --permission-mode plan
+EOF
+}
+
+provider=${EEK_PROVIDER:-fireworks}
+model=${EEK_MODEL:-}
+medium=${EEK_MEDIUM_MODEL:-}
+small=${EEK_SMALL_MODEL:-}
+effort=${EEK_EFFORT:-medium}
+preflight=0
+resume_mode=none
+resume_session=
+
+case ${EEK_PREFLIGHT:-0} in
+  1|true|yes|on)
+    preflight=1
+    ;;
+esac
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    --provider)
+      [ "$#" -ge 2 ] || die "--provider needs a value"
+      provider=$2
+      shift 2
+      ;;
+
+    --provider=*)
+      provider=${1#*=}
+      shift
+      ;;
+
+    --model)
+      [ "$#" -ge 2 ] || die "--model needs a value"
+      model=$2
+      shift 2
+      ;;
+
+    --model=*)
+      model=${1#*=}
+      shift
+      ;;
+
+    --medium)
+      [ "$#" -ge 2 ] || die "--medium needs a value"
+      medium=$2
+      shift 2
+      ;;
+
+    --medium=*)
+      medium=${1#*=}
+      shift
+      ;;
+
+    --small)
+      [ "$#" -ge 2 ] || die "--small needs a value"
+      small=$2
+      shift 2
+      ;;
+
+    --small=*)
+      small=${1#*=}
+      shift
+      ;;
+
+    --effort)
+      [ "$#" -ge 2 ] || die "--effort needs a value"
+      effort=$2
+      shift 2
+      ;;
+
+    --effort=*)
+      effort=${1#*=}
+      shift
+      ;;
+
+    --resume)
+      resume_mode=resume
+      shift
+
+      # Accept an optional session name or ID. A value beginning with "-"
+      # is treated as the next option rather than a session identifier.
+      if [ "$#" -gt 0 ]; then
+        case $1 in
+          -*)
+            ;;
+          *)
+            resume_session=$1
+            shift
+            ;;
+        esac
+      fi
+      ;;
+
+    --resume=*)
+      resume_mode=resume
+      resume_session=${1#*=}
+      [ -n "$resume_session" ] ||
+        die "--resume= needs a session name or ID"
+      shift
+      ;;
+
+    -c|--continue)
+      resume_mode="continue"
+      shift
+      ;;
+
+    --preflight)
+      preflight=1
+      shift
+      ;;
+
+    -h|--help)
+      usage
+      exit 0
+      ;;
+
+    --)
+      shift
+      break
+      ;;
+
+    *)
+      # The first unknown argument and everything after it are passed
+      # directly to Claude Code.
+      break
+      ;;
+  esac
+done
+
+case $provider in
+  fireworks|openai)
+    ;;
+  *)
+    die "invalid provider '$provider' (fireworks|openai)"
+    ;;
+esac
+
+case $effort in
+  low|medium|high|xhigh|max)
+    ;;
+  *)
+    die "invalid effort '$effort' (low|medium|high|xhigh|max)"
+    ;;
+esac
+
+case $provider in
+  fireworks)
+    gateway_path=fireworks
+
+    : "${model:=${EEK_FIREWORKS_MODEL:-kimi-k3}}"
+    : "${medium:=${EEK_FIREWORKS_MEDIUM_MODEL:-qwen3p7-plus}}"
+    : "${small:=${EEK_FIREWORKS_SMALL_MODEL:-minimax-m3}}"
+    ;;
+
+  openai)
+    gateway_path=openai
+
+    : "${model:=${EEK_OPENAI_MODEL:-gpt-5.6-sol}}"
+    : "${medium:=${EEK_OPENAI_MEDIUM_MODEL:-gpt-5.6-terra}}"
+    : "${small:=${EEK_OPENAI_SMALL_MODEL:-gpt-5.6-luna}}"
+    ;;
+esac
+
+[ -n "$model" ] || die "empty primary model"
+[ -n "$medium" ] || die "empty medium model"
+[ -n "$small" ] || die "empty small model"
+
+qualify_fireworks_model() {
+  case $1 in
+    accounts/fireworks/*)
+      printf '%s' "$1"
+      ;;
+
+    */*)
+      printf '%s' "$1"
+      ;;
+
+    *)
+      printf 'accounts/fireworks/models/%s' "$1"
+      ;;
+  esac
+}
+
+qualify_openai_model() {
+  case $1 in
+    sol|gpt-5.6|gpt-5.6-sol)
+      printf '%s' 'gpt-5.6-sol'
+      ;;
+
+    terra|gpt-5.6-terra)
+      printf '%s' 'gpt-5.6-terra'
+      ;;
+
+    luna|gpt-5.6-luna)
+      printf '%s' 'gpt-5.6-luna'
+      ;;
+
+    *)
+      printf '%s' "$1"
+      ;;
+  esac
+}
+
+case $provider in
+  fireworks)
+    model=$(qualify_fireworks_model "$model")
+    medium=$(qualify_fireworks_model "$medium")
+    small=$(qualify_fireworks_model "$small")
+    ;;
+
+  openai)
+    model=$(qualify_openai_model "$model")
+    medium=$(qualify_openai_model "$medium")
+    small=$(qualify_openai_model "$small")
+    ;;
+esac
+
+[ -r "$KEY_FILE" ] ||
+  die "no readable gateway key at $KEY_FILE"
+
+# Remove line endings introduced by secret files while preserving other
+# characters in the key.
+gateway_key=$(tr -d '\r\n' <"$KEY_FILE")
+
+[ -n "$gateway_key" ] ||
+  die "gateway key at $KEY_FILE is empty"
+
+base_url=${GATEWAY_ORIGIN%/}/$gateway_path
+
+if [ "$preflight" -eq 1 ]; then
+  curl \
+    --fail \
+    --silent \
+    --show-error \
+    --max-time 3 \
+    "${GATEWAY_ORIGIN%/}/healthz" \
+    >/dev/null ||
+    die "gateway is unreachable or unhealthy (LAN only)"
+
+  preflight_body=$(mktemp "${TMPDIR:-/tmp}/eek-preflight.XXXXXX") ||
+    die "could not create preflight response file"
+
+  cleanup_preflight() {
+    rm -f "$preflight_body"
+  }
+  trap cleanup_preflight EXIT HUP INT TERM
+
+  # preflight the anthropic path claude code uses, covering openai translation
+  preflight_status=$(curl \
+    --silent \
+    --show-error \
+    --output "$preflight_body" \
+    --write-out '%{http_code}' \
+    --max-time 30 \
+    --request POST \
+    "${base_url}/v1/messages" \
+    --header "Authorization: Bearer $gateway_key" \
+    --header 'Content-Type: application/json' \
+    --header 'Anthropic-Version: 2023-06-01' \
+    --data "{
+      \"model\": \"$small\",
+      \"max_tokens\": 1,
+      \"messages\": [
+        {
+          \"role\": \"user\",
+          \"content\": \"Reply with one character.\"
+        }
+      ]
+    }") ||
+    die "authenticated proxy preflight could not complete"
+
+  case $preflight_status in
+    2??)
+      ;;
+
+    *)
+      printf '%s: proxy preflight returned HTTP %s\n' \
+        "$PROGRAM" "$preflight_status" >&2
+
+      if [ -s "$preflight_body" ]; then
+        printf '%s\n' '--- proxy response ---' >&2
+        cat "$preflight_body" >&2
+        printf '\n%s\n' '----------------------' >&2
+      fi
+
+      exit 1
+      ;;
+  esac
+fi
+
+# Prevent inherited credentials from selecting a different authentication
+# mechanism or bypassing the eek gateway.
+unset ANTHROPIC_API_KEY
+unset CLAUDE_CODE_OAUTH_TOKEN
+
+unset OPENAI_API_KEY
+unset OPENAI_BASE_URL
+unset OPENAI_API_BASE
+
+unset FIREWORKS_API_KEY
+unset FIREWORKS_BASE_URL
+
+ANTHROPIC_AUTH_TOKEN=$gateway_key
+ANTHROPIC_BASE_URL=$base_url
+
+ANTHROPIC_MODEL=$model
+ANTHROPIC_DEFAULT_OPUS_MODEL=$model
+ANTHROPIC_DEFAULT_SONNET_MODEL=$medium
+ANTHROPIC_DEFAULT_HAIKU_MODEL=$small
+CLAUDE_CODE_SUBAGENT_MODEL=$small
+
+export ANTHROPIC_AUTH_TOKEN
+export ANTHROPIC_BASE_URL
+
+export ANTHROPIC_MODEL
+export ANTHROPIC_DEFAULT_OPUS_MODEL
+export ANTHROPIC_DEFAULT_SONNET_MODEL
+export ANTHROPIC_DEFAULT_HAIKU_MODEL
+export CLAUDE_CODE_SUBAGENT_MODEL
+
+export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+
+resume_args=
+case $resume_mode in
+  resume)
+    resume_args=--resume
+    [ -z "$resume_session" ] || resume_args="--resume $resume_session"
+    ;;
+  continue)
+    resume_args=--continue
+    ;;
+esac
+
+# shellcheck disable=SC2086
+exec claude --effort "$effort" $resume_args "$@"
