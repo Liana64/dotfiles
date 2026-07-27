@@ -24,7 +24,7 @@
         (writeShellScriptBin "waybar-harness-status" (builtins.readFile ../../modules/bin/waybar-harness-status))
         (writeShellScriptBin "waybar-task" (builtins.readFile ../../modules/bin/waybar-task))
         (writeShellScriptBin "waybar-countdown" (builtins.readFile ../../modules/bin/waybar-countdown))
-        (writeShellScriptBin "track-date" (builtins.readFile ../../modules/bin/track-date))
+        #(writeShellScriptBin "track-date" (builtins.readFile ../../modules/bin/track-date))
         (writeShellScriptBin "waybar-todoist" (builtins.readFile ../../modules/bin/waybar-todoist))
         (writeShellScriptBin "waybar-sysinfo" (builtins.readFile ../../modules/bin/waybar-sysinfo))
         (writeShellScriptBin "caffeinate-toggle" (builtins.readFile ../../modules/bin/caffeinate-toggle))
@@ -38,7 +38,7 @@
         wrapProgram $out/bin/waybar-syncthing     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [curl jq gnused procps])}
         wrapProgram $out/bin/waybar-harness-status --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils gnused procps sway])}
         wrapProgram $out/bin/waybar-countdown     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils])}
-        wrapProgram $out/bin/track-date           --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils procps])}
+        #wrapProgram $out/bin/track-date           --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils procps])}
         wrapProgram $out/bin/waybar-todoist       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [todoist jq coreutils gnused gawk])}
         wrapProgram $out/bin/waybar-sysinfo       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils gnused gawk procps jq])}
       '';
@@ -321,7 +321,7 @@
 
           modules-left = ["custom/launcher"] ++ wsModules;
           modules-center = ["custom/clock"];
-          modules-right = ["custom/task" "custom/countdown" "group/status" "group/hw" "tray"];
+          modules-right = ["custom/task" "group/status" "group/hw" "tray"];
 
           # groups stack vertically on a horizontal bar unless told otherwise
           "group/status" = {
