@@ -55,7 +55,7 @@ in {
       type = "app";
       program = toString (pkgs.writeShellScript "gen-agentic-index" ''
         set -eu
-        target=''${1:-modules/agentic/README.md}
+        target=''${1:-modules/agentic/AGENTS.md}
         ${lib.concatStrings (lib.mapAttrsToList (name: file: ''
             ${pkgs.gawk}/bin/awk -v blockfile=${file} '
               BEGIN { while ((getline line < blockfile) > 0) block = block line "\n" }
@@ -70,9 +70,9 @@ in {
     checks.agentic-index = pkgs.runCommand "check-agentic-index" {} (
       lib.concatStrings (lib.mapAttrsToList (name: file: ''
           ${pkgs.gawk}/bin/awk '/<!-- BEGIN ${name} -->/{f=1;next} /<!-- END ${name} -->/{f=0} f' \
-            ${self}/modules/agentic/README.md > current
+            ${self}/modules/agentic/AGENTS.md > current
           if ! diff -u ${file} current; then
-            echo "agentic README.md ${name} is stale; run: nix run .#gen-agentic-index" >&2
+            echo "agentic AGENTS.md ${name} is stale; run: nix run .#gen-agentic-index" >&2
             exit 1
           fi
         '')
