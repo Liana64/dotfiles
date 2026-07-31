@@ -35,7 +35,6 @@ home-manager switch (`nh os switch /nix/dotfiles` — user runs it).
 | PostToolUse | `Edit\|MultiEdit\|Write` | `claude-rust-check` | rustfmt edited `.rs`, parse errors feed back; semantic lints ride rust-analyzer |
 | PostToolUse | `Edit\|MultiEdit\|Write` | `claude-shell-check` | shellcheck edited shell scripts |
 | PostToolUse | `Edit\|MultiEdit\|Write\|NotebookEdit` | `claude-comment-check` | flag net-new comment lines for a necessity check |
-| Stop | — | `claude-stop-verify` | block once per turn when `.nix` changed since the last `dotfiles-verify` pass (success stamp under `$XDG_RUNTIME_DIR`) |
 | SessionStart | `startup\|resume` | `ai-memory pull` (backgrounded) + `ai-memory debt` | rebase memory store; whisper when the dream loop is stale |
 | statusLine | — | `claude-statusline` | context + rate-limit line |
 

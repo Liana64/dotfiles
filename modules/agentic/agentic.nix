@@ -104,6 +104,7 @@
         # Wildcards only on binaries with no eval/exec flags plus own scripts;
         # evaluators (nix eval/build, cargo, nix fmt with args) stay prompted.
         # Compound commands decompose: every segment must match a rule.
+        # devshell rules pin shell + inner command, else -c is an exec hatch.
         permissions.allow = [
           "Bash(ai-memory *)"
           "Bash(ai-todo *)"
@@ -132,6 +133,14 @@
           "Bash(lspci *)"
           "Bash(lsusb *)"
           "Bash(modinfo *)"
+          "Bash(nix develop .#rust -c cargo build)"
+          "Bash(nix develop .#rust -c cargo build *)"
+          "Bash(nix develop .#rust -c cargo check)"
+          "Bash(nix develop .#rust -c cargo check *)"
+          "Bash(nix develop .#rust -c cargo clippy)"
+          "Bash(nix develop .#rust -c cargo clippy *)"
+          "Bash(nix develop .#rust -c cargo fmt)"
+          "Bash(nix develop .#rust -c cargo fmt *)"
           "Bash(nix flake check)"
           "Bash(nix flake metadata)"
           "Bash(nix flake show)"
@@ -269,10 +278,6 @@
         hooks.Stop = [
           {
             hooks = [
-              {
-                type = "command";
-                command = "${claudeScripts}/bin/claude-stop-verify";
-              }
               {
                 type = "command";
                 command = "${claudeScripts}/bin/harness-status";

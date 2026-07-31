@@ -18,7 +18,7 @@ unabridged; state which mode ran (fork or inline).
 
 You are a forked retrospective of this session. The subject is the *process*,
 not the project: improve the agentic system so the next session runs better.
-Read `/nix/dotfiles/modules/agentic/README.md` first — its improvement-surface
+Read `/nix/dotfiles/modules/agentic/AGENTS.md` first — its improvement-surface
 table is the routing map for every finding.
 
 1. **Scope** — $ARGUMENTS names the focus; otherwise the multi-step work just

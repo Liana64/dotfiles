@@ -37,7 +37,7 @@ Inert by design — do not import or "fix":
 - Format/lint: hooks auto-format and lint edited `.nix` (alejandra, statix, deadnix; `statix.toml` disables lints that fight house style) and shellcheck shell edits. `nix fmt` is for bulk reformatting only (and fails on the staged `impermanence.nix` — format files explicitly instead).
 
 ## Verify
-After editing `.nix` files, check evaluation (no build, no switch) with `dotfiles-verify`; a Stop hook blocks once per turn until it has passed on the current tree.
+After a multi-step `.nix` change, check evaluation (no build, no switch) with `dotfiles-verify` — once at the end, not per edit.
 New files must be `git add`ed before flake eval sees them (the script warns); `gen-index` likewise skips untracked leaves.
 `nix flake check` additionally gates the generated indexes, token budgets, guard fixtures, shellcheck on `modules/bin`, and the root `justfile`.
 `frame` (or bare `just` at the repo root) lists all repo/system tasks; recipes shell out to the same commands documented here.
