@@ -10,7 +10,7 @@ Structured as the **dendritic pattern** (flake-parts + `vic/import-tree`): every
 
 ## Layout
 - `flake.nix` — inputs + a one-line `mkFlake (import-tree ./modules)`; logic here would bypass import-tree.
-- `modules/` — the dendritic tree. A leaf registers config under `flake.modules.<class>.<aspect>` (`class` = `nixos` | `homeManager`); the same aspect from many files merges. No `default.nix` aggregators — adding a file is enough. **Module index: `modules/README.md`** — consult it before exploring or fanning out search agents.
+- `modules/` — the dendritic tree. A leaf registers config under `flake.modules.<class>.<aspect>` (`class` = `nixos` | `homeManager`); the same aspect from many files merges. No `default.nix` aggregators — adding a file is enough. **Module index: `modules/AGENTS.md`** — consult it before exploring or fanning out search agents.
   - `modules/flake/` — plumbing: `hosts.nix` (assembles the configs), `modules-option.nix` (declares the aspect store), plus generators, checks, budgets, devshells — see the index.
   - `modules/{hardware,security,graphical,shell,system}/` — feature aspects grouped by domain (navigation only; import loads them all). A file may declare both a `nixos.*` and a `homeManager.*` aspect.
   - `modules/features/` — cross-class cells: `theme` (theme option + `colors` arg), `tasks` (taskManager option + todoist).
