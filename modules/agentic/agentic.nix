@@ -62,6 +62,15 @@
     # (Grep, Glob); the guard hook gets the same lists injected at wrap time.
     secretPatterns = import ../_lib/secret-patterns.nix;
 
+    cargoDevshell =
+      lib.concatMap
+      (sel:
+        lib.concatMap (cmd: [
+          "Bash(nix develop ${sel}-c cargo ${cmd})"
+          "Bash(nix develop ${sel}-c cargo ${cmd} *)"
+        ]) ["build" "check" "clippy" "fmt" "test"])
+      ["" ". "];
+
     hardening = import ../_lib/systemd-hardening.nix;
     # one systemd-run property line per attr; list attrs get a line per element
     toProps = preset:
@@ -101,63 +110,76 @@
         permissions.deny =
           map (g: "Read(${g})") secretPatterns.globs
           ++ lib.concatMap (d: ["Read(**/${d}/**)" "Read(~/${d}/**)"]) secretPatterns.dirs;
-        # Wildcards only on binaries with no eval/exec flags plus own scripts;
-        # evaluators (nix eval/build, cargo, nix fmt with args) stay prompted.
-        # Compound commands decompose: every segment must match a rule.
-        # devshell rules pin shell + inner command, else -c is an exec hatch.
-        permissions.allow = [
-          "Bash(ai-memory *)"
-          "Bash(ai-todo *)"
-          "Bash(boltctl domains *)"
-          "Bash(boltctl list *)"
-          "Bash(cilium status *)"
-          "Bash(dmesg)"
-          "Bash(dotfiles-verify)"
-          "Bash(dotfiles-verify *)"
-          "Bash(flux --context milberry get *)"
-          "Bash(flux get *)"
-          "Bash(flux logs *)"
-          "Bash(flux tree *)"
-          "Bash(git add *)"
-          "Bash(helm history *)"
-          "Bash(helm list *)"
-          "Bash(helm status *)"
-          "Bash(infra)"
-          "Bash(infra list)"
-          "Bash(journalctl *)"
-          "Bash(kubectl describe *)"
-          "Bash(kubectl get *)"
-          "Bash(kubectl logs *)"
-          "Bash(kubectl top *)"
-          "Bash(lsmod)"
-          "Bash(lspci *)"
-          "Bash(lsusb *)"
-          "Bash(modinfo *)"
-          "Bash(nix develop .#rust -c cargo build)"
-          "Bash(nix develop .#rust -c cargo build *)"
-          "Bash(nix develop .#rust -c cargo check)"
-          "Bash(nix develop .#rust -c cargo check *)"
-          "Bash(nix develop .#rust -c cargo clippy)"
-          "Bash(nix develop .#rust -c cargo clippy *)"
-          "Bash(nix develop .#rust -c cargo fmt)"
-          "Bash(nix develop .#rust -c cargo fmt *)"
-          "Bash(nix flake check)"
-          "Bash(nix flake metadata)"
-          "Bash(nix flake show)"
-          "Bash(nix fmt)"
-          "Bash(nix run .#gen-agentic-index)"
-          "Bash(nix run .#gen-index)"
-          "Bash(systemctl --user is-enabled *)"
-          "Bash(systemctl --user list-unit-files *)"
-          "Bash(systemctl --user show *)"
-          "Bash(systemctl --user status *)"
-          "Bash(systemctl status *)"
-          "Read(~/Projects/Software/ai-memory/**)"
-          "Read(~/.claude/projects/**/memory/**)"
-          "Skill"
-          "WebFetch(domain:www.anthropic.com)"
-          "WebSearch"
-        ];
+        # Wildcards only on no-eval/exec binaries plus own scripts (rg excepted:
+        # --pre execs); evaluators (nix eval/build, bare cargo, nix fmt args) prompt.
+        # Compound commands decompose per segment; nix develop -c pins only cargo.
+        permissions.allow =
+          [
+            "Bash(ai-memory *)"
+            "Bash(ai-todo *)"
+            "Bash(boltctl domains *)"
+            "Bash(boltctl list *)"
+            "Bash(cilium status *)"
+            "Bash(dmesg)"
+            "Bash(dotfiles-verify)"
+            "Bash(dotfiles-verify *)"
+            "Bash(flux --context milberry get *)"
+            "Bash(flux get *)"
+            "Bash(flux logs *)"
+            "Bash(flux tree *)"
+            "Bash(cut *)"
+            "Bash(git add *)"
+            "Bash(git branch)"
+            "Bash(git diff)"
+            "Bash(git diff *)"
+            "Bash(git log)"
+            "Bash(git log *)"
+            "Bash(git show)"
+            "Bash(git show *)"
+            "Bash(git status)"
+            "Bash(git status *)"
+            "Bash(head *)"
+            "Bash(helm history *)"
+            "Bash(helm list *)"
+            "Bash(helm status *)"
+            "Bash(infra)"
+            "Bash(infra list)"
+            "Bash(journalctl *)"
+            "Bash(kubectl describe *)"
+            "Bash(kubectl get *)"
+            "Bash(kubectl logs *)"
+            "Bash(kubectl top *)"
+            "Bash(lsmod)"
+            "Bash(lspci *)"
+            "Bash(lsusb *)"
+            "Bash(modinfo *)"
+            "Bash(nix flake check)"
+            "Bash(nix flake metadata)"
+            "Bash(nix flake show)"
+            "Bash(nix fmt)"
+            "Bash(nix run .#gen-agentic-index)"
+            "Bash(nix run .#gen-index)"
+            "Bash(jq *)"
+            "Bash(rg *)"
+            "Bash(sort)"
+            "Bash(sort *)"
+            "Bash(systemctl --user is-enabled *)"
+            "Bash(systemctl --user list-unit-files *)"
+            "Bash(systemctl --user show *)"
+            "Bash(systemctl --user status *)"
+            "Bash(systemctl status *)"
+            "Bash(tail *)"
+            "Bash(uniq)"
+            "Bash(uniq *)"
+            "Bash(wc)"
+            "Bash(wc *)"
+            "Read(~/Projects/Software/ai-memory/**)"
+            "Read(~/.claude/projects/**/memory/**)"
+            "Skill"
+            "WebFetch(domain:www.anthropic.com)"
+            "WebSearch"
+          ]
+          ++ cargoDevshell;
         lspServers = {
           bash = {
             command = "${pkgs.bash-language-server}/bin/bash-language-server";

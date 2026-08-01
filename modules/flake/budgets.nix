@@ -5,13 +5,10 @@
   ...
 }: let
   inherit (inputs) self;
-  # these files ride into sessions; adopting a line at cap means pruning
-  # one — additions are trades, not accumulation.
   budgets = {
     "modules/agentic/context/AGENTS.md" = 60;
-    "CLAUDE.md" = 50;
-    "modules/security/CLAUDE.md" = 25;
-    "modules/bin/CLAUDE.md" = 25;
+    "AGENTS.md" = 50;
+    "modules/security/AGENTS.md" = 25;
   };
 in {
   perSystem = {pkgs, ...}: {
