@@ -22,8 +22,7 @@ These override conflicting guidance.
 - Code derives from a single source of reproducible truth.
 - Use LSP over grep for navigation and check for errors.
 - Code is a bonsai: thoughtful, zen, minimal — prune what isn't vital.
-- Comments are exceptional: default zero, far fewer than feels natural — only a vital constraint or failure the code can't express, one terse line; narration, history, and restatement get deleted on contact. Trim a survivor by compressing facts, not deleting them. Overrides a file's comment density.
-- Comment voice: lowercase, one thought per line
+- Do not use comments unless explicitly mentioned
 - Design to minimize surprise.
 
 # Collaboration
