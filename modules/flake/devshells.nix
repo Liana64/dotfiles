@@ -7,29 +7,10 @@
   }: {
     devShells = {
       infra = pkgs.mkShell {
-        packages = with pkgs;
-          [
-            age
-            ansible
-            ansible-lint
-            cilium-cli
-            fluxcd
-            gitleaks
-            go-task
-            helmfile
-            jq
-            ktop
-            kubeconform
-            kubectl
-            kubernetes-helm
-            kustomize
-            opentofu
-            pre-commit
-            sops
-            talosctl
-            yq-go
-          ]
-          ++ [inputs'.nixpkgs-unstable.legacyPackages.talhelper];
+        packages = import ../_lib/infra-tools.nix {
+          inherit pkgs;
+          unstable = inputs'.nixpkgs-unstable.legacyPackages;
+        };
       };
 
       rust = pkgs.mkShell {
