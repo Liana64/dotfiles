@@ -2,11 +2,12 @@
 # @desc: PreToolUse hook — deny git commit/push; publishing is user-run
 # Run `claude-git-guard --test` to execute the fixture.
 
-# <name> <ERE>. Segment-limited ([^|;&]*) so `git add x && echo commit` stays clean.
-rules='
-git-commit  \bgit\b[^|;&]*\bcommit\b
-git-push    \bgit\b[^|;&]*\bpush\b
-'
+# <name> <ERE>. Only global options may precede the verb, so it must sit in git's subcommand slot.
+opts='([[:space:]]+(-[Cc][[:space:]]+[^[:space:]]+|-[^[:space:]]+))*[[:space:]]+'
+rules="
+git-commit  \\bgit\\b${opts}commit\\b
+git-push    \\bgit\\b${opts}push\\b
+"
 
 deny() {
   jq -n --arg r "$1" \
@@ -48,6 +49,10 @@ run_tests() {
   t git-diff         allow "$(bash_in 'git diff --stat')"
   t ai-memory-sync   allow "$(bash_in 'ai-memory sync "add fact"')"
   t add-then-prose   allow "$(bash_in 'git add x && echo commit recorded')"
+  t git-log          allow "$(bash_in 'git log --oneline -5')"
+  t log-grep-verb    allow "$(bash_in 'git log --grep commit')"
+  t log-pickaxe      allow "$(bash_in 'git log -S push -- modules/bin')"
+  t log-c-dir        allow "$(bash_in 'git -C /tmp/repo log --format=%s push')"
 
   t git-commit       deny "$(bash_in 'git commit -m x')"
   t git-c-commit     deny "$(bash_in 'git -C /tmp/repo commit --amend')"
