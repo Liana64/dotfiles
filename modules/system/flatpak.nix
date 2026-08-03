@@ -16,7 +16,6 @@
       script = ''
         flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-        # Verified packages
         verified=(
           org.signal.Signal
           org.gnome.Calculator
@@ -48,7 +47,6 @@
           # org.zulip.Zulip
         )
 
-        # Unverified packages
         unverified=(
           me.proton.Mail
         )
@@ -75,21 +73,25 @@
         flatpak override --env=SIGNAL_PASSWORD_STORE=gnome-libsecret org.signal.Signal
         flatpak override --env=ELECTRON_OZONE_PLATFORM_HINT=wayland
 
-        # Share the stylix GTK theme (highlight accent) with flatpaks; gtk.css and the Obsidian vault symlink into /nix/store.
+        # Share the stylix GTK theme (highlight accent) with flatpaks
         flatpak override --filesystem=xdg-config/gtk-3.0:ro
         flatpak override --filesystem=xdg-config/gtk-4.0:ro
         flatpak override --filesystem=/nix/store:ro
       '';
-      # needs network, /var writes, and bwrap user namespaces.
+      unitConfig = {
+        StartLimitIntervalSec = 600;
+        StartLimitBurst = 8;
+      };
       serviceConfig =
         hardening.base
         // {
           Type = "oneshot";
           RemainAfterExit = true;
+          Restart = "on-failure";
+          RestartSec = 30;
         };
     };
-    # Fix xdg-open in flatpak; include the user profile so the portal can
-    # launch home-manager-installed apps (e.g. firefox) for URL handlers.
+
     systemd.user.extraConfig = ''
       DefaultEnvironment="PATH=/etc/profiles/per-user/liana/bin:/run/current-system/sw/bin"
     '';
