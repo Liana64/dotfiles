@@ -27,10 +27,7 @@
           org.gnome.Snapshot
           org.gnome.Characters
           org.gnome.Calendar
-          #org.gnome.Mahjongg
-          #com.github.finefindus.eyedropper
           dev.bragefuglseth.Fretboard
-          # com.rafaelmardojai.Blanket
           org.mozilla.Thunderbird
           org.gimp.GIMP
           org.libreoffice.LibreOffice
