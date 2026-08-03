@@ -249,7 +249,7 @@
             --sidebar-background-color: ${colors.darker} !important;
           }
 
-          #sidebar-main,
+          #sidebar-container,
           #sidebar-launcher-splitter {
             display: none !important;
           }
