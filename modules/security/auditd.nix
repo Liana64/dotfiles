@@ -17,7 +17,7 @@
       max_log_file = 16;
       max_log_file_action = "rotate";
       num_logs = 5;
-      # daemon default suspends logging under disk pressure
+      priority_boost = 0;
       space_left = spaceLeftMB;
       space_left_action = "syslog";
       admin_space_left_action = "syslog";
@@ -86,6 +86,7 @@
         SystemCallArchitectures = "native";
         RestrictAddressFamilies = "AF_UNIX AF_NETLINK";
         CapabilityBoundingSet = "CAP_AUDIT_CONTROL CAP_AUDIT_READ CAP_AUDIT_WRITE CAP_CHOWN";
+        Nice = -4;
       };
 
     systemd.services.audit-rules-nixos = {
