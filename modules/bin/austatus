@@ -47,6 +47,9 @@ for f in /var/lib/audit-wall/alerts/*; do
 done
 if [ "$found" -eq 0 ]; then echo "none"; fi
 
+section "failed units"
+systemctl list-units --failed --no-legend --plain | grep . || echo "none"
+
 section "events by key (full log)"
 aureport -k --summary -i 2>/dev/null || echo "none"
 section "events since ack (count key exe auid success)"

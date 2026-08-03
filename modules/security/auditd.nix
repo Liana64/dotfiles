@@ -10,9 +10,7 @@
     wallKeys = ["usbguard" "code-injection" "data-injection" "register-injection" "32bit-abi" "exec-scratch"];
     spaceLeftMB = 2048;
   in {
-    # DISA RHEL STIG subset: tamper signals only, not full coverage
     security.auditd.enable = true;
-    # NixOS conf omits rotation; daemon default is ignore (unbounded growth)
     security.auditd.settings = {
       max_log_file = 16;
       max_log_file_action = "rotate";
@@ -25,7 +23,6 @@
       disk_error_action = "syslog";
     };
     security.audit = {
-      # "lock" appends -e 2: rules immutable until reboot, so root can't silently remove them
       enable = "lock";
       backlogLimit = 8192;
       rules = [
@@ -121,6 +118,8 @@
         ack=/var/lib/audit-wall/ack
         [ -s "$ack" ] || date '+%m/%d/%Y %T' > "$ack"
         summary=""
+        apid=$(${pkgs.audit}/bin/auditctl -s 2>/dev/null | sed -n 's/^pid //p')
+        if [ "''${apid:-0}" -eq 0 ]; then summary="$summary auditd-dead"; fi
         for key in ${toString wallKeys}; do
           # Rule (re)loads tag the key on a CONFIG_CHANGE bundled with an auditctl
           # SYSCALL keyed (null); match key on SYSCALL so reboots/switches don't trip.
@@ -131,6 +130,8 @@
         for f in /var/lib/audit-wall/alerts/*; do
           if [ -s "$f" ]; then summary="$summary ''${f##*/}:$(wc -l <"$f")"; fi
         done
+        failed=$(systemctl list-units --failed --no-legend --plain | wc -l)
+        if [ "$failed" -gt 0 ]; then summary="$summary failed-units:$failed"; fi
         # stateless df poll instead of auditd exec actions, banner self-clears
         free=$(df --output=avail -m /var/log | tail -n1 | tr -d ' ')
         if [ "$free" -lt ${toString spaceLeftMB} ]; then summary="$summary audit-disk:''${free}MB-free"; fi
