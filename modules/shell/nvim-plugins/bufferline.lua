@@ -1,16 +1,22 @@
 require("bufferline").setup({
   options = {
+    ---@type fun(n: integer)
     close_command = function(n) Snacks.bufdelete(n) end,
+
+    ---@type fun(n: integer)
     right_mouse_command = function(n) Snacks.bufdelete(n) end,
   },
 })
 
 -- Ephemeral buffers: wipe hidden buffers that are neither pinned nor edited.
 -- Keep signal is deliberate (insert or save) so plugin touch-ups don't pin.
+--
+---@type fun(ev: vim.api.keyset.create_autocmd.callback_args)
 local function mark_kept(ev) vim.b[ev.buf].kept = true end
 vim.api.nvim_create_autocmd("InsertEnter", { callback = mark_kept })
 vim.api.nvim_create_autocmd("BufWritePost", { callback = mark_kept })
 
+---@type fun(buf: integer): boolean
 local function is_pinned(buf)
   local ok, pinned = pcall(function()
     return require("bufferline.groups")._is_pinned({ id = buf })

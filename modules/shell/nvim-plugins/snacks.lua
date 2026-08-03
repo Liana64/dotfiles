@@ -1,7 +1,8 @@
 local Snacks = require("snacks")
 
 -- Disable default netrw
-vim.cmd("let g:loaded_netrw = 1")
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 
 -- vim.api.nvim_create_autocmd("VimEnter", {
 --   callback = function()
@@ -155,5 +156,5 @@ Snacks.setup({
   win = { enabled = true },
 })
 
-vim.api.nvim_set_hl(0, "SnacksIndent", { fg = "#3c3836" }) -- base02
-vim.api.nvim_set_hl(0, "SnacksIndentScope", { fg = "#928374" }) -- base03
+vim.api.nvim_set_hl(0, "SnacksIndent", { fg = vim.g.palette.base02 })
+vim.api.nvim_set_hl(0, "SnacksIndentScope", { fg = vim.g.palette.base03 })

@@ -25,7 +25,6 @@
       lazygit
       lua-language-server
       marksman
-      nil
       nixd
       nix-tree
       pre-commit

@@ -1,5 +1,7 @@
-vim.lsp.config("*", {
-  capabilities = require("cmp_nvim_lsp").default_capabilities(),
-})
+---@type vim.lsp.Config
+local defaults = {
+  capabilities = require("blink.cmp").get_lsp_capabilities(),
+}
 
-vim.lsp.enable({ "yamlls", "lua_ls", "nil_ls" })
+vim.lsp.config("*", defaults)
+vim.lsp.enable({ "yamlls", "lua_ls", "nixd" })

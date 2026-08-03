@@ -1,7 +1,9 @@
 require("gitsigns").setup({
+	---@type fun(bufnr: integer)
 	on_attach = function(bufnr)
 		local gs = package.loaded.gitsigns
 
+		---@type fun(mode: string|string[], l: string, r: string|fun(), desc: string)
 		local function map(mode, l, r, desc)
 			vim.keymap.set(mode, l, r, { buffer = bufnr, desc = desc })
 		end

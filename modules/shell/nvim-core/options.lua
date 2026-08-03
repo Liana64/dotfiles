@@ -1,9 +1,10 @@
+vim.g.mapleader = " "
+
 -- Vim options
 local opt = vim.opt
 opt.relativenumber = true
 opt.number = true
 opt.expandtab = true
-opt.autoindent = true
 opt.wrap = true
 opt.tabstop = 2
 opt.shiftwidth = 2
@@ -15,12 +16,8 @@ opt.smartcase = true
 
 -- Visual
 opt.cursorline = true
-opt.termguicolors = true
 opt.background = "dark"
 opt.signcolumn = "yes"
-
--- Backspace
-opt.backspace = "indent,eol,start"
 
 -- Clipboard
 opt.clipboard:append("unnamedplus") -- use system clipboard as default register

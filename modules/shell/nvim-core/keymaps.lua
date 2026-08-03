@@ -1,5 +1,3 @@
-vim.g.mapleader = " "
-
 local keymap = vim.keymap
 
 keymap.set("n", "<C-h>", "<C-w>h", { desc = "Focus left" })
@@ -27,6 +25,7 @@ keymap.set("n", "<leader>+", "<C-a>", { desc = "Increment number" })
 keymap.set("n", "<leader>-", "<C-x>", { desc = "Decrement number" })
 
 -- gx: open URL/path under cursor or selection; add https:// when schemeless
+---@type fun(url: string?)
 local function open_url(url)
   url = vim.trim(url or "")
   if url == "" then return end
