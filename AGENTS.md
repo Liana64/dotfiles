@@ -28,7 +28,7 @@ Inert by design — do not import or "fix":
 - One feature per file; wrap the body as `flake.modules.<class>.<aspect> = <module>`. Disable a module by prefixing its path with `_`. `/new-module` scaffolds a leaf plus its gates (git add, gen-index, verify).
 - Keep `# @desc: <one line>` as the first line, above the wrapper; it feeds the module index (`nix run .#gen-index`).
 - Aspects get `inputs`/`nixpkgs-unstable` via `specialArgs`/`extraSpecialArgs` (set in `modules/flake/hosts.nix`); `colors` flows from the `theme` cell via `_module.args`.
-- User `liana`, email `liana@lianas.org` hardcoded in `modules/shell/git.nix`.
+- User `liana`, email `liana@lianas.org` hardcoded in `modules/shell/dvcs.nix`.
 - `stateVersion`: NixOS `23.05`, home-manager `26.05`. Do not change.
 
 ## Build
