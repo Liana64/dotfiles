@@ -21,7 +21,7 @@ scan() {
     [ -z "$name" ] && continue
     printf '%s' "$cmd" | grep -Eq -- "$re" && { printf '%s' "$name"; break; }
   done)
-  [ -n "$hit" ] && deny "$hit declined: commits and pushes are user-run; the memory repo publishes via ai-memory sync"
+  [ -n "$hit" ] && deny "$hit declined: commits and pushes are user-run"
 }
 
 run_tests() {
