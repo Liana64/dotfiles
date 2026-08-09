@@ -14,6 +14,14 @@
       wants = ["network-online.target" "nss-lookup.target"];
       path = [pkgs.flatpak pkgs.gawk];
       script = ''
+        flatpak override --socket=wayland
+        flatpak override --nosocket=x11
+        flatpak override --env=SIGNAL_PASSWORD_STORE=gnome-libsecret org.signal.Signal
+        flatpak override --env=ELECTRON_OZONE_PLATFORM_HINT=wayland
+        flatpak override --filesystem=xdg-config/gtk-3.0:ro
+        flatpak override --filesystem=xdg-config/gtk-4.0:ro
+        flatpak override --filesystem=/nix/store:ro
+
         flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
         verified=(
@@ -27,6 +35,7 @@
           org.gnome.Characters
           org.gnome.Calendar
           dev.bragefuglseth.Fretboard
+          # EOL id, pinned: the thunderbird_esr rebase orphans this app's data dir and the profile path in graphical/thunderbird.nix
           org.mozilla.Thunderbird
           org.gimp.GIMP
           org.libreoffice.LibreOffice
@@ -65,31 +74,34 @@
         done
 
         flatpak install -y --noninteractive flathub "''${desired[@]}"
+        for app in "''${desired[@]}"; do
+          if [ "$app" != org.mozilla.Thunderbird ]; then
+            flatpak update -y --noninteractive "$app" || true
+          fi
+        done
+        flatpak update -y --noninteractive --runtime || true
         flatpak uninstall -y --noninteractive --unused || true
-
-        # Overrides
-        flatpak override --socket=wayland
-        flatpak override --nosocket=x11
-        flatpak override --env=SIGNAL_PASSWORD_STORE=gnome-libsecret org.signal.Signal
-        flatpak override --env=ELECTRON_OZONE_PLATFORM_HINT=wayland
-
-        # Share the stylix GTK theme (highlight accent) with flatpaks
-        flatpak override --filesystem=xdg-config/gtk-3.0:ro
-        flatpak override --filesystem=xdg-config/gtk-4.0:ro
-        flatpak override --filesystem=/nix/store:ro
       '';
       unitConfig = {
-        StartLimitIntervalSec = 600;
-        StartLimitBurst = 8;
+        StartLimitIntervalSec = 3600;
+        StartLimitBurst = 10;
       };
       serviceConfig =
         hardening.base
         // {
           Type = "oneshot";
-          RemainAfterExit = true;
           Restart = "on-failure";
-          RestartSec = 30;
+          RestartSec = 120;
         };
+    };
+
+    systemd.timers.flatpak-repo = {
+      wantedBy = ["timers.target"];
+      timerConfig = {
+        OnCalendar = "daily";
+        Persistent = true;
+        RandomizedDelaySec = "30min";
+      };
     };
 
     systemd.user.extraConfig = ''
