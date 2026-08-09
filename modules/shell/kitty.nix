@@ -1,6 +1,11 @@
 # @desc: Kitty terminal
 {...}: {
-  flake.modules.homeManager.kitty = {colors, ...}: {
+  flake.modules.homeManager.kitty = {
+    colors,
+    config,
+    lib,
+    ...
+  }: {
     programs.kitty = {
       enable = true;
 
@@ -10,6 +15,7 @@
       };
 
       settings = {
+        shell = lib.getExe config.programs.nushell.package;
         term = "xterm-256color";
         macos_option_as_cmd = "yes";
         clear_all_shortcuts = "yes";
