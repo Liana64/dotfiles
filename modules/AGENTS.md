@@ -59,11 +59,16 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/shell/benchmarks.nix` | wifi-bench / bt-bench wrappers with bundled deps |
 | `modules/shell/cli-packages.nix` | Cross-platform user CLI packages |
 | `modules/shell/dice.nix` | Curated fortune file + dice wrapper |
+| `modules/shell/dvcs.nix` | DVCS config; hardcodes user liana / email |
 | `modules/shell/frame.nix` | frame — global just runner for repo/system/hardware/ai tasks |
-| `modules/shell/git.nix` | Git config; hardcodes user liana / email |
+| `modules/shell/helix/export.nix` | helix-portable — nix-free helix config tarball (nix build .#helix-portable) |
+| `modules/shell/helix/helix.nix` | Helix editor — built-in LSP/tree-sitter/pickers, zero plugins |
+| `modules/shell/helix/keymaps.nix` | Helix keymaps mirroring nvim (space leader + C-x prefix) |
+| `modules/shell/helix/languages.nix` | Helix language servers — nixd, yamlls, lua-ls, all from nixpkgs |
 | `modules/shell/infra.nix` | infra — home-infra Taskfile runner with bare-name task resolution |
 | `modules/shell/k9s.nix` | k9s Kubernetes TUI |
 | `modules/shell/kitty.nix` | Kitty terminal |
+| `modules/shell/nushell.nix` | Nushell — structured-pipeline sidecar (nu -c one-shots) |
 | `modules/shell/nvim.nix` | Neovim config |
 | `modules/shell/probe.nix` | probe — cluster-side connectivity checks through the netshoot pod |
 | `modules/shell/shell.nix` | Zsh: history, completion, autosuggestion |
