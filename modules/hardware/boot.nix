@@ -1,10 +1,15 @@
 # @desc: Boot configuration
 {...}: {
   flake.modules.nixos.boot = {
+    inputs,
     lib,
     pkgs,
     ...
   }: {
+    imports = [
+      inputs.angelboot.nixosModules.default
+    ];
+
     boot = {
       loader = {
         systemd-boot.enable = lib.mkForce false;

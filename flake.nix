@@ -40,6 +40,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    angelboot = {
+      url = "git+ssh://git@git.milberry.org/liana/angelboot.git";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     sops-nix = {
       url = "github:Liana64/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
