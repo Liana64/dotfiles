@@ -45,7 +45,13 @@
       "splash"
       "udev.log_level=3"
       "rd.systemd.show_status=auto"
+      "video=eDP-1:1920x1200"
     ];
+
+    console = {
+      font = "ter-v16n";
+      packages = [pkgs.terminus_font];
+    };
 
     # Keep boot console quiet so kernel/udev messages don't overwrite plymouth/tuigreet
     boot.consoleLogLevel = 3;
