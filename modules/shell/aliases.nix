@@ -49,6 +49,13 @@
       gc = "nix-collect-garbage -d";
     };
 
+    ai = {
+      haiku = "claude --model haiku --effort high";
+      sonnet = "claude --model sonnet --effort high";
+      opus = "claude --model opus";
+      fable = "claude --model fable";
+    };
+
     containers = {
       claw = "kubectl exec -it deploy/claude-clode -- claude";
       blog = "kubectl rollout restart deployment blog -n default";
@@ -62,7 +69,7 @@
       catp = "bat -p";
 
       df = "duf";
-      diff = "delta";
+      diff = "difft";
       du = "dust";
 
       top = "btop";
@@ -80,7 +87,7 @@
     };
 
     utility = {
-      bc = "bc -l";
+      bc = "numbat";
       h = "history";
       j = "jobs -l";
       uu = "uuidgen -r | tr '[:lower:]' '[:upper:]'";
@@ -98,7 +105,21 @@
       flushdns = "sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder";
     };
 
-    aliases = editors // ls // grep // personal // tasks // nixos // containers // rust-tools // networking // utility // git // darwin;
+    aliases = editors // ls // grep // personal // tasks // nixos // ai // containers // rust-tools // networking // utility // git // darwin;
+
+    nuShadowedBuiltins = ["ls" "du"];
+    nuZshBound = ["j" "dotfiles"];
+    nuAliases =
+      lib.filterAttrs (
+        name: value:
+          !(lib.elem name (nuShadowedBuiltins ++ nuZshBound))
+          && builtins.match ".*[|;$].*" value == null
+      )
+      aliases
+      // {
+        l = "ls";
+        ll = "ls -l";
+      };
 
     helpText = lib.concatStringsSep "\\n" (
       lib.mapAttrsToList (name: value: "  ${name} = ${value}") aliases
@@ -106,5 +127,6 @@
   in {
     programs.bash.shellAliases = aliases // {aliases = "echo -e '${helpText}'";};
     programs.zsh.shellAliases = aliases // {aliases = "echo -e '${helpText}'";};
+    programs.nushell.shellAliases = nuAliases;
   };
 }

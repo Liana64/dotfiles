@@ -6,7 +6,7 @@
       asciinema
       bat
       btop
-      delta
+      difftastic
       dig
       distrobox
       duf
@@ -27,6 +27,7 @@
       marksman
       nixd
       nix-tree
+      numbat
       pre-commit
       ripgrep
       ripgrep-all
