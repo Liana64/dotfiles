@@ -6,7 +6,7 @@
     selection = ''
       ::selection {
         background-color: ${colors.highlight} !important;
-        color: ${colors.white} !important;
+        color: ${colors.darker} !important;
       }
     '';
   in {

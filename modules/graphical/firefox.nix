@@ -8,7 +8,6 @@
   }: let
     stylixColors = config.lib.stylix.colors;
     highlight = "#${stylixColors.base0D}";
-    white = "#${stylixColors.base07}";
   in {
     programs.firefox = {
       enable = true;
@@ -288,13 +287,13 @@
           .urlbarView-row[selected] .urlbarView-action,
           .urlbarView-row[selected] .urlbarView-secondary-action {
             background-color: ${highlight} !important;
-            color: ${white} !important;
+            color: ${colors.darker} !important;
           }
 
           #urlbar-input::selection,
           #urlbar .urlbar-input-box ::selection {
             background-color: ${highlight} !important;
-            color: ${white} !important;
+            color: ${colors.darker} !important;
           }
         '';
       };

@@ -6,7 +6,7 @@
     ...
   }: {
     options.theme = lib.mkOption {
-      type = lib.types.enum ["blueberry" "milberry"];
+      type = lib.types.enum ["blueberry" "kanagawa" "milberry"];
       default = "milberry";
       description = "Active color palette (modules/_lib/colors/<theme>.nix).";
     };
