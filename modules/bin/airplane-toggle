@@ -1,0 +1,15 @@
+#!/bin/sh
+flag="${XDG_RUNTIME_DIR}/airplane"
+if [ -e "$flag" ]; then
+    rm -f "$flag"
+    nmcli radio wifi on
+    bluetoothctl power on >/dev/null
+    notify-send "Airplane mode off" "Wi-Fi and Bluetooth on"
+else
+    : > "$flag"
+    nmcli radio wifi off
+    bluetoothctl power off >/dev/null
+    notify-send "Airplane mode on" "Wi-Fi and Bluetooth off"
+fi
+pkill -RTMIN+12 waybar 2>/dev/null
+exit 0

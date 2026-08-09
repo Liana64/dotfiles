@@ -20,6 +20,7 @@
         (writeShellScriptBin "sway-screenshot-area" (builtins.readFile ../../modules/bin/sway-screenshot-area))
         (writeShellScriptBin "nix-rebuild-sway" (builtins.readFile ../../modules/bin/nix-rebuild-sway))
         (writeShellScriptBin "caffeinate-toggle" (builtins.readFile ../../modules/bin/caffeinate-toggle))
+        (writeShellScriptBin "airplane-toggle" (builtins.readFile ../../modules/bin/airplane-toggle))
         usbguard
       ];
       buildInputs = [pkgs.makeWrapper];
@@ -27,6 +28,7 @@
         wrapProgram $out/bin/sway-screenshot-all      --prefix PATH : $out/bin
         wrapProgram $out/bin/sway-screenshot-area     --prefix PATH : $out/bin
         wrapProgram $out/bin/nix-rebuild-sway         --prefix PATH : $out/bin
+        wrapProgram $out/bin/airplane-toggle          --prefix PATH : ${lib.makeBinPath (with pkgs; [networkmanager bluez libnotify procps coreutils])}
       '';
     };
     # Cogwheel "task" mode actions. waybar custom/task listens on signal 9.
@@ -173,7 +175,7 @@
           mod = cfg.modifier;
           sup = "Mod4";
         in {
-          "${sup}+Escape" = ''mode "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate"'';
+          "${sup}+Escape" = ''mode "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane"'';
 
           "XF86AudioMedia" = ''mode "task: (a) add · (s) start/stop · (h) hide/show · (t) TUI · (d) done · (g) goal · (c) choose"'';
 
@@ -332,7 +334,7 @@
         bars = [];
 
         modes = {
-          "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate" = {
+          "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane" = {
             p = "exec swaymsg 'mode default' && systemctl poweroff";
             s = "exec swaymsg 'mode default' && systemctl suspend";
             h = "exec swaymsg 'mode default' && systemctl hibernate";
@@ -340,6 +342,7 @@
             g = "exec swaymsg 'mode default' && systemctl --user stop sway-session.target && systemctl --user stop graphical-session.target && swaymsg exit";
             l = "exec swaymsg 'mode default' && swaylock -f";
             c = "exec swaymsg 'mode default' && ${app}/bin/caffeinate-toggle";
+            a = "exec swaymsg 'mode default' && ${app}/bin/airplane-toggle";
             Return = "mode default";
             Escape = "mode default";
           };

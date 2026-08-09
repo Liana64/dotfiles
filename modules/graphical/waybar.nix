@@ -28,6 +28,7 @@
         (writeShellScriptBin "waybar-todoist" (builtins.readFile ../../modules/bin/waybar-todoist))
         (writeShellScriptBin "waybar-sysinfo" (builtins.readFile ../../modules/bin/waybar-sysinfo))
         (writeShellScriptBin "caffeinate-toggle" (builtins.readFile ../../modules/bin/caffeinate-toggle))
+        (writeShellScriptBin "waybar-airplane" (builtins.readFile ../../modules/bin/waybar-airplane))
         usbguard
       ];
       buildInputs = [pkgs.makeWrapper];
@@ -125,6 +126,7 @@
         #custom-syncthing,
         #custom-task,
         #custom-countdown,
+        #custom-airplane,
         #custom-harness-status {
           color: ${white};
           margin: 3px 2px;
@@ -147,6 +149,11 @@
 
         #custom-task {
           color: ${tan};
+        }
+
+        #custom-airplane.active {
+          background: ${orange};
+          color: ${darker};
         }
 
         #custom-harness-status.running {
@@ -268,7 +275,7 @@
 
         #workspaces button.focused {
           background: ${highlight};
-          color: ${white};
+          color: ${darker};
         }
 
         #workspaces button.urgent {
@@ -299,12 +306,14 @@
         #custom-usbguard.blocked,
         #custom-syncthing.error {
           background: ${orange};
+          color: ${darker};
         }
 
         #battery.charging,
         #custom-vpn.connected,
         #bluetooth.connected {
           background: ${green};
+          color: ${darker};
         }
 
         #status #custom-caffeine.active {
@@ -321,7 +330,7 @@
 
           modules-left = ["custom/launcher"] ++ wsModules;
           modules-center = ["custom/clock"];
-          modules-right = ["custom/task" "group/status" "group/hw" "tray"];
+          modules-right = ["custom/airplane" "custom/task" "group/status" "group/hw" "tray"];
 
           # groups stack vertically on a horizontal bar unless told otherwise
           "group/status" = {
@@ -363,6 +372,14 @@
             return-type = "json";
             interval = 900;
             signal = 10;
+            format = "{}";
+          };
+
+          "custom/airplane" = {
+            exec = "${app}/bin/waybar-airplane";
+            return-type = "json";
+            interval = "once";
+            signal = 12;
             format = "{}";
           };
 
