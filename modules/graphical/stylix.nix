@@ -69,6 +69,7 @@
         waybar.enable = false;
         kitty.enable = false;
         neovim.enable = false;
+        helix.enable = false;
         swaylock.enable = false;
         mako.enable = false;
         obsidian.enable = false;

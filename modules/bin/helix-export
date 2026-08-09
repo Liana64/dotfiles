@@ -1,0 +1,10 @@
+#!/bin/sh
+# @desc: Export the portable helix config tarball for non-nix machines
+set -eu
+
+flake=${FLAKE:-/nix/dotfiles}
+out=${1:-helix-config.tar.gz}
+
+cp "$(nix build --no-link --print-out-paths "$flake#helix-portable")" "$out"
+chmod 644 "$out"
+printf 'wrote %s (extract into ~/.config on the target)\n' "$out"

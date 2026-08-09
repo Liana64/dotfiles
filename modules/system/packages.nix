@@ -2,7 +2,7 @@
 {...}: {
   flake.modules.nixos.packages = {pkgs, ...}: {
     environment.variables = {
-      EDITOR = "vim";
+      EDITOR = "hx";
       BROWSER = "firefox";
     };
 
