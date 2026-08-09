@@ -49,6 +49,18 @@ case "$ext" in
   *) exit 0 ;;
 esac
 
+# tooling-consumed comments (type annotations, doc comments, directives)
+# are declarations, not prose — exempt
+case "$ext" in
+  lua) ann='^[[:space:]]*---[[:space:]]*@' ;;
+  rs) ann='^[[:space:]]*(///|//!)' ;;
+  go) ann='^[[:space:]]*//(go|line):' ;;
+  c | h | cpp | hpp | java) ann='^[[:space:]]*///' ;;
+  js | jsx | ts | tsx) ann='^[[:space:]]*//([[:space:]]*@|/[[:space:]]*<reference)' ;;
+  py | ipynb) ann='^[[:space:]]*#[[:space:]]*(type|pyright|mypy|ruff|pylint|fmt):' ;;
+  hs) ann='^[[:space:]]*--[[:space:]]*[|^]' ;;
+esac
+
 extract() {
   case "$file" in
     *.ipynb) jq -r '.cells[]? | select(.cell_type == "code") | .source[]?' "$file" 2>/dev/null ;;
@@ -63,7 +75,7 @@ fi
 
 # net = post count minus snapshot count, deletes offset adds, moves cancel
 # count only — the offending lines are already in context from the tool call
-ccount() { grep -E "$re" | grep -Evc '^[[:space:]]*#!|@desc:|shellcheck|noqa|deadnix|statix'; }
+ccount() { grep -E "$re" | grep -Evc "^[[:space:]]*#!|@desc:|shellcheck|noqa|deadnix|statix${ann:+|$ann}"; }
 pre_n=$(printf '%s' "$preimg" | ccount)
 post_n=$(extract | ccount)
 net=$((post_n - pre_n))
