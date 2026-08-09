@@ -173,6 +173,7 @@
             "Bash(uniq *)"
             "Bash(wc)"
             "Bash(wc *)"
+            "Read(~/Notebook/Files/18 Recipes/**)"
             "Read(~/Projects/Software/ai-memory/**)"
             "Read(~/.claude/projects/**/memory/**)"
             "Skill"

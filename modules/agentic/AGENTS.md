@@ -100,6 +100,7 @@ additions are trades.
 | `/dream` | Forked retrospective on completed multi-step work — consolidate process lessons into the agentic system ("/dream [focus]") |
 | `/explain` | Grounded explanation of a code change or subsystem ("/explain <commit|diff|PR|subsystem>") |
 | `/flake-update` | Update flake inputs with staged verification ("/flake-update [input ...] [--build]") |
+| `/food` | Convert a recipe into clean Obsidian Markdown in the vault ("/food <recipe text | URL | path>") |
 | `/handoff` | Compress live session state into a HANDOFF.md at the working-directory root, for a fresh-context agent to pick the work up ("/handoff [scope]") |
 | `/new-module` | Scaffold a dendritic module leaf ("/new-module <domain>/<name> <desc>") |
 | `/onboard` | Wire the current project into the ai-memory repo ("/onboard") |
@@ -139,5 +140,6 @@ Wrapped scripts with a `# @desc:` header; regenerate with
 | `hardening-probe` | Probe a command or live unit under a systemd-hardening preset |
 | `harness` | launch Claude Code with an LLM proxy |
 | `harness-status` | hook adapter — mirror per-session harness state (running|awaiting) to $XDG_RUNTIME_DIR/harness-status for waybar |
+| `helix-export` | Export the portable helix config tarball for non-nix machines |
 | `waybar-harness-status` | waybar icon — dim dot while harness sessions run, white when one awaits input (flags in $XDG_RUNTIME_DIR/harness-status) |
 <!-- END agentic-scripts -->
