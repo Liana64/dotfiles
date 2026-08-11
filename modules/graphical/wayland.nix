@@ -1,4 +1,4 @@
-# @desc: compositor option (sway|niri) + Wayland session
+# @desc: compositor option (sway|niri|bigscreen) + Wayland session
 {...}: {
   flake.modules.nixos.compositor = {
     config,
@@ -11,7 +11,7 @@
     useNiri = cfg == "niri";
   in {
     options.compositor = lib.mkOption {
-      type = lib.types.enum ["sway" "niri"];
+      type = lib.types.enum ["sway" "niri" "bigscreen"];
       default = "sway";
       description = "Wayland compositor to use for the graphical session.";
     };
@@ -51,7 +51,7 @@
         };
 
         greetd = {
-          enable = true;
+          enable = useSway || useNiri;
           settings.default_session = {
             command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd ${
               if useNiri

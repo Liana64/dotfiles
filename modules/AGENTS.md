@@ -19,6 +19,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/flake/index.nix` | Module index generator + staleness check (nix run .#gen-index) |
 | `modules/flake/keychron.nix` | Keychron Q11 firmware builder/flasher (nix run .#keychron-q11) |
 | `modules/flake/modules-option.nix` | Declares the dendritic aspect store flake.modules.<class>.<aspect> |
+| `modules/graphical/bigscreen.nix` | Plasma Bigscreen TV session (compositor = bigscreen) |
 | `modules/graphical/desktop-packages.nix` | Linux-only user packages (GUI + desktop) |
 | `modules/graphical/files.nix` | Thunar file manager |
 | `modules/graphical/firefox.nix` | Firefox |
@@ -32,7 +33,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/graphical/vesktop.nix` | Vesktop (Discord) |
 | `modules/graphical/vicinae.nix` | Vicinae launcher |
 | `modules/graphical/waybar.nix` | Waybar status bar |
-| `modules/graphical/wayland.nix` | compositor option (sway|niri) + Wayland session |
+| `modules/graphical/wayland.nix` | compositor option (sway|niri|bigscreen) + Wayland session |
 | `modules/graphical/zoom.nix` | Zoom (web client via Firefox) |
 | `modules/hardware/audio.nix` | Audio mixer fixes (ALC285 internal mic) |
 | `modules/hardware/boot.nix` | Boot configuration |

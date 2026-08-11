@@ -10,11 +10,10 @@
   nixosAspects = lib.attrValues (config.flake.modules.nixos or {});
   homeAspects = lib.attrValues (config.flake.modules.homeManager or {});
 
-  # Both hosts run on the same Framework laptop; they differ only by options
-  # (set in hosts/<name>/options.nix).
   hosts = {
     framework.system = "x86_64-linux";
     portable.system = "x86_64-linux";
+    noku.system = "x86_64-linux";
   };
 
   mkUnstable = system:
