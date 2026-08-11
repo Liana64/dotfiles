@@ -98,7 +98,9 @@ additions are trades.
 | `/audit` | File-by-file trust audit of a project, e.g. before forking third-party code ("/audit [path] [--minimal]") |
 | `/dice` | Add a quote to the curated fortune file ("/dice <quote, author, or topic>") — verifies attribution, formats, and places it via a context-loaded agent |
 | `/dream` | Forked retrospective on completed multi-step work — consolidate process lessons into the agentic system ("/dream [focus]") |
+| `/enumerate` | Write a multi-agent siege prompt for a hard goal — strict bar, diverse search, adversarial audit, 5 agents / 1 hour ("/enumerate <goal>") |
 | `/explain` | Grounded explanation of a code change or subsystem ("/explain <commit|diff|PR|subsystem>") |
+| `/fix` | One-shot issue resolution in the dotfiles repo — fork the session, anchor to /nix/dotfiles, root-cause, fix, verify ("/fix [issue]") |
 | `/flake-update` | Update flake inputs with staged verification ("/flake-update [input ...] [--build]") |
 | `/food` | Convert a recipe into clean Obsidian Markdown in the vault ("/food <recipe text | URL | path>") |
 | `/handoff` | Compress live session state into a HANDOFF.md at the working-directory root, for a fresh-context agent to pick the work up ("/handoff [scope]") |
