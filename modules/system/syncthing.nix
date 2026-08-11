@@ -1,6 +1,10 @@
 # @desc: Syncthing
 {...}: {
-  flake.modules.homeManager.syncthing = {lib, ...}: let
+  flake.modules.homeManager.syncthing = {
+    lib,
+    pkgs,
+    ...
+  }: let
     hardening = import ../_lib/systemd-hardening.nix;
   in {
     # setLowPriority calls setpriority/ioprio_set (@resources), home read-only
@@ -121,11 +125,14 @@
 
     # SQLite sidecars must never sync — live WAL/shared-memory files tear across
     # peers. taskchampion.sqlite3 itself rides along as a single-writer backup.
-    home.file."Sync/Data/.stignore".text = ''
-      *-wal
-      *-shm
-      *-journal
-      *.log
+    # Real file, not home.file: Syncthing v2 opens .stignore O_NOFOLLOW (ELOOP on symlinks).
+    home.activation.syncthingStignore = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      run install -Dm644 ${pkgs.writeText "stignore" ''
+        *-wal
+        *-shm
+        *-journal
+        *.log
+      ''} $HOME/Sync/Data/.stignore
     '';
   };
 }
