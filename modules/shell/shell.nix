@@ -30,6 +30,23 @@
         bindkey '^[[1;5D' backward-word
         [[ -s /run/audit-wall ]] && cat /run/audit-wall && echo ""
         if (( RANDOM % 2 )); then fortune; else dice; fi
+        b64e() {
+          local s
+          IFS= read -rs 's?value: '
+          print
+          printf %s "$s" | base64 -w0
+          print
+          unset s
+        }
+        b64d() {
+          local s line
+          IFS= read -rs 's?base64: '
+          while IFS= read -rs -t 0.2 line; do s+=$line; done
+          print
+          printf %s "$s" | base64 -d
+          print
+          unset s line
+        }
       '';
 
       historySubstringSearch.enable = true;
