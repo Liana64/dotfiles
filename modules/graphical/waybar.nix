@@ -54,7 +54,7 @@
       fi
     '';
     # on-click children inherit the unit confinement, bwrap/GPU die there, spawn via the user manager
-    launch = cmd: "systemd-run --user --quiet --collect -- ${cmd}";
+    launch = cmd: "systemd-run --user --quiet --collect ${hardening.args hardening.launch} -- ${cmd}";
   in {
     # ProtectHome=true would also mask /run/user: read-only keeps ~/.config and the
     # wayland socket reachable, %t stays writable for the caffeinate flag
@@ -433,7 +433,7 @@
             exec = "date +'{\"text\": \"%a %b %-d %-I:%M %p\", \"tooltip\": \"%Y-%m-%d | %H:%M\"}'";
             interval = 5;
             return-type = "json";
-            on-click = launch "flatpak run org.mozilla.Thunderbird -calendar";
+            on-click = launch "flatpak run org.mozilla.thunderbird_esr -calendar";
           };
 
           "custom/task" =

@@ -102,7 +102,7 @@
         for_window [app_id=".*"] inhibit_idle fullscreen
 
         assign [app_id="kitty-startup"] workspace 1:q
-        assign [app_id="Thunderbird"] workspace 3:e
+        assign [app_id="org.mozilla.thunderbird_esr"] workspace 3:e
         assign [class="Todoist"] workspace 4:a
         assign [app_id="Element"] workspace 5:s
         assign [app_id="signal"] workspace 5:s
@@ -160,10 +160,10 @@
         modifier = "Mod1";
 
         gaps = {
-          inner = 4;
-          outer = 4;
-          #smartGaps = true;
-          smartBorders = "on";
+          inner = 0;
+          outer = 0;
+          smartGaps = false;
+          smartBorders = "off";
         };
         window.titlebar = false;
         window.border = 2;
@@ -275,7 +275,7 @@
           "${mod}+Shift+w" = "move container to workspace 2:w";
           "${mod}+Control+Shift+w" = "exec 'firefox'";
           "${mod}+Shift+e" = "move container to workspace 3:e";
-          "${mod}+Control+Shift+e" = "workspace 3:e; exec flatpak run org.mozilla.Thunderbird";
+          "${mod}+Control+Shift+e" = "workspace 3:e; exec flatpak run org.mozilla.thunderbird_esr";
           "${mod}+Shift+a" = "move container to workspace 4:a";
           "${mod}+Ctrl+Shift+a" = "exec '${taskApp}'";
           "${mod}+Shift+s" = "move container to workspace 5:s";
