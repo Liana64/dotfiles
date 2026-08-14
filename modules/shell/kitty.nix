@@ -4,6 +4,7 @@
     colors,
     config,
     lib,
+    pkgs,
     ...
   }: {
     programs.kitty = {
@@ -15,7 +16,11 @@
       };
 
       settings = {
-        shell = lib.getExe config.programs.nushell.package;
+        shell = lib.getExe (
+          if config.programs.nushell.enable
+          then config.programs.nushell.package
+          else pkgs.zsh
+        );
         term = "xterm-256color";
         macos_option_as_cmd = "yes";
         clear_all_shortcuts = "yes";

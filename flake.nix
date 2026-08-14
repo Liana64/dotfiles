@@ -61,7 +61,7 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    #impermanence.url = "github:nix-community/impermanence";
+    impermanence.url = "github:nix-community/impermanence";
 
     taskwarrior-tui-src = {
       url = "github:Liana64/taskwarrior-tui/feature/nested-tasks";

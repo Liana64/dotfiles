@@ -7,6 +7,8 @@
   compositor = "sway";
   taskManager = "todoist";
   theme = "kanagawa";
+  impermanence = false;
+  nushell = false;
 
   users.users.liana.initialHashedPassword = "$y$j9T$kWRrNhfqdXExcsRTmxSIg1$n4jTrwnDRfr814vE2su6d1fELLrVEEaTBoWeSrvqq08";
 
