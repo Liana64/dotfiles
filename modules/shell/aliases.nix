@@ -54,6 +54,7 @@
       sonnet = "claude --model sonnet --effort high";
       opus = "claude --model opus";
       fable = "claude --model fable";
+      resume = "claude --resume";
     };
 
     containers = {
