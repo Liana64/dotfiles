@@ -7,13 +7,13 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | File | Description |
 | --- | --- |
 | `modules/agentic/agentic.nix` | Claude Code config: hooks, settings, LSP, materialized agentic/ |
+| `modules/env/devshells.nix` | Dev shells (nix develop .#infra|rust) — project toolchains kept off the global profile |
 | `modules/features/tasks/reminders.nix` | Todoist due/overdue reminders (taskManager = todoist) |
 | `modules/features/tasks/tasks.nix` | taskManager option (nixos) + Todoist app (home) |
 | `modules/features/theme.nix` | Theme option + colors arg, across nixos + home |
 | `modules/flake/agentic-index.nix` | Agentic map table generator + staleness check (nix run .#gen-agentic-index) |
 | `modules/flake/budgets.nix` | Token-budget tripwires on always-loaded agentic artifacts |
 | `modules/flake/checks.nix` | Flake checks: secrets-guard + ai-memory fixtures, shellcheck on the wrapped scripts |
-| `modules/flake/devshells.nix` | Dev shells (nix develop .#infra|rust) — project toolchains kept off the global profile |
 | `modules/flake/formatter.nix` | Code formatter (alejandra) |
 | `modules/flake/hosts.nix` | Assembles nixosConfigurations + homeConfigurations from aspects |
 | `modules/flake/index.nix` | Module index generator + staleness check (nix run .#gen-index) |
@@ -69,17 +69,20 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/shell/infra.nix` | infra — home-infra Taskfile runner with bare-name task resolution |
 | `modules/shell/k9s.nix` | k9s Kubernetes TUI |
 | `modules/shell/kitty.nix` | Kitty terminal |
-| `modules/shell/nushell.nix` | Nushell — structured-pipeline sidecar (nu -c one-shots) |
+| `modules/shell/nushell.nix` | nushell option — Nushell as the interactive shell in place of zsh |
 | `modules/shell/nvim.nix` | Neovim config |
+| `modules/shell/persist-diff.nix` | persist-diff — ephemeral-root files that would vanish on reboot |
 | `modules/shell/probe.nix` | probe — cluster-side connectivity checks through the netshoot pod |
 | `modules/shell/shell.nix` | Zsh: history, completion, autosuggestion |
 | `modules/shell/starship.nix` | Starship prompt |
 | `modules/shell/taskwarrior.nix` | Taskwarrior + nested-task tooling |
+| `modules/system/cache.nix` | Wipe XDG cache every 30 days |
 | `modules/system/dconf.nix` | dconf/gsettings defaults |
 | `modules/system/email.nix` | Protonmail Bridge |
 | `modules/system/flatpak.nix` | Flatpak |
 | `modules/system/fonts.nix` | System fonts |
 | `modules/system/framework-dsp.nix` | EasyEffects DSP for Framework 13 speakers, bound to sway |
+| `modules/system/impermanence.nix` | impermanence option — declarative user password from sops on ephemeral-root hosts |
 | `modules/system/journald.nix` | journald config |
 | `modules/system/mime.nix` | Default applications per MIME type |
 | `modules/system/networking.nix` | NetworkManager + nftables firewall |
