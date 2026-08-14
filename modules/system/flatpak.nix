@@ -1,5 +1,32 @@
 # @desc: Flatpak
 {...}: {
+  flake.modules.homeManager.flatpak = {lib, ...}: let
+    overrides = {
+      "com.bitwarden.desktop".Context = {
+        sockets = "!x11";
+        devices = "!all";
+      };
+      "net.supercellwx.app".Context = {
+        sockets = "!x11";
+        devices = "!all;dri";
+        filesystems = "!xdg-documents";
+      };
+      "org.gnome.Calculator".Context.sockets = "!fallback-x11;!x11";
+      "org.gnome.Calendar".Context.sockets = "!fallback-x11;!x11";
+      "org.gnome.Snapshot".Context.sockets = "!fallback-x11;!x11";
+      "org.pulseaudio.pavucontrol" = {
+        Context.sockets = "!fallback-x11;!x11";
+        Environment."PULSE_PROP_media.category" = "";
+      };
+    };
+  in {
+    xdg.dataFile = lib.mapAttrs' (app: sections:
+      lib.nameValuePair "flatpak/overrides/${app}" {
+        text = lib.generators.toINI {} sections;
+      })
+    overrides;
+  };
+
   flake.modules.nixos.flatpak = {pkgs, ...}: let
     hardening = import ../_lib/systemd-hardening.nix;
   in {
@@ -23,6 +50,7 @@
         flatpak override --filesystem=/nix/store:ro
 
         flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+        flatpak remote-add --if-not-exists supercell-wx https://dpaulat.github.io/supercell-wx/supercell-wx.flatpakrepo
 
         verified=(
           org.signal.Signal
@@ -35,8 +63,7 @@
           org.gnome.Characters
           org.gnome.Calendar
           dev.bragefuglseth.Fretboard
-          # EOL id, pinned: the thunderbird_esr rebase orphans this app's data dir and the profile path in graphical/thunderbird.nix
-          org.mozilla.Thunderbird
+          org.mozilla.thunderbird_esr
           org.gimp.GIMP
           org.libreoffice.LibreOffice
           org.localsend.localsend_app
@@ -75,10 +102,10 @@
 
         flatpak install -y --noninteractive flathub "''${desired[@]}"
         for app in "''${desired[@]}"; do
-          if [ "$app" != org.mozilla.Thunderbird ]; then
-            flatpak update -y --noninteractive "$app" || true
-          fi
+          flatpak update -y --noninteractive "$app" || true
         done
+        flatpak install -y --noninteractive supercell-wx net.supercellwx.app
+        flatpak update -y --noninteractive net.supercellwx.app || true
         flatpak update -y --noninteractive --runtime || true
         flatpak uninstall -y --noninteractive --unused || true
       '';
