@@ -1,5 +1,21 @@
 # @desc: Helix keymaps mirroring nvim (space leader + C-x prefix)
-{...}: {
+{...}: let
+  git = {
+    g = ":sh kitty --detach lazygit";
+    f = ":sh kitty --detach lazygit -f '%{buffer_name}'";
+    s = "changed_file_picker";
+  };
+
+  lsp = {
+    a = "code_action";
+    d = "goto_definition";
+    k = "hover";
+    r = "goto_reference";
+    R = "rename_symbol";
+    s = "symbol_picker";
+    t = "workspace_diagnostics_picker";
+  };
+in {
   flake.modules.homeManager.helix = {
     programs.helix.settings.keys = {
       insert = {
@@ -21,7 +37,10 @@
         C-k = "jump_view_up";
         C-l = "jump_view_right";
         C-s = ":write";
+        C-r = ":reload-all";
         C-v = "select_mode";
+        C-n = "copy_selection_on_next_line";
+        C-p = "copy_selection_on_prev_line";
         "0" = "goto_line_start";
         "$" = "goto_line_end";
         "^" = "goto_first_nonwhitespace";
@@ -38,11 +57,8 @@
           e = "file_explorer";
           z.z = ":write-quit-all";
           q.q = ":quit-all!";
-
-          g = {
-            g = ":sh kitty --detach lazygit";
-            s = "changed_file_picker";
-          };
+          g = git;
+          l = lsp;
 
           s = {
             v = ":vsplit";
@@ -57,13 +73,6 @@
             x = ":buffer-close";
             c = ":buffer-close-others";
           };
-
-          l = {
-            d = "goto_definition";
-            r = "goto_reference";
-            s = "symbol_picker";
-            t = "workspace_diagnostics_picker";
-          };
         };
 
         C-x = {
@@ -77,18 +86,8 @@
           "0" = "wclose";
           "1" = "wonly";
           C-c = ":write-quit-all";
-
-          g = {
-            g = ":sh kitty --detach lazygit";
-            s = "changed_file_picker";
-          };
-
-          l = {
-            d = "goto_definition";
-            r = "goto_reference";
-            s = "symbol_picker";
-            t = "workspace_diagnostics_picker";
-          };
+          g = git;
+          l = lsp;
         };
       };
     };

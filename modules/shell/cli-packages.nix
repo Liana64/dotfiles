@@ -4,6 +4,7 @@
     home.packages = with pkgs; [
       age
       asciinema
+      bash-language-server
       bat
       btop
       difftastic
