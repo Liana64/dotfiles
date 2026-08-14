@@ -36,7 +36,7 @@
         providers.clipboard.preferences.monitoring = false;
         # launched apps otherwise inherit the unit sandbox and die on first
         # home write, the user manager spawns them outside it
-        providers.applications.preferences.launchPrefix = "systemd-run --user --collect --";
+        providers.applications.preferences.launchPrefix = "systemd-run --user --collect ${hardening.args hardening.launch} --";
         window = {
           csd = true;
           rounding = 10;

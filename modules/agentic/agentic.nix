@@ -45,6 +45,7 @@
         + ''
           wrapProgram $out/bin/hardening-probe \
             --set HARDENING_BASE ${lib.escapeShellArg (toProps hardening.base)} \
+            --set HARDENING_LAUNCH ${lib.escapeShellArg (toProps hardening.launch)} \
             --set HARDENING_CONFINED ${lib.escapeShellArg (toProps hardening.confined)} \
             --set HARDENING_AIRGAPPED ${lib.escapeShellArg (toProps hardening.airgapped)}
           wrapProgram $out/bin/claude-secrets-guard \
@@ -72,18 +73,7 @@
       ["" ". "];
 
     hardening = import ../_lib/systemd-hardening.nix;
-    # one systemd-run property line per attr; list attrs get a line per element
-    toProps = preset:
-      lib.concatStringsSep "\n" (lib.flatten (lib.mapAttrsToList
-        (k: v:
-          if lib.isList v
-          then map (x: "${k}=${toString x}") v
-          else "${k}=${
-            if lib.isBool v
-            then lib.boolToString v
-            else toString v
-          }")
-        preset));
+    toProps = preset: lib.concatStringsSep "\n" (hardening.lines preset);
   in {
     programs.claude-code = {
       enable = true;

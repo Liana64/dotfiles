@@ -28,8 +28,8 @@
 
 # shellcheck disable=SC2329  # probe/live_probe dispatch via $probe_fn, cleanup via trap
 usage() {
-  echo 'usage: hardening-probe [--system] <base|confined|airgapped|--from-flake=unit> [-p Prop=val]... [--daemon[=secs]] [--count[=pct]] [--sweep] -- <command...>' >&2
-  echo '       hardening-probe [--system] --live <unit> <base|confined|airgapped|--from-flake> [-p Prop=val]... [--soak[=secs]] [--sweep]' >&2
+  echo 'usage: hardening-probe [--system] <base|launch|confined|airgapped|--from-flake=unit> [-p Prop=val]... [--daemon[=secs]] [--count[=pct]] [--sweep] -- <command...>' >&2
+  echo '       hardening-probe [--system] --live <unit> <base|launch|confined|airgapped|--from-flake> [-p Prop=val]... [--soak[=secs]] [--sweep]' >&2
   exit 2
 }
 
@@ -71,6 +71,7 @@ fi
 ff_unit=''
 case "${1:-}" in
   base) props=${HARDENING_BASE:?not set — run the wrapped binary} ;;
+  launch) props=${HARDENING_LAUNCH:?not set — run the wrapped binary} ;;
   confined) props=${HARDENING_CONFINED:?not set — run the wrapped binary} ;;
   airgapped) props=${HARDENING_AIRGAPPED:?not set — run the wrapped binary} ;;
   --from-flake | --from-flake=*)
