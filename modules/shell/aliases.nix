@@ -55,6 +55,7 @@
       opus = "claude --model opus";
       fable = "claude --model fable";
       resume = "claude --resume";
+      cont = "claude --continue";
     };
 
     containers = {
