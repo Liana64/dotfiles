@@ -163,7 +163,7 @@
           inner = 0;
           outer = 0;
           smartGaps = false;
-          smartBorders = "off";
+          smartBorders = "on";
         };
         window.titlebar = false;
         window.border = 2;
