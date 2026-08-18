@@ -2,9 +2,9 @@
 {...}: {
   flake.modules.homeManager.aliases = {lib, ...}: let
     editors = {
-      vi = "nvim";
-      vim = "nvim";
-      n = "nvim";
+      vi = "hx";
+      vim = "hx";
+      n = "hx";
     };
 
     ls = {

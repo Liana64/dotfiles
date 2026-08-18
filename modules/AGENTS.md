@@ -70,7 +70,6 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/shell/k9s.nix` | k9s Kubernetes TUI |
 | `modules/shell/kitty.nix` | Kitty terminal |
 | `modules/shell/nushell.nix` | nushell option — Nushell as the interactive shell in place of zsh |
-| `modules/shell/nvim.nix` | Neovim config |
 | `modules/shell/persist-diff.nix` | persist-diff — ephemeral-root files that would vanish on reboot |
 | `modules/shell/probe.nix` | probe — cluster-side connectivity checks through the netshoot pod |
 | `modules/shell/shell.nix` | Zsh: history, completion, autosuggestion |
