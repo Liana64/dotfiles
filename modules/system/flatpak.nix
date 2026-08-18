@@ -5,11 +5,23 @@
       "com.bitwarden.desktop".Context = {
         sockets = "!x11";
         devices = "!all";
+        filesystems = "!~/.mozilla;~/.mozilla/native-messaging-hosts:create;!~/.var/app/org.mozilla.firefox/.mozilla;!xdg-config/chromium/NativeMessagingHosts;!xdg-config/google-chrome/NativeMessagingHosts;!xdg-config/microsoft-edge/NativeMessagingHosts;!~/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts;!~/.var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts;!~/.var/app/com.microsoft.Edge/config/microsoft-edge/NativeMessagingHosts";
       };
+      "com.moonlight_stream.Moonlight".Context.devices = "!all;dri;input";
+      "com.rustdesk.RustDesk".Context.filesystems = "!home;xdg-download";
+      "dev.vencord.Vesktop".Context.filesystems = "!~/.steam";
+      "io.github.ungoogled_software.ungoogled_chromium".Context.devices = "!all;dri";
+      "md.obsidian.Obsidian".Context.filesystems = "!home;!/mnt;!/media;!/run/media;!xdg-run/gnupg;~/Notebook";
+      "me.proton.Mail".Context.devices = "!all;dri";
       "net.supercellwx.app".Context = {
         sockets = "!x11";
         devices = "!all;dri";
         filesystems = "!xdg-documents";
+      };
+      "org.gimp.GIMP".Context.devices = "!all;dri";
+      "org.mozilla.thunderbird_esr".Context = {
+        devices = "!all;dri";
+        features = "!devel";
       };
       "org.gnome.Calculator".Context.sockets = "!fallback-x11;!x11";
       "org.gnome.Calendar".Context.sockets = "!fallback-x11;!x11";
