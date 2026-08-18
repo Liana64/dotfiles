@@ -7,11 +7,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786147162,
-        "narHash": "sha256-qjmRZKIajHNnVjutvyxkVCFHJ7NuahzNU0pBpagdv+0=",
+        "lastModified": 1787093557,
+        "narHash": "sha256-2f989B50Hg7prTAvX8PYSfPMSWFto2DMN+N5aL7titM=",
         "ref": "refs/heads/main",
-        "rev": "5ef623c383c452338b882d1268e361f8573920fd",
-        "revCount": 2,
+        "rev": "b63ddd1073831eead49f3b10d4e5ecb2fc9578d5",
+        "revCount": 4,
         "type": "git",
         "url": "ssh://git@git.milberry.org/liana/angelboot.git"
       },
