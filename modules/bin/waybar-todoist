@@ -1,6 +1,6 @@
 #!/bin/sh
 # Waybar Todoist indicator: top overdue task, else top task due today. Hidden via the toggle flag.
-[ -e "$XDG_RUNTIME_DIR/waybar-task-hidden" ] && exit 0
+[ -e "$XDG_RUNTIME_DIR/waybar-task-shown" ] || exit 0
 # No token configured → hide (and never trigger the CLI's interactive token prompt).
 [ -f "$HOME/.config/todoist/config.json" ] || exit 0
 

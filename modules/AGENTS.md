@@ -66,6 +66,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/shell/helix/helix.nix` | Helix editor — built-in LSP/tree-sitter/pickers, zero plugins |
 | `modules/shell/helix/keymaps.nix` | Helix keymaps mirroring nvim (space leader + C-x prefix) |
 | `modules/shell/helix/languages.nix` | Helix language servers — nixd, yamlls, lua-ls, all from nixpkgs |
+| `modules/shell/helix/plugins.nix` | Steel plugin framework — declared cogs materialized into STEEL_HOME + init.scm |
 | `modules/shell/infra.nix` | infra — home-infra Taskfile runner with bare-name task resolution |
 | `modules/shell/k9s.nix` | k9s Kubernetes TUI |
 | `modules/shell/kitty.nix` | Kitty terminal |
@@ -74,7 +75,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/shell/probe.nix` | probe — cluster-side connectivity checks through the netshoot pod |
 | `modules/shell/shell.nix` | Zsh: history, completion, autosuggestion |
 | `modules/shell/starship.nix` | Starship prompt |
-| `modules/shell/taskwarrior.nix` | Taskwarrior + nested-task tooling |
+| `modules/shell/taskwarrior.nix` | Taskwarrior + nested-task tooling (taskManager = taskwarrior) |
 | `modules/system/cache.nix` | Wipe XDG cache every 30 days |
 | `modules/system/dconf.nix` | dconf/gsettings defaults |
 | `modules/system/email.nix` | Protonmail Bridge |

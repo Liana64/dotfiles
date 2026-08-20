@@ -3,7 +3,7 @@
   flake.modules.nixos.tasks = {lib, ...}: {
     options.taskManager = lib.mkOption {
       type = lib.types.enum ["taskwarrior" "todoist"];
-      default = "taskwarrior";
+      default = "todoist";
       description = "Task manager surfaced in the bar. Todoist runs as a flatpak either way.";
     };
   };
@@ -14,6 +14,6 @@
     osConfig,
     ...
   }: {
-    home.packages = lib.mkIf ((osConfig.taskManager or "taskwarrior") == "todoist") [pkgs.todoist];
+    home.packages = lib.mkIf ((osConfig.taskManager or "todoist") == "todoist") [pkgs.todoist];
   };
 }

@@ -8,7 +8,7 @@
   }: let
     hardening = import ../_lib/systemd-hardening.nix;
     useNiri = (osConfig.compositor or "sway") == "niri";
-    taskManager = osConfig.taskManager or "taskwarrior";
+    taskManager = osConfig.taskManager or "todoist";
     wsModules =
       if useNiri
       then ["niri/workspaces"]
@@ -80,9 +80,8 @@
       };
 
       style = ''
-        @define-color surface mix(${darker}, ${highlight}, 0.5);
-        @define-color raised  mix(${darker}, ${white}, 0.08);
-        @define-color alert   mix(${color0}, ${red}, 0.5);
+        @define-color raised mix(${background}, ${white}, 0.08);
+        @define-color alert  mix(${color0}, ${red}, 0.5);
 
         * {
           /* propo variant, patched icons get ink-hugging advances, specimen-measured |L-R| <= 1 */
@@ -92,12 +91,12 @@
         }
 
         window#waybar {
-          background: ${darker};
+          background: ${background};
           color: ${foreground};
         }
 
         tooltip {
-          background: ${darker};
+          background: ${background};
           border: 1px solid ${color0};
           border-radius: 8px;
         }
@@ -131,7 +130,6 @@
           color: ${white};
           margin: 3px 2px;
           padding: 2px 8px;
-          border-radius: 8px;
           transition: background-color 0.15s ease, color 0.15s ease;
         }
 
@@ -141,9 +139,8 @@
         }
 
         #custom-clock {
-          font-family: "Cantarell";
           font-size: 13px;
-          background: @surface;
+          background: ${gray};
           padding: 2px 12px;
         }
 
@@ -189,7 +186,6 @@
         #status,
         #hw {
           background: @raised;
-          border-radius: 8px;
           margin: 3px 6px;
           /* end slots, filled segments need the same air as inter-icon gaps */
           padding: 0 8px;
@@ -207,13 +203,6 @@
         #hw #pulseaudio {
           margin: 3px 2px;
           padding: 0 6px;
-          border-radius: 6px;
-        }
-
-        /* the container's rounded end pinches filled corners, clear it */
-        #status #custom-vpn.connected,
-        #status #custom-vpn.untrusted {
-          margin-right: 5px;
         }
 
         /* the % right bearing is base-font metric, propo does not change it, right stays under left */
@@ -231,12 +220,10 @@
         #hw #battery:hover,
         #hw #bluetooth:hover,
         #hw #pulseaudio:hover {
-          background: ${highlightDim};
+          background: ${gray};
         }
 
         #workspaces {
-          background: @raised;
-          border-radius: 8px;
           margin: 3px 4px;
           padding: 0 2px;
         }
@@ -247,12 +234,12 @@
           padding: 1px 8px;
           margin: 0 1px;
           border: none;
-          border-radius: 6px;
+          border-radius: 0;
           box-shadow: none;
         }
 
         #workspaces button:not(.empty) {
-          color: ${white};
+          color: ${foreground};
         }
 
         #workspaces button:hover,
@@ -265,17 +252,14 @@
         #custom-yubikey:hover,
         #custom-syncthing:hover,
         #custom-launcher:hover {
-          background: @surface;
+          background: ${gray};
           color: ${white};
         }
 
-        #workspaces button:hover {
-          background: ${highlightDim};
-        }
-
         #workspaces button.focused {
-          background: ${highlight};
-          color: ${darker};
+          background: ${gray};
+          color: ${white};
+          font-weight: bold;
         }
 
         #workspaces button.urgent {

@@ -45,14 +45,14 @@
         ignore-timeout = false;
         icons = true;
 
-        background-color = darker;
-        border-color = highlight;
+        background-color = background;
+        border-color = color0;
         text-color = foreground;
         border-size = 1;
-        border-radius = 8;
+        border-radius = 0;
         padding = "10,14";
-        font = "Cantarell 11";
-        progress-color = "over ${highlight}33";
+        font = "JetBrainsMono Nerd Font 10";
+        progress-color = "over ${gray}";
 
         # Muted red parallel to waybar @alert = mix(color0, red, 0.5).
         "urgency=high" = {

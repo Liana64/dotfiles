@@ -34,7 +34,7 @@
 
         # Window
         remember_window_size = "yes";
-        window_padding_width = 8;
+        window_padding_width = "2 8 8";
 
         # Notifications
         enable_audio_bell = "no";
@@ -46,8 +46,19 @@
         open_url_with = "default";
 
         # Tabs
-        tab_bar_edge = "bottom";
-        tab_bar_style = "fade";
+        tab_bar_edge = "top";
+        tab_bar_style = "separator";
+        tab_separator = "\" \"";
+        tab_title_template = "\"  {title}  \"";
+        tab_bar_margin_width = 8;
+        tab_bar_margin_height = "4 0";
+        tab_bar_background = colors.background;
+        active_tab_background = colors.gray;
+        active_tab_foreground = colors.white;
+        active_tab_font_style = "bold";
+        inactive_tab_background = colors.background;
+        inactive_tab_foreground = colors.comment;
+        inactive_tab_font_style = "normal";
 
         # Performance
         repaint_delay = 5;
@@ -93,6 +104,8 @@
 
         # Tabs
         "super+t" = "new_tab_with_cwd";
+        "super+enter" = "detach_tab ask";
+        "super+shift+enter" = "detach_tab";
         "super+i" = "set_tab_title";
         "super+left" = "prev_tab";
         "super+right" = "next_tab";

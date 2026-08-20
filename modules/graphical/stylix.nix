@@ -87,9 +87,11 @@
     gtk.gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;
     gtk.gtk4.extraConfig.gtk-application-prefer-dark-theme = 1;
 
-    # Override stylix' sway colors: translucent highlight on focused, invisible otherwise.
+    # Override stylix' sway colors: kitty active-tab gray +20% white (legible at 2px) on focused, invisible otherwise.
     wayland.windowManager.sway.config.colors = let
-      focus = "${highlight}cc";
+      channel = i: lib.fromHexString (builtins.substring i 2 (lib.removePrefix "#" colors.gray));
+      lift = i: lib.toLower (lib.fixedWidthString 2 "0" (lib.toHexString ((channel i * 80 + 255 * 20) / 100)));
+      focus = "#${lift 0}${lift 2}${lift 4}";
       invisible = {
         border = "#00000000";
         background = "#00000000";

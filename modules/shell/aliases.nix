@@ -1,6 +1,10 @@
 # @desc: Shell aliases (rust-tool replacements)
 {...}: {
-  flake.modules.homeManager.aliases = {lib, ...}: let
+  flake.modules.homeManager.aliases = {
+    lib,
+    osConfig,
+    ...
+  }: let
     editors = {
       vi = "hx";
       vim = "hx";
@@ -34,7 +38,7 @@
       weather = "curl wttr.in/Chicago";
     };
 
-    tasks = {
+    tasks = lib.optionalAttrs ((osConfig.taskManager or "todoist") == "taskwarrior") {
       # Open on the Today view (Todoist-style home screen).
       tt = "taskwarrior-tui -r today";
       # Snooze a task out of view until a wait date (default tomorrow): snooze <id> [when]
@@ -101,6 +105,7 @@
       g = "git";
       gl = "git pull";
       gd = "git diff";
+      lg = "lazygit";
     };
 
     darwin = {

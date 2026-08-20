@@ -2,13 +2,9 @@
 {...}: {
   flake.modules.homeManager.firefox = {
     pkgs,
-    config,
     colors,
     ...
-  }: let
-    stylixColors = config.lib.stylix.colors;
-    highlight = "#${stylixColors.base0D}";
-  in {
+  }: {
     programs.firefox = {
       enable = true;
       package = pkgs.firefox;
@@ -286,14 +282,34 @@
           .urlbarView-row[selected] .urlbarView-title-separator,
           .urlbarView-row[selected] .urlbarView-action,
           .urlbarView-row[selected] .urlbarView-secondary-action {
-            background-color: ${highlight} !important;
+            background-color: ${colors.highlight} !important;
             color: ${colors.darker} !important;
           }
 
           #urlbar-input::selection,
           #urlbar .urlbar-input-box ::selection {
-            background-color: ${highlight} !important;
+            background-color: ${colors.highlight} !important;
             color: ${colors.darker} !important;
+          }
+        '';
+
+        # Sidebery renders in an extension document and sets --s-* inline on #root/body.
+        userContent = ''
+          @-moz-document url-prefix("moz-extension://") {
+            :root, body, #root {
+              --s-frame-bg: ${colors.darker} !important;
+              --s-frame-fg: ${colors.foreground} !important;
+              --s-toolbar-bg: ${colors.darker} !important;
+              --s-toolbar-fg: ${colors.tan} !important;
+              --s-toolbar-border: ${colors.gray} !important;
+              --s-act-el-bg: ${colors.mbg} !important;
+              --s-act-el-fg: ${colors.white} !important;
+              --s-act-el-border: ${colors.highlight} !important;
+              --s-accent: ${colors.highlight} !important;
+              --s-popup-bg: ${colors.background} !important;
+              --s-popup-fg: ${colors.foreground} !important;
+              --s-popup-border: ${colors.gray} !important;
+            }
           }
         '';
       };

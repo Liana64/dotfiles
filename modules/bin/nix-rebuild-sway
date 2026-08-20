@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+[ "$1" = "add" ] && git -C /nix/dotfiles add --all
 nh os switch /nix/dotfiles
 echo ""
 echo "Done. Press any key to close..."

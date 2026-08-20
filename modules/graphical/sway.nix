@@ -8,7 +8,7 @@
     ...
   }: let
     useSway = (osConfig.compositor or "sway") == "sway";
-    taskManager = osConfig.taskManager or "taskwarrior";
+    taskManager = osConfig.taskManager or "todoist";
     taskApp =
       if taskManager == "todoist"
       then "flatpak run com.todoist.Todoist"
@@ -33,7 +33,7 @@
     };
     # Cogwheel "task" mode actions. waybar custom/task listens on signal 9.
     taskDisplayToggle = pkgs.writeShellScript "task-display-toggle" ''
-      f="$XDG_RUNTIME_DIR/waybar-task-hidden"
+      f="$XDG_RUNTIME_DIR/waybar-task-shown"
       if [ -e "$f" ]; then rm -f "$f"; else : > "$f"; fi
       ${pkgs.procps}/bin/pkill -RTMIN+9 waybar
     '';
@@ -206,11 +206,11 @@
           #"${sup}+x" = "exec wtype -P XF56Cut";
 
           "${mod}+Return" = "exec ${cfg.terminal}";
-          "${sup}+Return" = "exec ${cfg.terminal}";
           "${mod}+Shift+Return" = "exec ${cfg.terminal} --session startup.session";
 
           "${mod}+Shift+r" = "reload";
           "${mod}+Control+Shift+r" = "exec 'kitty --title nix-rebuild ${app}/bin/nix-rebuild-sway'";
+          "${mod}+Control+Shift+g" = "exec 'kitty --title nix-rebuild ${app}/bin/nix-rebuild-sway add'";
           "${sup}+d" = "exec ${cfg.menu}";
 
           "${mod}+Space" = "exec ${cfg.menu}";

@@ -1,5 +1,10 @@
 # @desc: Taskwarrior hooks
-{pkgs, ...}: let
+{
+  lib,
+  osConfig,
+  pkgs,
+  ...
+}: let
   task = "${pkgs.taskwarrior3}/bin/task";
   jq = "${pkgs.jq}/bin/jq";
   # add + modify hook: derive upstream/subproject, guard partof cycles, block completing tasks with open subtasks.
@@ -44,6 +49,8 @@
     '
   '';
 in {
-  xdg.configFile."task/hooks/on-add-tree".source = treeHook;
-  xdg.configFile."task/hooks/on-modify-tree".source = treeHook;
+  config = lib.mkIf ((osConfig.taskManager or "todoist") == "taskwarrior") {
+    xdg.configFile."task/hooks/on-add-tree".source = treeHook;
+    xdg.configFile."task/hooks/on-modify-tree".source = treeHook;
+  };
 }

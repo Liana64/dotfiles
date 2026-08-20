@@ -59,7 +59,7 @@
     '';
   in {
     # unit names are shared with the taskwarrior twin in shell/_taskwarrior/reminders.nix
-    config = lib.mkIf ((osConfig.taskManager or "taskwarrior") == "todoist") {
+    config = lib.mkIf ((osConfig.taskManager or "todoist") == "todoist") {
       systemd.user.services.task-due-reminder = {
         Unit.Description = "Notify about todoist tasks coming due";
         Service =

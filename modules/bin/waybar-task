@@ -1,6 +1,6 @@
 #!/bin/sh
-# Waybar Taskwarrior indicator: active task, else due/overdue counts. Hidden via the toggle flag.
-[ -e "$XDG_RUNTIME_DIR/waybar-task-hidden" ] && exit 0
+# Waybar Taskwarrior indicator: active task, else due/overdue counts. Hidden until the toggle flag exists.
+[ -e "$XDG_RUNTIME_DIR/waybar-task-shown" ] || exit 0
 active=$(task rc.context=none +ACTIVE export 2>/dev/null | jq -c 'sort_by(.modified) | last // empty')
 if [ -n "$active" ]; then
   printf '%s' "$active" | jq -c '{
