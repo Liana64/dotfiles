@@ -4,16 +4,18 @@
     name = "Liana";
     email = "liana@lianas.org";
   };
+  signingKey = "C4E1D3BB2F69070998CE1981DC03DFEB7A0A710D";
 in {
   flake.modules.homeManager.dvcs = {pkgs, ...}: {
     programs.git = {
       enable = true;
 
-      # TODO: Add gpg key
       settings = {
-        inherit user;
+        user = user // {signingkey = signingKey;};
         init.defaultBranch = "main";
         push.autoSetupRemote = true;
+        commit.gpgsign = true;
+        tag.gpgsign = true;
       };
     };
 
@@ -21,6 +23,11 @@ in {
       enable = true;
       settings = {
         inherit user;
+        signing = {
+          behavior = "own";
+          backend = "gpg";
+          key = signingKey;
+        };
         ui.diff-formatter = ["difft" "--color=always" "$left" "$right"];
       };
     };

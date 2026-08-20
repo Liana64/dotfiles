@@ -34,9 +34,6 @@
     sops.age.sshKeyPaths = [];
     sops.gnupg.sshKeyPaths = [];
 
-    # canary: cheap decrypt-chain check at every activation
-    sops.secrets.test = {};
-
     sops.secrets."wireguard/wg0.conf" = {
       path = "/var/secrets/wireguard/wg0.conf";
       mode = "0400";
@@ -52,6 +49,11 @@
     };
     sops.secrets."syncthing/gui-passwd" = {
       path = "/var/secrets/syncthing/gui-passwd";
+      owner = "liana";
+      mode = "0400";
+    };
+    sops.secrets."gpg/secret-key" = {
+      path = "/var/secrets/gpg/secret-key";
       owner = "liana";
       mode = "0400";
     };
