@@ -49,7 +49,7 @@ in {
         tabs
         // {
           C-s = ":write";
-          C-r = ":reload-all";
+          C-r = "redo";
           C-v = "select_mode";
           C-n = "copy_selection_on_next_line";
           C-p = "copy_selection_on_prev_line";
@@ -107,6 +107,7 @@ in {
             x = ":buffer-close";
             c = ":buffer-close-others";
             C-c = ":write-quit-all";
+            r = ":reload-all";
             g = git;
             l = lsp;
           };
