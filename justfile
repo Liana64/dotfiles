@@ -81,6 +81,11 @@ generations:
 gc:
     nix-collect-garbage -d
 
+# Build the installer ISO into the invoking directory
+[group('hardware')]
+iso *args:
+    cd {{ invocation_directory() }} && nix-build-installer {{ args }}
+
 # Flash Keychron Q11 firmware
 [group('hardware')]
 [confirm("flash the keyboard?")]

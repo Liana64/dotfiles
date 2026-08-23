@@ -1,0 +1,45 @@
+#!/bin/sh
+# @desc: Build the installer ISO into the current directory
+# Usage: nix-build-installer [flake-dir] [nix build args...]
+
+set -eu
+
+dir=${DOTFILES:-/nix/dotfiles}
+case ${1:-} in
+'' | -*) ;;
+*)
+  dir=$1
+  shift
+  ;;
+esac
+
+if [ ! -f "$dir/flake.nix" ]; then
+  printf 'no flake at %s\n' "$dir" >&2
+  exit 1
+fi
+
+if git -C "$dir" rev-parse --git-dir >/dev/null 2>&1; then
+  untracked=$(git -C "$dir" ls-files --others --exclude-standard)
+  if [ -n "$untracked" ]; then
+    printf 'untracked (invisible to the build):\n%s\n' "$untracked" >&2
+  fi
+fi
+
+attr=nixosConfigurations.installer.config.system.build.isoImage
+out=$(nix build --no-link --print-out-paths "$dir#$attr" "$@")
+
+set -- "$out"/iso/*.iso
+if [ ! -f "$1" ]; then
+  printf 'no iso under %s\n' "$out" >&2
+  exit 1
+fi
+name=${1##*/}
+
+tmp=./.$name.part
+trap 'rm -f "$tmp"' EXIT
+cp "$1" "$tmp"
+chmod 644 "$tmp"
+mv "$tmp" "./$name"
+
+printf '%s  %s\n' "$PWD/$name" "$(du -h "$name" | cut -f1)"
+printf 'dd if=%s of=/dev/sdX bs=4M conv=fsync status=progress\n' "$name"
