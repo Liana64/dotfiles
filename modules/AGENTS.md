@@ -17,6 +17,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/flake/formatter.nix` | Code formatter (alejandra) |
 | `modules/flake/hosts.nix` | Assembles nixosConfigurations + homeConfigurations from aspects |
 | `modules/flake/index.nix` | Module index generator + staleness check (nix run .#gen-index) |
+| `modules/flake/installer.nix` | installer ISO config — ssh-only provisioning media (nix-build-installer) |
 | `modules/flake/keychron.nix` | Keychron Q11 firmware builder/flasher (nix run .#keychron-q11) |
 | `modules/flake/modules-option.nix` | Declares the dendritic aspect store flake.modules.<class>.<aspect> |
 | `modules/graphical/bigscreen.nix` | Plasma Bigscreen TV session (compositor = bigscreen) |
@@ -68,6 +69,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/shell/helix/languages.nix` | Helix language servers — nixd, yamlls, lua-ls, all from nixpkgs |
 | `modules/shell/helix/plugins.nix` | Steel plugin framework — declared cogs materialized into STEEL_HOME + init.scm |
 | `modules/shell/infra.nix` | infra — home-infra Taskfile runner with bare-name task resolution |
+| `modules/shell/installer.nix` | nix-build-installer — installer ISO built into the current directory |
 | `modules/shell/k9s.nix` | k9s Kubernetes TUI |
 | `modules/shell/kitty.nix` | Kitty terminal |
 | `modules/shell/nushell.nix` | nushell option — Nushell as the interactive shell in place of zsh |

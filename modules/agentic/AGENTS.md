@@ -141,7 +141,9 @@ Wrapped scripts with a `# @desc:` header; regenerate with
 | `dotfiles-verify` | Quiet flake-eval check for the four configs, evaluated concurrently |
 | `hardening-probe` | Probe a command or live unit under a systemd-hardening preset |
 | `harness` | launch Claude Code with an LLM proxy |
+| `harness-clean` | kill stray Claude Code processes — every "claude" match bar the matchers and this script |
 | `harness-status` | hook adapter — mirror per-session harness state (running|awaiting) to $XDG_RUNTIME_DIR/harness-status for waybar |
 | `helix-export` | Export the portable helix config tarball for non-nix machines |
+| `persist-diff` | Ephemeral-root files that would not survive a reboot |
 | `waybar-harness-status` | waybar icon — dim dot while harness sessions run, white when one awaits input (flags in $XDG_RUNTIME_DIR/harness-status) |
 <!-- END agentic-scripts -->

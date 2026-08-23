@@ -27,6 +27,7 @@
       claude-stop-verify = [jq git coreutils findutils];
       dotfiles-verify = [nix git coreutils];
       harness = [curl coreutils nixpkgs-unstable.claude-code];
+      harness-clean = [procps gawk coreutils];
       hardening-probe = [systemd coreutils gnused gnugrep jq nix];
       harness-status = [jq procps coreutils];
     };
