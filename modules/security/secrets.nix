@@ -1,7 +1,9 @@
 # @desc: sops-nix secrets from the PQ-encrypted secretstore repo
 {...}: {
   flake.modules.nixos.secrets = {
+    config,
     inputs,
+    lib,
     pkgs,
     ...
   }: let
@@ -23,10 +25,11 @@
       makeWrapper ${pkgs.sops}/bin/sops $out/bin/sops-store \
         --set-default SOPS_AGE_KEY_CMD ${editorKey}
     '';
+    ageKeys = ["milberry"];
   in {
     imports = [inputs.sops-nix.nixosModules.sops];
 
-    sops.defaultSopsFile = "${inputs.secrets}/secrets.yaml";
+    sops.defaultSopsFile = "${inputs.secrets}/${config.networking.hostName}.yaml";
     # PQ host identity, minted by hand: the module's generateKey would be
     # classical X25519 and reintroduce harvest-now-decrypt-later
     sops.age.keyFile = "/var/lib/sops-nix/key.txt";
@@ -34,29 +37,42 @@
     sops.age.sshKeyPaths = [];
     sops.gnupg.sshKeyPaths = [];
 
-    sops.secrets."wireguard/wg0.conf" = {
-      path = "/var/secrets/wireguard/wg0.conf";
-      mode = "0400";
-    };
-    sops.secrets."wireguard/trusted-networks" = {
-      path = "/var/secrets/wireguard/trusted-networks";
-      mode = "0400";
-    };
-    sops.secrets."eek/gateway-key" = {
-      path = "/var/secrets/eek/gateway-key";
-      owner = "liana";
-      mode = "0400";
-    };
-    sops.secrets."syncthing/gui-passwd" = {
-      path = "/var/secrets/syncthing/gui-passwd";
-      owner = "liana";
-      mode = "0400";
-    };
-    sops.secrets."gpg/secret-key" = {
-      path = "/var/secrets/gpg/secret-key";
-      owner = "liana";
-      mode = "0400";
-    };
+    sops.secrets =
+      {
+        "network/wireguard/wg0.conf" = {
+          path = "/var/secrets/wireguard/wg0.conf";
+          mode = "0400";
+        };
+        "network/wireguard/trusted-networks" = {
+          path = "/var/secrets/wireguard/trusted-networks";
+          mode = "0400";
+        };
+        "network/nm-secret-key" = {
+          path = "/var/lib/NetworkManager/secret_key";
+          mode = "0600";
+          restartUnits = ["NetworkManager.service"];
+        };
+        "services/ai-router/gateway-key" = {
+          path = "/var/secrets/eek/gateway-key";
+          owner = "liana";
+          mode = "0400";
+        };
+        "machine/syncthing/gui-passwd" = {
+          path = "/var/secrets/syncthing/gui-passwd";
+          owner = "liana";
+          mode = "0400";
+        };
+        "cryptography/gpg/secret-key" = {
+          path = "/var/secrets/gpg/secret-key";
+          owner = "liana";
+          mode = "0400";
+        };
+      }
+      // lib.genAttrs (map (k: "cryptography/age/${k}") ageKeys) (name: {
+        path = "${config.users.users.liana.home}/.config/sops/age/${baseNameOf name}.key";
+        owner = "liana";
+        mode = "0400";
+      });
 
     environment.systemPackages = [sopsStore];
   };
