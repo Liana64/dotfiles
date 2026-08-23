@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Audit subsystem status: daemon state, loaded rules, events by key.
-#   austatus        show status
-#   austatus ack    acknowledge wall alerts
-#   austatus rotate purge history: rotate the live log, drop rotated ones
+# Audit alert triage: wall banner, keyed events since ack, daemon health.
+#   austatus         triage view
+#   austatus <key>   raw events for one key since ack
+#   austatus ack     acknowledge wall alerts
+#   austatus rotate  purge history: rotate the live log, drop rotated ones
 set -euo pipefail
 [ "$(id -u)" -eq 0 ] || exec sudo "$0" "$@"
 
@@ -29,14 +30,56 @@ if [ "${1:-}" = rotate ]; then
   exit 0
 fi
 
+since=$(cat "$ack" 2>/dev/null || echo today)
+
+if [ -n "${1:-}" ]; then
+  # shellcheck disable=SC2086 # since is "date time", --start needs two args, DO NOT QUOTE
+  ausearch -k "$1" -i --start $since 2>/dev/null || echo "no '$1' events since $since"
+  exit 0
+fi
+
 section() { printf '\n== %s ==\n' "$1"; }
 
-section "daemon"
-auditctl -s
-section "loaded rules"
-auditctl -l
-section "acknowledged since"
-cat "$ack" 2>/dev/null || echo "(never)"
+section "wall"
+grep . /run/audit-wall 2>/dev/null || echo "clear"
+
+section "events since ack ($since) — count last auid ok cmd -> object"
+# shellcheck disable=SC2086 # since is "date time", --start needs two args, DO NOT QUOTE
+ausearch -i --start $since 2>/dev/null |
+  awk '
+    function kv(k,  s, v) {
+      s = index($0, " " k "="); if (!s) return ""
+      v = substr($0, s + length(k) + 2); sub(/ .*/, "", v); return v
+    }
+    function flush(  id) {
+      if (key != "" && key != "(null)") {
+        if (cmd == "") cmd = exe
+        if (obj != "" && index(cmd, obj)) obj = ""
+        if (length(cmd) > 80) cmd = substr(cmd, 1, 77) "..."
+        id = key "\t" auid "\t" ok "\t" cmd (obj == "" ? "" : " -> " obj)
+        n[id]++; last[id] = ts
+      }
+      key = cmd = obj = obji = exe = auid = ok = ts = ""
+    }
+    /^----/ { flush() }
+    /^type=SYSCALL/ {
+      t = substr($0, index($0, "audit(") + 6); ts = substr(t, 1, index(t, ")") - 1)
+      sub(/\.[0-9]+:[0-9]+$/, "", ts)
+      auid = kv("auid"); ok = kv("success"); exe = kv("exe"); key = kv("key")
+    }
+    /^type=PROCTITLE/ { cmd = substr($0, index($0, "proctitle=") + 10) }
+    /^type=PATH/ && !/nametype=PARENT/ {
+      if (obji == "" || kv("item") + 0 < obji + 0) { obj = kv("name"); obji = kv("item") }
+    }
+    /^type=OBJ_PID/ { obj = kv("ocomm") "[" kv("opid") "]" }
+    END { flush(); for (id in n) print n[id] "\t" last[id] "\t" id }
+  ' |
+  sort -t$'\t' -k3,3 -k1,1rn |
+  awk -F'\t' '
+    $3 != k { k = $3; printf "\n%s\n", k }
+    { printf "%5d  %s  %-8s %-3s %s\n", $1, $2, $4, ($5 == "yes" ? "ok" : "no"), $6 }
+  ' | grep . || echo "none"
+
 section "service alerts"
 found=0
 for f in /var/lib/audit-wall/alerts/*; do
@@ -50,11 +93,8 @@ if [ "$found" -eq 0 ]; then echo "none"; fi
 section "failed units"
 systemctl list-units --failed --no-legend --plain | grep . || echo "none"
 
-section "events by key (full log)"
+section "daemon"
+auditctl -s | grep -E '^(enabled|pid|lost|backlog)' || echo "auditd unreachable"
+
+section "key totals (full log)"
 aureport -k --summary -i 2>/dev/null || echo "none"
-section "events since ack (count key exe auid success)"
-# shellcheck disable=SC2046 # ack is "date time", --start needs two args, DO NOT QUOTE
-aureport -k -i --start $(cat "$ack" 2>/dev/null || echo today) 2>/dev/null \
-  | awk '$1 ~ /^[0-9]+\.$/ {n=split($6,p,"/"); c[sprintf("%-20s %-30s %-8s %s", $4, p[n], $7, $5)]++}
-         END {for (k in c) printf "%5d  %s\n", c[k], k}' \
-  | sort -rn | grep . || echo "none"
