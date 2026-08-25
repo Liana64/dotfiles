@@ -82,7 +82,11 @@
               urls = [{template = "https://docs.redhat.com/search/?p=1&rows=10&documentKind=Documentation&src=scoped&q={searchTerms}&product=Red+Hat+Enterprise+Linux&documentation_version=%26Red+Hat+Enterprise+Linux%268";}];
               definedAliases = ["@rh8"];
             };
-
+            rfc = {
+              name = "RFC";
+              urls = [{template = "https://www.rfc-editor.org/search/?q={searchTerms}";}];
+              definedAliases = ["@rfc"];
+            };
             protondb = {
               name = "ProtonDB";
               urls = [{template = "https://www.protondb.com/search?q={searchTerms}";}];
