@@ -36,7 +36,6 @@
     "^" = "goto_first_nonwhitespace";
     "{" = "goto_prev_paragraph";
     "}" = "goto_next_paragraph";
-    "%" = "match_brackets";
     G = "goto_last_line";
     H = "goto_window_top";
     M = "goto_window_center";
