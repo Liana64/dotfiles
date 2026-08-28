@@ -85,7 +85,7 @@ in {
       isNormalUser = true;
       uid = 1001;
       extraGroups = ["media" "documents"];
-      openssh.authorizedKeys.keys = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDIH1DudmoKZzEukU5A0ZTc5lmFl2ZARgXwejLG0oLkIKLF8I3pMVtauKDkjd5lA5zHLZ0dsyl0GjSVNP0JMfV0su2Db8DGajjfFSHuaUc70WoMCAQfspsOlnyrjNsKaB4CQJVVVaIHgJPJglQ1yQm7uJSLawyePZ3Nh3A+sCzLnlsT6W3hLJvQcEEznYiLUrAfrs5H9PIGUe7x301BijQLtv3ZqocoeiBO2v//iCcZ07PrpUZE8boBT8v5tj9vwM0TrtQI3TKlsa2F+9BXq7pgHHLdS+LmAi5R3aLDGf5y73SUaXPCQxDmm0m2HRF2VnJF9H6yTApswBxLqvQ/KMw+6OfHJ3bRbXnhnC/n2K20P3xi083bwexbEHRG4Gd4U1qbW/2jk002R6V2AE351wsEaBfmPLM+70sgIWTWtx8FbJOYlRBhpVooaXO7aHvuyGDySPcYFAanj0NRj6bBuLa1Uou/yEXQaUb6tov/ADDWmZLF/6Wnes8hRf0ws+7XBj0= maxine@frame"];
+      openssh.authorizedKeys.keys = [(import ../../modules/_lib/keys.nix).maxine];
     };
   };
 
