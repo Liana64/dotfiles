@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  config,
+  pkgs,
+  ...
+}: {
   imports = [
     ./hardware-configuration.nix
   ];
@@ -10,7 +14,9 @@
   impermanence = false;
   nushell = false;
 
-  users.users.liana.initialHashedPassword = "$y$j9T$kWRrNhfqdXExcsRTmxSIg1$n4jTrwnDRfr814vE2su6d1fELLrVEEaTBoWeSrvqq08";
+  sops.secrets."users/liana/password".neededForUsers = true;
+  users.mutableUsers = false;
+  users.users.liana.hashedPasswordFile = config.sops.secrets."users/liana/password".path;
 
   services.btrfs.autoScrub = {
     enable = true;
