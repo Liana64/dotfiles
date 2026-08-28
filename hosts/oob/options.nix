@@ -1,12 +1,15 @@
 {
   inputs,
   lib,
+  pkgs,
   ...
 }: {
   imports = [
     inputs.nixos-hardware.nixosModules.raspberry-pi-5
     inputs.disko.nixosModules.disko
+    ./backup.nix
     ./disko.nix
+    ./monitoring.nix
     ./secrets.nix
     ./unifi.nix
   ];
@@ -14,6 +17,7 @@
   nixpkgs.hostPlatform = "aarch64-linux";
 
   boot = {
+    kernelPackages = pkgs.linuxPackages;
     loader.generic-extlinux-compatible.enable = true;
     supportedFilesystems = ["zfs"];
     zfs.devNodes = "/dev/disk/by-id";

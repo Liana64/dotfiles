@@ -1,4 +1,11 @@
-{pkgs, ...}: {
+{
+  lib,
+  pkgs,
+  ...
+}: {
+  nixpkgs.config.allowUnfreePredicate = pkg:
+    builtins.elem (lib.getName pkg) ["unifi" "mongodb-ce"];
+
   networking.firewall = {
     allowedTCPPorts = [8080 8443];
     allowedUDPPorts = [3478 10001];
