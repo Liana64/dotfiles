@@ -42,4 +42,4 @@ chmod 644 "$tmp"
 mv "$tmp" "./$name"
 
 printf '%s  %s\n' "$PWD/$name" "$(du -h "$name" | cut -f1)"
-printf 'dd if=%s of=/dev/sdX bs=4M conv=fsync status=progress\n' "$name"
+printf 'dd if=%s of=/dev/sdX bs=4M oflag=direct conv=fsync status=progress\n' "$name"

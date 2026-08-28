@@ -6,6 +6,10 @@
       {
         nixpkgs.hostPlatform = "x86_64-linux";
         boot.zfs.forceImportRoot = false;
+        zramSwap = {
+          enable = true;
+          memoryPercent = 100;
+        };
         services.openssh.settings = {
           PasswordAuthentication = false;
           KbdInteractiveAuthentication = false;
