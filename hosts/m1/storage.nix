@@ -26,6 +26,11 @@
     backup = 2200;
   };
 
+  pushers = {
+    framework = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP657Ck261PoRlolOEYLJnMqwjkWhJiu0gvsFIX+BE08 framework-backup"];
+    oob = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHymjCcyZVYbgI4MQTMzTNU68zMHSfKRZOJhTgqpkHQk oob-backup"];
+  };
+
   base = "rw,no_subtree_check,crossmnt";
   access = {
     owned = id: "${base},root_squash,anonuid=${toString id},anongid=${toString id}";
@@ -95,13 +100,15 @@
         mode = "0770";
         grants.cluster = access.anon;
       };
-      "tank/backups/framework" = {
+    }
+    // homes
+    // lib.mapAttrs' (name: _:
+      lib.nameValuePair "tank/backups/${name}" {
         id = ids.backup;
         mode = "0700";
         allow = "backup receive,create,mount,hold";
-      };
-    }
-    // homes;
+      })
+    pushers;
 
   exported = lib.filterAttrs (_: s: s ? grants) datasets;
 
@@ -111,7 +118,7 @@
       lib.mapAttrsToList (group: level: map (c: "${c}(${level s.id})") net.${group}) s.grants
     ));
 
-  recvOnly = key: ''command="${config.boot.zfs.package}/bin/zfs receive -du tank/backups/framework",restrict ${key}'';
+  recvOnly = target: key: ''command="${config.boot.zfs.package}/bin/zfs receive -du tank/backups/${target}",restrict ${key}'';
 
   ensure = path: s:
     ''
@@ -143,7 +150,7 @@ in {
       group = "backup";
       isSystemUser = true;
       useDefaultShell = true;
-      openssh.authorizedKeys.keys = map recvOnly [];
+      openssh.authorizedKeys.keys = lib.flatten (lib.mapAttrsToList (target: map (recvOnly target)) pushers);
     };
   };
 
