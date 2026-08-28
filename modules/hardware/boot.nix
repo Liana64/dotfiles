@@ -8,6 +8,7 @@
   }: {
     imports = [
       inputs.angelboot.nixosModules.default
+      inputs.lanzaboote.nixosModules.lanzaboote
     ];
 
     boot = {

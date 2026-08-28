@@ -1,5 +1,5 @@
 #!/bin/sh
-# @desc: Quiet flake-eval check for the four configs, evaluated concurrently
+# @desc: Quiet flake-eval check for the deployed configs, evaluated concurrently
 # Prints "all configs ✓", or per-target results with the last ~20 lines of
 # the trace on failure. Pass a flake ref to override '.'.
 
@@ -31,6 +31,7 @@ while IFS='=' read -r label attr; do
 done <<EOF
 framework=nixosConfigurations.framework.config.system.build.toplevel.drvPath
 portable=nixosConfigurations.portable.config.system.build.toplevel.drvPath
+m1=nixosConfigurations.m1.config.system.build.toplevel.drvPath
 liana@framework=homeConfigurations."liana@framework".activationPackage.drvPath
 liana@portable=homeConfigurations."liana@portable".activationPackage.drvPath
 EOF

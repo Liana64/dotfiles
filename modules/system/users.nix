@@ -1,10 +1,17 @@
 # @desc: User account liana (groups, zsh)
 {...}: {
-  flake.modules.nixos.users = {pkgs, ...}: {
+  flake.modules.nixos.users = {
+    config,
+    lib,
+    pkgs,
+    ...
+  }: {
     users.users.liana = {
       isNormalUser = true;
       shell = pkgs.zsh;
-      extraGroups = ["wheel" "networkmanager" "audio" "video" "dialout"];
+      extraGroups =
+        ["wheel" "audio" "video" "dialout"]
+        ++ lib.optional config.networking.networkmanager.enable "networkmanager";
       openssh.authorizedKeys.keys = [];
     };
 
