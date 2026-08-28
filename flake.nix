@@ -50,13 +50,18 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixvirt = {
+      url = "github:AshleyYakeley/NixVirt";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # sops-encrypted state, PQ age recipients only (see secretstore README).
     secrets = {
       url = "git+ssh://git@git.milberry.org/liana/secrets.git";
       flake = false;
     };
 
-    # Staged for impermanence migration. Not yet consumed by any host.
+    # Partitioning for provisioned hosts; staged for framework impermanence.
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
