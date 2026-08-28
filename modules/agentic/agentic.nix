@@ -17,6 +17,7 @@
       ai-memory = [git gnugrep gawk findutils coreutils];
       btw = [nixpkgs-unstable.claude-code];
       claude-comment-check = [jq coreutils];
+      claude-directive-check = [jq coreutils];
       claude-git-guard = [jq];
       claude-nix-check = [jq alejandra statix deadnix git coreutils];
       claude-rust-check = [jq rustfmt gnused coreutils];
@@ -235,12 +236,16 @@
             ];
           }
           {
-            # pre-image snapshot so the PostToolUse leg flags only net-new comments
+            # pre-image snapshots so the PostToolUse legs flag only net additions
             matcher = "Edit|MultiEdit|Write|NotebookEdit";
             hooks = [
               {
                 type = "command";
                 command = "${claudeScripts}/bin/claude-comment-check";
+              }
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/claude-directive-check";
               }
             ];
           }
@@ -277,6 +282,10 @@
               {
                 type = "command";
                 command = "${claudeScripts}/bin/claude-comment-check";
+              }
+              {
+                type = "command";
+                command = "${claudeScripts}/bin/claude-directive-check";
               }
             ];
           }

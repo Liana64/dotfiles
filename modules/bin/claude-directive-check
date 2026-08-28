@@ -1,0 +1,36 @@
+#!/bin/sh
+# @desc: Pre/PostToolUse hook — flag net line growth in CLAUDE.md/AGENTS.md, for a necessity check
+
+umask 077
+input=$(cat)
+event=$(printf '%s' "$input" | jq -r '.hook_event_name // empty')
+file=$(printf '%s' "$input" | jq -r '.tool_input.file_path // empty')
+case "${file##*/}" in
+  CLAUDE.md | AGENTS.md) ;;
+  *) exit 0 ;;
+esac
+
+cache="${XDG_RUNTIME_DIR:-/tmp}/claude-directive-check.$(printf '%s' "$file" | cksum | tr -cd '[:digit:]')"
+
+count() {
+  if [ -f "$file" ]; then
+    wc -l <"$file"
+  else
+    printf '0\n'
+  fi
+}
+
+if [ "$event" = "PreToolUse" ]; then
+  count >"$cache"
+  exit 0
+fi
+
+# no snapshot = no baseline (Pre skipped) — silence beats flagging the whole file
+[ -f "$cache" ] || exit 0
+pre_n=$(cat "$cache")
+rm -f "$cache"
+net=$(($(count) - pre_n))
+[ "$net" -gt 0 ] || exit 0
+
+printf 'justify: %s lines, is this necessary?\n' "$net" >&2
+exit 2

@@ -31,10 +31,12 @@ home-manager switch (`nh os switch /nix/dotfiles` — user runs it).
 | PreToolUse | `Bash` | `claude-git-guard` | deny git commit/push; `--test` runs its fixture |
 | PreToolUse | `Skill` | `claude-skill-guard` | deny skills in `CLAUDE_DENIED_SKILLS` (code-review) |
 | PreToolUse | `Edit\|MultiEdit\|Write\|NotebookEdit` | `claude-comment-check` | snapshot pre-image for the net-new diff |
+| PreToolUse | `Edit\|MultiEdit\|Write\|NotebookEdit` | `claude-directive-check` | snapshot CLAUDE.md/AGENTS.md line count |
 | PostToolUse | `Edit\|MultiEdit\|Write` | `claude-nix-check` | format + lint edited `.nix`, whisper untracked / missing `@desc`; exit 2 feeds findings back |
 | PostToolUse | `Edit\|MultiEdit\|Write` | `claude-rust-check` | rustfmt edited `.rs`, parse errors feed back; semantic lints ride rust-analyzer |
 | PostToolUse | `Edit\|MultiEdit\|Write` | `claude-shell-check` | shellcheck edited shell scripts |
 | PostToolUse | `Edit\|MultiEdit\|Write\|NotebookEdit` | `claude-comment-check` | flag net-new comment lines for a necessity check |
+| PostToolUse | `Edit\|MultiEdit\|Write\|NotebookEdit` | `claude-directive-check` | "justify: x lines, is this necessary?" on net growth |
 | SessionStart | `startup\|resume` | `ai-memory pull` (backgrounded) + `ai-memory debt` | rebase memory store; whisper when the dream loop is stale |
 | statusLine | — | `claude-statusline` | context + rate-limit line |
 
@@ -130,6 +132,7 @@ Wrapped scripts with a `# @desc:` header; regenerate with
 | `ai-memory` | Manage the ai-memory store with token-frugal output |
 | `btw` | quick claude --safe-mode: --low/high/xhigh/max + --sonnet/haiku/fable tune effort/model anywhere in args, no prompt runs cc in-window, a prompt prints in place |
 | `claude-comment-check` | Pre/PostToolUse hook — flag net-new comment lines from file edits, for a necessity check |
+| `claude-directive-check` | Pre/PostToolUse hook — flag net line growth in CLAUDE.md/AGENTS.md, for a necessity check |
 | `claude-git-guard` | PreToolUse hook — deny git commit/push; publishing is user-run |
 | `claude-nix-check` | PostToolUse hook — format edited .nix in place (alejandra), then lint it (statix, deadnix) |
 | `claude-rust-check` | PostToolUse hook — format edited .rs in place (rustfmt); parse errors feed back |
@@ -144,6 +147,7 @@ Wrapped scripts with a `# @desc:` header; regenerate with
 | `harness-clean` | kill stray Claude Code processes — every "claude" match bar the matchers and this script |
 | `harness-status` | hook adapter — mirror per-session harness state (running|awaiting) to $XDG_RUNTIME_DIR/harness-status for waybar |
 | `helix-export` | Export the portable helix config tarball for non-nix machines |
+| `nix-build-installer` | Build the installer ISO into the current directory |
 | `persist-diff` | Ephemeral-root files that would not survive a reboot |
 | `waybar-harness-status` | waybar icon — dim dot while harness sessions run, white when one awaits input (flags in $XDG_RUNTIME_DIR/harness-status) |
 <!-- END agentic-scripts -->
