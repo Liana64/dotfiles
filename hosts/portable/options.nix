@@ -1,4 +1,9 @@
-{...}: {
+{
+  config,
+  inputs,
+  lib,
+  ...
+}: {
   imports = [
     ./hardware-configuration.nix
   ];
@@ -6,8 +11,12 @@
   networking.hostName = "portable";
   theme = "milberry";
 
-  users.users.liana.initialHashedPassword = "$y$j9T$kMLxfF6rfFExY7UuBim1Y/$r8B9xnm7bA7PEhvo6n7WXagnaV8BYr2hUkyuQhLWiFC";
+  sops.defaultSopsFile = lib.mkForce (inputs.secrets + "/framework.yaml");
+
+  sops.secrets."users/liana/password".neededForUsers = true;
+  users.mutableUsers = false;
+  users.users.liana.hashedPasswordFile = config.sops.secrets."users/liana/password".path;
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
-  system.stateVersion = "23.05";
+  system.stateVersion = "26.05";
 }
