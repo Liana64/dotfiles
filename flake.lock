@@ -600,11 +600,11 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1787938213,
-        "narHash": "sha256-FlWoN1D5bdOXRaV51ksR2lVm9L6jO7Gmx5d/87b+9A0=",
+        "lastModified": 1787968584,
+        "narHash": "sha256-M8wGdoHX6jZ+L7nA1OAlXirqnSDvJElxgcg2hzIUsG4=",
         "ref": "refs/heads/main",
-        "rev": "0e8ca5bffd9c82d9e436e08eb50a7eff3aa8bd6e",
-        "revCount": 19,
+        "rev": "51cb332024e92124b55540aa51e8b1f23680c5f3",
+        "revCount": 23,
         "type": "git",
         "url": "ssh://git@git.milberry.org/liana/secrets.git"
       },
