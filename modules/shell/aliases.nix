@@ -31,6 +31,7 @@
     personal = {
       f = "frame";
       k = "kubectl";
+      ceremony = "d=$(mktemp -d /run/user/$UID/ceremony.XXX) && cd \"$d\"";
       dotfiles = "n /nix/dotfiles";
       xclip = "wl-copy";
       clip = "wl-copy";
@@ -97,8 +98,13 @@
       h = "history";
       j = "jobs -l";
       uu = "uuidgen -r | tr '[:lower:]' '[:upper:]'";
+    };
+
+    crypto = {
       gpg-encrypt = "gpg -c --no-symkey-cache --cipher-algo=AES256";
       gpg-decrypt = "gpg -d";
+      sign = "gpg -esa --default-recipient-self --comment \"Sealed by liana@lianas.org\"";
+      rotate-sops = "for f in *.yaml; do sops-store updatekeys \"$f\"; done";
     };
 
     git = {
@@ -112,7 +118,15 @@
       flushdns = "sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder";
     };
 
-    aliases = editors // ls // grep // personal // tasks // nixos // ai // containers // rust-tools // networking // utility // git // darwin;
+    aliases = editors // ls // grep // personal // tasks // nixos // ai // containers // rust-tools // networking // utility // crypto // git // darwin;
+
+    randomFn = ''
+      random() {
+        local set='A-Za-z0-9_\055'
+        head -c "''${1:-32}" /dev/urandom | LC_ALL=C tr '\0-\377' "$set$set$set$set"
+        echo
+      }
+    '';
 
     nuShadowedBuiltins = ["ls" "du"];
     nuZshBound = ["j" "dotfiles"];
@@ -134,6 +148,8 @@
   in {
     programs.bash.shellAliases = aliases // {aliases = "echo -e '${helpText}'";};
     programs.zsh.shellAliases = aliases // {aliases = "echo -e '${helpText}'";};
+    programs.bash.initExtra = randomFn;
+    programs.zsh.initContent = randomFn;
     programs.nushell.shellAliases = nuAliases;
   };
 }
