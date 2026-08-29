@@ -55,6 +55,7 @@
         PasswordAuthentication = false;
         KbdInteractiveAuthentication = false;
         PermitRootLogin = "no";
+        PubkeyAuthOptions = "verify-required";
       };
     };
     zfs.autoScrub = {
@@ -66,7 +67,7 @@
 
   users.users.liana = {
     uid = 1000;
-    openssh.authorizedKeys.keys = [(import ../../modules/_lib/keys.nix).liana];
+    openssh.authorizedKeys.keys = (import ../../modules/_lib/keys.nix).liana;
   };
 
   system.stateVersion = "26.05";

@@ -4,7 +4,7 @@
     name = "Liana";
     email = "liana@lianas.org";
   };
-  signingKey = "C4E1D3BB2F69070998CE1981DC03DFEB7A0A710D";
+  signingKey = "2348524E0BC72DAD1638EC79EEE4B7E49941B009";
 in {
   flake.modules.homeManager.dvcs = {pkgs, ...}: {
     programs.git = {

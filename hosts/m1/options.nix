@@ -66,6 +66,7 @@ in {
         PasswordAuthentication = false;
         KbdInteractiveAuthentication = false;
         PermitRootLogin = "no";
+        PubkeyAuthOptions = "verify-required";
       };
     };
     zfs.autoScrub = {
@@ -79,7 +80,7 @@ in {
     liana = {
       uid = 1000;
       extraGroups = ["libvirtd" "media" "documents"];
-      openssh.authorizedKeys.keys = [(import ../../modules/_lib/keys.nix).liana];
+      openssh.authorizedKeys.keys = (import ../../modules/_lib/keys.nix).liana;
     };
     maxine = {
       isNormalUser = true;

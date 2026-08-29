@@ -14,9 +14,8 @@
           PasswordAuthentication = false;
           KbdInteractiveAuthentication = false;
         };
-        users.users.root.openssh.authorizedKeys.keys = [
-          (import ../_lib/keys.nix).liana
-        ];
+        users.users.root.openssh.authorizedKeys.keys =
+          (import ../_lib/keys.nix).liana;
       }
     ];
   };

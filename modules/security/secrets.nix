@@ -62,11 +62,6 @@
           owner = "liana";
           mode = "0400";
         };
-        "cryptography/gpg/secret-key" = {
-          path = "/var/secrets/gpg/secret-key";
-          owner = "liana";
-          mode = "0400";
-        };
       }
       // lib.genAttrs (map (k: "cryptography/age/${k}") ageKeys) (name: {
         path = "${config.users.users.liana.home}/.config/sops/age/${baseNameOf name}.key";
