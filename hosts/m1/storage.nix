@@ -37,6 +37,7 @@
     owned = id: "${base},root_squash,anonuid=${toString id},anongid=${toString id}";
     user = _: "${base},root_squash";
     anon = id: "${base},all_squash,anonuid=${toString id},anongid=${toString id}";
+    view = id: "ro,no_subtree_check,crossmnt,all_squash,anonuid=${toString id},anongid=${toString id}";
   };
 
   lan = level: {
@@ -80,7 +81,7 @@
       "tank/home/photos" = {
         id = ids.documents;
         mode = "2770";
-        grants = {cluster = access.anon;} // lan access.anon;
+        grants = {cluster = access.anon;} // lan access.view;
       };
       "tank/home/shared" = {
         id = ids.documents;
