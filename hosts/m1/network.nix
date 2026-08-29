@@ -18,10 +18,10 @@
         LinkLocalAddressing = "no";
       };
     };
-    dhcp = name: gateway: {
+    dhcp = name: {
       matchConfig.Name = name;
       networkConfig.DHCP = "ipv4";
-      dhcpV4Config.UseGateway = gateway;
+      dhcpV4Config.UseGateway = false;
     };
   in {
     netdevs = {
@@ -73,8 +73,15 @@
         bridgeVLANs = [{VLAN = 10;}];
       };
       "30-mgmt-nic" = parent "eno2" "mgmt";
-      "40-cluster" = dhcp "cluster" false;
-      "41-mgmt" = dhcp "mgmt" true;
+      "40-cluster" = dhcp "cluster";
+      "41-mgmt" = {
+        matchConfig.Name = "mgmt";
+        networkConfig = {
+          Address = "172.16.99.44/24";
+          Gateway = "172.16.99.1";
+          DNS = "172.16.99.1";
+        };
+      };
     };
   };
 }

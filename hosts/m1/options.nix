@@ -44,7 +44,7 @@ in {
     hostName = "m1";
     hostId = "c0ff6d31";
     firewall.interfaces = {
-      cluster.allowedTCPPorts = [2049 9100 9134 9633];
+      cluster.allowedTCPPorts = [22 2049 9100 9134 9633];
       mgmt.allowedTCPPorts = [22 9100 9134 9633];
     };
   };
