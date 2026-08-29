@@ -18,13 +18,6 @@ if [ ! -f "$dir/flake.nix" ]; then
   exit 1
 fi
 
-if git -C "$dir" rev-parse --git-dir >/dev/null 2>&1; then
-  untracked=$(git -C "$dir" ls-files --others --exclude-standard)
-  if [ -n "$untracked" ]; then
-    printf 'untracked (invisible to the build):\n%s\n' "$untracked" >&2
-  fi
-fi
-
 attr=nixosConfigurations.installer.config.system.build.isoImage
 out=$(nix build --no-link --print-out-paths "$dir#$attr" "$@")
 
@@ -40,6 +33,3 @@ trap 'rm -f "$tmp"' EXIT
 cp "$1" "$tmp"
 chmod 644 "$tmp"
 mv "$tmp" "./$name"
-
-printf '%s  %s\n' "$PWD/$name" "$(du -h "$name" | cut -f1)"
-printf 'dd if=%s of=/dev/sdX bs=4M oflag=direct conv=fsync status=progress\n' "$name"
