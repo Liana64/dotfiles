@@ -2,7 +2,6 @@
 name: todo
 description: Track persistent cross-session TODOs as Taskwarrior tasks in a dedicated AI store. Use for "add a todo", "what's on my todo list", "mark … done", or "/todo".
 argument-hint: "[add <text> | list | done <match>]"
-allowed-tools: [Bash]
 ---
 TODOs are Taskwarrior items in a dedicated AI store — a separate database that never
 touches human tasks persisted via Syncthing (nothing to commit). When actively

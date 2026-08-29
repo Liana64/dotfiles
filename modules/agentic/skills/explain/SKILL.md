@@ -2,7 +2,7 @@
 name: explain
 description: Grounded explanation of a code change or subsystem ("/explain <commit|diff|PR|subsystem>")
 argument-hint: "<commit|range|PR|subsystem|concept>"
-allowed-tools: [Bash, Read, Agent]
+allowed-tools: [Agent]
 disable-model-invocation: true
 ---
 

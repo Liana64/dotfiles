@@ -2,7 +2,6 @@
 name: remember
 description: Save a durable fact to the ai-memory repo ("remember this", "/remember")
 argument-hint: "[--global] <fact>"
-allowed-tools: [Read, Write, Edit, Bash]
 ---
 Store: `~/Projects/Software/ai-memory` (missing → stop, never init).
 Project slug = git root path (else cwd), `/` → `-`. Target dir: `readlink

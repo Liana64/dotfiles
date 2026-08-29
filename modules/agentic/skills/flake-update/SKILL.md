@@ -2,7 +2,6 @@
 name: flake-update
 description: Update flake inputs with staged verification ("/flake-update [input ...] [--build]")
 argument-hint: "[input ...] [--build]"
-allowed-tools: [Bash, Read, WebFetch]
 disable-model-invocation: true
 ---
 Update flake inputs and prove the update sound in stages. Never switch,

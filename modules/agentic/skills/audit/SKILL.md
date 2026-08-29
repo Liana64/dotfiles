@@ -2,7 +2,6 @@
 name: audit
 description: File-by-file trust audit of a project, e.g. before forking third-party code ("/audit [path] [--minimal]")
 argument-hint: "[path] [--minimal]"
-allowed-tools: [Agent, Bash, Read, Write, Edit]
 disable-model-invocation: true
 ---
 
