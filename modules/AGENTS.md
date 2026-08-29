@@ -51,6 +51,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/security/no-defaults.nix` | Strip default packages |
 | `modules/security/noexec.nix` | noexec mounts — /dev/shm, /var/tmp, /var/log, /boot |
 | `modules/security/secrets.nix` | sops-nix secrets from the PQ-encrypted secretstore repo |
+| `modules/security/ssh.nix` | ssh client config |
 | `modules/security/store-verify.nix` | Weekly nix store verify with tamper alert |
 | `modules/security/usbguard.nix` | USBGuard device authorization |
 | `modules/security/wireguard.nix` | WireGuard VPN |
@@ -88,6 +89,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/system/journald.nix` | journald config |
 | `modules/system/mime.nix` | Default applications per MIME type |
 | `modules/system/networking.nix` | NetworkManager + nftables firewall |
+| `modules/system/nfs-client.nix` | NFS v4 client + lazy automounts of the m1 exports under /mnt/m1 |
 | `modules/system/nix.nix` | Nix daemon: gc, optimise, flake registry |
 | `modules/system/packages.nix` | System packages and base env vars (EDITOR, BROWSER) |
 | `modules/system/syncthing.nix` | Syncthing |
