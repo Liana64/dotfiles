@@ -26,18 +26,19 @@ let
     };
   };
 in {
-  # rpool only — tank is never declared here, so reinstalls cannot touch it
   disko.devices = {
     disk = {
-      boot0 = mkBoot 0 "/dev/nvme0n1";
-      boot1 = mkBoot 1 "/dev/nvme1n1";
+      boot0 = mkBoot 0 "/dev/disk/by-id/nvme-Patriot_M.2_P300_512GB_P300AFBB26030600250";
+      boot1 = mkBoot 1 "/dev/disk/by-id/nvme-Patriot_M.2_P300_512GB_P300AFBB26030600216";
     };
 
     zpool.rpool = {
       type = "zpool";
       mode = "mirror";
       options.ashift = "12";
+
       # unencrypted — future: native zfs encryption, clevis/tang unlock
+      # we are gonna need HA oob for that and offsite
       rootFsOptions = {
         mountpoint = "none";
         compression = "zstd";
