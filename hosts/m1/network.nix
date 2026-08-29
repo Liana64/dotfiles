@@ -46,7 +46,7 @@
     };
     networks = {
       "10-bond-member" = {
-        matchConfig.Name = "enp1s0f*";
+        matchConfig.Driver = "i40e";
         networkConfig = {
           Bond = "bond0";
           LinkLocalAddressing = "no";

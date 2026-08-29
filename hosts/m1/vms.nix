@@ -115,12 +115,6 @@
       </domain>
     '';
   };
-
-  gpu = fn: {
-    bus = "0x02";
-    slot = "0x00";
-    inherit fn;
-  };
 in {
   imports = [inputs.nixvirt.nixosModules.default];
 
@@ -146,7 +140,6 @@ in {
             dev = "sdb";
           }
         ];
-        hostdevs = [(gpu "0x0") (gpu "0x1")];
       })
     ];
   };
