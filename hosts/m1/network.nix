@@ -18,11 +18,6 @@
         LinkLocalAddressing = "no";
       };
     };
-    dhcp = name: {
-      matchConfig.Name = name;
-      networkConfig.DHCP = "ipv4";
-      dhcpV4Config.UseGateway = false;
-    };
   in {
     netdevs = {
       bond0 = {
@@ -73,7 +68,23 @@
         bridgeVLANs = [{VLAN = 10;}];
       };
       "30-mgmt-nic" = parent "eno2" "mgmt";
-      "40-cluster" = dhcp "cluster";
+      "40-cluster" = {
+        matchConfig.Name = "cluster";
+        networkConfig.DHCP = "ipv4";
+        dhcpV4Config.RouteTable = 10;
+        routingPolicyRules = [
+          {
+            To = "172.16.4.0/23";
+            Table = 10;
+            Priority = 100;
+          }
+          {
+            From = "172.16.4.0/23";
+            Table = 10;
+            Priority = 101;
+          }
+        ];
+      };
       "41-mgmt" = {
         matchConfig.Name = "mgmt";
         networkConfig = {
