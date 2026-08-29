@@ -217,7 +217,13 @@ in {
 
     prometheus.exporters = {
       node.enable = true;
-      smartctl.enable = true;
+      smartctl = {
+        enable = true;
+        devices = [
+          "/dev/disk/by-id/ata-ST28000NM001C-4CA103_K1S0PME3"
+          "/dev/disk/by-id/ata-ST28000NM001C-4CA103_K1S17776"
+        ];
+      };
       zfs.enable = true;
     };
   };
