@@ -4,6 +4,7 @@
     lib,
     pkgs,
     config,
+    osConfig,
     nixpkgs-unstable,
     ...
   }: let
@@ -11,6 +12,9 @@
       lib.mapAttrs'
       (name: _: lib.nameValuePair "${destDir}/${name}" {source = srcDir + "/${name}";})
       (lib.filterAttrs pred (builtins.readDir srcDir));
+
+    taskwarrior = (osConfig.taskManager or "todoist") == "taskwarrior";
+    skillEnabled = name: type: type == "directory" && (taskwarrior || name != "todo");
 
     # script in ../bin = its runtime PATH deps
     scripts = with pkgs; {
