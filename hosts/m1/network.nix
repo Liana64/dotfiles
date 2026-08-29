@@ -3,8 +3,6 @@
   networking.useNetworkd = true;
   services.resolved.enable = true;
 
-  # proxmox-style: br0 is vlan-aware, enp2s0f0 trunks into it, VM taps are
-  # tagged by libvirt (>= 11.0), host access via the cluster vlan on br0
   systemd.network = let
     vlan = id: name: {
       netdevConfig = {
@@ -27,20 +25,39 @@
     };
   in {
     netdevs = {
+      bond0 = {
+        netdevConfig = {
+          Name = "bond0";
+          Kind = "bond";
+        };
+        bondConfig = {
+          Mode = "802.3ad";
+          TransmitHashPolicy = "layer3+4";
+          LACPTransmitRate = "fast";
+          MIIMonitorSec = "100ms";
+        };
+      };
       br0 = {
         netdevConfig = {
           Name = "br0";
           Kind = "bridge";
+          MACAddress = "fa:f2:1e:24:92:a0";
         };
         bridgeConfig.VLANFiltering = true;
       };
       cluster = vlan 10 "cluster";
       mgmt = vlan 99 "mgmt";
-      home = vlan 100 "home";
     };
     networks = {
-      "10-trunk" = {
-        matchConfig.Name = "enp1s0f0";
+      "10-bond-member" = {
+        matchConfig.Name = "enp1s0f*";
+        networkConfig = {
+          Bond = "bond0";
+          LinkLocalAddressing = "no";
+        };
+      };
+      "11-trunk" = {
+        matchConfig.Name = "bond0";
         networkConfig = {
           Bridge = "br0";
           LinkLocalAddressing = "no";
@@ -55,11 +72,9 @@
         };
         bridgeVLANs = [{VLAN = 10;}];
       };
-      "30-mgmt-nic" = parent "enp1s0f1" "mgmt";
-      # "31-home-nic" = parent "enp0s31f6" "home";
+      "30-mgmt-nic" = parent "eno2" "mgmt";
       "40-cluster" = dhcp "cluster" false;
       "41-mgmt" = dhcp "mgmt" true;
-      "42-home" = dhcp "home" false;
     };
   };
 }
