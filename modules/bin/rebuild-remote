@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Build and activate a host's config on the host itself.
+#   rebuild-remote <host> [attr]   e.g. rebuild-remote m1.mgmt.milberry.org
+# host is the ssh destination; attr defaults to its first label.
+set -euo pipefail
+
+host="${1:?usage: rebuild-remote <host> [flake-attr]}"
+attr="${2:-${host%%.*}}"
+remote="liana@${host}"
+
+exec nixos-rebuild switch \
+  --flake "/nix/dotfiles#${attr}" \
+  --build-host "$remote" \
+  --target-host "$remote" \
+  --sudo --ask-sudo-password

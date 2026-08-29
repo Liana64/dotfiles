@@ -52,6 +52,7 @@
 
     nixos = {
       gc = "nix-collect-garbage -d";
+      rebuild-m1 = "rebuild-remote m1.mgmt.milberry.org";
     };
 
     ai = {
