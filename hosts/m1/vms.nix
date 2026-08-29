@@ -117,7 +117,7 @@
   };
 
   gpu = fn: {
-    bus = "0x01";
+    bus = "0x02";
     slot = "0x00";
     inherit fn;
   };
