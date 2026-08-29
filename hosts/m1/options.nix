@@ -37,7 +37,7 @@ in {
     zfs.forceImportRoot = false;
     kernelParams = ["intel_iommu=on" "iommu=pt" "vfio-pci.ids=${gpuIds}"];
     initrd.kernelModules = ["vfio_pci" "vfio" "vfio_iommu_type1"];
-    blacklistedKernelModules = ["nouveau"];
+    blacklistedKernelModules = ["nouveau" "iwlwifi"];
   };
 
   networking = {

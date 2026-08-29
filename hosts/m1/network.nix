@@ -17,6 +17,7 @@
         VLAN = [vlanName];
         LinkLocalAddressing = "no";
       };
+      linkConfig.RequiredForOnline = false;
     };
   in {
     netdevs = {
@@ -50,6 +51,7 @@
           Bond = "bond0";
           LinkLocalAddressing = "no";
         };
+        linkConfig.RequiredForOnline = false;
       };
       "11-trunk" = {
         matchConfig.Name = "bond0";
@@ -58,6 +60,7 @@
           LinkLocalAddressing = "no";
         };
         bridgeVLANs = [{VLAN = 10;}];
+        linkConfig.RequiredForOnline = false;
       };
       "20-br0" = {
         matchConfig.Name = "br0";
@@ -66,6 +69,7 @@
           LinkLocalAddressing = "no";
         };
         bridgeVLANs = [{VLAN = 10;}];
+        linkConfig.RequiredForOnline = false;
       };
       "30-mgmt-nic" = parent "eno2" "mgmt";
       "40-cluster" = {
