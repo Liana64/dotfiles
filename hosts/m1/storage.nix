@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   net = {
@@ -153,6 +154,8 @@ in {
       openssh.authorizedKeys.keys = lib.flatten (lib.mapAttrsToList (target: map (recvOnly target)) pushers);
     };
   };
+
+  environment.systemPackages = [pkgs.smartmontools];
 
   services = {
     nfs.server = {
