@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Vial in its disposable microVM: boot, attach via waypipe/vsock, tear down on exit.
+# CID/port pair with modules/virt/vial-vm.nix.
+set -euo pipefail
+
+trap 'sudo systemctl stop microvm@vial.service' EXIT
+sudo systemctl start microvm@vial.service
+
+for _ in $(seq 30); do
+  if waypipe --vsock -s 33:1234 client; then
+    exit 0
+  fi
+  sleep 1
+done
+echo "vial-vm: could not reach guest waypipe" >&2
+exit 1
