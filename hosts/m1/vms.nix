@@ -118,6 +118,8 @@
 in {
   imports = [inputs.nixvirt.nixosModules.default];
 
+  virtualisation.libvirtd.qemu.runAsRoot = false;
+
   virtualisation.libvirt = {
     enable = true;
     swtpm.enable = true;
