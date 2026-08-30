@@ -50,6 +50,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    microvm = {
+      url = "github:Liana64/microvm.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixvirt = {
       url = "github:AshleyYakeley/NixVirt";
       inputs.nixpkgs.follows = "nixpkgs";
