@@ -10,8 +10,15 @@
     passwordFile = config.sops.secrets."backup/restic-password".path;
     environmentFile = config.sops.secrets."backup/restic-env".path;
     initialize = true;
-    paths = ["/tank/home"];
-    exclude = ["/tank/home/shared/landfill"];
+    paths = [
+      "/tank/home"
+      "/tank/backups"
+    ];
+    exclude = [
+      "/tank/home/shared/landfill"
+      "/tank/backups/framework"
+      "/tank/backups/volsync"
+    ];
     timerConfig = {
       OnCalendar = "daily";
       Persistent = true;
