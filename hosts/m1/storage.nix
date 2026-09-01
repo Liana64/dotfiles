@@ -56,7 +56,7 @@
       props.quota = "1T";
       grants = {
         admin = access.user;
-        ${name} = access.user;
+        ${name} = access.anon;
       };
     })
   people;
