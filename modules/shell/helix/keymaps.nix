@@ -1,9 +1,8 @@
 # @desc: Helix keymaps mirroring nvim (space leader + C-x prefix)
 {...}: let
   git = {
-    g = ":sh kitty --detach lazygit";
-    f = ":sh kitty --detach lazygit -f '%{buffer_name}'";
-    s = "changed_file_picker";
+    h = ":sh kitty --detach lazygit";
+    H = ":sh kitty --detach lazygit -f '%{buffer_name}'";
   };
 
   tabs = let
@@ -93,8 +92,9 @@ in {
             e = "file_explorer";
             z.z = ":write-quit-all";
             q.q = ":quit-all!";
-            g = git;
+            g = "changed_file_picker";
             l = lsp;
+            h = git;
 
             s = {
               v = ":vsplit";
