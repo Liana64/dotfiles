@@ -59,7 +59,9 @@
       haiku = "claude --model haiku --effort high";
       sonnet = "claude --model sonnet --effort high";
       opus = "claude --model opus";
+      opusm = "claude --model opus --effort medium";
       fable = "claude --model fable";
+      fablex = "claude --model fable --effort xhigh";
       resume = "claude --resume";
       cont = "claude --continue";
     };
