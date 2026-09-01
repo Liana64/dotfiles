@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Vial in a bubblewrap jail: no network, no home, no dbus — only the vial
+# hidraw nodes (by serial magic) + their sysfs subtrees, wayland, fonts.
+set -euo pipefail
+
+: "${WAYLAND_DISPLAY:=wayland-1}"
+
+binds=()
+for uevent in /sys/class/hidraw/hidraw*/device/uevent; do
+  [ -e "$uevent" ] || continue
+  if command grep -q "HID_UNIQ=.*vial:f64c2b3c" "$uevent"; then
+    node=${uevent#/sys/class/hidraw/}
+    node=${node%%/*}
+    binds+=(
+      --dev-bind "/dev/$node" "/dev/$node"
+      --ro-bind "$(readlink -f "${uevent%/uevent}")" "$(readlink -f "${uevent%/uevent}")"
+      --symlink "$(readlink "/sys/class/hidraw/$node")" "/sys/class/hidraw/$node"
+    )
+  fi
+done
+
+exec bwrap \
+  --unshare-all \
+  --die-with-parent \
+  --new-session \
+  --proc /proc \
+  --dev /dev \
+  --tmpfs /tmp \
+  --tmpfs /sys \
+  --ro-bind /nix/store /nix/store \
+  --ro-bind /etc/fonts /etc/fonts \
+  --perms 0700 \
+  --dir "$XDG_RUNTIME_DIR" \
+  --bind "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" \
+  --setenv HOME /tmp \
+  --setenv QT_QPA_PLATFORM wayland \
+  "${binds[@]}" \
+  vial-gui "$@"
