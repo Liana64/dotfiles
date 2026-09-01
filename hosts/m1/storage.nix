@@ -157,7 +157,7 @@ in {
     };
   };
 
-  environment.systemPackages = [pkgs.smartmontools];
+  environment.systemPackages = [pkgs.rsync pkgs.smartmontools];
 
   services = {
     nfs.server = {

@@ -3,6 +3,7 @@
 in {
   imports = [
     inputs.disko.nixosModules.disko
+    ./backup.nix
     ./disko.nix
     ./network.nix
     ./secrets.nix

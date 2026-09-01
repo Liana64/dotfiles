@@ -16,7 +16,7 @@
     noku.system = "x86_64-linux";
     m1 = {
       system = "x86_64-linux";
-      aspects = ["nixDaemon" "time" "users"];
+      aspects = ["nixDaemon" "noDefaults" "time" "users"];
       home = false;
     };
     oob = {
