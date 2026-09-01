@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# home-infra devcontainer: boot the dev microVM with $PWD shared read-only at
+# /work, ssh in over vsock, tear down on exit.
+# CID pairs with modules/virt/dev-vm.nix; read-only is enforced host-side.
+set -euo pipefail
+
+src=/run/dev-vm/src
+
+cleanup() {
+  sudo systemctl stop microvm@dev.service
+  sudo umount "$src" 2>/dev/null || true
+}
+trap cleanup EXIT
+
+sudo umount "$src" 2>/dev/null || true
+sudo mount --bind "$PWD" "$src"
+sudo mount -o remount,bind,ro "$src"
+sudo systemctl start microvm@dev.service
+
+for _ in $(seq 60); do
+  socat -u OPEN:/dev/null VSOCK-CONNECT:34:22 2>/dev/null && break
+  sleep 1
+done
+
+ssh -t \
+  -o ProxyCommand="systemd-ssh-proxy %h %p" \
+  -o StrictHostKeyChecking=no \
+  -o UserKnownHostsFile=/dev/null \
+  dev@vsock/34 'cd /work && exec bash -l'
