@@ -3,6 +3,7 @@
 in {
   imports = [
     inputs.disko.nixosModules.disko
+    ../../modules/_lib/hypervisor.nix
     ./backup.nix
     ./disko.nix
     ./network.nix
@@ -33,9 +34,6 @@ in {
         }
       ];
     };
-    supportedFilesystems = ["zfs"];
-    zfs.devNodes = "/dev/disk/by-id";
-    zfs.forceImportRoot = false;
     kernelParams = ["intel_iommu=on" "iommu=pt" "vfio-pci.ids=${gpuIds}"];
     initrd.kernelModules = ["vfio_pci" "vfio" "vfio_iommu_type1"];
     blacklistedKernelModules = ["nouveau" "iwlwifi"];
@@ -44,36 +42,7 @@ in {
   networking = {
     hostName = "m1";
     hostId = "c0ff6d31";
-    firewall.interfaces = {
-      cluster.allowedTCPPorts = [22 2049 9100 9134 9633];
-      mgmt.allowedTCPPorts = [22 9100 9134 9633];
-    };
-  };
-
-  hardware.cpu.intel.updateMicrocode = true;
-
-  # host anon pages only — vm ram is vfio-pinned, arc never swaps
-  zramSwap = {
-    enable = true;
-    memoryPercent = 10;
-  };
-
-  services = {
-    openssh = {
-      enable = true;
-      openFirewall = false;
-      settings = {
-        PasswordAuthentication = false;
-        KbdInteractiveAuthentication = false;
-        PermitRootLogin = "no";
-        PubkeyAuthOptions = "verify-required";
-      };
-    };
-    zfs.autoScrub = {
-      enable = true;
-      interval = "monthly";
-    };
-    zfs.trim.enable = true;
+    firewall.interfaces.cluster.allowedTCPPorts = [22 2049 9100 9134 9633];
   };
 
   users.users = {

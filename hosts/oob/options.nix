@@ -10,6 +10,7 @@
     ./backup.nix
     ./disko.nix
     ./monitoring.nix
+    ./nut.nix
     ./secrets.nix
     ./unifi.nix
   ];

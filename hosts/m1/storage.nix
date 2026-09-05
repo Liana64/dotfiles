@@ -157,7 +157,7 @@ in {
     };
   };
 
-  environment.systemPackages = [pkgs.rsync pkgs.smartmontools];
+  environment.systemPackages = [pkgs.rsync];
 
   services = {
     nfs.server = {
@@ -214,22 +214,10 @@ in {
       };
     };
 
-    smartd.enable = true;
-
-    prometheus.exporters = {
-      node = {
-        enable = true;
-        extraFlags = ["--collector.textfile.directory=/var/lib/zfs-metrics"];
-      };
-      smartctl = {
-        enable = true;
-        devices = [
-          "/dev/disk/by-id/ata-ST28000NM001C-4CA103_K1S0PME3"
-          "/dev/disk/by-id/ata-ST28000NM001C-4CA103_K1S17776"
-        ];
-      };
-      zfs.enable = true;
-    };
+    prometheus.exporters.smartctl.devices = [
+      "/dev/disk/by-id/ata-ST28000NM001C-4CA103_K1S0PME3"
+      "/dev/disk/by-id/ata-ST28000NM001C-4CA103_K1S17776"
+    ];
   };
 
   systemd = {
@@ -244,43 +232,6 @@ in {
         RemainAfterExit = true;
       };
       script = lib.concatStrings (lib.mapAttrsToList ensure datasets);
-    };
-
-    tmpfiles.rules = ["d /var/lib/zfs-metrics 0755 root root"];
-    services.zfs-snapshot-metrics = {
-      path = [config.boot.zfs.package pkgs.gawk];
-      serviceConfig.Type = "oneshot";
-      script = ''
-        d=/var/lib/zfs-metrics
-        {
-          zfs list -Hpo name,usedbysnapshots -t filesystem
-          echo ---
-          zfs list -Hpo name,creation -t snapshot
-        } | awk -F'\t' '
-          /^---$/ {snap = 1; next}
-          !snap {used[$1] = $2; count[$1] = 0; next}
-          {split($1, a, "@"); count[a[1]]++; if ($2 > latest[a[1]]) latest[a[1]] = $2}
-          END {
-            print "# HELP zfs_snapshot_count Snapshots per dataset."
-            print "# TYPE zfs_snapshot_count gauge"
-            for (ds in count) printf "zfs_snapshot_count{dataset=\"%s\"} %d\n", ds, count[ds]
-            print "# HELP zfs_snapshot_latest_time_seconds Creation time of the newest snapshot."
-            print "# TYPE zfs_snapshot_latest_time_seconds gauge"
-            for (ds in latest) printf "zfs_snapshot_latest_time_seconds{dataset=\"%s\"} %d\n", ds, latest[ds]
-            print "# HELP zfs_dataset_usedbysnapshots_bytes Space consumed by snapshots of the dataset."
-            print "# TYPE zfs_dataset_usedbysnapshots_bytes gauge"
-            for (ds in used) printf "zfs_dataset_usedbysnapshots_bytes{dataset=\"%s\"} %d\n", ds, used[ds]
-          }
-        ' >$d/zfs-snapshots.prom.tmp
-        mv $d/zfs-snapshots.prom.tmp $d/zfs-snapshots.prom
-      '';
-    };
-    timers.zfs-snapshot-metrics = {
-      wantedBy = ["timers.target"];
-      timerConfig = {
-        OnBootSec = "2min";
-        OnUnitActiveSec = "15min";
-      };
     };
   };
 }

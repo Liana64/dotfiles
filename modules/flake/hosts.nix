@@ -19,6 +19,21 @@
       aspects = ["nixDaemon" "noDefaults" "time" "users"];
       home = false;
     };
+    n1 = {
+      system = "x86_64-linux";
+      aspects = ["nixDaemon" "noDefaults" "time" "users"];
+      home = false;
+    };
+    n2 = {
+      system = "x86_64-linux";
+      aspects = ["nixDaemon" "noDefaults" "time" "users"];
+      home = false;
+    };
+    n3 = {
+      system = "x86_64-linux";
+      aspects = ["nixDaemon" "noDefaults" "time" "users"];
+      home = false;
+    };
     oob = {
       system = "aarch64-linux";
       channel = inputs.nixpkgs-unstable;

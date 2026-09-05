@@ -8,6 +8,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | --- | --- |
 | `modules/agentic/agentic.nix` | Claude Code config: hooks, settings, LSP, materialized agentic/ |
 | `modules/env/devshells.nix` | Dev shells (nix develop .#infra|rust) — project toolchains kept off the global profile |
+| `modules/env/git-hooks.nix` | home-infra pre-commit hook set (wired into the infra devshell only) |
 | `modules/features/tasks/reminders.nix` | Todoist due/overdue reminders (taskManager = todoist) |
 | `modules/features/tasks/tasks.nix` | taskManager option (nixos) + Todoist app (home) |
 | `modules/features/theme.nix` | Theme option + colors arg, across nixos + home |
@@ -39,6 +40,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/hardware/audio.nix` | Audio mixer fixes (ALC285 internal mic) |
 | `modules/hardware/boot.nix` | Boot configuration |
 | `modules/hardware/framework.nix` | Framework AMD AI 300 hardware module + firmware |
+| `modules/hardware/keyboard.nix` | Vial keyboard editor (source-built, bwrap-jailed) + QMK/Vial device access |
 | `modules/hardware/laptop.nix` | Laptop udev rules + power tuning |
 | `modules/hardware/ssd.nix` | SSD tuning (fstrim) |
 | `modules/hardware/wireless.nix` | Bluetooth + printing toggle |
@@ -76,6 +78,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/shell/nushell.nix` | nushell option — Nushell as the interactive shell in place of zsh |
 | `modules/shell/persist-diff.nix` | persist-diff — ephemeral-root files that would vanish on reboot |
 | `modules/shell/probe.nix` | probe — cluster-side connectivity checks through the netshoot pod |
+| `modules/shell/rebuild-remote.nix` | rebuild-remote — nixos-rebuild switch built and activated on the target host |
 | `modules/shell/shell.nix` | Zsh: history, completion, autosuggestion |
 | `modules/shell/starship.nix` | Starship prompt |
 | `modules/shell/taskwarrior.nix` | Taskwarrior + nested-task tooling (taskManager = taskwarrior) |

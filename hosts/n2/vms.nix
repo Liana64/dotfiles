@@ -8,6 +8,9 @@
 in {
   imports = [inputs.nixvirt.nixosModules.default];
 
+  # 32G budget: 26 vm + 3 opnsense standby (phase 3) + ~1 qemu + 2 arc
+  boot.kernelParams = ["zfs.zfs_arc_max=${toString (2 * 1024 * 1024 * 1024)}"];
+
   virtualisation.libvirtd.qemu.runAsRoot = false;
 
   virtualisation.libvirt = {
@@ -15,10 +18,10 @@ in {
     swtpm.enable = true;
     connections."qemu:///system".domains = [
       (mkTalosVM {
-        name = "talos-nas";
-        uuid = "c0ff6d31-0000-4000-8000-000000000014";
-        vcpus = 6;
-        memoryGiB = 40;
+        name = "talos-n2";
+        uuid = "efd7776f-3f94-425d-bcb8-e2613708f4d1";
+        vcpus = 14;
+        memoryGiB = 26;
         iso = talosISO;
         disks = [
           {
@@ -34,11 +37,28 @@ in {
         nics = [
           {
             bridge = "br0";
-            mac = "52:54:00:c0:fe:14";
+            mac = "BC:24:11:C7:0F:C6";
+            vlan = 10;
+          }
+          {
+            bridge = "br-tb";
+            mac = "BC:24:11:25:31:59";
             vlan = 10;
           }
         ];
       })
     ];
+  };
+
+  services.sanoid = {
+    enable = true;
+    datasets."rpool/vms" = {
+      recursive = true;
+      autosnap = true;
+      autoprune = true;
+      hourly = 0;
+      daily = 7;
+      monthly = 0;
+    };
   };
 }
