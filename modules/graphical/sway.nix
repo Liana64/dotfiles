@@ -102,7 +102,7 @@
         for_window [app_id=".*"] inhibit_idle fullscreen
 
         assign [app_id="kitty-startup"] workspace 1:q
-        assign [app_id="org.mozilla.thunderbird_esr"] workspace 3:e
+        assign [app_id="org.mozilla.thunderbird"] workspace 3:e
         assign [class="Todoist"] workspace 4:a
         assign [app_id="Element"] workspace 5:s
         assign [app_id="signal"] workspace 5:s
@@ -175,9 +175,10 @@
           mod = cfg.modifier;
           sup = "Mod4";
         in {
-          "${sup}+Escape" = ''mode "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane"'';
+          # "${sup}+Escape" = ''mode "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane"'';
 
-          "XF86AudioMedia" = ''mode "task: (a) add · (s) start/stop · (h) hide/show · (t) TUI · (d) done · (g) goal · (c) choose"'';
+          # "XF86AudioMedia" = ''mode "task: (a) add · (s) start/stop · (h) hide/show · (t) TUI · (d) done · (g) goal · (c) choose"'';
+          "XF86AudioMedia" = ''mode "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane"'';
 
           "print" = "exec '${app}/bin/sway-screenshot-area'";
           "Shift+print" = "exec '${app}/bin/sway-screenshot-all'";
@@ -275,7 +276,7 @@
           "${mod}+Shift+w" = "move container to workspace 2:w";
           "${mod}+Control+Shift+w" = "exec 'firefox'";
           "${mod}+Shift+e" = "move container to workspace 3:e";
-          "${mod}+Control+Shift+e" = "workspace 3:e; exec flatpak run org.mozilla.thunderbird_esr";
+          "${mod}+Control+Shift+e" = "workspace 3:e; exec flatpak run org.mozilla.thunderbird";
           "${mod}+Shift+a" = "move container to workspace 4:a";
           "${mod}+Ctrl+Shift+a" = "exec '${taskApp}'";
           "${mod}+Shift+s" = "move container to workspace 5:s";

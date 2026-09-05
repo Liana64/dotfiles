@@ -417,7 +417,7 @@
             exec = "date +'{\"text\": \"%a %b %-d %-I:%M %p\", \"tooltip\": \"%Y-%m-%d | %H:%M\"}'";
             interval = 5;
             return-type = "json";
-            on-click = launch "flatpak run org.mozilla.thunderbird_esr -calendar";
+            on-click = launch "flatpak run org.mozilla.thunderbird -calendar";
           };
 
           "custom/task" =

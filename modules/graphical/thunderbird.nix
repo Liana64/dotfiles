@@ -1,8 +1,8 @@
 # @desc: Thunderbird
 {...}: {
   flake.modules.homeManager.thunderbird = {colors, ...}: let
-    # Flatpak Thunderbird ESR profile; symlinks resolve in-sandbox via the /nix/store grant in flatpak.nix.
-    profile = ".var/app/org.mozilla.thunderbird_esr/.thunderbird/rciub5to.default-esr";
+    # Flatpak Thunderbird profile; symlinks resolve in-sandbox via the /nix/store grant in flatpak.nix.
+    profile = ".var/app/org.mozilla.thunderbird/.thunderbird/rciub5to.default-esr";
     selection = ''
       ::selection {
         background-color: ${colors.highlight} !important;

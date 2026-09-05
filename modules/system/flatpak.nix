@@ -19,7 +19,7 @@
         filesystems = "!xdg-documents";
       };
       "org.gimp.GIMP".Context.devices = "!all;dri";
-      "org.mozilla.thunderbird_esr".Context = {
+      "org.mozilla.thunderbird".Context = {
         devices = "!all;dri";
         features = "!devel";
       };
@@ -75,7 +75,7 @@
           org.gnome.Characters
           org.gnome.Calendar
           dev.bragefuglseth.Fretboard
-          org.mozilla.thunderbird_esr
+          org.mozilla.thunderbird
           org.gimp.GIMP
           org.libreoffice.LibreOffice
           org.localsend.localsend_app
