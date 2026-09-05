@@ -9,9 +9,21 @@ set -euo pipefail
 
 ack=/var/lib/audit-wall/ack # must match modules/security/auditd.nix
 
+# Notifications live in the caller's session: root can only poke the user unit
+dismiss() {
+  local user uid
+  user=${SUDO_USER:-}
+  [ -n "$user" ] || return 0
+  uid=$(id -u "$user" 2>/dev/null) || return 0
+  runuser -u "$user" -- env "XDG_RUNTIME_DIR=/run/user/$uid" \
+    "/etc/profiles/per-user/$user/bin/makoctl" dismiss --all 2>/dev/null || true
+  rm -f "/run/user/$uid/audit-wall-notify.id"
+}
+
 if [ "${1:-}" = ack ]; then
   date '+%m/%d/%Y %T' >"$ack"
   systemctl start audit-wall
+  dismiss
   echo "wall alert acknowledged"
   exit 0
 fi
@@ -26,6 +38,8 @@ if [ "${1:-}" = rotate ]; then
     sleep 0.1
   done
   rm -f "$log".*
+  systemctl start audit-wall
+  dismiss
   echo "audit log history purged (keys one audit-tamper event, not wall-keyed)"
   exit 0
 fi
