@@ -5,3 +5,4 @@ result
 result-*
 .claude/*
 !.claude/settings.json
+.archived/
