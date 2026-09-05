@@ -1,6 +1,7 @@
 # @desc: Dev shells (nix develop .#infra|rust) — project toolchains kept off the global profile
-{...}: {
+_: {
   perSystem = {
+    config,
     pkgs,
     inputs',
     ...
@@ -11,6 +12,7 @@
           inherit pkgs;
           unstable = inputs'.nixpkgs-unstable.legacyPackages;
         };
+        shellHook = config.pre-commit.installationScript;
       };
 
       rust = pkgs.mkShell {

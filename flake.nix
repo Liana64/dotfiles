@@ -12,6 +12,11 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
 
+    git-hooks = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # EasyEffects profile
     framework-dsp = {
       #url = "github:cab404/framework-dsp/6e5b8e7a5d1f422bcaa2f237f28223fe2292ca38";
@@ -47,11 +52,6 @@
 
     sops-nix = {
       url = "github:Liana64/sops-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    microvm = {
-      url = "github:Liana64/microvm.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
