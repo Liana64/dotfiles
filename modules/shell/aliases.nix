@@ -131,6 +131,16 @@
       }
     '';
 
+    statusFn = ''
+      status() {
+        kubectl create configmap blog-status -n default \
+          --from-literal=now.txt="''${*:+now: $*}" \
+          --dry-run=client -o yaml | kubectl apply -n default -f -
+      }
+    '';
+
+    shellFns = randomFn + statusFn;
+
     nuShadowedBuiltins = ["ls" "du"];
     nuZshBound = ["j" "dotfiles"];
     nuAliases =
@@ -151,8 +161,8 @@
   in {
     programs.bash.shellAliases = aliases // {aliases = "echo -e '${helpText}'";};
     programs.zsh.shellAliases = aliases // {aliases = "echo -e '${helpText}'";};
-    programs.bash.initExtra = randomFn;
-    programs.zsh.initContent = randomFn;
+    programs.bash.initExtra = shellFns;
+    programs.zsh.initContent = shellFns;
     programs.nushell.shellAliases = nuAliases;
   };
 }
