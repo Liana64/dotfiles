@@ -8,7 +8,7 @@
 in {
   imports = [inputs.nixvirt.nixosModules.default];
 
-  # 32G budget: 24 vm + 4 opnsense (phase 3) + ~1 qemu + 1.5 arc + ~1.5 host
+  # 32G budget: 24 vm + 4 opnsense + ~1 qemu + 1.5 arc + ~1.5 host
   boot.kernelParams = ["zfs.zfs_arc_max=${toString (1536 * 1024 * 1024)}"];
 
   virtualisation.libvirtd.qemu.runAsRoot = false;
