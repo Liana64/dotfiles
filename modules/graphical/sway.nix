@@ -174,11 +174,13 @@
           cfg = config.wayland.windowManager.sway.config;
           mod = cfg.modifier;
           sup = "Mod4";
+          powerMode = ''mode "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane"'';
         in {
           # "${sup}+Escape" = ''mode "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane"'';
 
           # "XF86AudioMedia" = ''mode "task: (a) add · (s) start/stop · (h) hide/show · (t) TUI · (d) done · (g) goal · (c) choose"'';
-          "XF86AudioMedia" = ''mode "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane"'';
+          "XF86AudioMedia" = powerMode;
+          "XF86Explorer" = powerMode;
 
           "print" = "exec '${app}/bin/sway-screenshot-area'";
           "Shift+print" = "exec '${app}/bin/sway-screenshot-all'";
