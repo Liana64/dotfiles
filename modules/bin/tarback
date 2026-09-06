@@ -1,0 +1,17 @@
+#!/bin/sh
+# @desc: tar a path into ~/Backups/<date>--<name>.tar
+set -eu
+
+[ $# -eq 1 ] || {
+  echo "usage: tarback <path>" >&2
+  exit 1
+}
+
+src=$(realpath "$1")
+name=$(basename "$src")
+dest="$HOME/Backups/$(date +%F)--$name.tar"
+
+mkdir -p "$HOME/Backups"
+tar cvf "$dest.partial" -C "$(dirname "$src")" "./$name"
+mv "$dest.partial" "$dest"
+echo "$dest"
