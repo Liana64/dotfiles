@@ -237,7 +237,6 @@ in {
         RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK"];
         RestrictNamespaces = true;
         RestrictRealtime = true;
-        RestrictSUIDSGID = true;
         LockPersonality = true;
         ProtectClock = true;
         ProtectKernelModules = true;
