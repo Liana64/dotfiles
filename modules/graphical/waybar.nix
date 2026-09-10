@@ -1,6 +1,7 @@
 # @desc: Waybar status bar
 {...}: {
   flake.modules.homeManager.waybar = {
+    lib,
     pkgs,
     colors,
     osConfig,
@@ -9,10 +10,16 @@
     hardening = import ../_lib/systemd-hardening.nix;
     useNiri = (osConfig.compositor or "sway") == "niri";
     taskManager = osConfig.taskManager or "todoist";
+    machineSecrets = osConfig.machineSecrets or true;
     wsModules =
       if useNiri
       then ["niri/workspaces"]
       else ["sway/workspaces" "sway/mode"];
+    statusModules =
+      ["custom/harness-status" "custom/yubikey" "custom/usbguard"]
+      ++ lib.optional machineSecrets "custom/syncthing"
+      ++ ["custom/caffeine"]
+      ++ lib.optional machineSecrets "custom/vpn";
     app = pkgs.symlinkJoin {
       name = "waybar-scripts";
       paths = with pkgs; [
@@ -319,8 +326,7 @@
           # groups stack vertically on a horizontal bar unless told otherwise
           "group/status" = {
             orientation = "horizontal";
-            # filled segments read cramped against the rounded end, keep caffeine mid-cluster
-            modules = ["custom/harness-status" "custom/yubikey" "custom/usbguard" "custom/syncthing" "custom/caffeine" "custom/vpn"];
+            modules = statusModules;
           };
 
           "group/hw" = {
