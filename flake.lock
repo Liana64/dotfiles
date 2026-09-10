@@ -398,6 +398,27 @@
         "type": "github"
       }
     },
+    "jovian": {
+      "inputs": {
+        "nix-github-actions": "nix-github-actions",
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787899316,
+        "narHash": "sha256-1y0aG4j8ZzUWiUlnAdnC6VZxkqbp7UDuFE222f3u/MQ=",
+        "owner": "Jovian-Experiments",
+        "repo": "Jovian-NixOS",
+        "rev": "9ffc5dc5af266c2e44066f22e5496274cf93a1a6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Jovian-Experiments",
+        "repo": "Jovian-NixOS",
+        "type": "github"
+      }
+    },
     "lanzaboote": {
       "inputs": {
         "crane": "crane",
@@ -419,6 +440,28 @@
         "owner": "nix-community",
         "ref": "v1.0.0",
         "repo": "lanzaboote",
+        "type": "github"
+      }
+    },
+    "nix-github-actions": {
+      "inputs": {
+        "nixpkgs": [
+          "jovian",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1729697500,
+        "narHash": "sha256-VFTWrbzDlZyFHHb1AlKRiD/qqCJIripXKiCSFS8fAOY=",
+        "owner": "zhaofengli",
+        "repo": "nix-github-actions",
+        "rev": "e418aeb728b6aa5ca8c5c71974e7159c2df1d8cf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zhaofengli",
+        "ref": "matrix-name",
+        "repo": "nix-github-actions",
         "type": "github"
       }
     },
@@ -455,6 +498,38 @@
       "original": {
         "owner": "nixos",
         "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-firefox": {
+      "locked": {
+        "lastModified": 1788921488,
+        "narHash": "sha256-8+xWRxEkD6l217cIUdRxfeUGS9lQX0hVtUuNVsBaDzk=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "6aefcda9401be8acc2b74244fb3b37520ea1f0a8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-26.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-kernel": {
+      "locked": {
+        "lastModified": 1788921488,
+        "narHash": "sha256-8+xWRxEkD6l217cIUdRxfeUGS9lQX0hVtUuNVsBaDzk=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "6aefcda9401be8acc2b74244fb3b37520ea1f0a8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-26.05",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -602,9 +677,12 @@
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "import-tree": "import-tree",
+        "jovian": "jovian",
         "lanzaboote": "lanzaboote",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",
+        "nixpkgs-firefox": "nixpkgs-firefox",
+        "nixpkgs-kernel": "nixpkgs-kernel",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "nixvirt": "nixvirt",
         "qmk-firmware": "qmk-firmware",
@@ -638,11 +716,11 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1788222458,
-        "narHash": "sha256-1t1KDLfodZMlmCyOSibB+wN4mxwVms3QRKbTm6Jl1yo=",
+        "lastModified": 1789054236,
+        "narHash": "sha256-41b9tMs0ANQUcC82M449zETe1u0MynL3uGsqoaz7AH0=",
         "ref": "refs/heads/main",
-        "rev": "a87e6770d6105c1d57c8928244abb66749b29395",
-        "revCount": 28,
+        "rev": "f001c6cbe09054b396ecfcd8a8c05a25f0621748",
+        "revCount": 33,
         "type": "git",
         "url": "ssh://git@git.milberry.org/liana/secrets.git"
       },

@@ -3,6 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
+    nixpkgs-kernel.url = "github:nixos/nixpkgs/nixos-26.05";
+    nixpkgs-firefox.url = "github:nixos/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     nixos-hardware.inputs.nixpkgs.follows = "nixpkgs";
@@ -55,6 +57,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    #microvm = {
+    #  url = "github:Liana64/microvm.nix";
+    #  inputs.nixpkgs.follows = "nixpkgs";
+    #};
+
     nixvirt = {
       url = "github:AshleyYakeley/NixVirt";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -64,6 +71,11 @@
     secrets = {
       url = "git+ssh://git@git.milberry.org/liana/secrets.git";
       flake = false;
+    };
+
+    jovian = {
+      url = "github:Jovian-Experiments/Jovian-NixOS";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     # Partitioning for provisioned hosts; staged for framework impermanence.
@@ -78,15 +90,12 @@
       flake = false;
     };
 
-    # Pinned firmware source for the Keychron Q11 build (embedded/keychron-q11).
-    # Locked in flake.lock incl. submodules; fetched only when the app is run.
     qmk-firmware = {
       url = "github:qmk/qmk_firmware/486f01f5133b3d2adf27ec546ca7fa05dbf548f1?submodules=1";
       flake = false;
     };
   };
 
-  # Logic added here bypasses import-tree; keep flake.nix to inputs + this call.
   outputs = inputs:
     inputs.flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux"];

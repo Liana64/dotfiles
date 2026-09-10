@@ -5,7 +5,11 @@
     lib,
     pkgs,
     ...
-  }: {
+  }: let
+    kernelPkgs = inputs.nixpkgs-kernel.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+  in {
+    nixpkgs.overlays = [(_: _: {inherit (kernelPkgs) linux-firmware;})];
+
     imports = [
       inputs.angelboot.nixosModules.default
       inputs.lanzaboote.nixosModules.lanzaboote
@@ -21,9 +25,9 @@
 
       plymouth.enable = true;
 
-      kernelPackages = pkgs.linuxPackages_latest;
+      kernelPackages = kernelPkgs.linuxPackages_latest;
       # Pin a kernel if the latest breaks:
-      #kernelPackages = pkgs.linuxPackagesFor (pkgs.linuxKernel.kernels.linux_6_17);
+      #kernelPackages = kernelPkgs.linuxPackagesFor kernelPkgs.linuxKernel.kernels.linux_6_17;
 
       lanzaboote = {
         enable = true;
