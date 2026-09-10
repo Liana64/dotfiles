@@ -4,9 +4,9 @@
 # importing arms the /@root wipe on boot
 # wait until the subvolumes and the readonly /@root-blank snapshot exist
 # (docs/MIGRATION.md); arm together with `impermanence = true` in
-# ./options.nix — that flips mutableUsers off and sources the password hash
-# from sops (modules/system/impermanence.nix); the "hashedPassword" key must
-# exist in the secretstore first
+# ./options.nix — the login hash already comes from the secretstore
+# (users/liana/password, wired in ./options.nix), so arming only adds the
+# wipe + persistence, and the host key must survive in /persist
 #
 # two pieces: initrd rollback (/@root-blank → /@root) and the
 # environment.persistence."/persist" list of what survives

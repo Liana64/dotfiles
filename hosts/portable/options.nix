@@ -1,9 +1,4 @@
-{
-  config,
-  inputs,
-  lib,
-  ...
-}: {
+{config, ...}: {
   imports = [
     ./hardware-configuration.nix
   ];
@@ -11,7 +6,7 @@
   networking.hostName = "portable";
   theme = "milberry";
 
-  sops.defaultSopsFile = lib.mkForce (inputs.secrets + "/framework.yaml");
+  machineSecrets = false;
 
   sops.secrets."users/liana/password".neededForUsers = true;
   users.mutableUsers = false;

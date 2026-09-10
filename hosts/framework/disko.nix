@@ -1,25 +1,19 @@
-# disko layout for framework, sized for impermanence
-#
-# NEVER RUN destroy/format/default MODE — those rewrite the GPT and take the
-# bazzite partitions (3/4) with it. Subvolumes are created by hand and only
-# `disko --mode mount` is ever used; see docs/MIGRATION.md
-#
-# Layout (target):
+# Layout:
 #   /dev/nvme0n1
-#     ├─ p1  ESP   1G       vfat → /boot           (existing)
-#     ├─ p2  LUKS  1.3T     → cryptroot            (existing partition, contents restructured)
+#     ├─ p1  ESP   1G      vfat → /boot
+#     ├─ p2  LUKS  1477G   → cryptroot
 #     │   └─ btrfs (label: nixos)
 #     │       ├─ /@root        → /
-#     │       ├─ /@root-blank  →                    (readonly snapshot of empty @root)
+#     │       ├─ /@root-blank  →                      (empty rollback target; set ro after deploy)
 #     │       ├─ /@home        → /home
 #     │       ├─ /@cache       → /home/liana/.cache   (relatime, never snapshotted)
 #     │       ├─ /@nix         → /nix
 #     │       ├─ /@persist     → /persist
 #     │       ├─ /@log         → /var/log             (journal churn, out of @persist snapshots)
 #     │       ├─ /@containers  → /var/lib/containers  (podman storage, holds nested subvolumes)
-#     │       └─ /@swap        → /swap              (NOCOW swapfile)
-#     ├─ p3  ext4  1G        BZ_BOOT                (Bazzite — leave alone)
-#     └─ p4  btrfs 512G      (Bazzite — leave alone)
+#     │       └─ /@swap        → /swap                (NOCOW swapfile)
+#     ├─ p3  ESP   1G                                 (deck /boot — bare here)
+#     └─ p4  btrfs 384G                               (deck root — bare here)
 {
   disko.devices = {
     disk.main = {
@@ -29,6 +23,7 @@
         type = "gpt";
         partitions = {
           ESP = {
+            priority = 1;
             size = "1G";
             type = "EF00";
             content = {
@@ -39,7 +34,8 @@
             };
           };
           luks = {
-            size = "100%";
+            priority = 2;
+            size = "1477G";
             content = {
               type = "luks";
               name = "cryptroot";
@@ -85,6 +81,15 @@
                 };
               };
             };
+          };
+          deckEsp = {
+            priority = 3;
+            size = "1G";
+            type = "EF00";
+          };
+          deckRoot = {
+            priority = 4;
+            size = "100%";
           };
         };
       };
