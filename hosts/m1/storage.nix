@@ -157,7 +157,7 @@ in {
     };
   };
 
-  environment.systemPackages = [pkgs.rsync];
+  environment.systemPackages = [pkgs.rsync pkgs.sanoid];
 
   services = {
     nfs.server = {
@@ -227,9 +227,22 @@ in {
       after = ["zfs-mount.service"];
       before = ["nfs-server.service"];
       path = [config.boot.zfs.package];
+      # mount-ns directives (ProtectSystem, PrivateTmp, ...) would trap the
+      # mounts of newly created datasets in the unit's slave namespace
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
+        NoNewPrivileges = true;
+        CapabilityBoundingSet = "CAP_SYS_ADMIN CAP_CHOWN CAP_FOWNER CAP_DAC_READ_SEARCH";
+        RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK"];
+        RestrictNamespaces = true;
+        RestrictRealtime = true;
+        RestrictSUIDSGID = true;
+        LockPersonality = true;
+        ProtectClock = true;
+        ProtectKernelModules = true;
+        SystemCallArchitectures = "native";
+        IPAddressDeny = "any";
       };
       script = lib.concatStrings (lib.mapAttrsToList ensure datasets);
     };

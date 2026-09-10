@@ -108,7 +108,15 @@
           ${pkgs.audit}/bin/auditctl -s > "$alert"
         fi
       '';
-      serviceConfig.Type = "oneshot";
+      serviceConfig =
+        hardening.confined
+        // {
+          Type = "oneshot";
+          CapabilityBoundingSet = "CAP_AUDIT_CONTROL";
+          RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK"];
+          ReadWritePaths = ["/var/lib/audit-wall"];
+          UMask = "0022";
+        };
     };
 
     # Audit log is 0700 root; a root timer writes a world-readable wall
@@ -145,7 +153,15 @@
           chmod 0644 /run/audit-wall
         fi
       '';
-      serviceConfig.Type = "oneshot";
+      serviceConfig =
+        hardening.confined
+        // {
+          Type = "oneshot";
+          CapabilityBoundingSet = "CAP_AUDIT_CONTROL";
+          RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK"];
+          ReadWritePaths = ["/var/lib/audit-wall" "/run"];
+          UMask = "0022";
+        };
     };
     systemd.timers.audit-wall = {
       wantedBy = ["timers.target"];
@@ -164,23 +180,25 @@
     };
     systemd.user.services.audit-wall-notify = {
       Unit.Description = "Audit wall desktop notification";
-      Service = {
-        Type = "oneshot";
-        ExecStart = pkgs.writeShellScript "audit-wall-notify" ''
-          idf=$XDG_RUNTIME_DIR/audit-wall-notify.id
-          if [ -s /run/audit-wall ]; then
-            id=$(cat "$idf" 2>/dev/null || echo 0)
-            ${pkgs.libnotify}/bin/notify-send -p -r "$id" -u critical -a audit-wall -t 0 \
-              "Audit wall" "$(cat /run/audit-wall)" > "$idf"
-          elif [ -s "$idf" ]; then
-            ${pkgs.glib}/bin/gdbus call --session --dest org.freedesktop.Notifications \
-              --object-path /org/freedesktop/Notifications \
-              --method org.freedesktop.Notifications.CloseNotification \
-              "$(cat "$idf")" > /dev/null || true
-            rm -f "$idf"
-          fi
-        '';
-      };
+      Service =
+        (import ../_lib/systemd-hardening.nix).base
+        // {
+          Type = "oneshot";
+          ExecStart = pkgs.writeShellScript "audit-wall-notify" ''
+            idf=$XDG_RUNTIME_DIR/audit-wall-notify.id
+            if [ -s /run/audit-wall ]; then
+              id=$(cat "$idf" 2>/dev/null || echo 0)
+              ${pkgs.libnotify}/bin/notify-send -p -r "$id" -u critical -a audit-wall -t 0 \
+                "Audit wall" "$(cat /run/audit-wall)" > "$idf"
+            elif [ -s "$idf" ]; then
+              ${pkgs.glib}/bin/gdbus call --session --dest org.freedesktop.Notifications \
+                --object-path /org/freedesktop/Notifications \
+                --method org.freedesktop.Notifications.CloseNotification \
+                "$(cat "$idf")" > /dev/null || true
+              rm -f "$idf"
+            fi
+          '';
+        };
     };
   };
 }
