@@ -35,10 +35,13 @@
       IPCAllowedGroups = ["wheel"];
       dbus.enable = true;
 
-      # This is insecure since USB information can be dumped, but we'll do it anyway
-      # TODO: Add a variable to disable this
-      #ruleFile = "/var/secrets/usbguard/rules.conf";
-      ruleFile = "/etc/usbguard/rules.conf";
+      ruleFile = "/var/secrets/usbguard/rules.conf";
+    };
+
+    sops.secrets."machine/usbguard/rules.conf" = {
+      path = "/var/secrets/usbguard/rules.conf";
+      mode = "0400";
+      restartUnits = ["usbguard.service"];
     };
 
     services.devmon.enable = true;
@@ -69,20 +72,10 @@
         SystemCallArchitectures = "native";
       };
 
-    systemd.services.usbguard = {
-      preStart = ''
-        if [ ! -s /etc/usbguard/rules.conf ]; then
-          ${cfg.package}/bin/usbguard generate-policy > /etc/usbguard/rules.conf
-          chmod 0600 /etc/usbguard/rules.conf
-        fi
-      '';
-      serviceConfig = {
-        ExecStart = lib.mkForce "${cfg.package}/bin/usbguard-daemon -P -k -c ${daemonConf}";
-        # Audit netlink writes need CAP_AUDIT_WRITE
-        CapabilityBoundingSet = lib.mkForce "CAP_CHOWN CAP_FOWNER CAP_AUDIT_WRITE";
-        # Unit sandbox is ReadOnlyPaths=-/; preStart writes the policy here
-        ReadWritePaths = lib.mkForce "-/dev/shm -/tmp -/etc/usbguard";
-      };
+    systemd.services.usbguard.serviceConfig = {
+      ExecStart = lib.mkForce "${cfg.package}/bin/usbguard-daemon -P -k -c ${daemonConf}";
+      # Audit netlink writes need CAP_AUDIT_WRITE
+      CapabilityBoundingSet = lib.mkForce "CAP_CHOWN CAP_FOWNER CAP_AUDIT_WRITE";
     };
   };
 }
