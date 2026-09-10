@@ -44,7 +44,11 @@
     prometheus.exporters = {
       node = {
         enable = true;
-        extraFlags = ["--collector.textfile.directory=/var/lib/zfs-metrics"];
+        enabledCollectors = ["systemd"];
+        extraFlags = [
+          "--collector.textfile.directory=/var/lib/zfs-metrics"
+          "--collector.systemd.unit-include=(restic-.*|sanoid)\\.service"
+        ];
       };
       smartctl.enable = true;
       zfs.enable = true;
@@ -55,7 +59,17 @@
     tmpfiles.rules = ["d /var/lib/zfs-metrics 0755 root root"];
     services.zfs-snapshot-metrics = {
       path = [config.boot.zfs.package pkgs.gawk];
-      serviceConfig.Type = "oneshot";
+      serviceConfig =
+        (import ./systemd-hardening.nix).confined
+        // {
+          Type = "oneshot";
+          PrivateDevices = false;
+          CapabilityBoundingSet = "";
+          IPAddressDeny = "any";
+          RestrictAddressFamilies = ["AF_UNIX"];
+          ReadWritePaths = ["/var/lib/zfs-metrics"];
+          UMask = "0022";
+        };
       script = ''
         d=/var/lib/zfs-metrics
         {

@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# nheko in a bubblewrap jail: fresh home, only its own XDG dirs plus Downloads,
+# network, wayland, and a filtered session bus (notifications, secrets, portal).
+# PATH holds nothing but the xdg-open shim, so links leave via the portal.
+set -euo pipefail
+
+: "${WAYLAND_DISPLAY:=wayland-1}"
+: "${XDG_RUNTIME_DIR:=/run/user/$(id -u)}"
+: "${XDG_CONFIG_HOME:=$HOME/.config}"
+: "${XDG_CACHE_HOME:=$HOME/.cache}"
+: "${XDG_DATA_HOME:=$HOME/.local/share}"
+
+mkdir -p "$XDG_CONFIG_HOME/nheko" "$XDG_CACHE_HOME/nheko" "$XDG_DATA_HOME/nheko" "$HOME/Downloads"
+
+bus="$XDG_RUNTIME_DIR/nheko-bus"
+rm -f "$bus"
+xdg-dbus-proxy "${DBUS_SESSION_BUS_ADDRESS:-unix:path=$XDG_RUNTIME_DIR/bus}" "$bus" --filter \
+  --talk=org.freedesktop.Notifications \
+  --talk=org.freedesktop.secrets \
+  --talk=org.freedesktop.portal.Desktop &
+trap 'kill %1 2>/dev/null || true' EXIT
+for _ in {1..100}; do
+  [ -S "$bus" ] && break
+  sleep 0.05
+done
+
+exec bwrap \
+  --unshare-all \
+  --share-net \
+  --die-with-parent \
+  --new-session \
+  --proc /proc \
+  --dev /dev \
+  --dev-bind-try /dev/dri /dev/dri \
+  --tmpfs /tmp \
+  --tmpfs "$HOME" \
+  --ro-bind /nix/store /nix/store \
+  --ro-bind /run/current-system/sw /run/current-system/sw \
+  --ro-bind-try "/etc/profiles/per-user/$(id -un)" "/etc/profiles/per-user/$(id -un)" \
+  --ro-bind /etc/fonts /etc/fonts \
+  --ro-bind /etc/ssl /etc/ssl \
+  --ro-bind /etc/static /etc/static \
+  --ro-bind /etc/hosts /etc/hosts \
+  --ro-bind /etc/resolv.conf /etc/resolv.conf \
+  --ro-bind /etc/nsswitch.conf /etc/nsswitch.conf \
+  --ro-bind /etc/localtime /etc/localtime \
+  --ro-bind-try "$XDG_CONFIG_HOME/fontconfig" "$XDG_CONFIG_HOME/fontconfig" \
+  --ro-bind-try "$XDG_CONFIG_HOME/Kvantum" "$XDG_CONFIG_HOME/Kvantum" \
+  --ro-bind-try "$XDG_CONFIG_HOME/qt6ct" "$XDG_CONFIG_HOME/qt6ct" \
+  --bind "$XDG_CONFIG_HOME/nheko" "$XDG_CONFIG_HOME/nheko" \
+  --bind "$XDG_CACHE_HOME/nheko" "$XDG_CACHE_HOME/nheko" \
+  --bind "$XDG_DATA_HOME/nheko" "$XDG_DATA_HOME/nheko" \
+  --bind "$HOME/Downloads" "$HOME/Downloads" \
+  --perms 0700 \
+  --dir "$XDG_RUNTIME_DIR" \
+  --bind "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" \
+  --bind-try "$XDG_RUNTIME_DIR/pipewire-0" "$XDG_RUNTIME_DIR/pipewire-0" \
+  --bind-try "$XDG_RUNTIME_DIR/pulse" "$XDG_RUNTIME_DIR/pulse" \
+  --bind "$bus" "$XDG_RUNTIME_DIR/bus" \
+  --setenv DBUS_SESSION_BUS_ADDRESS "unix:path=$XDG_RUNTIME_DIR/bus" \
+  --setenv QT_QPA_PLATFORM wayland \
+  --setenv PATH "${XDG_OPEN_SHIM:?}" \
+  "${NHEKO_BIN:?}" "$@"
