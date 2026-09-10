@@ -87,16 +87,23 @@ in {
           };
 
           space = {
+            ";" = ":reload-all";
             "+" = "increment";
             "-" = "decrement";
             e = "file_explorer";
+            f = "file_picker";
+            b = "buffer_picker";
+            x = ":buffer-close";
+            X = ":buffer-close-others";
+            s = "global_search";
             z.z = ":write-quit-all";
+            q.s = ":write-quit-all";
             q.q = ":quit-all!";
             g = "changed_file_picker";
             l = lsp;
             h = git;
 
-            s = {
+            v = {
               v = ":vsplit";
               h = ":hsplit";
               x = "wclose";
@@ -109,25 +116,6 @@ in {
               x = ":buffer-close";
               c = ":buffer-close-others";
             };
-          };
-
-          C-x = {
-            C-f = "file_picker";
-            C-g = "global_search";
-            b = "buffer_picker";
-            C-e = "file_explorer";
-            C-j = "file_explorer";
-            h = "select_all";
-            "2" = ":hsplit";
-            "3" = ":vsplit";
-            "0" = "wclose";
-            "1" = "wonly";
-            x = ":buffer-close";
-            c = ":buffer-close-others";
-            C-c = ":write-quit-all";
-            r = ":reload-all";
-            g = git;
-            l = lsp;
           };
         };
     };
