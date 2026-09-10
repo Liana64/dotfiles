@@ -3,35 +3,46 @@
 # shellcheck shell=bash
 
 WG_INTERFACE="wg0"
-# One SSID per line; comments and blanks skipped by is_trusted. A missing
-# file trusts nothing: the tunnel comes up on every wifi.
-TRUSTED_NETWORKS=$(cat "$TRUSTED_NETWORKS_FILE" 2>/dev/null || true)
 
 is_up()       { ip link show "$WG_INTERFACE" &>/dev/null; }
 is_ethernet() { nmcli -t -f type,state dev | grep -q '^ethernet:connected'; }
 is_online()   { [[ "$(nmcli -t -f CONNECTIVITY general)" == full ]]; }
+wifi_ssid()   { nmcli -t -f active,ssid dev wifi | grep '^yes:' | cut -d: -f2-; }
 
+# One SSID per line; comments and blanks skipped. Reread on every evaluate —
+# caching at startup races secret deployment and poisons the whole instance.
+# An unreadable file still trusts nothing, but says so in the journal.
 is_trusted() {
-  local ssid current_ssid
-  current_ssid=$(nmcli -t -f active,ssid dev wifi | grep '^yes:' | cut -d: -f2-)
+  local ssid trusted current_ssid=$1
   [[ -z "$current_ssid" ]] && return 1
+  trusted=$(cat "$TRUSTED_NETWORKS_FILE" 2>/dev/null) \
+    || echo "warning: $TRUSTED_NETWORKS_FILE unreadable, trusting nothing" >&2
   while IFS= read -r ssid; do
     [[ "$ssid" =~ ^#.*$ || -z "$ssid" ]] && continue
     ssid=$(echo "$ssid" | xargs)
     [[ "$current_ssid" == "$ssid" ]] && return 0
-  done <<< "$TRUSTED_NETWORKS"
+  done <<< "$trusted"
   return 1
 }
 
+# untrusted requires an associated SSID, not just CONNECTIVITY=full — during a
+# wifi drop NM still reports full for a beat, which raced the tunnel up offline.
 evaluate() {
-  if is_ethernet || is_trusted; then
-    echo safe > /run/wg-network-state
-    is_up && wg-quick down "$WG_CONFIG"
-  elif is_online; then
-    echo untrusted > /run/wg-network-state
-    is_up || wg-quick up "$WG_CONFIG"
+  local state=offline current_ssid
+  current_ssid=$(wifi_ssid)
+  if is_ethernet || is_trusted "$current_ssid"; then
+    state=safe
+  elif [[ -n "$current_ssid" ]] && is_online; then
+    state=untrusted
+  fi
+  [[ "$state" == "$(cat /run/wg-network-state 2>/dev/null)" ]] \
+    || echo "network state: $state"
+  echo "$state" > /run/wg-network-state
+  if [[ "$state" == untrusted ]]; then
+    # unbounded, wg-quick retries endpoint DNS forever and wedges the
+    # monitor loop; on TERM it rolls the interface back itself
+    is_up || timeout 30 wg-quick up "$WG_CONFIG"
   else
-    echo offline > /run/wg-network-state
     is_up && wg-quick down "$WG_CONFIG"
   fi
 }
