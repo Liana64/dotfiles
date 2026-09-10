@@ -1,13 +1,14 @@
 # @desc: Firefox
 {...}: {
   flake.modules.homeManager.firefox = {
+    inputs,
     pkgs,
     colors,
     ...
   }: {
     programs.firefox = {
       enable = true;
-      package = pkgs.firefox;
+      package = inputs.nixpkgs-firefox.legacyPackages.${pkgs.stdenv.hostPlatform.system}.firefox;
       # nixpkgs firefox sets MOZ_LEGACY_PROFILES, so it reads ~/.mozilla/firefox.
       # stateVersion 26.05 would otherwise default this to the XDG path the browser ignores.
       configPath = ".mozilla/firefox";
@@ -330,4 +331,41 @@
       WebBrowser=firefox
     '';
   };
+
+  flake.modules.nixos.firefox = {
+    config,
+    lib,
+    ...
+  }:
+    lib.mkIf config.machineSecrets {
+      sops.secrets."machine/firefox/ublock/trusted-sites" = {};
+
+      sops.templates."firefox-policies.json" = {
+        owner = "liana";
+        mode = "0400";
+        content = ''
+          {
+            "policies": {
+              "3rdparty": {
+                "Extensions": {
+                  "uBlock0@raymondhill.net": {
+                    "userSettings": [
+                      ["advancedUserEnabled", "true"],
+                      ["uiTheme", "dark"],
+                      ["popupPanelSections", "31"]
+                    ],
+                    "toAdd": {
+                      "trustedSiteDirectives": ${config.sops.placeholder."machine/firefox/ublock/trusted-sites"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        '';
+      };
+
+      environment.etc."firefox/policies/policies.json".source =
+        config.sops.templates."firefox-policies.json".path;
+    };
 }
