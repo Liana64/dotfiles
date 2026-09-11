@@ -1,25 +1,5 @@
 {
   "nodes": {
-    "angelboot": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1787093557,
-        "narHash": "sha256-2f989B50Hg7prTAvX8PYSfPMSWFto2DMN+N5aL7titM=",
-        "ref": "refs/heads/main",
-        "rev": "b63ddd1073831eead49f3b10d4e5ecb2fc9578d5",
-        "revCount": 4,
-        "type": "git",
-        "url": "ssh://git@git.milberry.org/liana/angelboot.git"
-      },
-      "original": {
-        "type": "git",
-        "url": "ssh://git@git.milberry.org/liana/angelboot.git"
-      }
-    },
     "base16": {
       "inputs": {
         "fromYaml": "fromYaml"
@@ -668,7 +648,6 @@
     },
     "root": {
       "inputs": {
-        "angelboot": "angelboot",
         "dice": "dice",
         "disko": "disko",
         "flake-parts": "flake-parts",

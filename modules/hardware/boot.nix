@@ -11,7 +11,6 @@
     nixpkgs.overlays = [(_: _: {inherit (kernelPkgs) linux-firmware;})];
 
     imports = [
-      inputs.angelboot.nixosModules.default
       inputs.lanzaboote.nixosModules.lanzaboote
     ];
 
@@ -22,8 +21,6 @@
         #systemd-boot.memtest86.enable = true;
         efi.canTouchEfiVariables = true;
       };
-
-      plymouth.enable = true;
 
       kernelPackages = kernelPkgs.linuxPackages_latest;
       # Pin a kernel if the latest breaks:

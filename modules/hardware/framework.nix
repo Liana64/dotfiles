@@ -53,7 +53,7 @@
       packages = [pkgs.terminus_font];
     };
 
-    # Keep boot console quiet so kernel/udev messages don't overwrite plymouth/tuigreet
+    # Keep boot console quiet so kernel/udev messages don't overwrite tuigreet
     boot.consoleLogLevel = 3;
     boot.initrd.verbose = false;
   };
