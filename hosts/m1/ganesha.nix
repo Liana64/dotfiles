@@ -82,7 +82,6 @@ in {
           "/tank/backups/volsync"
           "/tank/home/photos"
         ];
-        # per-op impersonation of squashed uids: outside @system-service
         SystemCallFilter = [
           "@system-service"
           "@chown"
@@ -95,6 +94,7 @@ in {
           "quotactl"
         ];
         CapabilityBoundingSet = "CAP_NET_BIND_SERVICE CAP_SETUID CAP_SETGID CAP_CHOWN CAP_FOWNER CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_SYS_RESOURCE";
+        UMask = "0000";
         RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_INET6" "AF_NETLINK"];
       };
   };
