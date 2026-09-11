@@ -85,10 +85,14 @@ in {
         # per-op impersonation of squashed uids: outside @system-service
         SystemCallFilter = [
           "@system-service"
+          "@chown"
           "setfsuid"
           "setfsgid"
           "setgroups"
           "capset"
+          "name_to_handle_at"
+          "open_by_handle_at"
+          "quotactl"
         ];
         CapabilityBoundingSet = "CAP_NET_BIND_SERVICE CAP_SETUID CAP_SETGID CAP_CHOWN CAP_FOWNER CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_SYS_RESOURCE";
         RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_INET6" "AF_NETLINK"];
