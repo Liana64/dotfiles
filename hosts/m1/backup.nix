@@ -79,7 +79,7 @@ in {
       restic-backups-tank = {
         unitConfig.OnSuccess = ["restic-metrics.service"];
         serviceConfig =
-          builtins.removeAttrs hardening.confined ["PrivateTmp"]
+          removeAttrs hardening.confined ["PrivateTmp"]
           // {
             CapabilityBoundingSet = "CAP_DAC_READ_SEARCH";
             RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_INET6"];
