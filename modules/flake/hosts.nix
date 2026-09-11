@@ -16,7 +16,7 @@
     noku.system = "x86_64-linux";
     m1 = {
       system = "x86_64-linux";
-      aspects = ["nixDaemon" "noDefaults" "time" "users"];
+      aspects = ["hardening" "journald" "nixDaemon" "noDefaults" "noexec" "storeVerify" "time" "users"];
       home = false;
     };
     n1 = {
@@ -38,6 +38,12 @@
       system = "aarch64-linux";
       channel = inputs.nixpkgs-unstable;
       aspects = ["nixDaemon" "time" "users"];
+      home = false;
+    };
+    deck = {
+      system = "x86_64-linux";
+      channel = inputs.nixpkgs-unstable;
+      aspects = ["nixDaemon" "noDefaults" "time" "users" "frameworkHardware"];
       home = false;
     };
   };

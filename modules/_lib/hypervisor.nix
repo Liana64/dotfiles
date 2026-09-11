@@ -5,7 +5,17 @@
   config,
   pkgs,
   ...
-}: {
+}: let
+  hardening = import ./systemd-hardening.nix;
+  zfsJob =
+    hardening.confined
+    // {
+      PrivateDevices = false;
+      CapabilityBoundingSet = "CAP_SYS_ADMIN";
+      RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK"];
+      IPAddressDeny = "any";
+    };
+in {
   boot = {
     supportedFilesystems = ["zfs"];
     zfs.devNodes = "/dev/disk/by-id";
@@ -47,7 +57,7 @@
         enabledCollectors = ["systemd"];
         extraFlags = [
           "--collector.textfile.directory=/var/lib/zfs-metrics"
-          "--collector.systemd.unit-include=(restic-.*|sanoid)\\.service"
+          "--collector.systemd.unit-include=(restic-.*|sanoid|nix-store-verify|zfs-scrub|zpool-trim|zfs-zed|smartd)\\.service"
         ];
       };
       smartctl.enable = true;
@@ -57,10 +67,27 @@
 
   systemd = {
     tmpfiles.rules = ["d /var/lib/zfs-metrics 0755 root root"];
+    services.zfs-scrub.serviceConfig = zfsJob;
+    services.zpool-trim.serviceConfig = zfsJob;
+    services.zfs-zed.serviceConfig = zfsJob;
+    services.smartd.serviceConfig =
+      hardening.base
+      // {
+        ProtectSystem = "strict";
+        ProtectHome = true;
+        ProtectControlGroups = true;
+        RestrictNamespaces = true;
+        SystemCallArchitectures = "native";
+        CapabilityBoundingSet = "CAP_SYS_ADMIN CAP_SYS_RAWIO";
+        RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK"];
+        IPAddressDeny = "any";
+      };
+    services.systemd-rfkill.enable = false;
+    sockets.systemd-rfkill.enable = false;
     services.zfs-snapshot-metrics = {
       path = [config.boot.zfs.package pkgs.gawk];
       serviceConfig =
-        (import ./systemd-hardening.nix).confined
+        hardening.confined
         // {
           Type = "oneshot";
           PrivateDevices = false;
