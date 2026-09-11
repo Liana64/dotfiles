@@ -26,15 +26,15 @@
       scrapeConfigs = [
         {
           job_name = "node";
-          static_configs = [{targets = ["127.0.0.1:9100" "m1:9100"];}];
+          static_configs = [{targets = ["127.0.0.1:9100" "m1.mgmt.milberry.org:9100"];}];
         }
         {
           job_name = "zfs";
-          static_configs = [{targets = ["127.0.0.1:9134" "m1:9134"];}];
+          static_configs = [{targets = ["127.0.0.1:9134" "m1.mgmt.milberry.org:9134"];}];
         }
         {
           job_name = "smartctl";
-          static_configs = [{targets = ["127.0.0.1:9633" "m1:9633"];}];
+          static_configs = [{targets = ["127.0.0.1:9633" "m1.mgmt.milberry.org:9633"];}];
         }
       ];
     };

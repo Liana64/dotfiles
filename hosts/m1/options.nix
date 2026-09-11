@@ -44,7 +44,8 @@ in {
     hostName = "m1";
     hostId = "c0ff6d31";
     firewall.interfaces = {
-      cluster.allowedTCPPorts = [2049];
+      # TODO: tighten perms once new oob is deployed
+      cluster.allowedTCPPorts = [2049 9100 9134 9633];
       hstore.allowedTCPPorts = [2049];
     };
   };
