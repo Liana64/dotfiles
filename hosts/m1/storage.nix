@@ -4,6 +4,8 @@
   pkgs,
   ...
 }: let
+  hardening = import ../../modules/_lib/systemd-hardening.nix;
+
   net = {
     cluster = [
       "172.16.4.11"
@@ -11,14 +13,13 @@
       "172.16.4.13"
       "172.16.4.14"
     ];
-    home = ["172.16.100.0/24"];
-    admin = ["172.16.99.0/24"];
+    ops = ["172.16.95.0/24"];
     liana = [
-      "172.16.100.30"
+      "172.16.95.31"
     ];
     maxine = [
-      "172.16.100.40"
-      "172.16.100.41"
+      "172.16.95.40"
+      "172.16.95.41"
     ];
   };
 
@@ -39,11 +40,11 @@
     user = _: "${base},root_squash";
     anon = id: "${base},all_squash,anonuid=${toString id},anongid=${toString id}";
     view = id: "ro,no_subtree_check,crossmnt,all_squash,anonuid=${toString id},anongid=${toString id}";
+    browse = _: "ro,no_subtree_check,root_squash";
   };
 
   lan = level: {
-    home = level;
-    admin = level;
+    ops = level;
   };
 
   people = lib.filterAttrs (_: u: u.isNormalUser && u.uid != null) config.users.users;
@@ -55,7 +56,6 @@
       mode = "0700";
       props.quota = "1T";
       grants = {
-        admin = access.user;
         ${name} = access.anon;
       };
     })
@@ -77,7 +77,7 @@
         id = 0;
         mode = "0755";
         props.quota = "5T";
-        grants = lan access.user;
+        grants = lan access.browse;
       };
       "tank/home/photos" = {
         id = ids.documents;
@@ -170,6 +170,8 @@ in {
       threads = 16;
     };
 
+    rpcbind.enable = lib.mkForce false;
+
     sanoid = {
       enable = true;
       templates = {
@@ -221,6 +223,18 @@ in {
   };
 
   systemd = {
+    services.rpc-statd.enable = false;
+    services.rpc-statd-notify.enable = false;
+    services.rpc-gssd.enable = false;
+    services.rpc-svcgssd.enable = false;
+    services.sanoid.serviceConfig =
+      hardening.confined
+      // {
+        PrivateDevices = false;
+        CapabilityBoundingSet = "";
+        RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK"];
+        IPAddressDeny = "any";
+      };
     services.zfs-datasets = {
       wantedBy = ["multi-user.target"];
       requiredBy = ["nfs-server.service"];
