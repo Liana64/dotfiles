@@ -30,6 +30,7 @@
       nix-tree
       numbat
       pre-commit
+      rclone
       ripgrep
       ripgrep-all
       rustscan
