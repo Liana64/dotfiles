@@ -69,7 +69,7 @@ in {
     requires = ["zfs-datasets.service"];
     after = ["zfs-datasets.service" "network.target"];
     serviceConfig =
-      builtins.removeAttrs hardening.confined ["SystemCallFilter"]
+      builtins.removeAttrs hardening.confined ["SystemCallFilter" "ProcSubset"]
       // {
         ExecStart = "${pkgs.nfs-ganesha}/bin/ganesha.nfsd -F -L STDERR -f ${conf} -p /run/ganesha/pid";
         Restart = "on-failure";
@@ -91,7 +91,7 @@ in {
           "capset"
         ];
         CapabilityBoundingSet = "CAP_NET_BIND_SERVICE CAP_SETUID CAP_SETGID CAP_CHOWN CAP_FOWNER CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_SYS_RESOURCE";
-        RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_NETLINK"];
+        RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_INET6" "AF_NETLINK"];
       };
   };
 }
