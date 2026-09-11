@@ -89,7 +89,7 @@ in {
           "setfsgid"
           "setgroups"
         ];
-        CapabilityBoundingSet = "CAP_NET_BIND_SERVICE CAP_SETUID CAP_SETGID CAP_CHOWN CAP_FOWNER CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH";
+        CapabilityBoundingSet = "CAP_NET_BIND_SERVICE CAP_SETUID CAP_SETGID CAP_CHOWN CAP_FOWNER CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_SYS_RESOURCE";
         RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_NETLINK"];
       };
   };
