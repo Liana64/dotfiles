@@ -8,7 +8,11 @@
 in {
   imports = [inputs.nixvirt.nixosModules.default];
 
-  virtualisation.libvirtd.qemu.runAsRoot = false;
+  virtualisation.libvirtd = {
+    qemu.runAsRoot = false;
+    onBoot = "ignore";
+    onShutdown = "shutdown";
+  };
 
   virtualisation.libvirt = {
     enable = true;
