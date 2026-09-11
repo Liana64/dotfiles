@@ -71,7 +71,7 @@
           recordsize = "1M";
           quota = "14.5T";
         };
-        grants = {cluster = access.owned;} // lan access.user;
+        grants = lan access.user;
       };
       "tank/home" = {
         id = 0;
@@ -82,7 +82,7 @@
       "tank/home/photos" = {
         id = ids.documents;
         mode = "2770";
-        grants = {cluster = access.anon;} // lan access.view;
+        grants = lan access.view;
       };
       "tank/home/shared" = {
         id = ids.documents;
@@ -101,7 +101,6 @@
       "tank/backups/volsync" = {
         id = ids.backup;
         mode = "0770";
-        grants.cluster = access.anon;
       };
     }
     // homes
@@ -140,6 +139,9 @@ in {
     zfs.extraPools = ["tank"];
     # 64G budget: 40 vm (vfio-pinned) + ~1 qemu + 12 arc + ~11 host/slack
     kernelParams = ["zfs.zfs_arc_max=${toString (12 * 1024 * 1024 * 1024)}"];
+    # nfsd/ganesha bind specific addrs; the cluster addr is DHCP and may
+    # arrive after the units start
+    kernel.sysctl."net.ipv4.ip_nonlocal_bind" = 1;
   };
 
   users = {
@@ -165,6 +167,8 @@ in {
       exports = lib.concatStringsSep "\n" (lib.mapAttrsToList exportLine exported);
     };
     nfs.settings.nfsd = {
+      # homes listen on hstore only; 2049 on the cluster addr is ganesha's
+      host = "172.16.20.44";
       vers3 = false;
       udp = false;
       threads = 16;

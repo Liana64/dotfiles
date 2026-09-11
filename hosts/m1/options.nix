@@ -6,6 +6,7 @@ in {
     ../../modules/_lib/hypervisor.nix
     ./backup.nix
     ./disko.nix
+    ./ganesha.nix
     ./network.nix
     ./secrets.nix
     ./storage.nix
@@ -42,7 +43,10 @@ in {
   networking = {
     hostName = "m1";
     hostId = "c0ff6d31";
-    firewall.interfaces.cluster.allowedTCPPorts = [22 2049 9100 9134 9633];
+    firewall.interfaces = {
+      cluster.allowedTCPPorts = [2049];
+      hstore.allowedTCPPorts = [2049];
+    };
   };
 
   users.users = {

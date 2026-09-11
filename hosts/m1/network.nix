@@ -42,6 +42,7 @@
         bridgeConfig.VLANFiltering = true;
       };
       cluster = vlan 10 "cluster";
+      hstore = vlan 20 "hstore";
       mgmt = vlan 99 "mgmt";
     };
     networks = {
@@ -59,16 +60,16 @@
           Bridge = "br0";
           LinkLocalAddressing = "no";
         };
-        bridgeVLANs = [{VLAN = 10;}];
+        bridgeVLANs = [{VLAN = 10;} {VLAN = 20;}];
         linkConfig.RequiredForOnline = false;
       };
       "20-br0" = {
         matchConfig.Name = "br0";
         networkConfig = {
-          VLAN = ["cluster"];
+          VLAN = ["cluster" "hstore"];
           LinkLocalAddressing = "no";
         };
-        bridgeVLANs = [{VLAN = 10;}];
+        bridgeVLANs = [{VLAN = 10;} {VLAN = 20;}];
         linkConfig.RequiredForOnline = false;
       };
       "30-mgmt-nic" = parent "eno2" "mgmt";
@@ -96,6 +97,32 @@
           Gateway = "172.16.99.1";
           DNS = "172.16.99.1";
         };
+      };
+      "42-hstore" = {
+        matchConfig.Name = "hstore";
+        networkConfig = {
+          Address = "172.16.20.44/24";
+          LinkLocalAddressing = "no";
+        };
+        routes = [
+          {
+            Destination = "172.16.20.0/24";
+            Scope = "link";
+            Table = 20;
+          }
+          {
+            Gateway = "172.16.20.1";
+            Table = 20;
+          }
+        ];
+        routingPolicyRules = [
+          {
+            From = "172.16.20.0/24";
+            Table = 20;
+            Priority = 102;
+          }
+        ];
+        linkConfig.RequiredForOnline = false;
       };
     };
   };
