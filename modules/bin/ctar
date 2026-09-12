@@ -104,6 +104,11 @@ case "$1" in
   rm -f "$dest.sig"
   mv "$dest.partial" "$dest"
 
+  if [ "$(stat -c %s "$dest")" -ge $((10 << 30)) ]; then
+    printf 'prompt? [y] ' >&2
+    read -r _ </dev/tty
+  fi
+
   echo "Touch key" >&2
   until gpg --yes --detach-sign "$dest"; do
     echo "ctar: signing failed — touch and retry" >&2
