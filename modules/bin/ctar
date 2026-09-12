@@ -3,8 +3,8 @@
 set -eu
 
 usage() {
-  echo "usage: ctar <path> [out.tar.gz.gpg]" >&2
-  echo "       ctar -d <archive.tar.gz.gpg> [dir]" >&2
+  echo "usage: ctar <path> [out.tar.zst.gpg]" >&2
+  echo "       ctar -d <archive.tar.zst.gpg> [dir]" >&2
   exit 1
 }
 
@@ -30,12 +30,44 @@ case "$1" in
   work=$(mktemp -d "$dest/.ctar.XXXXXX")
   trap 'rm -f "$status"; rm -rf "$work"' EXIT
 
-  echo "Touch key if needed" >&2
-  gpg --status-fd 3 -d "$src" 3>"$status" | tar xzf - -C "$work"
-  grep -q '^\[GNUPG:\] VALIDSIG' "$status" || {
-    echo "ctar: no valid signature on $src — nothing extracted" >&2
-    exit 1
+  sigcheck() {
+    grep -q '^\[GNUPG:\] VALIDSIG' "$status" || {
+      echo "ctar: no valid signature on $src — nothing extracted" >&2
+      exit 1
+    }
   }
+
+  unz() {
+    case "$src" in
+    *.gz.gpg) gzip -dc ;;
+    *) zstd -dc ;;
+    esac
+  }
+
+  if [ -f "$src.sig" ]; then
+    gpg --status-fd 3 --verify "$src.sig" "$src" 3>"$status" || :
+    sigcheck
+    echo "Touch key if needed" >&2
+    gpg -d "$src" | unz | tar xf - -C "$work"
+  else
+    case "$src" in
+    *.gz.gpg) ;;
+    *)
+      printf 'ctar: %s.sig not found — extract unverified? [y/N] ' "$src" >&2
+      read -r ans </dev/tty
+      case "$ans" in
+      [yY]) sigcheck() { :; } ;;
+      *)
+        echo "ctar: nothing extracted" >&2
+        exit 1
+        ;;
+      esac
+      ;;
+    esac
+    echo "Touch key if needed" >&2
+    gpg --status-fd 3 -d "$src" 3>"$status" | unz | tar xf - -C "$work"
+    sigcheck
+  fi
 
   find "$work" -mindepth 1 -maxdepth 1 -exec mv -t "$dest" {} +
   echo "$dest"
@@ -46,7 +78,7 @@ case "$1" in
 *)
   src=$(realpath "$1")
   name=$(basename "$src")
-  dest=${2:-$PWD/$name.tar.gz.gpg}
+  dest=${2:-$PWD/$name.tar.zst.gpg}
 
   if [ -n "$(find "$src" ! -readable -print -quit 2>/dev/null)" ]; then
     sudo -v
@@ -58,17 +90,25 @@ case "$1" in
   status=$(mktemp)
   trap 'rm -f "$status" "$dest.partial"' EXIT
 
-  echo "Touch key if needed" >&2
   {
-    "$@" czf - -C "$(dirname "$src")" "./$name" || echo fail >"$status"
-  } | gpg --sign --encrypt --default-recipient-self --yes -o "$dest.partial"
+    "$@" cf - -C "$(dirname "$src")" "./$name" || echo fail >"$status"
+  } | {
+    zstd -T0 || echo fail >"$status"
+  } | gpg --encrypt --compress-algo none --default-recipient-self --yes -o "$dest.partial"
 
   if [ -s "$status" ]; then
-    echo "ctar: tar failed — $dest not written" >&2
+    echo "ctar: archive stream failed — $dest not written" >&2
     exit 1
   fi
 
+  rm -f "$dest.sig"
   mv "$dest.partial" "$dest"
+
+  echo "Touch key" >&2
+  until gpg --yes --detach-sign "$dest"; do
+    echo "ctar: signing failed — touch and retry" >&2
+    sleep 1
+  done
   echo "$dest"
   ;;
 esac

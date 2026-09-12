@@ -5,7 +5,7 @@
     pkgs,
     ...
   }: let
-    deps = with pkgs; [coreutils findutils gnugrep gnupg gnutar gzip];
+    deps = with pkgs; [coreutils findutils gnugrep gnupg gnutar gzip zstd];
     script =
       pkgs.writeShellScriptBin "ctar"
       (builtins.readFile ../bin/ctar);
