@@ -165,9 +165,9 @@ in {
           "${sup}+Return".action.spawn = "kitty";
           "${mod}+Shift+Return".action.spawn = ["kitty" "--session" "startup.session"];
 
-          "${mod}+Space".action.spawn = ["vicinae" "toggle"];
-          "${sup}+Space".action.spawn = ["vicinae" "toggle"];
-          "${sup}+d".action.spawn = ["vicinae" "toggle"];
+          "${mod}+Space".action.spawn = ["fuzzel"];
+          "${sup}+Space".action.spawn = ["fuzzel"];
+          "${sup}+d".action.spawn = ["fuzzel"];
 
           "${mod}+Ctrl+Shift+r".action.spawn = ["kitty" "--title" "nix-rebuild" "${app}/bin/nix-rebuild-sway"];
 

@@ -15,7 +15,7 @@
     home.packages = [zoom-web];
 
     # No icon: none exists on this setup. The entry registers the zoommtg://
-    # scheme handler (see mime.nix) and surfaces "Zoom" in the vicinae launcher.
+    # scheme handler (see mime.nix) and surfaces "Zoom" in the fuzzel launcher.
     xdg.desktopEntries."zoom-web" = {
       name = "Zoom";
       genericName = "Zoom (web client)";

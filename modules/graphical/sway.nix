@@ -131,7 +131,7 @@
       '';
       config = {
         terminal = "kitty";
-        menu = "vicinae toggle";
+        menu = "fuzzel";
         startup = [
           {command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";}
           {command = "kitty --class kitty-startup";}
@@ -140,6 +140,10 @@
           {
             criteria = {title = "nix-rebuild";};
             command = "floating enable, resize set 800 400";
+          }
+          {
+            criteria = {title = "numbat";};
+            command = "floating enable, resize set 800 500, move position center";
           }
           {
             criteria = {title = "task-add";};
@@ -218,6 +222,7 @@
 
           "${mod}+Space" = "exec ${cfg.menu}";
           "${sup}+Space" = "exec ${cfg.menu}";
+          "${mod}+Shift+Space" = "exec 'kitty --title numbat ${pkgs.numbat}/bin/numbat'";
 
           "${mod}+Left" = "focus left";
           "${mod}+Down" = "focus down";
@@ -261,7 +266,7 @@
 
           "${mod}+b" = "layout toggle split";
 
-          "${mod}+Shift+Space" = "floating toggle";
+          "${mod}+Shift+f" = "floating toggle";
           "${mod}+y" = "focus mode_toggle";
 
           "${mod}+q" = "workspace 1:q";

@@ -16,7 +16,7 @@
       then ["niri/workspaces"]
       else ["sway/workspaces" "sway/mode"];
     statusModules =
-      ["custom/harness-status" "custom/yubikey" "custom/usbguard"]
+      ["custom/harness-status" "custom/usbguard"]
       ++ lib.optional machineSecrets "custom/syncthing"
       ++ ["custom/caffeine"]
       ++ lib.optional machineSecrets "custom/vpn";
@@ -24,7 +24,6 @@
       name = "waybar-scripts";
       paths = with pkgs; [
         (writeShellScriptBin "waybar-usbguard" (builtins.readFile ../../modules/bin/waybar-usbguard))
-        (writeShellScriptBin "waybar-yubikey" (builtins.readFile ../../modules/bin/waybar-yubikey))
         (writeShellScriptBin "waybar-vpn" (builtins.readFile ../../modules/bin/waybar-vpn))
         (writeShellScriptBin "waybar-syncthing" (builtins.readFile ../../modules/bin/waybar-syncthing))
         (writeShellScriptBin "waybar-caffeine" (builtins.readFile ../../modules/bin/waybar-caffeine))
@@ -41,7 +40,6 @@
       buildInputs = [pkgs.makeWrapper];
       postBuild = ''
         wrapProgram $out/bin/waybar-usbguard      --prefix PATH : $out/bin
-        wrapProgram $out/bin/waybar-yubikey       --prefix PATH : $out/bin
         wrapProgram $out/bin/waybar-task          --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [taskwarrior3 jq coreutils])}
         wrapProgram $out/bin/waybar-syncthing     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [curl jq gnused procps])}
         wrapProgram $out/bin/waybar-harness-status --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils gnused procps sway])}
@@ -127,7 +125,6 @@
         #custom-launcher,
         #custom-vpn,
         #custom-usbguard,
-        #custom-yubikey,
         #custom-caffeine,
         #custom-syncthing,
         #custom-task,
@@ -199,7 +196,6 @@
         }
 
         #status #custom-harness-status,
-        #status #custom-yubikey,
         #status #custom-usbguard,
         #status #custom-syncthing,
         #status #custom-vpn,
@@ -218,7 +214,6 @@
         }
 
         #status #custom-harness-status:hover,
-        #status #custom-yubikey:hover,
         #status #custom-usbguard:hover,
         #status #custom-syncthing:hover,
         #status #custom-vpn:hover,
@@ -256,7 +251,6 @@
         #pulseaudio:hover,
         #custom-vpn:hover,
         #custom-usbguard:hover,
-        #custom-yubikey:hover,
         #custom-syncthing:hover,
         #custom-launcher:hover {
           background: ${gray};
@@ -340,7 +334,7 @@
             exec = "${app}/bin/waybar-sysinfo";
             interval = 30;
             return-type = "json";
-            on-click = "${pkgs.vicinae}/bin/vicinae toggle";
+            on-click = "${pkgs.fuzzel}/bin/fuzzel";
           };
 
           # Credit: KyleOndy
@@ -350,11 +344,6 @@
             return-type = "json";
             on-click = "${app}/bin/waybar-usbguard allow";
             on-click-right = "${app}/bin/waybar-usbguard reject";
-          };
-
-          "custom/yubikey" = {
-            exec = "${app}/bin/waybar-yubikey";
-            return-type = "json";
           };
 
           "custom/countdown" = {
