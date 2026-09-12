@@ -2,6 +2,7 @@
   liana = [
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAILZNRa1SOMF0p7tASJFpNYrP7IoYG4/raJegYGM8hxrqAAAACXNzaDpsaWFuYQ== 2026@yk1"
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIMw7e8H4N/lw+9npl/dbhTc50I8n4+737mDB0UNG0xCwAAAACXNzaDpsaWFuYQ== 2026@yk2"
+    "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIGQuyOOQP4VCHH/ynAAh9C3f9Ck8mFIu5Lk431ptmjWaAAAACXNzaDpsaWFuYQ== 2026@yk3"
   ];
   lianaGpg = ''
 

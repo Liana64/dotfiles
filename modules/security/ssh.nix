@@ -5,7 +5,7 @@
       enable = true;
       enableDefaultConfig = false;
       settings."*" = {
-        IdentityFile = ["~/.ssh/id_yk1" "~/.ssh/id_yk2"];
+        IdentityFile = ["~/.ssh/id_yk1" "~/.ssh/id_yk2" "~/.ssh/id_yk3"];
         IdentitiesOnly = true;
       };
     };
