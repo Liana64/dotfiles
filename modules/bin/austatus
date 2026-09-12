@@ -22,6 +22,7 @@ dismiss() {
 
 if [ "${1:-}" = ack ]; then
   date '+%m/%d/%Y %T' >"$ack"
+  rm -f /var/lib/audit-wall/alerts/emergency-*
   systemctl start audit-wall
   dismiss
   echo "wall alert acknowledged"

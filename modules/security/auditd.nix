@@ -3,14 +3,118 @@
   flake.modules.nixos.auditd = {
     pkgs,
     config,
+    lib,
     ...
   }: let
     hardening = import ../_lib/systemd-hardening.nix;
     austatus = pkgs.writeShellScriptBin "austatus" (builtins.readFile ../bin/austatus);
     wallKeys = ["usbguard" "code-injection" "data-injection" "register-injection" "32bit-abi" "exec-scratch"];
+    emergencyPlugin = pkgs.runCommand "audit-emergency" {} ''
+      alt=$(cd ${pkgs.gnupg} && printf '%s|' bin/* libexec/*)
+      alt=''${alt%|}
+      cat > $out <<'EOF'
+      #!${pkgs.runtimeShell}
+      trap : HUP
+      ${pkgs.gawk}/bin/awk '
+        function fld(k,   s, v) {
+          s = index($0, " " k "=")
+          if (!s) return ""
+          v = substr($0, s + length(k) + 2)
+          if (substr(v, 1, 1) == "\"") {
+            v = substr(v, 2)
+            sub(/".*/, "", v)
+          } else sub(/[ \t].*/, "", v)
+          return v
+        }
+        function notify(k,   i) {
+          stream = k
+          for (i = 1; i <= nbuf; i++) print buf[i] >> (alerts k)
+          fflush("")
+          system("${config.systemd.package}/bin/systemctl start audit-wall")
+        }
+        BEGIN {
+          alerts = "/var/lib/audit-wall/alerts/emergency-"
+          gnupg = "^/nix/store/[a-z0-9]+-gnupg-[^/]+/(@alt@)$"
+          systemd = "^/nix/store/[a-z0-9]+-systemd-[^/]+/(bin/systemd-tmpfiles|lib/systemd/systemd-executor)$"
+          coreutils = "^/nix/store/[a-z0-9]+-coreutils-[^/]+/bin/coreutils$"
+          scratch = "^Cu[A-Za-z0-9]+$"
+          homedir = "${baseNameOf gnupgHome}"
+          O_PATH = 2097152
+          split("${toString hmTargets}", t, " ")
+          for (i in t) declared[t[i]] = 1
+        }
+        {
+          id = fld("msg")
+          if (id != cur) {
+            if (pending == 2) notify(ekey)
+            pending = 0
+            cur = id
+            nbuf = 0
+            stream = ""
+          }
+          buf[++nbuf] = $0
+          if (stream != "") {
+            print $0 >> (alerts stream)
+            fflush("")
+          }
+        }
+        /^type=SYSCALL/ {
+          ekey = fld("key")
+          if (ekey != "gnupg-secrets" && ekey != "gnupg-tamper") {
+            pending = 0
+            next
+          }
+          exe = fld("exe")
+          call = fld("SYSCALL")
+          need = fld("items") + 0
+          got = 0
+          dironly = 0
+          pending = 1
+          if (exe ~ gnupg) next
+          if (ekey == "gnupg-secrets") {
+            if (call == "readlink" || call == "readlinkat") next
+            if (exe ~ systemd && call == "openat" && and(strtonum("0x" fld("a2")), O_PATH)) next
+          } else if (exe ~ coreutils || exe ~ systemd) {
+            dironly = (exe ~ systemd)
+            pending = 2
+            if (need > 0) next
+          }
+          pending = 0
+          notify(ekey)
+          next
+        }
+        pending == 2 && /^type=PATH/ {
+          got++
+          if ($0 !~ /nametype=PARENT/) {
+            n = split(fld("name"), p, "/")
+            if (dironly ? p[n] != homedir : !(p[n] in declared) && p[n] !~ scratch) {
+              pending = 0
+              notify(ekey)
+              next
+            }
+          }
+          if (got >= need) pending = 1
+        }
+        END {
+          if (pending == 2) notify(ekey)
+        }'
+      EOF
+      substituteInPlace $out --subst-var alt
+      chmod +x $out
+    '';
     spaceLeftMB = 2048;
+    gnupgHome = "${config.users.users.liana.home}/.gnupg";
+    gnupgReaders = ["bin/gpg" "bin/gpg-agent" "bin/gpgconf" "bin/dirmngr" "libexec/scdaemon" "libexec/keyboxd"];
+    hm = config.home-manager.users.liana;
+    hmTargets =
+      map baseNameOf (builtins.filter (lib.hasPrefix "${gnupgHome}/") (builtins.attrNames hm.home.file))
+      ++ lib.optional (!hm.programs.gpg.mutableTrust) ("trustdb" + ".gpg");
   in {
     security.auditd.enable = true;
+    security.auditd.plugins.emergency = {
+      active = true;
+      path = emergencyPlugin;
+    };
     security.auditd.settings = {
       max_log_file = 16;
       max_log_file_action = "rotate";
@@ -25,40 +129,46 @@
     security.audit = {
       enable = "lock";
       backlogLimit = 8192;
-      rules = [
-        "-w /etc/passwd -p wa -k identity"
-        "-w /etc/group -p wa -k identity"
-        "-w /etc/shadow -p wa -k identity"
-        "-w /etc/sudoers -p wa -k identity"
+      rules =
+        map (bin: "-a never,exit -F arch=b64 -F dir=${gnupgHome} -F perm=rwa -F exe=${pkgs.gnupg}/${bin}") gnupgReaders
+        ++ [
+          "-a always,exit -F arch=b64 -F dir=${gnupgHome} -F perm=r -k gnupg-secrets"
+          "-a always,exit -F arch=b64 -F dir=${gnupgHome} -F perm=wa -k gnupg-tamper"
+        ]
+        ++ [
+          "-w /etc/passwd -p wa -k identity"
+          "-w /etc/group -p wa -k identity"
+          "-w /etc/shadow -p wa -k identity"
+          "-w /etc/sudoers -p wa -k identity"
 
-        "-w /etc/usbguard -p wa -k usbguard"
+          "-w /etc/usbguard -p wa -k usbguard"
 
-        "-w /var/log/audit -p wa -k audit-tamper"
+          "-w /var/log/audit -p wa -k audit-tamper"
 
-        "-a always,exit -F arch=b64 -S init_module,finit_module -k module-load"
-        "-a always,exit -F arch=b64 -S delete_module -k module-unload"
+          "-a always,exit -F arch=b64 -S init_module,finit_module -k module-load"
+          "-a always,exit -F arch=b64 -S delete_module -k module-unload"
 
-        "-a never,exit -F arch=b64 -F dir=/nix/var/nix/db -F perm=wa -F exe=${config.nix.package.nix-cli or config.nix.package}/bin/nix"
-        "-a always,exit -F arch=b64 -F dir=/nix/var/nix/db -F perm=wa -k nix-db"
+          "-a never,exit -F arch=b64 -F dir=/nix/var/nix/db -F perm=wa -F exe=${config.nix.package.nix-cli or config.nix.package}/bin/nix"
+          "-a always,exit -F arch=b64 -F dir=/nix/var/nix/db -F perm=wa -k nix-db"
 
-        "-a always,exit -F arch=b64 -S ptrace -F a0=0x4 -k code-injection"
-        "-a always,exit -F arch=b64 -S ptrace -F a0=0x5 -k data-injection"
-        "-a always,exit -F arch=b64 -S ptrace -F a0=0x6 -k register-injection"
+          "-a always,exit -F arch=b64 -S ptrace -F a0=0x4 -k code-injection"
+          "-a always,exit -F arch=b64 -S ptrace -F a0=0x5 -k data-injection"
+          "-a always,exit -F arch=b64 -S ptrace -F a0=0x6 -k register-injection"
 
-        "-a always,exit -F arch=b32 -S all -k 32bit-abi"
+          "-a always,exit -F arch=b32 -S all -k 32bit-abi"
 
-        "-a never,exit -F arch=b64 -S execve,execveat -F dir=/nix/store"
-        "-a never,exit -F arch=b64 -S execve,execveat -F dir=/run/wrappers"
-        "-a never,exit -F arch=b64 -S execve,execveat -F uid>=30001 -F uid<=30999"
-        "-a always,exit -F arch=b64 -S execve,execveat -F dir=/tmp -k exec-scratch"
-        "-a always,exit -F arch=b64 -S execve,execveat -F dir=/var/tmp -k exec-scratch"
-        "-a always,exit -F arch=b64 -S execve,execveat -F dir=/dev/shm -k exec-scratch"
-        "-a always,exit -F arch=b64 -S execve,execveat -F success=1 -k exec-nonstore"
+          "-a never,exit -F arch=b64 -S execve,execveat -F dir=/nix/store"
+          "-a never,exit -F arch=b64 -S execve,execveat -F dir=/run/wrappers"
+          "-a never,exit -F arch=b64 -S execve,execveat -F uid>=30001 -F uid<=30999"
+          "-a always,exit -F arch=b64 -S execve,execveat -F dir=/tmp -k exec-scratch"
+          "-a always,exit -F arch=b64 -S execve,execveat -F dir=/var/tmp -k exec-scratch"
+          "-a always,exit -F arch=b64 -S execve,execveat -F dir=/dev/shm -k exec-scratch"
+          "-a always,exit -F arch=b64 -S execve,execveat -F success=1 -k exec-nonstore"
 
-        "-a never,exit -F arch=b64 -S mount,mount_setattr,move_mount,fsmount -F exe=${config.systemd.package}/lib/systemd/systemd-executor"
-        "-a never,exit -F arch=b64 -S mount,mount_setattr,move_mount,fsmount -F exe=${pkgs.bubblewrap}/bin/bwrap"
-        "-a always,exit -F arch=b64 -S mount,mount_setattr,move_mount,fsmount -F auid>=1000 -F auid!=unset -k mount-tamper"
-      ];
+          "-a never,exit -F arch=b64 -S mount,mount_setattr,move_mount,fsmount -F exe=${config.systemd.package}/lib/systemd/systemd-executor"
+          "-a never,exit -F arch=b64 -S mount,mount_setattr,move_mount,fsmount -F exe=${pkgs.bubblewrap}/bin/bwrap"
+          "-a always,exit -F arch=b64 -S mount,mount_setattr,move_mount,fsmount -F auid>=1000 -F auid!=unset -k mount-tamper"
+        ];
     };
 
     # Watch targets must exist when rules load at sysinit, or auditctl -R aborts
@@ -66,6 +176,7 @@
     systemd.tmpfiles.rules = [
       "d /var/log/audit 0700 root root -"
       "d /etc/usbguard 0700 root root -"
+      "d ${gnupgHome} 0700 liana users -"
       "d /var/lib/audit-wall 0755 root root -"
       "d /var/lib/audit-wall/alerts 0755 root root -"
     ];
@@ -77,6 +188,7 @@
       // {
         ProtectSystem = "strict";
         ProtectHome = true;
+        ReadWritePaths = ["/var/lib/audit-wall"];
         PrivateDevices = true;
         ProtectControlGroups = true;
         RestrictNamespaces = true;
@@ -119,8 +231,6 @@
         };
     };
 
-    # Audit log is 0700 root; a root timer writes a world-readable wall
-    # summary that interactive shells display
     systemd.services.audit-wall = {
       script = ''
         ack=/var/lib/audit-wall/ack
@@ -128,6 +238,7 @@
         summary=""
         apid=$(${pkgs.audit}/bin/auditctl -s 2>/dev/null | sed -n 's/^pid //p')
         if [ "''${apid:-0}" -eq 0 ]; then summary="$summary auditd-dead"; fi
+        ${pkgs.procps}/bin/pgrep -f -- '-audit-emergency$' > /dev/null || summary="$summary emergency-dead"
         for key in ${toString wallKeys}; do
           # Rule (re)loads tag the key on a CONFIG_CHANGE bundled with an auditctl
           # SYSCALL keyed (null); match key on SYSCALL so reboots/switches don't trip.
@@ -160,6 +271,7 @@
           CapabilityBoundingSet = "CAP_AUDIT_CONTROL";
           RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK"];
           ReadWritePaths = ["/var/lib/audit-wall" "/run"];
+          ProtectProc = "default";
           UMask = "0022";
         };
     };
