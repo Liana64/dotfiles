@@ -74,6 +74,10 @@
           if (ekey == "gnupg-secrets") {
             if (call == "readlink" || call == "readlinkat") next
             if (exe ~ systemd && call == "openat" && and(strtonum("0x" fld("a2")), O_PATH)) next
+            if (need > 0) {
+              pending = 2
+              next
+            }
           } else if (exe ~ coreutils || exe ~ systemd) {
             dironly = (exe ~ systemd)
             pending = 2
@@ -87,7 +91,7 @@
           got++
           if ($0 !~ /nametype=PARENT/) {
             n = split(fld("name"), p, "/")
-            if (dironly ? p[n] != homedir : !(p[n] in declared) && p[n] !~ scratch) {
+            if (p[n] != "(null)" && p[n] != homedir && (dironly || !(p[n] in declared) && p[n] !~ scratch)) {
               pending = 0
               notify(ekey)
               next
