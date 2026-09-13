@@ -25,6 +25,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/graphical/desktop-packages.nix` | Linux-only user packages (GUI + desktop) |
 | `modules/graphical/files.nix` | Thunar file manager |
 | `modules/graphical/firefox.nix` | Firefox |
+| `modules/graphical/fuzzel.nix` | Fuzzel launcher |
 | `modules/graphical/mako.nix` | Mako notification daemon |
 | `modules/graphical/obsidian.nix` | Obsidian |
 | `modules/graphical/stylix.nix` | Stylix theming (home) |
@@ -33,7 +34,6 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/graphical/swayidle.nix` | swayidle idle/lock daemon as a restarting user service |
 | `modules/graphical/thunderbird.nix` | Thunderbird |
 | `modules/graphical/vesktop.nix` | Vesktop (Discord) |
-| `modules/graphical/vicinae.nix` | Vicinae launcher |
 | `modules/graphical/waybar.nix` | Waybar status bar |
 | `modules/graphical/wayland.nix` | compositor option (sway|niri|bigscreen) + Wayland session |
 | `modules/graphical/zoom.nix` | Zoom (web client via Firefox) |
@@ -47,11 +47,11 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/security/auditd.nix` | auditd audit logging |
 | `modules/security/faillock.nix` | PAM faillock lockout for swaylock |
 | `modules/security/gpg.nix` | GPG keys/config |
-| `modules/security/hardening.nix` | Kernel hardening: polkit, rtkit, kernel params |
+| `modules/security/hardening.nix` | Kernel hardening: shared baseline + desktop extras |
 | `modules/security/keyring.nix` | GnuPG agent (SSH support) + gnome-keyring via PAM |
 | `modules/security/log-flood.nix` | Log flood tripwire: journal/audit event-rate + journal near-cap alert into audit-wall |
 | `modules/security/no-defaults.nix` | Strip default packages |
-| `modules/security/noexec.nix` | noexec mounts — /dev/shm, /var/tmp, /var/log, /boot |
+| `modules/security/noexec.nix` | noexec mounts — /dev/shm, /var/tmp, /var/log, ESPs |
 | `modules/security/secrets.nix` | sops-nix secrets from the PQ-encrypted secretstore repo |
 | `modules/security/ssh.nix` | ssh client config |
 | `modules/security/store-verify.nix` | Weekly nix store verify with tamper alert |
@@ -63,6 +63,7 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/shell/atuin.nix` | Atuin shell history |
 | `modules/shell/benchmarks.nix` | wifi-bench / bt-bench wrappers with bundled deps |
 | `modules/shell/cli-packages.nix` | Cross-platform user CLI packages |
+| `modules/shell/ctar.nix` | ctar — signed+encrypted tar archives using YubiKey |
 | `modules/shell/dice.nix` | Curated fortune file + dice wrapper |
 | `modules/shell/dvcs.nix` | DVCS config; hardcodes user liana / email |
 | `modules/shell/frame.nix` | frame — global just runner for repo/system/hardware/ai tasks |
@@ -71,13 +72,14 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/shell/helix/keymaps.nix` | Helix keymaps mirroring nvim (space leader + C-x prefix) |
 | `modules/shell/helix/languages.nix` | Helix language servers — nixd, yamlls, lua-ls, all from nixpkgs |
 | `modules/shell/helix/plugins.nix` | Steel plugin framework — declared cogs materialized into STEEL_HOME + init.scm |
+| `modules/shell/iamb.nix` | iamb — Matrix TUI client (lianas.org homeserver) |
 | `modules/shell/infra.nix` | infra — home-infra Taskfile runner with bare-name task resolution |
 | `modules/shell/installer.nix` | nix-build-installer — installer ISO built into the current directory |
 | `modules/shell/k9s.nix` | k9s Kubernetes TUI |
 | `modules/shell/kitty.nix` | Kitty terminal |
+| `modules/shell/netshoot.nix` | netshoot — cluster-side connectivity checks through the netshoot pod |
 | `modules/shell/nushell.nix` | nushell option — Nushell as the interactive shell in place of zsh |
 | `modules/shell/persist-diff.nix` | persist-diff — ephemeral-root files that would vanish on reboot |
-| `modules/shell/probe.nix` | probe — cluster-side connectivity checks through the netshoot pod |
 | `modules/shell/rebuild-remote.nix` | rebuild-remote — nixos-rebuild switch built and activated on the target host |
 | `modules/shell/shell.nix` | Zsh: history, completion, autosuggestion |
 | `modules/shell/starship.nix` | Starship prompt |
@@ -88,11 +90,11 @@ Map of leaf modules, generated from `# @desc:` comments by `nix run .#gen-index`
 | `modules/system/flatpak.nix` | Flatpak |
 | `modules/system/fonts.nix` | System fonts |
 | `modules/system/framework-dsp.nix` | EasyEffects DSP for Framework 13 speakers, bound to sway |
-| `modules/system/impermanence.nix` | impermanence option — declarative user password from sops on ephemeral-root hosts |
+| `modules/system/impermanence.nix` | impermanence option — ephemeral-root switch consumed by other aspects |
 | `modules/system/journald.nix` | journald config |
 | `modules/system/mime.nix` | Default applications per MIME type |
 | `modules/system/networking.nix` | NetworkManager + nftables firewall |
-| `modules/system/nfs-client.nix` | NFS v4 client + lazy automounts of the m1 exports under /mnt/m1 |
+| `modules/system/nfs-client.nix` | NFS v4 client + lazy automounts of m1 exports under /mnt/m1 |
 | `modules/system/nix.nix` | Nix daemon: gc, optimise, flake registry |
 | `modules/system/packages.nix` | System packages and base env vars (EDITOR, BROWSER) |
 | `modules/system/syncthing.nix` | Syncthing |

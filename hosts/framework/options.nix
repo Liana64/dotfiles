@@ -1,9 +1,11 @@
 {
   config,
+  inputs,
   pkgs,
   ...
 }: {
   imports = [
+    inputs.disko.nixosModules.disko
     ./disko.nix
     ./hardware-configuration.nix
   ];
