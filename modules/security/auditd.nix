@@ -9,116 +9,116 @@
     hardening = import ../_lib/systemd-hardening.nix;
     austatus = pkgs.writeShellScriptBin "austatus" (builtins.readFile ../bin/austatus);
     wallKeys = ["usbguard" "code-injection" "data-injection" "register-injection" "32bit-abi" "exec-scratch"];
-    emergencyPlugin = pkgs.runCommand "audit-emergency" {} ''
-      alt=$(cd ${pkgs.gnupg} && printf '%s|' bin/* libexec/*)
-      alt=''${alt%|}
-      cat > $out <<'EOF'
-      #!${pkgs.runtimeShell}
-      trap : HUP
-      ${pkgs.gawk}/bin/awk '
-        function fld(k,   s, v) {
-          s = index($0, " " k "=")
-          if (!s) return ""
-          v = substr($0, s + length(k) + 2)
-          if (substr(v, 1, 1) == "\"") {
-            v = substr(v, 2)
-            sub(/".*/, "", v)
-          } else sub(/[ \t].*/, "", v)
-          return v
-        }
-        function notify(k,   i) {
-          stream = k
-          for (i = 1; i <= nbuf; i++) print buf[i] >> (alerts k)
-          fflush("")
-          system("${config.systemd.package}/bin/systemctl start audit-wall")
-        }
-        BEGIN {
-          alerts = "/var/lib/audit-wall/alerts/emergency-"
-          gnupg = "^/nix/store/[a-z0-9]+-gnupg-[^/]+/(@alt@)$"
-          systemd = "^/nix/store/[a-z0-9]+-systemd-[^/]+/(bin/systemd-tmpfiles|lib/systemd/systemd-executor)$"
-          coreutils = "^/nix/store/[a-z0-9]+-coreutils-[^/]+/bin/coreutils$"
-          scratch = "^Cu[A-Za-z0-9]+$"
-          homedir = "${baseNameOf gnupgHome}"
-          O_PATH = 2097152
-          split("${toString hmTargets}", t, " ")
-          for (i in t) declared[t[i]] = 1
-        }
-        {
-          id = fld("msg")
-          if (id != cur) {
-            if (pending == 2) notify(ekey)
-            pending = 0
-            cur = id
-            nbuf = 0
-            stream = ""
-          }
-          buf[++nbuf] = $0
-          if (stream != "") {
-            print $0 >> (alerts stream)
-            fflush("")
-          }
-        }
-        /^type=SYSCALL/ {
-          ekey = fld("key")
-          if (ekey != "gnupg-secrets" && ekey != "gnupg-tamper") {
-            pending = 0
-            next
-          }
-          exe = fld("exe")
-          call = fld("SYSCALL")
-          need = fld("items") + 0
-          got = 0
-          dironly = 0
-          pending = 1
-          if (exe ~ gnupg) next
-          if (ekey == "gnupg-secrets") {
-            if (call == "readlink" || call == "readlinkat") next
-            if (exe ~ systemd && call == "openat" && and(strtonum("0x" fld("a2")), O_PATH)) next
-            if (need > 0) {
-              pending = 2
-              next
-            }
-          } else if (exe ~ coreutils || exe ~ systemd) {
-            dironly = (exe ~ systemd)
-            pending = 2
-            if (need > 0) next
-          }
-          pending = 0
-          notify(ekey)
-          next
-        }
-        pending == 2 && /^type=PATH/ {
-          got++
-          if ($0 !~ /nametype=PARENT/) {
-            n = split(fld("name"), p, "/")
-            if (p[n] != "(null)" && p[n] != homedir && (dironly || !(p[n] in declared) && p[n] !~ scratch)) {
-              pending = 0
-              notify(ekey)
-              next
-            }
-          }
-          if (got >= need) pending = 1
-        }
-        END {
-          if (pending == 2) notify(ekey)
-        }'
-      EOF
-      substituteInPlace $out --subst-var alt
-      chmod +x $out
-    '';
+    # emergencyPlugin = pkgs.runCommand "audit-emergency" {} ''
+    #   alt=$(cd ${pkgs.gnupg} && printf '%s|' bin/* libexec/*)
+    #   alt=''${alt%|}
+    #   cat > $out <<'EOF'
+    #   #!${pkgs.runtimeShell}
+    #   trap : HUP
+    #   ${pkgs.gawk}/bin/awk '
+    #     function fld(k,   s, v) {
+    #       s = index($0, " " k "=")
+    #       if (!s) return ""
+    #       v = substr($0, s + length(k) + 2)
+    #       if (substr(v, 1, 1) == "\"") {
+    #         v = substr(v, 2)
+    #         sub(/".*/, "", v)
+    #       } else sub(/[ \t].*/, "", v)
+    #       return v
+    #     }
+    #     function notify(k,   i) {
+    #       stream = k
+    #       for (i = 1; i <= nbuf; i++) print buf[i] >> (alerts k)
+    #       fflush("")
+    #       system("${config.systemd.package}/bin/systemctl start audit-wall")
+    #     }
+    #     BEGIN {
+    #       alerts = "/var/lib/audit-wall/alerts/emergency-"
+    #       gnupg = "^/nix/store/[a-z0-9]+-gnupg-[^/]+/(@alt@)$"
+    #       systemd = "^/nix/store/[a-z0-9]+-systemd-[^/]+/(bin/systemd-tmpfiles|lib/systemd/systemd-executor)$"
+    #       coreutils = "^/nix/store/[a-z0-9]+-coreutils-[^/]+/bin/coreutils$"
+    #       scratch = "^Cu[A-Za-z0-9]+$"
+    #       homedir = "${baseNameOf gnupgHome}"
+    #       O_PATH = 2097152
+    #       split("${toString hmTargets}", t, " ")
+    #       for (i in t) declared[t[i]] = 1
+    #     }
+    #     {
+    #       id = fld("msg")
+    #       if (id != cur) {
+    #         if (pending == 2) notify(ekey)
+    #         pending = 0
+    #         cur = id
+    #         nbuf = 0
+    #         stream = ""
+    #       }
+    #       buf[++nbuf] = $0
+    #       if (stream != "") {
+    #         print $0 >> (alerts stream)
+    #         fflush("")
+    #       }
+    #     }
+    #     /^type=SYSCALL/ {
+    #       ekey = fld("key")
+    #       if (ekey != "gnupg-secrets" && ekey != "gnupg-tamper") {
+    #         pending = 0
+    #         next
+    #       }
+    #       exe = fld("exe")
+    #       call = fld("SYSCALL")
+    #       need = fld("items") + 0
+    #       got = 0
+    #       dironly = 0
+    #       pending = 1
+    #       if (exe ~ gnupg) next
+    #       if (ekey == "gnupg-secrets") {
+    #         if (call == "readlink" || call == "readlinkat") next
+    #         if (exe ~ systemd && call == "openat" && and(strtonum("0x" fld("a2")), O_PATH)) next
+    #         if (need > 0) {
+    #           pending = 2
+    #           next
+    #         }
+    #       } else if (exe ~ coreutils || exe ~ systemd) {
+    #         dironly = (exe ~ systemd)
+    #         pending = 2
+    #         if (need > 0) next
+    #       }
+    #       pending = 0
+    #       notify(ekey)
+    #       next
+    #     }
+    #     pending == 2 && /^type=PATH/ {
+    #       got++
+    #       if ($0 !~ /nametype=PARENT/) {
+    #         n = split(fld("name"), p, "/")
+    #         if (p[n] != "(null)" && p[n] != homedir && (dironly || !(p[n] in declared) && p[n] !~ scratch)) {
+    #           pending = 0
+    #           notify(ekey)
+    #           next
+    #         }
+    #       }
+    #       if (got >= need) pending = 1
+    #     }
+    #     END {
+    #       if (pending == 2) notify(ekey)
+    #     }'
+    #   EOF
+    #   substituteInPlace $out --subst-var alt
+    #   chmod +x $out
+    # '';
     spaceLeftMB = 2048;
     gnupgHome = "${config.users.users.liana.home}/.gnupg";
     gnupgReaders = ["bin/gpg" "bin/gpg-agent" "bin/gpgconf" "bin/dirmngr" "libexec/scdaemon" "libexec/keyboxd"];
     hm = config.home-manager.users.liana;
-    hmTargets =
-      map baseNameOf (builtins.filter (lib.hasPrefix "${gnupgHome}/") (builtins.attrNames hm.home.file))
-      ++ lib.optional (!hm.programs.gpg.mutableTrust) ("trustdb" + ".gpg");
+    # hmTargets =
+    # map baseNameOf (builtins.filter (lib.hasPrefix "${gnupgHome}/") (builtins.attrNames hm.home.file))
+    # ++ lib.optional (!hm.programs.gpg.mutableTrust) ("trustdb" + ".gpg");
   in {
     security.auditd.enable = true;
-    security.auditd.plugins.emergency = {
-      active = true;
-      path = emergencyPlugin;
-    };
+    # security.auditd.plugins.emergency = {
+    #   active = true;
+    #   path = emergencyPlugin;
+    # };
     security.auditd.settings = {
       max_log_file = 16;
       max_log_file_action = "rotate";
@@ -242,7 +242,7 @@
         summary=""
         apid=$(${pkgs.audit}/bin/auditctl -s 2>/dev/null | sed -n 's/^pid //p')
         if [ "''${apid:-0}" -eq 0 ]; then summary="$summary auditd-dead"; fi
-        ${pkgs.procps}/bin/pgrep -f -- '-audit-emergency$' > /dev/null || summary="$summary emergency-dead"
+        # ${pkgs.procps}/bin/pgrep -f -- '-audit-emergency$' > /dev/null || summary="$summary emergency-dead"
         for key in ${toString wallKeys}; do
           # Rule (re)loads tag the key on a CONFIG_CHANGE bundled with an auditctl
           # SYSCALL keyed (null); match key on SYSCALL so reboots/switches don't trip.
