@@ -22,7 +22,6 @@
     #  fprintAuth = true;
     #};
 
-    # CalDigit TS4 must be enrolled with `boltctl`
     services.hardware.bolt.enable = true;
     environment.systemPackages = with pkgs; [
       dmidecode # BIOS troubleshooting
@@ -38,15 +37,33 @@
       lm_sensors # Temperature sensors
     ];
 
-    # pcie_aspm=off prevents CalDigit TS4 link drops under load
     boot.kernelParams = [
-      #"pcie_aspm=off"
       "quiet"
       "splash"
       "udev.log_level=3"
       "rd.systemd.show_status=auto"
       "video=eDP-1:1920x1200"
     ];
+
+    services.keyd = {
+      enable = true;
+      keyboards = {
+        default = {
+          ids = ["0001:0001:09b4e68d"];
+          settings = {
+            main = {
+              "capslock" = "layer(control)";
+            };
+          };
+        };
+      };
+    };
+
+    # In case upstream ever changes
+    systemd.services.keyd.serviceConfig = {
+      PrivateNetwork = true;
+      ProtectHome = true;
+    };
 
     console = {
       font = "ter-v16n";
