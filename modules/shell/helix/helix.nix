@@ -1,14 +1,8 @@
 # @desc: Helix editor — built-in LSP/tree-sitter/pickers, zero plugins
 {...}: {
-  flake.modules.homeManager.helix = {pkgs, ...}: {
+  flake.modules.homeManager.helix = {
     programs.helix = {
       enable = true;
-
-      extraPackages = with pkgs; [
-        cargo
-        rustc
-        rust-analyzer
-      ];
 
       themes.kanagawa-dim = {
         inherits = "kanagawa";

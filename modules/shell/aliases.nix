@@ -33,9 +33,8 @@
       k = "kubectl";
       ceremony = "d=$(mktemp -d /run/user/$UID/ceremony.XXX) && cd \"$d\"";
       dotfiles = "n /nix/dotfiles";
-      xclip = "wl-copy";
       clip = "wl-copy";
-      thisip = "curl ifconfig.me -j";
+      edgeip = "curl ifconfig.me -j";
       weather = "curl wttr.in/Chicago";
     };
 
