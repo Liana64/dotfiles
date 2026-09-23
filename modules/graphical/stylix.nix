@@ -19,6 +19,9 @@
     orange = base16.base09;
     green = base16.base0B;
     highlight = base16.base0D;
+    emerald = base16.base0F;
+
+    mix = import ../_lib/mix.nix lib;
   in {
     imports = [inputs.stylix.homeModules.stylix];
 
@@ -67,6 +70,7 @@
         # niri/config.kdl even on sway hosts (settings defaults null → no file).
         # niri.enable     = (osConfig.compositor or "sway") == "niri";
         waybar.enable = false;
+        halloy.enable = false;
         kitty.enable = false;
         neovim.enable = false;
         helix.enable = false;
@@ -87,28 +91,20 @@
     gtk.gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;
     gtk.gtk4.extraConfig.gtk-application-prefer-dark-theme = 1;
 
-    # Override stylix' sway colors: kitty active-tab gray +20% white (legible at 2px) on focused, invisible otherwise.
     wayland.windowManager.sway.config.colors = let
-      channel = i: lib.fromHexString (builtins.substring i 2 (lib.removePrefix "#" colors.gray));
-      lift = i: lib.toLower (lib.fixedWidthString 2 "0" (lib.toHexString ((channel i * 80 + 255 * 20) / 100)));
-      focus = "#${lift 0}${lift 2}${lift 4}";
-      invisible = {
-        border = "#00000000";
-        background = "#00000000";
-        text = white;
-        indicator = "#00000000";
-        childBorder = "#00000000";
+      flat = bg: {
+        border = bg;
+        background = bg;
+        text = foreground;
+        indicator = bg;
+        childBorder = bg;
       };
+      active = flat (mix colors.gray emerald 20) // {text = white;};
+      inactive = flat (mix background emerald 10);
     in {
-      focused = lib.mkForce {
-        border = focus;
-        background = focus;
-        text = white;
-        indicator = focus;
-        childBorder = focus;
-      };
-      focusedInactive = lib.mkForce invisible;
-      unfocused = lib.mkForce invisible;
+      focused = lib.mkForce active;
+      focusedInactive = lib.mkForce inactive;
+      unfocused = lib.mkForce inactive;
       urgent = lib.mkForce {
         border = red;
         background = red;

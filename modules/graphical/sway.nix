@@ -31,12 +31,13 @@
         wrapProgram $out/bin/airplane-toggle          --prefix PATH : ${lib.makeBinPath (with pkgs; [networkmanager bluez libnotify procps coreutils])}
       '';
     };
-    # Cogwheel "task" mode actions. waybar custom/task listens on signal 9.
+
     taskDisplayToggle = pkgs.writeShellScript "task-display-toggle" ''
       f="$XDG_RUNTIME_DIR/waybar-task-shown"
       if [ -e "$f" ]; then rm -f "$f"; else : > "$f"; fi
       ${pkgs.procps}/bin/pkill -RTMIN+9 waybar
     '';
+
     taskStartStop = pkgs.writeShellScript "task-start-stop" ''
       task=${pkgs.taskwarrior3}/bin/task
       if [ -n "$($task rc.context=none +ACTIVE _ids 2>/dev/null)" ]; then
@@ -48,14 +49,14 @@
       fi
       ${pkgs.procps}/bin/pkill -RTMIN+9 waybar
     '';
-    # Floating quick-add: prompt for a description, file it via the active context.
+
     taskAdd = pkgs.writeShellScript "task-add" ''
       task=${pkgs.taskwarrior3}/bin/task
       printf 'Add task: '
       IFS= read -r desc
       [ -n "$desc" ] && $task add "$desc" && sleep 0.6
     '';
-    # Floating fzf picker over all pending tasks; mark the selection done.
+
     taskDone = pkgs.writeShellScript "task-done" ''
       task=${pkgs.taskwarrior3}/bin/task
       sel=$($task rc.context=none status:pending export 2>/dev/null \
@@ -79,7 +80,6 @@
       enable = useSway;
       systemd = {
         enable = true;
-        # Import PATH and XDG_DATA_DIRS so launched apps resolve binaries and desktop entries.
         variables = [
           "DISPLAY"
           "WAYLAND_DISPLAY"
@@ -102,22 +102,20 @@
         for_window [app_id=".*"] inhibit_idle fullscreen
 
         assign [app_id="kitty-startup"] workspace 1:q
-        assign [app_id="org.mozilla.thunderbird"] workspace 3:e
+        assign [app_id="thunderbird"] workspace 3:e
         assign [class="Todoist"] workspace 4:a
         assign [app_id="Element"] workspace 5:s
+        assign [app_id="org.squidowl.halloy"] workspace 5:s
         assign [app_id="signal"] workspace 5:s
         assign [app_id="vesktop"] workspace 5:s
-        assign [class="obsidian"] workspace 6:d
+        assign [app_id="house-personal" title="^iamb"] workspace 5:s
+        assign [app_id="md.Obsidian"] workspace 6:d
         assign [class="Cider"] workspace 7:z
 
         # Settings
         font pango:JetBrainsMono Nerd Font 10
-        #titlebar_padding 3
-        #title_align center
-
-        # Draw titlebars
-        #default_border normal 2
-        #default_floating_border normal 2
+        titlebar_padding 3
+        title_align center
 
         seat * xcursor_theme Bibata-Modern-Classic 16
 
@@ -169,10 +167,10 @@
           smartGaps = false;
           smartBorders = "on";
         };
-        window.titlebar = false;
+        window.titlebar = true;
         window.border = 2;
         floating.border = 2;
-        floating.titlebar = false;
+        floating.titlebar = true;
 
         keybindings = let
           cfg = config.wayland.windowManager.sway.config;
@@ -281,22 +279,24 @@
 
           "${mod}+Shift+q" = "move container to workspace 1:q";
           "${mod}+Shift+w" = "move container to workspace 2:w";
-          "${mod}+Control+Shift+w" = "exec 'firefox'";
+          "${mod}+Control+Shift+w" = "exec house-web firefox";
           "${mod}+Shift+e" = "move container to workspace 3:e";
-          "${mod}+Control+Shift+e" = "workspace 3:e; exec flatpak run org.mozilla.thunderbird";
+          "${mod}+Control+Shift+e" = "workspace 3:e; exec house-personal thunderbird";
           "${mod}+Shift+a" = "move container to workspace 4:a";
           "${mod}+Ctrl+Shift+a" = "exec '${taskApp}'";
           "${mod}+Shift+s" = "move container to workspace 5:s";
-          "${mod}+Control+Shift+s" = "workspace 5:s; exec flatpak run org.signal.Signal";
+          "${mod}+Control+Shift+s" = "workspace 5:s; exec house-personal signal-desktop";
+          "${mod}+Control+Shift+v" = "workspace 5:s; exec house-personal vesktop";
+          "${mod}+Control+Shift+i" = "workspace 5:s; exec kitty --class house-personal --title iamb house-personal iamb";
           "${mod}+Shift+d" = "move container to workspace 6:d";
-          "${mod}+Control+Shift+d" = "workspace 6:d; exec flatpak run md.obsidian.Obsidian";
+          "${mod}+Control+Shift+d" = "workspace 6:d; exec house-personal obsidian";
           "${mod}+Shift+z" = "move container to workspace 7:z";
           "${mod}+Shift+x" = "move container to workspace 8:x";
           "${mod}+Shift+c" = "move container to workspace 9:c";
           "${mod}+Control+Shift+x" = "workspace 8:x; exec thunar";
           "${mod}+Control+Return" = "exec thunar";
           "${mod}+Control+Shift+c" = "workspace 4:a; exec flatpak run com.todoist.Todoist";
-          "${mod}+Control+Shift+z" = "exec zoom-web";
+          "${mod}+Control+Shift+z" = "exec house-web zoom-web";
 
           "${sup}+Shift+q" = "kill";
           "${sup}+Shift+e" = "exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -b 'Yes, exit sway' 'swaymsg exit'";
