@@ -67,6 +67,13 @@ store-verify:
     sudo systemctl start nix-store-verify
     @cat /var/lib/audit-wall/alerts/store-verify 2>/dev/null || echo "store clean"
 
+# Install/update/prune flatpaks to the declared set, tailing progress
+[group('system')]
+flatpaks:
+    #!/usr/bin/env sh
+    journalctl -fn0 -o cat -u flatpak-repo & trap 'kill $!' EXIT
+    sudo systemctl start flatpak-repo
+
 # hardening-probe <preset> [--sweep] -- <cmd>
 [group('system')]
 probe +args:
@@ -110,11 +117,6 @@ wifi *args:
 [group('hardware')]
 bt *args:
     bt-bench {{ args }}
-
-# ai-memory {list,search,show,check,stats,pull,sync}
-[group('ai')]
-memory *args:
-    ai-memory {{ args }}
 
 # ai-todo {add,list,done}
 [group('ai')]

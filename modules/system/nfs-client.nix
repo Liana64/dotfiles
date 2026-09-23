@@ -4,7 +4,7 @@
     homeStorage = path: extra: {
       device = "home.storage.milberry.org:/tank/${path}";
       fsType = "nfs4";
-      options = ["noauto" "soft" "timeo=30" "retrans=2" "retry=0" "x-systemd.automount" "x-systemd.idle-timeout=600" "x-systemd.mount-timeout=15s"] ++ extra;
+      options = ["noauto" "soft" "timeo=30" "retrans=2" "retry=0" "x-systemd.automount" "x-systemd.mount-timeout=15s"] ++ extra;
     };
   in {
     boot.supportedFilesystems = ["nfs"];

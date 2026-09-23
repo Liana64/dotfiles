@@ -1,5 +1,28 @@
 {
   "nodes": {
+    "agentic": {
+      "inputs": {
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790083111,
+        "narHash": "sha256-LrCRNPgpABKo0fURowSogUMFG7s8ws13lw1U0eD4XYg=",
+        "ref": "refs/heads/main",
+        "rev": "ca919c97484de2cdcc668254f6be94cf62685ab0",
+        "revCount": 2,
+        "type": "git",
+        "url": "ssh://git@git.milberry.org/liana/agentic.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@git.milberry.org/liana/agentic.git"
+      }
+    },
     "base16": {
       "inputs": {
         "fromYaml": "fromYaml"
@@ -207,6 +230,24 @@
       "original": {
         "owner": "hercules-ci",
         "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
         "type": "github"
       }
     },
@@ -445,6 +486,30 @@
         "type": "github"
       }
     },
+    "nix-housing": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790102288,
+        "narHash": "sha256-TkmU2ztDukxuy/mrun4zhwdrrTMkaZ4ZQ+CdzeVaPgs=",
+        "ref": "refs/heads/main",
+        "rev": "cfd3b4dc3ad762f07950b634b7c278cbad2118d7",
+        "revCount": 7,
+        "type": "git",
+        "url": "ssh://git@git.milberry.org/liana/nix-housing.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@git.milberry.org/liana/nix-housing.git"
+      }
+    },
     "nixos-hardware": {
       "inputs": {
         "nixpkgs": [
@@ -484,11 +549,11 @@
     },
     "nixpkgs-firefox": {
       "locked": {
-        "lastModified": 1788921488,
-        "narHash": "sha256-8+xWRxEkD6l217cIUdRxfeUGS9lQX0hVtUuNVsBaDzk=",
+        "lastModified": 1789998861,
+        "narHash": "sha256-62XMQD4WLdMAfdT0/8gJmPH2dKeTw908ryNloAplTr8=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "6aefcda9401be8acc2b74244fb3b37520ea1f0a8",
+        "rev": "1e8bc658fc985ef27ccd66d107d767b32bb7ef98",
         "type": "github"
       },
       "original": {
@@ -500,11 +565,11 @@
     },
     "nixpkgs-kernel": {
       "locked": {
-        "lastModified": 1788921488,
-        "narHash": "sha256-8+xWRxEkD6l217cIUdRxfeUGS9lQX0hVtUuNVsBaDzk=",
+        "lastModified": 1789998861,
+        "narHash": "sha256-62XMQD4WLdMAfdT0/8gJmPH2dKeTw908ryNloAplTr8=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "6aefcda9401be8acc2b74244fb3b37520ea1f0a8",
+        "rev": "1e8bc658fc985ef27ccd66d107d767b32bb7ef98",
         "type": "github"
       },
       "original": {
@@ -531,11 +596,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1788179007,
-        "narHash": "sha256-hn1oU2rue2SYK8dAr8+WNZWtbsz1S2W5mnHlSEuh3bo=",
+        "lastModified": 1790046670,
+        "narHash": "sha256-MYiI+CzL0tuWgRPjGsKCDHqYs2T3OzMlMQWOYWG0qso=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "34ab99075ac4f7e40cf037eef32cb1c360bb85e9",
+        "rev": "6774f7bc253789b113a4f39285dc0fa100abeacc",
         "type": "github"
       },
       "original": {
@@ -648,6 +713,7 @@
     },
     "root": {
       "inputs": {
+        "agentic": "agentic",
         "dice": "dice",
         "disko": "disko",
         "flake-parts": "flake-parts",
@@ -658,6 +724,7 @@
         "import-tree": "import-tree",
         "jovian": "jovian",
         "lanzaboote": "lanzaboote",
+        "nix-housing": "nix-housing",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-firefox": "nixpkgs-firefox",
@@ -695,11 +762,11 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1789072888,
-        "narHash": "sha256-mUJBKbrn+x6uE0rqAg6MOCAj5SU1q2x4snUJW3rIs80=",
+        "lastModified": 1789337795,
+        "narHash": "sha256-7VfysCmDA/JXMXCvhkbxrCxBm81Cu2rmeeJpTzgBJGM=",
         "ref": "refs/heads/main",
-        "rev": "da02debcecd38669a000d46baaddffa770bd499e",
-        "revCount": 34,
+        "rev": "c2c2b4abc998400a80ee0de3a732a4c70bf1a2f5",
+        "revCount": 36,
         "type": "git",
         "url": "ssh://git@git.milberry.org/liana/secrets.git"
       },
@@ -741,7 +808,7 @@
           "nixpkgs"
         ],
         "nur": "nur",
-        "systems": "systems",
+        "systems": "systems_2",
         "tinted-kitty": "tinted-kitty",
         "tinted-schemes": "tinted-schemes",
         "tinted-tmux": "tinted-tmux",
@@ -763,6 +830,21 @@
       }
     },
     "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_2": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",

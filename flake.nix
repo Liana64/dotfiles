@@ -11,6 +11,19 @@
     home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
+    agentic = {
+      url = "git+ssh://git@git.milberry.org/liana/agentic.git";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
+
+    # fork of https://codeberg.org/decentstates/nix-housing
+    nix-housing = {
+      url = "git+ssh://git@git.milberry.org/liana/nix-housing.git";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
+
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
 
