@@ -38,7 +38,6 @@ in {
       };
     };
 
-    # GNUPGHOME must be non-default in-house: only then does gnupg fall back to homedir sockets when landlock denies /run/user/<uid>/gnupg
     vaultGnupg = "${config.home.homeDirectory}/houses/vault/gnupg";
     vaultExtraSocket = "${vaultGnupg}/S.gpg-agent.extra";
     vaultSshSocket = "${vaultGnupg}/S.gpg-agent.ssh";
@@ -81,6 +80,28 @@ in {
             'select(.change == "focus") | $tints[.container.sandbox_app_id // .container.app_id // ""] // $tints[""]' \
         | while read -r colors; do ${swaymsg} -q "client.focused $colors"; done
     '';
+
+    portalOpen = pkgs.writeShellScript "portal-open" ''
+      exec ${lib.getExe' pkgs.systemd "busctl"} --user --quiet call \
+        org.freedesktop.portal.Desktop /org/freedesktop/portal/desktop \
+        org.freedesktop.portal.OpenURI OpenURI 'ssa{sv}' "" "$1" 0
+    '';
+    portalUrls = {
+      xdg.desktopEntries.portal-open = {
+        name = "Open on host";
+        noDisplay = true;
+        exec = "${portalOpen} %u";
+        mimeType = ["text/html" "x-scheme-handler/http" "x-scheme-handler/https"];
+      };
+      xdg.configFile."mimeapps.list".force = true;
+      xdg.mimeApps = {
+        enable = true;
+        defaultApplications =
+          lib.genAttrs ["text/html" "x-scheme-handler/http" "x-scheme-handler/https"] (_: "portal-open.desktop")
+          // lib.genAttrs ["x-scheme-handler/mailto" "x-scheme-handler/mid" "message/rfc822"] (_: "thunderbird.desktop")
+          // {"x-scheme-handler/discord" = "vesktop.desktop";};
+      };
+    };
 
     projects = "$NIX_HOUSING_REAL_HOME/Projects";
     drop = "$NIX_HOUSING_REAL_HOME/houses/shared/drop";
@@ -156,6 +177,7 @@ in {
             base
             ++ [
               houseTitle
+              portalUrls
               aspects.halloy
               aspects.iamb
               aspects.obsidian
@@ -197,6 +219,7 @@ in {
           gpu.enable = true;
           pulseAudio.enable = true;
           namespacing.proc = true;
+          sessionDbus.own = ["org.mozilla.firefox.*"];
           landlock = {
             connectTcpPorts = [53 80 443];
             deviceFiles = ["/dev/video0" "/dev/video1"];
@@ -220,6 +243,7 @@ in {
           namespacing.proc = true;
           landlock = {
             connectTcpPorts = [443];
+            bindTcpPorts = [0];
             roFiles = ["/var/secrets/eek/gateway-key"];
             rwDirs = [drop velesDir];
             # fixed-output derivations fetch daemon-side, outside landlock — the 443 limit is not an exfiltration boundary
@@ -267,7 +291,7 @@ in {
     accents;
 
     xdg.dataFile =
-      lib.genAttrs (map (app: "applications/${app}.desktop") ["firefox" "iamb" "obsidian" "org.squidowl.halloy" "signal" "ungoogled-chromium" "thunderbird" "vesktop" "zoom-web"]) (_: {
+      lib.genAttrs (map (app: "applications/${app}.desktop") ["chromium-browser" "firefox" "iamb" "obsidian" "org.squidowl.halloy" "signal" "thunderbird" "vesktop" "zoom-web"]) (_: {
         text = ''
           [Desktop Entry]
           Type=Application

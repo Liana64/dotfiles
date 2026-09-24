@@ -5,21 +5,21 @@
       enable = true;
       defaultApplications = {
         # Web
-        "text/html" = "firefox.desktop";
-        "x-scheme-handler/http" = "firefox.desktop";
-        "x-scheme-handler/https" = "firefox.desktop";
-        "x-scheme-handler/about" = "firefox.desktop";
-        "x-scheme-handler/unknown" = "firefox.desktop";
+        "text/html" = "firefox.house-web.desktop";
+        "x-scheme-handler/http" = "firefox.house-web.desktop";
+        "x-scheme-handler/https" = "firefox.house-web.desktop";
+        "x-scheme-handler/about" = "firefox.house-web.desktop";
+        "x-scheme-handler/unknown" = "firefox.house-web.desktop";
 
         # Zoom → web client (Firefox)
-        "x-scheme-handler/zoommtg" = "zoom-web.desktop";
-        "x-scheme-handler/zoomus" = "zoom-web.desktop";
+        "x-scheme-handler/zoommtg" = "zoom-web.house-web.desktop";
+        "x-scheme-handler/zoomus" = "zoom-web.house-web.desktop";
 
         # Terminal
         "x-scheme-handler/terminal" = "kitty.desktop";
 
         # PDF — firefox renders these well enough
-        "application/pdf" = "firefox.desktop";
+        "application/pdf" = "firefox.house-web.desktop";
 
         # Plain text
         "text/plain" = "org.gnome.TextEditor.desktop";
@@ -42,10 +42,10 @@
         "video/x-msvideo" = "org.gnome.Showtime.desktop";
       };
       associations.removed = {
-        "text/html" = "chromium-browser.desktop";
-        "x-scheme-handler/http" = "chromium-browser.desktop";
-        "x-scheme-handler/https" = "chromium-browser.desktop";
-        "application/pdf" = "chromium-browser.desktop";
+        "text/html" = ["chromium-browser.desktop" "chromium-browser.house-web.desktop"];
+        "x-scheme-handler/http" = ["chromium-browser.desktop" "chromium-browser.house-web.desktop"];
+        "x-scheme-handler/https" = ["chromium-browser.desktop" "chromium-browser.house-web.desktop"];
+        "application/pdf" = ["chromium-browser.desktop" "chromium-browser.house-web.desktop"];
       };
     };
   };
