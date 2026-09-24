@@ -10,11 +10,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790083111,
-        "narHash": "sha256-LrCRNPgpABKo0fURowSogUMFG7s8ws13lw1U0eD4XYg=",
+        "lastModified": 1790178034,
+        "narHash": "sha256-qFWsfUTu/fr0b1mfNQroJk0mBYXXY1v0aHsAsv5HjVE=",
         "ref": "refs/heads/main",
-        "rev": "ca919c97484de2cdcc668254f6be94cf62685ab0",
-        "revCount": 2,
+        "rev": "9f39f34a61ab7eb43daee7fdfe9a312cac213399",
+        "revCount": 3,
         "type": "git",
         "url": "ssh://git@git.milberry.org/liana/agentic.git"
       },
