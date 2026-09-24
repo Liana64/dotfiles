@@ -93,12 +93,6 @@ gc:
 iso *args:
     cd {{ invocation_directory() }} && nix-build-installer {{ args }}
 
-# Flash Keychron Q11 firmware
-[group('hardware')]
-[confirm("flash the keyboard?")]
-flash:
-    nix run .#keychron-q11
-
 # Firmware updates
 [group('hardware')]
 firmware:
