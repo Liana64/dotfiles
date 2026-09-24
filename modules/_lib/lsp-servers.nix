@@ -8,7 +8,7 @@
     net ? false,
     homePaths ? [],
   }: let
-    binds = lib.concatMapStrings (p: ''--bind "$HOME/${p}" "$HOME/${p}"'') homePaths;
+    binds = lib.concatMapStringsSep " " (p: ''--bind "$HOME/${p}" "$HOME/${p}"'') homePaths;
   in
     pkgs.writeShellScriptBin name ''
       set -eu
@@ -27,7 +27,7 @@
         --ro-bind /run/current-system/sw /run/current-system/sw \
         --ro-bind-try "$HOME/.nix-profile" "$HOME/.nix-profile" \
         --proc /proc --dev /dev --tmpfs /tmp \
-        --bind "$root" "$root" --chdir "$PWD"${binds} \
+        --bind "$root" "$root" --chdir "$PWD" ${binds} \
         --unshare-all ${lib.optionalString net "--share-net"} \
         --new-session --die-with-parent \
         ${package}/bin/${name} "$@"
