@@ -1,0 +1,121 @@
+VELES_ROOT="${VELES_ROOT:-${NIX_HOUSING_REAL_HOME:-$HOME}/houses/shared/veles}"
+WORK_ROOT="${VELES_WORK_ROOT:-$HOME/work}"
+readonly VELES_ROOT WORK_ROOT
+readonly MANIFEST=.veles
+
+usage() {
+  cat <<'EOF'
+veles — transmit change sets between nix houses using patches
+
+  veles init             initialize a project with HEAD at the current git repo
+  veles receive <name>   copy a project into ~/work/<name>
+  veles deliver          emit a patch of
+  veles apply <patch>    apply a delivered patch
+  veles list             show projects and patches
+  veles prune [days]     drop old patches and projects
+EOF
+}
+
+die() {
+  printf 'veles: %s\n' "$*" >&2
+  exit 1
+}
+
+newest_init() {
+  find "$VELES_ROOT/inits" -maxdepth 1 -name "$1-*" -printf '%T@ %p\n' 2>/dev/null \
+    | sort -rn | head -1 | cut -d' ' -f2-
+}
+
+cmd_init() {
+  local top name rev dest
+  top=$(git rev-parse --show-toplevel) || die "not inside a git repo"
+  name=$(basename "$top")
+  rev=$(git -C "$top" rev-parse --short HEAD)
+  dest="$VELES_ROOT/inits/$name-$rev"
+  mkdir -p "$dest"
+  git -C "$top" archive HEAD | tar -x -C "$dest"
+  printf '%s %s\n' "$name" "$rev" >"$dest/$MANIFEST"
+  printf 'inited %s\n' "$dest"
+}
+
+cmd_receive() {
+  local name=$1 init dest rev
+  init=$(newest_init "$name")
+  [ -n "$init" ] || die "no init for $name"
+  dest="$WORK_ROOT/$name"
+  [ ! -e "$dest" ] || die "$dest already exists"
+  mkdir -p "$WORK_ROOT"
+  cp -a "$init" "$dest"
+  git -C "$dest" init --quiet
+  printf '%s\n' "$MANIFEST" >"$dest/.git/info/exclude"
+  git -C "$dest" add --all
+  read -r name rev <"$dest/$MANIFEST"
+  printf '%s %s %s\n' "$name" "$rev" "$(git -C "$dest" write-tree)" >"$dest/$MANIFEST"
+  printf 'received %s -> %s\n' "$init" "$dest"
+}
+
+cmd_deliver() {
+  local name rev tree stamp patch
+  [ -f "$MANIFEST" ] || die "no $MANIFEST here; run inside a work dir"
+  read -r name rev tree <"$MANIFEST"
+  [ -n "$tree" ] || die "manifest has no baseline tree; re-receive the init"
+  git ls-files --others --exclude-standard -z | xargs -0 -r git add --intent-to-add --
+  stamp=$(date +%Y%m%d-%H%M%S)
+  patch="$VELES_ROOT/patches/$name-$rev-$stamp.patch"
+  mkdir -p "$VELES_ROOT/patches"
+  git diff --binary "$tree" >"$patch"
+  [ -s "$patch" ] || { rm -f "$patch"; die "no changes to deliver"; }
+  git diff --stat "$tree"
+  printf 'delivered %s\n' "$patch"
+}
+
+cmd_apply() {
+  local patch=$1 snapshot base trimmed rev head
+  [ -f "$patch" ] || die "no such patch: $patch"
+  head=$(git rev-parse --short HEAD) || die "not inside a git repo"
+  snapshot=$(mktemp -t veles-apply.XXXXXX.patch)
+  cp "$patch" "$snapshot"
+  base=$(basename "$patch" .patch)
+  trimmed=${base%-*-*}
+  rev=${trimmed##*-}
+  [ "$rev" = "$head" ] || printf 'veles: patch base %s != HEAD %s, 3-way merging\n' "$rev" "$head" >&2
+  sha256sum "$snapshot"
+  git apply --stat "$snapshot"
+  git apply --3way "$snapshot"
+  rm -f "$snapshot"
+  printf 'applied, uncommitted — review with git status && git diff HEAD\n'
+}
+
+cmd_prune() {
+  local days=${1:-14} name latest
+  find "$VELES_ROOT/patches" -maxdepth 1 -name '*.patch' -mtime "+$days" -delete 2>/dev/null || true
+  find "$VELES_ROOT/inits" -maxdepth 1 -mindepth 1 -type d -printf '%f\n' 2>/dev/null \
+    | sed 's/-[^-]*$//' | sort -u | while read -r name; do
+      latest=$(newest_init "$name")
+      find "$VELES_ROOT/inits" -maxdepth 1 -mindepth 1 -type d -name "$name-*" ! -path "$latest" \
+        -exec rm -rf {} +
+    done
+  cmd_list
+}
+
+cmd_list() {
+  printf 'inits:\n'
+  find "$VELES_ROOT/inits" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | sort
+  printf 'patches:\n'
+  find "$VELES_ROOT/patches" -maxdepth 1 -name '*.patch' 2>/dev/null | sort
+}
+
+main() {
+  case "${1:-}" in
+    init) cmd_init ;;
+    receive) [ $# -eq 2 ] || { usage >&2; exit 1; }; cmd_receive "$2" ;;
+    deliver) cmd_deliver ;;
+    apply) [ $# -eq 2 ] || { usage >&2; exit 1; }; cmd_apply "$2" ;;
+    list) cmd_list ;;
+    prune) cmd_prune "${2:-}" ;;
+    -h | --help) usage ;;
+    *) usage >&2; exit 1 ;;
+  esac
+}
+
+main "$@"
