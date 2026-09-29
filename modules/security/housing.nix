@@ -199,7 +199,7 @@ in {
           pulseAudio.enable = true;
           namespacing.proc = true;
           sessionDbus.talk = ["org.freedesktop.portal.*" "org.freedesktop.Notifications" "org.freedesktop.secrets" "org.kde.StatusNotifierWatcher"];
-          sessionDbus.own = ["org.kde.StatusNotifierItem-*"];
+          sessionDbus.own = ["org.kde.*"];
           landlock = {
             connectTcpPorts = [443 1025 1143 6697];
             rwDirs = [drop "/dev/shm"];
