@@ -1,10 +1,17 @@
 # @desc: Framework AMD AI 300 hardware module + firmware
 {...}: {
   flake.modules.nixos.frameworkHardware = {
+    config,
     inputs,
+    lib,
     pkgs,
     ...
-  }: {
+  }: let
+    passwordFirst = svc: {
+      fprintAuth = true;
+      rules.auth.fprintd.order = config.security.pam.services.${svc}.rules.auth.unix.order + 10;
+    };
+  in {
     imports = [
       inputs.nixos-hardware.nixosModules.framework-amd-ai-300-series
     ];
@@ -18,9 +25,7 @@
     hardware.framework.enableKmod = true;
     services.fprintd.enable = true;
 
-    #security.pam.services.swaylock = {
-    #  fprintAuth = true;
-    #};
+    security.pam.services = lib.genAttrs ["swaylock" "greetd" "login" "sudo"] passwordFirst;
 
     services.hardware.bolt.enable = true;
     environment.systemPackages = with pkgs; [
