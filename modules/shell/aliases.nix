@@ -32,9 +32,12 @@
       f = "frame";
       k = "kubectl";
       ceremony = "d=$(mktemp -d /run/user/$UID/ceremony.XXX) && cd \"$d\"";
-      dotfiles = "n /nix/dotfiles";
+      dot = "cd /nix/dotfiles && hx /nix/dotfiles";
+      drafts = "cd /home/liana/Projects/Software/drafts && hx .";
+      notes = "cd /home/liana/Projects/Software/drafts/notes && hx .";
+      projects = "cd /home/liana/Projects/Software/drafts/projects && hx .";
       clip = "wl-copy";
-      edgeip = "curl ifconfig.me -j";
+      myip = "curl ifconfig.me -j";
       weather = "curl wttr.in/Chicago";
     };
 
