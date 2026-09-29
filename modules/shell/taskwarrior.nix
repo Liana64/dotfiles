@@ -37,16 +37,6 @@
         # `task` belongs to go-task (cli-packages); Taskwarrior lives at `tw`
         (writeShellScriptBin "tw" ''exec ${taskwarrior3}/bin/task "$@"'')
 
-        # ai-todo <args…> — Taskwarrior against the isolated AI todo store. The three
-        # overrides are load-bearing as a unit: omit rc.context=none and the active
-        # human context silently hides every AI todo. Baked here so callers (the
-        # /todo skill) can never partially apply or misquote them.
-        (writeShellScriptBin "ai-todo" ''
-          exec ${taskwarrior3}/bin/task \
-            rc.data.location="$HOME/Sync/Data/ai-tasks" \
-            rc.context=none rc.default.project= "$@"
-        '')
-
         # snooze <id> [when] — defer a task until a wait date (default tomorrow)
         (writeShellScriptBin "task-snooze" ''
           [ -z "$1" ] && { echo "usage: snooze <id> [when]" >&2; exit 1; }
@@ -95,10 +85,6 @@
           run mv "$HOME/.local/share/task/"taskchampion.sqlite3* "$HOME/Sync/Data/task/"
           run rmdir "$HOME/.local/share/task" 2>/dev/null || true
         fi
-      '';
-
-      home.activation.ensureAiTaskStore = lib.hm.dag.entryAfter ["writeBoundary"] ''
-        run mkdir -p "$HOME/Sync/Data/ai-tasks"
       '';
 
       home.activation.seedTaskrc = lib.hm.dag.entryAfter ["writeBoundary"] ''

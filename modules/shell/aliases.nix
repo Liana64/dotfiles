@@ -46,10 +46,6 @@
       tt = "taskwarrior-tui -r today";
       # Snooze a task out of view until a wait date (default tomorrow): snooze <id> [when]
       snooze = "task-snooze";
-      # AI task store — separate db from human tasks (see todo skill). ai.taskrc
-      # points at the AI db, runs context-free, and clears default.project.
-      ai-task = "tw rc:$HOME/.config/task/ai.taskrc";
-      ai-task-tui = "taskwarrior-tui --taskrc $HOME/.config/task/ai.taskrc";
     };
 
     nixos = {

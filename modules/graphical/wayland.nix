@@ -63,7 +63,7 @@
         };
 
         # Unused on sway, creates zombies
-        speechd.enable = false;
+        speechd.enable = lib.mkIf useSway false;
       };
 
       xdg.portal = {

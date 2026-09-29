@@ -8,15 +8,10 @@ _default:
 verify:
     dotfiles-verify
 
-# Flake checks: module index, secrets-guard, shellcheck, justfile
+# Flake checks: shellcheck over modules/bin
 [group('repo')]
 check:
     nix flake check
-
-# Regenerate module index for CLAUDE.md
-[group('repo')]
-index:
-    nix run .#gen-index
 
 # Format nix files
 [group('repo')]
@@ -111,8 +106,3 @@ wifi *args:
 [group('hardware')]
 bt *args:
     bt-bench {{ args }}
-
-# ai-todo {add,list,done}
-[group('ai')]
-todo *args:
-    ai-todo {{ args }}

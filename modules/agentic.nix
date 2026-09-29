@@ -24,7 +24,6 @@
       # host tooling the base list cannot know about; nix develop -c pins only cargo
       permissions.allow =
         [
-          "Bash(ai-todo *)"
           "Bash(boltctl domains *)"
           "Bash(boltctl list *)"
           "Bash(cilium status *)"

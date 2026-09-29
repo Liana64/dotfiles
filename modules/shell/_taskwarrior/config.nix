@@ -168,12 +168,5 @@ in {
       # enable experimental nested tasks feature
       uda.taskwarrior-tui.nested=true
     '';
-
-    # AI store: same config, AI db, no context. ai-task-tui loads it via --taskrc.
-    xdg.configFile."task/ai.taskrc".text = ''
-      include ~/.config/task/managed.taskrc
-      data.location=~/Sync/Data/ai-tasks
-      default.project=
-    '';
   };
 }

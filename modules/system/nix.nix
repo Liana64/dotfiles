@@ -49,8 +49,9 @@
       };
 
       channel.enable = false;
-      # Make flake registry and nix path match flake inputs
-      registry = lib.mapAttrs (_: flake: {inherit flake;}) flakeInputs;
+      # Make flake registry and nix path match flake inputs; `nixpkgs` is
+      # registered by nixosSystem itself, pinned to the channel the host builds from
+      registry = lib.mapAttrs (_: flake: {inherit flake;}) (removeAttrs flakeInputs ["nixpkgs"]);
       nixPath = lib.mapAttrsToList (n: _: "${n}=flake:${n}") flakeInputs;
     };
 
