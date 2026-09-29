@@ -21,6 +21,7 @@ in {
       infra = "#49aa19";
       personal = "#d4b106";
       web = "#d87a16";
+      altnet = "#d95216";
       untrusted = "#dc4446";
       agentic = "#13a8a8";
     };
@@ -104,6 +105,7 @@ in {
     };
 
     projects = "$NIX_HOUSING_REAL_HOME/Projects";
+    dillo = "$NIX_HOUSING_REAL_HOME/.dillo";
     drop = "$NIX_HOUSING_REAL_HOME/houses/shared/drop";
     velesDir = "$NIX_HOUSING_REAL_HOME/houses/shared/veles";
   in {
@@ -196,10 +198,31 @@ in {
           gpu.enable = true;
           pulseAudio.enable = true;
           namespacing.proc = true;
-          sessionDbus.talk = ["org.freedesktop.portal.*" "org.freedesktop.Notifications" "org.freedesktop.secrets"];
+          sessionDbus.talk = ["org.freedesktop.portal.*" "org.freedesktop.Notifications" "org.freedesktop.secrets" "org.kde.StatusNotifierWatcher"];
+          sessionDbus.own = ["org.kde.StatusNotifierItem-*"];
           landlock = {
             connectTcpPorts = [443 1025 1143 6697];
             rwDirs = [drop "/dev/shm"];
+          };
+        };
+      };
+
+      altnet = {
+        hm.config.imports =
+          base
+          ++ [
+            houseTitle
+            aspects.dillo
+          ];
+        exportDesktopEntries = true;
+        capabilities = {
+          gui.enable = true;
+          gpu.enable = true;
+          pulseAudio.enable = true;
+          namespacing.proc = true;
+          landlock = {
+            connectTcpPorts = [53 80 443];
+            rwDirs = [drop dillo];
           };
         };
       };
@@ -291,7 +314,7 @@ in {
     accents;
 
     xdg.dataFile =
-      lib.genAttrs (map (app: "applications/${app}.desktop") ["chromium-browser" "firefox" "iamb" "obsidian" "org.squidowl.halloy" "signal" "thunderbird" "vesktop" "zoom-web"]) (_: {
+      lib.genAttrs (map (app: "applications/${app}.desktop") ["chromium-browser" "firefox" "dillo" "iamb" "obsidian" "org.squidowl.halloy" "signal" "thunderbird" "vesktop" "zoom-web"]) (_: {
         text = ''
           [Desktop Entry]
           Type=Application
