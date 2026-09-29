@@ -11,6 +11,24 @@
       fprintAuth = true;
       rules.auth.fprintd.order = config.security.pam.services.${svc}.rules.auth.unix.order + 10;
     };
+    lidOpen = pkgs.writeShellScript "lid-open" ''
+      exec ${lib.getExe pkgs.gnugrep} -qs open /proc/acpi/button/lid/*/state
+    '';
+    fingerFirst = svc: let
+      unix = config.security.pam.services.${svc}.rules.auth.unix.order;
+    in {
+      fprintAuth = true;
+      rules.auth.lidOpen = {
+        order = unix - 20;
+        control = "[success=ignore default=1]";
+        modulePath = "${pkgs.pam}/lib/security/pam_exec.so";
+        args = ["quiet" "${lidOpen}"];
+      };
+      rules.auth.fprintd = {
+        order = unix - 10;
+        settings.timeout = 10;
+      };
+    };
   in {
     imports = [
       inputs.nixos-hardware.nixosModules.framework-amd-ai-300-series
@@ -25,7 +43,7 @@
     hardware.framework.enableKmod = true;
     services.fprintd.enable = true;
 
-    security.pam.services = lib.genAttrs ["swaylock" "greetd" "login" "sudo"] passwordFirst;
+    security.pam.services = lib.genAttrs ["swaylock" "greetd" "login"] passwordFirst // {sudo = fingerFirst "sudo";};
 
     services.hardware.bolt.enable = true;
     environment.systemPackages = with pkgs; [
