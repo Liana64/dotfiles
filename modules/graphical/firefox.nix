@@ -58,6 +58,11 @@
               urls = [{template = "https://www.opensecrets.org/search?q={searchTerms}";}];
               definedAliases = ["@os"];
             };
+            "123ATC" = {
+              name = "123ATC";
+              urls = [{template = "https://123atc.com/facility/{searchTerms}";}];
+              definedAliases = ["@123"];
+            };
             intel = {
               name = "Intel ARK";
               urls = [{template = "https://www.intel.com/content/www/us/en/search.html#q={searchTerms}&cf-tabfilter=Products";}];
