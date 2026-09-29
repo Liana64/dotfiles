@@ -328,7 +328,8 @@
 
         output = {
           "eDP-1" = {
-            resolution = "2880x1920@120Hz";
+            # resolution = "2880x1920@120Hz";
+            resolution = "2880x1920@60Hz";
             position = "0,0";
             #scale = "1.9";
             scale = "1.8";
