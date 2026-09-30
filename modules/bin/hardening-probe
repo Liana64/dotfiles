@@ -5,7 +5,8 @@
 # preset FAIL. -p is a true override: it replaces preset lines with the same
 # key, lists included; space-separate multiple values inside one -p.
 #
-# Transient mode runs <command> in a throwaway unit with the caller's PATH.
+# Transient mode runs <command> in a throwaway unit with the caller's PATH,
+# expanding %t and %h itself since systemd-run takes properties literally.
 # Probe the unit's real ExecStart, not the bare binary. --daemon[=secs]:
 # surviving secs (default 5) is a pass — startup evidence only. --count[=pct]:
 # stdout line count must stay within pct (default 5) of the control's —
@@ -35,9 +36,13 @@ usage() {
 
 scope='--user'
 asroot=''
+spec_t=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
+spec_h=$HOME
 if [ "${1:-}" = --system ]; then
   scope='--system'
   asroot=1
+  spec_t=/run
+  spec_h=/root
   shift
 fi
 
@@ -66,6 +71,8 @@ if [ "${1:-}" = --live ]; then
     exit 2
   fi
   live_rae=$(systemctl "$scope" show -p RemainAfterExit --value "$live")
+  live_was=stop
+  systemctl "$scope" is-active --quiet "$live" && live_was=restart
 fi
 
 ff_unit=''
@@ -88,12 +95,14 @@ if [ -n "$ff_unit" ]; then
   name=${ff_unit%.service}
   host=$(uname -n)
   flake=${FLAKE:-/nix/dotfiles}
+  # user units deploy from the NixOS-embedded home-manager, not the standalone
+  # homeConfigurations (different nixpkgs, no osConfig)
   if [ "$scope" = --system ]; then
-    json=$(nix eval --json "$flake#nixosConfigurations.\"$host\".config.systemd.services.\"$name\".serviceConfig") || exit 2
+    select="c.systemd.services.\"$name\".serviceConfig"
   else
-    json=$(nix eval --json "$flake#homeConfigurations.\"$USER@$host\".config.systemd.user.services.\"$name\".Service" 2>/dev/null) ||
-      json=$(nix eval --json "$flake#nixosConfigurations.\"$host\".config.systemd.user.services.\"$name\".serviceConfig") || exit 2
+    select="c.home-manager.users.\"$USER\".systemd.user.services.\"$name\".Service or c.systemd.user.services.\"$name\".serviceConfig"
   fi
+  json=$(nix eval --json "$flake#nixosConfigurations.\"$host\".config" --apply "c: $select") || exit 2
   # lifecycle/exec keys stay the deployed unit's own — the probe confines, it
   # must not re-run the job differently. Array order is kept verbatim: the
   # first SystemCallFilter element decides allow- vs deny-list mode.
@@ -150,10 +159,18 @@ if [ -n "$live" ]; then
     su_ rmdir "$dropin" 2>/dev/null
     ctl daemon-reload
     ctl reset-failed "$live" 2>/dev/null
-    ctl restart "$live" >/dev/null 2>&1
+    ctl "$live_was" "$live" >/dev/null 2>&1
   }
-  trap cleanup EXIT INT TERM
+  trap cleanup EXIT
+  trap 'exit 130' INT TERM
   su_ mkdir -p "$dropin"
+  # drop-in lists append to the unit's own, so list keys get an empty Key=
+  # reset first; scalars override alone and reject it, systemd names them
+  t=$(mktemp -d)
+  printf '%s\n' "$props" | sed -n 's/^\([^=]*\)=.*/\1=/p' | sort -u | sed '1i[Service]' >"$t/probe.service"
+  scalars=$(systemd-analyze verify "$t/probe.service" 2>&1 |
+    sed -n 's/.*Failed to parse \([^=]*\)=,.*/\1/p' | tr '\n' ' ')
+  rm -r "$t"
 else
   [ $# -gt 0 ] || usage
   if [ -n "$daemon" ]; then
@@ -161,13 +178,17 @@ else
   fi
 fi
 
-seccomp_hint() { # $1 = window; audit records live in the system journal only
-  su_ journalctl --since "-$1" -o cat --no-pager 2>/dev/null |
-    sed -n 's/.*SECCOMP.*comm="\([^"]*\)".*syscall=\([0-9]*\).*/\1 \2/p' |
-    sort -u | sed 3q | while read -r comm nr; do
-      name=''
-      command -v ausyscall >/dev/null 2>&1 && name=$(ausyscall "$nr" 2>/dev/null)
-      printf '      seccomp kill: comm=%s syscall=%s%s\n' "$comm" "$nr" "${name:+ ($name)}"
+seccomp_hint() { # $1 = probe start epoch; auditd holds the records, journald's audit socket is off
+  set -- ausearch -m SECCOMP -i --start "$(date -d "@$1" +%m/%d/%Y)" "$(date -d "@$1" +%T)"
+  [ -n "$asroot" ] || set -- "$@" -ui "$(id -u)"
+  if ! sudo -n true 2>/dev/null; then
+    printf '      seccomp: sudo %s\n' "$*"
+    return
+  fi
+  sudo -n "$@" 2>/dev/null |
+    sed -n 's/.* comm=\([^ ]*\) .* syscall=\([^ ]*\) .*/\1 \2/p' |
+    sort -u | sed 3q | while read -r comm sc; do
+      printf '      seccomp kill: comm=%s syscall=%s\n' "$comm" "$sc"
     done
 }
 
@@ -176,6 +197,7 @@ probe_n=0
 probe() { # $1 = label, rest = probed command; property lines on stdin
   label=$1
   shift
+  t0=$(date +%s)
   probe_n=$((probe_n + 1))
   unit="hardening-probe-$$-$probe_n"
   # -p per line, prepended over pre-reversed input (sed tac) so argv keeps
@@ -183,7 +205,7 @@ probe() { # $1 = label, rest = probed command; property lines on stdin
   while IFS= read -r line; do
     [ -n "$line" ] && set -- -p "$line" "$@"
   done <<EOF
-$(sed '1!G;h;$!d')
+$(sed '1!G;h;$!d' | sed "s|%t|$spec_t|g;s|%h|$spec_h|g")
 EOF
   if [ -n "$count" ]; then
     errf="${TMPDIR:-/tmp}/hardening-probe-$$.err"
@@ -201,7 +223,7 @@ EOF
     printf 'FAIL  %s (%s/%s lines)\n' "$label" "$n" "$base_n"
     if [ -z "$sweep" ]; then
       sed 's/^/      /' "$errf" | sed 5q
-      seccomp_hint '35s'
+      seccomp_hint "$t0"
     fi
     rm -f "$errf"
     return 1
@@ -213,7 +235,7 @@ EOF
     if [ -z "$sweep" ]; then
       [ -z "$out" ] || printf '%s\n' "$out" | sed 's/^/      /'
       jrn -u "$unit" -n 3 -o cat --no-pager 2>/dev/null | sed 's/^/      /'
-      seccomp_hint "$((${daemon:-5} + 30))s"
+      seccomp_hint "$t0"
     fi
     return 1
   fi
@@ -221,7 +243,21 @@ EOF
 
 live_probe() { # $1 = label; property lines on stdin
   label=$1
-  { echo '[Service]'; sed ''; } | su_ tee "$dropin/hardening-probe.conf" >/dev/null
+  {
+    echo '[Service]'
+    seen=" $scalars"
+    while IFS= read -r l; do
+      [ -n "$l" ] || continue
+      k=${l%%=*}
+      case "$seen" in *" $k "*) ;; *)
+        echo "$k="
+        seen="$seen$k "
+        ;;
+      esac
+      printf '%s\n' "$l"
+    done
+  } | su_ tee "$dropin/hardening-probe.conf" >/dev/null
+  t0=$(date +%s)
   ctl daemon-reload
   ctl reset-failed "$live" 2>/dev/null
   if ! err=$(ctl restart "$live" 2>&1); then
@@ -274,7 +310,7 @@ live_probe() { # $1 = label; property lines on stdin
       fi
       # + is OR: app lines carry _SYSTEMD_INVOCATION_ID, manager verdicts only INVOCATION_ID
       jrn "_SYSTEMD_INVOCATION_ID=$inv" + "INVOCATION_ID=$inv" -n 8 -o cat --no-pager 2>/dev/null | sed 's/^/      /'
-      seccomp_hint "$((soak + 30))s"
+      seccomp_hint "$t0"
     fi
     [ -z "$strays" ] || echo '  warn  left-over processes (KillMode=) outlive the restart and pollute subsequent probes'
     return 1
@@ -290,7 +326,9 @@ live_probe() { # $1 = label; property lines on stdin
 probe_fn=probe
 [ -n "$live" ] && probe_fn=live_probe
 
-$probe_fn 'control (no hardening)' "$@" </dev/null || {
+control='control (no hardening)'
+[ -z "$live" ] || control='control (deployed unit)'
+$probe_fn "$control" "$@" </dev/null || {
   echo 'control failed — it breaks with no hardening at all; fix the invocation or unit first' >&2
   exit 2
 }
