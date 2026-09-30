@@ -1,9 +1,9 @@
 {
   config,
   pkgs,
+  hardening,
   ...
 }: let
-  hardening = import ../../modules/_lib/systemd-hardening.nix;
   tank = config.services.restic.backups.tank;
   restic = "${tank.package}/bin/restic --repository-file ${tank.repositoryFile} --password-file ${tank.passwordFile} --no-lock --json";
 in {
@@ -51,7 +51,6 @@ in {
             EnvironmentFile = tank.environmentFile;
             Environment = "RESTIC_CACHE_DIR=/var/cache/restic-metrics";
             CacheDirectory = "restic-metrics";
-            CapabilityBoundingSet = "";
             ReadWritePaths = ["/var/lib/zfs-metrics"];
             RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_INET6"];
             UMask = "0022";

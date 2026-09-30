@@ -4,9 +4,9 @@
     config,
     lib,
     inputs,
+    hardening,
     ...
   }: let
-    hardening = import ../_lib/systemd-hardening.nix;
     # gc/optimise run the client directly: it remounts /nix/store rw inside a
     # private mount namespace (SYS_ADMIN + mnt). gc's root discovery must see
     # /proc of every process (SYS_PTRACE, no invisible proc), traverse 700

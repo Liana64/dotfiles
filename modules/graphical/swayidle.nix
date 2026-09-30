@@ -1,7 +1,10 @@
 # @desc: swayidle idle/lock daemon as a restarting user service
 {...}: {
-  flake.modules.homeManager.swayidle = {pkgs, ...}: let
-    hardening = import ../_lib/systemd-hardening.nix;
+  flake.modules.homeManager.swayidle = {
+    pkgs,
+    hardening,
+    ...
+  }: let
     # swaylock lives in its own unit so it escapes swayidle's sandbox; the
     # start job blocks until the lock is up, preserving -w before-sleep semantics
     lock = "systemctl --user start swaylock.service";

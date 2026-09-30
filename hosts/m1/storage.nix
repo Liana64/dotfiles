@@ -2,10 +2,9 @@
   config,
   lib,
   pkgs,
+  hardening,
   ...
 }: let
-  hardening = import ../../modules/_lib/systemd-hardening.nix;
-
   net = {
     cluster = [
       "172.16.4.11"
@@ -236,7 +235,6 @@ in {
       hardening.confined
       // {
         PrivateDevices = false;
-        CapabilityBoundingSet = "";
         RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK"];
         IPAddressDeny = "any";
       };

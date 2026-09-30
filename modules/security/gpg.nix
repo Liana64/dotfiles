@@ -1,8 +1,10 @@
 # @desc: GPG keys/config
 {...}: {
-  flake.modules.homeManager.gpg = {pkgs, ...}: let
-    hardening = import ../_lib/systemd-hardening.nix;
-  in {
+  flake.modules.homeManager.gpg = {
+    pkgs,
+    hardening,
+    ...
+  }: {
     services.gpg-agent = {
       enable = true;
       defaultCacheTtl = 1800;

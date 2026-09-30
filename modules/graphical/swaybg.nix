@@ -3,10 +3,9 @@
   flake.modules.homeManager.swaybg = {
     pkgs,
     colors,
+    hardening,
     ...
-  }: let
-    hardening = import ../../modules/_lib/systemd-hardening.nix;
-  in {
+  }: {
     systemd.user.services.swaybg = with colors; {
       Unit = {
         After = ["graphical-session.target"];

@@ -1,6 +1,8 @@
-{pkgs, ...}: let
-  hardening = import ../../modules/_lib/systemd-hardening.nix;
-
+{
+  pkgs,
+  hardening,
+  ...
+}: let
   cluster = ["172.16.4.11" "172.16.4.12" "172.16.4.13" "172.16.4.14"];
 
   export = {
@@ -95,7 +97,6 @@ in {
         ];
         CapabilityBoundingSet = "CAP_NET_BIND_SERVICE CAP_SETUID CAP_SETGID CAP_CHOWN CAP_FOWNER CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_SYS_RESOURCE";
         UMask = "0000";
-        RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_INET6" "AF_NETLINK"];
       };
   };
 }

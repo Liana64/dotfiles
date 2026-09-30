@@ -3,10 +3,9 @@
   flake.modules.homeManager.agentic = {
     lib,
     nixpkgs-unstable,
+    hardening,
     ...
   }: let
-    hardening = import ./_lib/systemd-hardening.nix;
-
     cargoDevshell =
       lib.concatMap
       (sel:

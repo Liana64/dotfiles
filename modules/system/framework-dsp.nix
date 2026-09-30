@@ -3,10 +3,9 @@
   flake.modules.homeManager.frameworkDsp = {
     inputs,
     lib,
+    hardening,
     ...
-  }: let
-    hardening = import ../_lib/systemd-hardening.nix;
-  in {
+  }: {
     # Improve the quality of the Framework 13 speakers with a DSP audio configuration
     services.easyeffects.enable = true;
     # data dir, not config: EE 7 reads presets from XDG data and treats the

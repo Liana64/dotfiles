@@ -4,9 +4,9 @@
 {
   config,
   pkgs,
+  hardening,
   ...
 }: let
-  hardening = import ./systemd-hardening.nix;
   zfsJob =
     hardening.confined
     // {
@@ -91,7 +91,6 @@ in {
         // {
           Type = "oneshot";
           PrivateDevices = false;
-          CapabilityBoundingSet = "";
           IPAddressDeny = "any";
           RestrictAddressFamilies = ["AF_UNIX"];
           ReadWritePaths = ["/var/lib/zfs-metrics"];

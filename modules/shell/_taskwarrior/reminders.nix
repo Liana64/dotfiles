@@ -3,9 +3,9 @@
   pkgs,
   lib,
   osConfig,
+  hardening,
   ...
 }: let
-  hardening = import ../../../modules/_lib/systemd-hardening.nix;
   task = "${pkgs.taskwarrior3}/bin/task";
   jq = "${pkgs.jq}/bin/jq";
   notify = "${pkgs.libnotify}/bin/notify-send";

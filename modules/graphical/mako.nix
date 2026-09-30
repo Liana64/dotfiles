@@ -3,10 +3,9 @@
   flake.modules.homeManager.mako = {
     colors,
     config,
+    hardening,
     ...
-  }: let
-    hardening = import ../_lib/systemd-hardening.nix;
-  in {
+  }: {
     # Route dbus activation to the unit (XDG_DATA_HOME service files win), so
     # a queued notification can never respawn the unhardened transient
     xdg.dataFile."dbus-1/services/org.freedesktop.Notifications.service".text = ''

@@ -53,8 +53,10 @@
       inherit system;
       config.allowUnfree = true;
     };
+  hardening = import ../_lib/systemd-hardening.nix lib;
+
   homeExtra = system: {
-    inherit inputs;
+    inherit inputs hardening;
     nixpkgs-unstable = mkUnstable system;
   };
 
@@ -80,7 +82,7 @@
     channel ? nixpkgs,
   }:
     channel.lib.nixosSystem {
-      specialArgs = {inherit inputs;};
+      specialArgs = {inherit inputs hardening;};
       modules =
         (
           if aspects == null

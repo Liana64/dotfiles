@@ -4,9 +4,9 @@
     lib,
     config,
     utils,
+    hardening,
     ...
   }: let
-    hardening = import ../_lib/systemd-hardening.nix;
     scrubCfg = config.services.btrfs.autoScrub;
   in {
     services.fstrim.enable = lib.mkDefault true;

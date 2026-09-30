@@ -1,28 +1,15 @@
-# @desc: Staged systemd unit hardening (not imported)
-rec {
-  # one "Key=Value" per property; list attrs get an entry per element
+# @desc: systemd unit hardening
+lib: rec {
   lines = preset:
-    builtins.concatMap (
-      k: let
-        v = preset.${k};
-      in
-        if builtins.isList v
-        then map (x: "${k}=${builtins.toString x}") v
-        else [
-          "${k}=${
-            if builtins.isBool v
-            then
-              (
-                if v
-                then "true"
-                else "false"
-              )
-            else builtins.toString v
-          }"
-        ]
-    ) (builtins.attrNames preset);
+    lib.concatLists (lib.mapAttrsToList (k: v:
+      map (x: "${k}=${
+        if builtins.isBool x
+        then lib.boolToString x
+        else toString x
+      }") (lib.toList v))
+    preset);
 
-  args = preset: builtins.concatStringsSep " " (map (l: "-p ${l}") (lines preset));
+  args = preset: lib.concatMapStringsSep " " (l: "-p ${lib.escapeShellArg l}") (lines preset);
 
   base = {
     NoNewPrivileges = true;
@@ -37,16 +24,10 @@ rec {
     RestrictRealtime = true;
     RestrictSUIDSGID = true;
     LockPersonality = true;
-    RemoveIPC = true;
   };
 
-  # these three overmount /proc paths in the mount namespace, and the kernel
-  # then refuses bwrap's fresh procfs mount — flatpak dies; hostname's bind
-  # activates only alongside mount-ns properties. The additions hold for GUI
-  # apps: 32-bit ABI unused (wine would SIGSYS) and a child userns resets its
-  # own bounding set, so bwrap and browser sandboxes keep their caps
   launch =
-    builtins.removeAttrs base ["ProtectKernelTunables" "ProtectKernelLogs" "ProtectHostname"]
+    removeAttrs base ["ProtectKernelTunables" "ProtectKernelLogs" "ProtectHostname"]
     // {
       ProtectControlGroups = true;
       SystemCallArchitectures = "native";
@@ -59,8 +40,6 @@ rec {
     base
     // {
       ProtectSystem = "strict";
-      # true also masks /run/user (wayland/dbus sockets) — graphical consumers
-      # override to read-only + ReadWritePaths=%t
       ProtectHome = true;
       PrivateDevices = true;
       ProtectControlGroups = true;
@@ -68,9 +47,9 @@ rec {
       RestrictNamespaces = true;
       MemoryDenyWriteExecute = true;
       SystemCallArchitectures = "native";
-      # Qt/GTK apps SIGSYS under ~@resources (affinity/priority/scheduler) —
-      # those consumers drop the third element
       SystemCallFilter = ["@system-service" "~@privileged" "~@resources"];
+      CapabilityBoundingSet = "";
+      RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_INET6" "AF_NETLINK"];
       UMask = "0077";
     };
 
@@ -78,6 +57,6 @@ rec {
     confined
     // {
       RestrictAddressFamilies = ["AF_UNIX"];
-      IPAddressDeny = "any";
+      PrivateNetwork = true;
     };
 }

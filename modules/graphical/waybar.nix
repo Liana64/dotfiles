@@ -5,9 +5,9 @@
     pkgs,
     colors,
     osConfig,
+    hardening,
     ...
   }: let
-    hardening = import ../_lib/systemd-hardening.nix;
     useNiri = (osConfig.compositor or "sway") == "niri";
     taskManager = osConfig.taskManager or "todoist";
     machineSecrets = osConfig.machineSecrets or true;

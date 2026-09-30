@@ -1,8 +1,6 @@
 # @desc: Protonmail Bridge
 {...}: {
-  flake.modules.nixos.email = let
-    hardening = import ../_lib/systemd-hardening.nix;
-  in {
+  flake.modules.nixos.email = {hardening, ...}: {
     services.protonmail-bridge.enable = true;
 
     # bridge state spans three protonmail dirs; the rest of home stays read-only

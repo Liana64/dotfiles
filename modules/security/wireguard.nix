@@ -4,9 +4,9 @@
     config,
     pkgs,
     lib,
+    hardening,
     ...
   }: let
-    hardening = import ../_lib/systemd-hardening.nix;
     wireguardConfigFile = "/var/secrets/wireguard/wg0.conf";
     trustedNetworksFile = "/var/secrets/wireguard/trusted-networks";
 

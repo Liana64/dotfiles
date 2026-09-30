@@ -4,7 +4,7 @@
     home.packages = [
       (pkgs.writeShellApplication {
         name = "veles";
-        runtimeInputs = with pkgs; [git gnutar coreutils findutils gnused];
+        runtimeInputs = with pkgs; [git gnutar coreutils findutils];
         text = builtins.readFile ../bin/veles;
       })
     ];

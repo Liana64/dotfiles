@@ -4,10 +4,9 @@
     lib,
     pkgs,
     osConfig,
+    hardening,
     ...
-  }: let
-    hardening = import ../_lib/systemd-hardening.nix;
-  in
+  }:
     lib.mkIf (osConfig.machineSecrets or true) {
       # setLowPriority calls setpriority/ioprio_set (@resources), home read-only
       # with the synced folders and state db carved out

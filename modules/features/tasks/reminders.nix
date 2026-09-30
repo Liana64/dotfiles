@@ -4,9 +4,9 @@
     pkgs,
     lib,
     osConfig,
+    hardening,
     ...
   }: let
-    hardening = import ../../_lib/systemd-hardening.nix;
     todoist = "${pkgs.todoist}/bin/todoist";
     jq = "${pkgs.jq}/bin/jq";
     notify = "${pkgs.libnotify}/bin/notify-send";

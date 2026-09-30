@@ -1,7 +1,6 @@
 # @desc: Log flood tripwire: journal/audit event-rate + journal near-cap alert into audit-wall
 {...}: {
-  flake.modules.nixos.logFlood = {...}: let
-    hardening = import ../_lib/systemd-hardening.nix;
+  flake.modules.nixos.logFlood = {hardening, ...}: let
     journalBurst = 20000; # msgs per timer interval
     auditBurst = 10000; # events per timer interval
     journalNearCapMB = 900; # eviction pressure, SystemMaxUse=1G in journald.nix

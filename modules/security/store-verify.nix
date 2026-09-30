@@ -1,8 +1,10 @@
 # @desc: Weekly nix store verify with tamper alert
 {...}: {
-  flake.modules.nixos.storeVerify = {config, ...}: let
-    hardening = import ../_lib/systemd-hardening.nix;
-  in {
+  flake.modules.nixos.storeVerify = {
+    config,
+    hardening,
+    ...
+  }: {
     systemd.services.nix-store-verify = {
       script = ''
         alert=/var/lib/audit-wall/alerts/store-verify

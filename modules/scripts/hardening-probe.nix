@@ -3,10 +3,10 @@
   flake.modules.homeManager.hardening-probe = {
     lib,
     pkgs,
+    hardening,
     ...
   }: let
-    deps = with pkgs; [systemd coreutils gnused gnugrep jq nix];
-    hardening = import ../_lib/systemd-hardening.nix;
+    deps = with pkgs; [audit systemd coreutils gnused gnugrep jq];
     toProps = preset: lib.concatStringsSep "\n" (hardening.lines preset);
     hardening-probe = pkgs.symlinkJoin {
       name = "hardening-probe";

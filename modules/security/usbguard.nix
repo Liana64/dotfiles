@@ -4,9 +4,9 @@
     pkgs,
     lib,
     config,
+    hardening,
     ...
   }: let
-    hardening = import ../_lib/systemd-hardening.nix;
     cfg = config.services.usbguard;
     ruleFile =
       if cfg.rules != null

@@ -31,9 +31,11 @@
     overrides;
   };
 
-  flake.modules.nixos.flatpak = {pkgs, ...}: let
-    hardening = import ../_lib/systemd-hardening.nix;
-  in {
+  flake.modules.nixos.flatpak = {
+    pkgs,
+    hardening,
+    ...
+  }: {
     # flatpaks are pretty good at sandboxing, so we ought to use them when available
     services.flatpak = {
       enable = true;
