@@ -17,8 +17,8 @@
       enable = true;
       settings.show_banner = false;
       extraConfig = ''
-        if ("/run/audit-wall" | path exists) and (open --raw /run/audit-wall | is-not-empty) {
-          print (open --raw /run/audit-wall)
+        if ("/run/audit-wall/banner" | path exists) and (open --raw /run/audit-wall/banner | is-not-empty) {
+          print (open --raw /run/audit-wall/banner)
           print ""
         }
         if (random bool) { fortune } else { dice }
