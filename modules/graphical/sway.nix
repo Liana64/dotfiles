@@ -296,7 +296,7 @@
           "${mod}+Control+Shift+x" = "workspace 8:x; exec thunar";
           "${mod}+Control+Return" = "exec thunar";
           "${mod}+Control+Shift+c" = "workspace 4:a; exec flatpak run com.todoist.Todoist";
-          "${mod}+Control+Shift+z" = "exec house-web zoom-web";
+          "${mod}+Control+Shift+z" = "exec house-web-public zoom-web";
 
           "${sup}+Shift+q" = "kill";
           "${sup}+Shift+e" = "exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -b 'Yes, exit sway' 'swaymsg exit'";

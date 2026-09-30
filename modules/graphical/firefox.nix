@@ -3,21 +3,99 @@
   flake.modules.homeManager.firefox = {
     inputs,
     pkgs,
+    lib,
+    config,
     colors,
     ...
-  }: {
-    programs.firefox = {
+  }: let
+    inherit (config.firefox) role;
+
+    # D-Bus remoting is keyed on profile name; distinct names keep houses from handing URLs to each other.
+    profile =
+      if role == "secure"
+      then "liana"
+      else role;
+
+    search =
+      if role == "ephemeral"
+      then "ddg"
+      else "kagi";
+
+    platforms = [
+      "google.com"
+      "youtube.com"
+      "youtu.be"
+      "facebook.com"
+      "instagram.com"
+      "whatsapp.com"
+      "messenger.com"
+      "threads.com"
+      "microsoftonline.com"
+      "live.com"
+      "office.com"
+      "microsoft365.com"
+      "teams.microsoft.com"
+      "outlook.com"
+      "sharepoint.com"
+      "linkedin.com"
+      "amazon.com"
+      "zoom.us"
+      "zoom.com"
+    ];
+
+    trustedSites = [];
+
+    roleSettings = {
+      secure = {
+        "permissions.default.camera" = 2;
+        "permissions.default.microphone" = 2;
+        "media.eme.enabled" = false;
+        "media.peerconnection.enabled" = false;
+      };
+      public = {
+        "permissions.default.desktop-notification" = 0;
+        "media.eme.enabled" = true;
+      };
+      ephemeral = {
+        "browser.startup.homepage" = "about:blank";
+        "browser.privatebrowsing.autostart" = true;
+        "privacy.resistFingerprinting" = true;
+        "media.eme.enabled" = false;
+        "media.peerconnection.enabled" = false;
+      };
+    };
+  in {
+    options.firefox.role = lib.mkOption {
+      type = lib.types.enum ["secure" "public" "ephemeral"];
+      default = "secure";
+    };
+
+    config.programs.firefox = {
       enable = true;
       package = inputs.nixpkgs-firefox.legacyPackages.${pkgs.stdenv.hostPlatform.system}.firefox;
       # nixpkgs firefox sets MOZ_LEGACY_PROFILES, so it reads ~/.mozilla/firefox.
       # stateVersion 26.05 would otherwise default this to the XDG path the browser ignores.
       configPath = ".mozilla/firefox";
-      profiles.liana = {
+      policies = {
+        "3rdparty".Extensions."uBlock0@raymondhill.net" = {
+          userSettings = [
+            ["advancedUserEnabled" "true"]
+            ["uiTheme" "dark"]
+            ["popupPanelSections" "31"]
+          ];
+          toAdd.trustedSiteDirectives = trustedSites;
+        };
+        WebsiteFilter = lib.mkIf (role == "secure") {
+          Block = map (domain: "*://*.${domain}/*") platforms;
+          Exceptions = ["*://www.google.com/recaptcha/*"];
+        };
+      };
+      profiles.${profile} = {
         search = {
           force = true;
-          default = "kagi";
-          privateDefault = "kagi";
-          order = ["kagi"];
+          default = search;
+          privateDefault = search;
+          order = [search];
           engines = {
             kagi = {
               name = "Kagi";
@@ -102,169 +180,164 @@
           };
         };
         #bookmarks = {};
-        #extensions = with inputs.firefox-addons.packages."x86_64-linux"; [
-        #  bitwarden
-        #  ublock-origin
-        #  reddit-enhancement-suite
-        #  #sponsorblock
-        #  #youtube-shorts-block
-        #];
-        settings = {
-          # Required for sidebery customization
-          "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+        settings =
+          {
+            # Required for sidebery customization
+            "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
-          # General settings
-          "browser.startup.homepage" = "bookmarks.labs.lianas.org";
-          "browser.aboutConfig.showWarning" = false;
+            # General settings
+            "browser.startup.homepage" = "bookmarks.labs.lianas.org";
+            "browser.aboutConfig.showWarning" = false;
 
-          # Disable firefox init
-          "browser.disableResetPrompt" = true;
-          "browser.download.panel.shown" = true;
-          "browser.feeds.showFirstRunUI" = false;
-          "browser.messaging-system.whatsNewPanel.enabled" = false;
-          "browser.rights.3.shown" = true;
-          "browser.shell.checkDefaultBrowser" = false;
-          "browser.shell.defaultBrowserCheckCount" = 1;
-          "browser.startup.homepage_override.mstone" = "ignore";
-          "browser.uitour.enabled" = false;
-          "startup.homepage_override_url" = "";
-          "trailhead.firstrun.didSeeAboutWelcome" = true;
-          "browser.bookmarks.restore_default_bookmarks" = false;
-          "browser.bookmarks.addedImportButton" = true;
+            # Disable firefox init
+            "browser.disableResetPrompt" = true;
+            "browser.download.panel.shown" = true;
+            "browser.feeds.showFirstRunUI" = false;
+            "browser.messaging-system.whatsNewPanel.enabled" = false;
+            "browser.rights.3.shown" = true;
+            "browser.shell.checkDefaultBrowser" = false;
+            "browser.shell.defaultBrowserCheckCount" = 1;
+            "browser.startup.homepage_override.mstone" = "ignore";
+            "browser.uitour.enabled" = false;
+            "startup.homepage_override_url" = "";
+            "trailhead.firstrun.didSeeAboutWelcome" = true;
+            "browser.bookmarks.restore_default_bookmarks" = false;
+            "browser.bookmarks.addedImportButton" = true;
 
-          "browser.download.useDownloadDir" = false;
+            "browser.download.useDownloadDir" = false;
 
-          # Disable home activity stream page
-          "browser.newtabpage.activity-stream.feeds.topsites" = false;
-          "browser.newtabpage.activity-stream.showSponsoredTopSites" = false;
-          "browser.newtabpage.activity-stream.improvesearch.topSiteSearchShortcuts" = false;
-          "browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons" = false;
-          "browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features" = false;
-          "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
-          "browser.newtabpage.activity-stream.showWeather" = false;
+            # Disable home activity stream page
+            "browser.newtabpage.activity-stream.feeds.topsites" = false;
+            "browser.newtabpage.activity-stream.showSponsoredTopSites" = false;
+            "browser.newtabpage.activity-stream.improvesearch.topSiteSearchShortcuts" = false;
+            "browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons" = false;
+            "browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features" = false;
+            "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
+            "browser.newtabpage.activity-stream.showWeather" = false;
 
-          # Disable telemetry
-          "app.shield.optoutstudies.enabled" = false;
-          "browser.discovery.enabled" = false;
-          "browser.urlbar.suggest.quicksuggest.all" = false;
-          "browser.urlbar.suggest.quicksuggest.sponsored" = false;
-          "browser.newtabpage.activity-stream.feeds.telemetry" = false;
-          "browser.newtabpage.activity-stream.telemetry" = false;
-          "browser.ping-centre.telemetry" = false;
-          "datareporting.healthreport.service.enabled" = false;
-          "datareporting.healthreport.uploadEnabled" = false;
-          "datareporting.policy.dataSubmissionEnabled" = false;
-          "datareporting.sessions.current.clean" = true;
-          "devtools.onboarding.telemetry.logged" = false;
-          "toolkit.telemetry.archive.enabled" = false;
-          "toolkit.telemetry.bhrPing.enabled" = false;
-          "toolkit.telemetry.enabled" = false;
-          "toolkit.telemetry.firstShutdownPing.enabled" = false;
-          "toolkit.telemetry.hybridContent.enabled" = false;
-          "toolkit.telemetry.newProfilePing.enabled" = false;
-          "toolkit.telemetry.prompted" = 2;
-          "toolkit.telemetry.rejected" = true;
-          "toolkit.telemetry.reportingpolicy.firstRun" = false;
-          "toolkit.telemetry.server" = "";
-          "toolkit.telemetry.shutdownPingSender.enabled" = false;
-          "toolkit.telemetry.unified" = false;
-          "toolkit.telemetry.unifiedIsOptIn" = false;
-          "toolkit.telemetry.updatePing.enabled" = false;
+            # Disable telemetry
+            "app.shield.optoutstudies.enabled" = false;
+            "browser.discovery.enabled" = false;
+            "browser.urlbar.suggest.quicksuggest.all" = false;
+            "browser.urlbar.suggest.quicksuggest.sponsored" = false;
+            "browser.newtabpage.activity-stream.feeds.telemetry" = false;
+            "browser.newtabpage.activity-stream.telemetry" = false;
+            "browser.ping-centre.telemetry" = false;
+            "datareporting.healthreport.service.enabled" = false;
+            "datareporting.healthreport.uploadEnabled" = false;
+            "datareporting.policy.dataSubmissionEnabled" = false;
+            "datareporting.sessions.current.clean" = true;
+            "devtools.onboarding.telemetry.logged" = false;
+            "toolkit.telemetry.archive.enabled" = false;
+            "toolkit.telemetry.bhrPing.enabled" = false;
+            "toolkit.telemetry.enabled" = false;
+            "toolkit.telemetry.firstShutdownPing.enabled" = false;
+            "toolkit.telemetry.hybridContent.enabled" = false;
+            "toolkit.telemetry.newProfilePing.enabled" = false;
+            "toolkit.telemetry.prompted" = 2;
+            "toolkit.telemetry.rejected" = true;
+            "toolkit.telemetry.reportingpolicy.firstRun" = false;
+            "toolkit.telemetry.server" = "";
+            "toolkit.telemetry.shutdownPingSender.enabled" = false;
+            "toolkit.telemetry.unified" = false;
+            "toolkit.telemetry.unifiedIsOptIn" = false;
+            "toolkit.telemetry.updatePing.enabled" = false;
 
-          # Disable fx accounts
-          "identity.fxaccounts.enabled" = false;
+            # Disable fx accounts
+            "identity.fxaccounts.enabled" = false;
 
-          # Harden
-          "privacy.trackingprotection.enabled" = true;
-          "dom.security.https_only_mode" = true;
-          "signon.rememberSignons" = false;
-          "signon.autofillForms" = false;
-          "signon.generation.enabled" = false;
-          "signon.management.page.breach-alerts.enabled" = false;
-          "extensions.formautofill.addresses.enabled" = false;
-          "extensions.formautofill.creditCards.enabled" = false;
-          "extensions.formautofill.available" = "off";
-          "browser.contentblocking.category" = "strict";
-          "privacy.fingerprintingProtection" = true;
-          "privacy.globalprivacycontrol.enabled" = true;
-          "privacy.query_stripping.strip_on_share.enabled" = true;
-          "privacy.userContext.enabled" = true;
-          "privacy.userContext.ui.enabled" = true;
-          "network.http.referer.XOriginTrimmingPolicy" = 2;
-          "network.auth.subresource-http-auth-allow" = 1;
-          "network.IDN_show_punycode" = true;
-          "browser.xul.error_pages.expert_bad_cert" = true;
-          "pdfjs.enableScripting" = false;
-          "browser.download.start_downloads_in_tmp_dir" = true;
-          "browser.download.manager.addToRecentDocs" = false;
-          "security.tls.enable_0rtt_data" = false;
-          "network.trr.mode" = 5;
-          "network.dns.disablePrefetch" = true;
-          "network.prefetch-next" = false;
-          "network.predictor.enabled" = false;
-          "network.http.speculative-parallel-limit" = 0;
-          "browser.urlbar.speculativeConnect.enabled" = false;
-          "media.peerconnection.ice.default_address_only" = true;
-          "app.normandy.enabled" = false;
-          "app.normandy.api_url" = "";
-          "breakpad.reportURL" = "";
-          "browser.tabs.crashReporting.sendReport" = false;
-          "browser.crashReports.unsubmittedCheck.autoSubmit2" = false;
-          "network.captive-portal-service.enabled" = false;
-          "network.connectivity-service.enabled" = false;
-          "captivedetect.canonicalURL" = "";
-          "browser.safebrowsing.downloads.remote.enabled" = false;
-          "dom.private-attribution.submission.enabled" = false;
-          "extensions.pocket.enabled" = false;
-          "browser.ml.enable" = false;
-          "browser.ml.chat.enabled" = false;
-          "browser.urlbar.quicksuggest.enabled" = false;
-          "browser.formfill.enable" = false;
-          "extensions.getAddons.showPane" = false;
-          "extensions.htmlaboutaddons.recommendations.enabled" = false;
-          "permissions.default.geo" = 2;
-          "permissions.default.desktop-notification" = 2;
-          "permissions.default.xr" = 2;
-          "dom.vr.enabled" = false;
-          "media.autoplay.default" = 5;
+            # Harden
+            "privacy.trackingprotection.enabled" = true;
+            "dom.security.https_only_mode" = true;
+            "signon.rememberSignons" = false;
+            "signon.autofillForms" = false;
+            "signon.generation.enabled" = false;
+            "signon.management.page.breach-alerts.enabled" = false;
+            "extensions.formautofill.addresses.enabled" = false;
+            "extensions.formautofill.creditCards.enabled" = false;
+            "extensions.formautofill.available" = "off";
+            "browser.contentblocking.category" = "strict";
+            "privacy.fingerprintingProtection" = true;
+            "privacy.globalprivacycontrol.enabled" = true;
+            "privacy.query_stripping.strip_on_share.enabled" = true;
+            "privacy.userContext.enabled" = true;
+            "privacy.userContext.ui.enabled" = true;
+            "network.http.referer.XOriginTrimmingPolicy" = 2;
+            "network.auth.subresource-http-auth-allow" = 1;
+            "network.IDN_show_punycode" = true;
+            "browser.xul.error_pages.expert_bad_cert" = true;
+            "pdfjs.enableScripting" = false;
+            "browser.download.start_downloads_in_tmp_dir" = true;
+            "browser.download.manager.addToRecentDocs" = false;
+            "security.tls.enable_0rtt_data" = false;
+            "network.trr.mode" = 5;
+            "network.dns.disablePrefetch" = true;
+            "network.prefetch-next" = false;
+            "network.predictor.enabled" = false;
+            "network.http.speculative-parallel-limit" = 0;
+            "browser.urlbar.speculativeConnect.enabled" = false;
+            "media.peerconnection.ice.default_address_only" = true;
+            "app.normandy.enabled" = false;
+            "app.normandy.api_url" = "";
+            "breakpad.reportURL" = "";
+            "browser.tabs.crashReporting.sendReport" = false;
+            "browser.crashReports.unsubmittedCheck.autoSubmit2" = false;
+            "network.captive-portal-service.enabled" = false;
+            "network.connectivity-service.enabled" = false;
+            "captivedetect.canonicalURL" = "";
+            "browser.safebrowsing.downloads.remote.enabled" = false;
+            "dom.private-attribution.submission.enabled" = false;
+            "extensions.pocket.enabled" = false;
+            "browser.ml.enable" = false;
+            "browser.ml.chat.enabled" = false;
+            "browser.urlbar.quicksuggest.enabled" = false;
+            "browser.formfill.enable" = false;
+            "extensions.getAddons.showPane" = false;
+            "extensions.htmlaboutaddons.recommendations.enabled" = false;
+            "permissions.default.geo" = 2;
+            "permissions.default.desktop-notification" = 2;
+            "permissions.default.xr" = 2;
+            "dom.vr.enabled" = false;
+            "media.autoplay.default" = 5;
 
-          # Remove close button
-          "browser.tabs.inTitlebar" = 0;
+            # Remove close button
+            "browser.tabs.inTitlebar" = 0;
 
-          # Smooth scrolling
-          "general.smoothScroll" = true;
-          "general.smoothScroll.msdPhysics.enabled" = true;
-          "mousewheel.min_line_scroll_amount" = 30;
+            # Smooth scrolling
+            "general.smoothScroll" = true;
+            "general.smoothScroll.msdPhysics.enabled" = true;
+            "mousewheel.min_line_scroll_amount" = 30;
 
-          # Enable GPU acceleration
-          "gfx.webrender.all" = true;
-          "media.ffmpeg.vaapi.enabled" = true;
-          "widget.dmabuf.force-enabled" = true;
+            # Enable GPU acceleration
+            "gfx.webrender.all" = true;
+            "media.ffmpeg.vaapi.enabled" = true;
+            "widget.dmabuf.force-enabled" = true;
 
-          # Reduce iGPU usage
-          "ui.prefersReducedMotion" = 1;
+            # Reduce iGPU usage
+            "ui.prefersReducedMotion" = 1;
 
-          # Max framerate
-          "layout.frame_rate" = 120;
+            # Max framerate
+            "layout.frame_rate" = 120;
 
-          # default 0.002
-          "apz.fling_friction" = "0.003";
+            # default 0.002
+            "apz.fling_friction" = "0.003";
 
-          # default 0.5
-          "apz.fling_min_velocity_threshold" = "1.0";
+            # default 0.5
+            "apz.fling_min_velocity_threshold" = "1.0";
 
-          # Vertical tabs
-          "sidebar.verticalTabs" = true;
-          "sidebar.revamp" = true;
-          "sidebar.main.tools" = ["history" "bookmarks"];
+            # Vertical tabs
+            "sidebar.verticalTabs" = true;
+            "sidebar.revamp" = true;
+            "sidebar.main.tools" = ["history" "bookmarks"];
 
-          # Wayland popup/menu fixes
-          "widget.wayland.use-move-to-rect" = false;
-          "widget.gtk.ignore-bogus-leave-notify" = 1;
-          "widget.use-xdg-desktop-portal.file-picker" = 0;
-          "widget.use-xdg-desktop-portal.mime-handler" = 0;
-          "widget.non-native-theme.enabled" = false;
-        };
+            # Wayland popup/menu fixes
+            "widget.wayland.use-move-to-rect" = false;
+            "widget.gtk.ignore-bogus-leave-notify" = 1;
+            "widget.use-xdg-desktop-portal.file-picker" = 0;
+            "widget.use-xdg-desktop-portal.mime-handler" = 0;
+            "widget.non-native-theme.enabled" = false;
+          }
+          // roleSettings.${role};
         #restrictedDomainsList = [
         #  "accounts-static.cdn.mozilla.net"
         #  "accounts.firefox.com"
@@ -375,45 +448,8 @@
     #  };
     #};
 
-    xdg.configFile."xfce4/helpers.rc".text = ''
+    config.xdg.configFile."xfce4/helpers.rc".text = ''
       WebBrowser=firefox
     '';
   };
-
-  flake.modules.nixos.firefox = {
-    config,
-    lib,
-    ...
-  }:
-    lib.mkIf config.machineSecrets {
-      sops.secrets."machine/firefox/ublock/trusted-sites" = {};
-
-      sops.templates."firefox-policies.json" = {
-        owner = "liana";
-        mode = "0400";
-        content = ''
-          {
-            "policies": {
-              "3rdparty": {
-                "Extensions": {
-                  "uBlock0@raymondhill.net": {
-                    "userSettings": [
-                      ["advancedUserEnabled", "true"],
-                      ["uiTheme", "dark"],
-                      ["popupPanelSections", "31"]
-                    ],
-                    "toAdd": {
-                      "trustedSiteDirectives": ${config.sops.placeholder."machine/firefox/ublock/trusted-sites"}
-                    }
-                  }
-                }
-              }
-            }
-          }
-        '';
-      };
-
-      environment.etc."firefox/policies/policies.json".source =
-        config.sops.templates."firefox-policies.json".path;
-    };
 }

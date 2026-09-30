@@ -1,4 +1,4 @@
-# @desc: nix-housing domains — sandboxed home environments (vault, dev, infra, personal, web, agentic, untrusted)
+# @desc: nix-housing sandbox domains
 {config, ...}: let
   aspects = config.flake.modules.homeManager;
   terminfo = {pkgs, ...}: {home.packages = [pkgs.kitty.terminfo];};
@@ -10,10 +10,10 @@ in {
     lib,
     pkgs,
     colors,
+    hardening,
     ...
   }: let
     mix = import ../_lib/mix.nix lib;
-    hardening = import ../_lib/systemd-hardening.nix;
 
     accents = {
       vault = "#9254de";
@@ -21,7 +21,9 @@ in {
       infra = "#49aa19";
       personal = "#d4b106";
       web = "#d87a16";
-      altnet = "#d95216";
+      web-public = "#cb2b83";
+      web-ephemeral = "#8bbb11";
+      web-gemini = "#d95216";
       untrusted = "#dc4446";
       agentic = "#13a8a8";
     };
@@ -105,9 +107,22 @@ in {
     };
 
     projects = "$NIX_HOUSING_REAL_HOME/Projects";
+    notebook = "$NIX_HOUSING_REAL_HOME/Notebook";
     dillo = "$NIX_HOUSING_REAL_HOME/.dillo";
     drop = "$NIX_HOUSING_REAL_HOME/houses/shared/drop";
     velesDir = "$NIX_HOUSING_REAL_HOME/houses/shared/veles";
+
+    webCapabilities = {
+      gui.enable = true;
+      gpu.enable = true;
+      pulseAudio.enable = true;
+      namespacing.proc = true;
+      sessionDbus.own = ["org.mozilla.firefox.*"];
+      landlock = {
+        connectTcpPorts = [53 80 443];
+        rwDirs = [drop];
+      };
+    };
   in {
     imports = [inputs.nix-housing.homeManagerModules.default];
 
@@ -202,12 +217,12 @@ in {
           sessionDbus.own = ["org.freedesktop.StatusNotifierItem-2-1"];
           landlock = {
             connectTcpPorts = [443 1025 1143 6697];
-            rwDirs = [drop "/dev/shm"];
+            rwDirs = [notebook drop "/dev/shm"];
           };
         };
       };
 
-      altnet = {
+      web-gemini = {
         hm.config.imports =
           base
           ++ [
@@ -234,21 +249,41 @@ in {
             houseTitle
             aspects.chromium
             aspects.firefox
-            aspects.zoom
           ];
         exportDesktopEntries = true;
-        capabilities = {
-          gui.enable = true;
-          gpu.enable = true;
-          pulseAudio.enable = true;
-          namespacing.proc = true;
-          sessionDbus.own = ["org.mozilla.firefox.*"];
-          landlock = {
-            connectTcpPorts = [53 80 443];
-            deviceFiles = ["/dev/video0" "/dev/video1"];
-            rwDirs = [drop];
-          };
+        capabilities = webCapabilities;
+      };
+
+      web-public = {
+        hm.config = {
+          imports =
+            base
+            ++ [
+              houseTitle
+              aspects.firefox
+              aspects.zoom
+            ];
+          firefox.role = "public";
         };
+        exportDesktopEntries = true;
+        capabilities = lib.recursiveUpdate webCapabilities {
+          sessionDbus.talk = ["org.freedesktop.Notifications"];
+          landlock.deviceFiles = ["/dev/video0" "/dev/video1"];
+        };
+      };
+
+      web-ephemeral = {
+        hm.config = {
+          imports =
+            base
+            ++ [
+              houseTitle
+              aspects.firefox
+            ];
+          firefox.role = "ephemeral";
+        };
+        exportDesktopEntries = true;
+        capabilities = webCapabilities;
       };
 
       agentic = {

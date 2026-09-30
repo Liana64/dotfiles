@@ -12,8 +12,8 @@
         "x-scheme-handler/unknown" = "firefox.house-web.desktop";
 
         # Zoom → web client (Firefox)
-        "x-scheme-handler/zoommtg" = "zoom-web.house-web.desktop";
-        "x-scheme-handler/zoomus" = "zoom-web.house-web.desktop";
+        "x-scheme-handler/zoommtg" = "zoom-web.house-web-public.desktop";
+        "x-scheme-handler/zoomus" = "zoom-web.house-web-public.desktop";
 
         # Terminal
         "x-scheme-handler/terminal" = "kitty.desktop";
