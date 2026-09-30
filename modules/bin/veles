@@ -1,18 +1,19 @@
 VELES_ROOT="${VELES_ROOT:-${NIX_HOUSING_REAL_HOME:-$HOME}/houses/shared/veles}"
 WORK_ROOT="${VELES_WORK_ROOT:-$HOME/work}"
 readonly VELES_ROOT WORK_ROOT
-readonly MANIFEST=.veles
+shopt -s nullglob
 
 usage() {
   cat <<'EOF'
 veles — transmit change sets between nix houses using patches
 
-  veles init             initialize a project with HEAD at the current git repo
-  veles receive <name>   copy a project into ~/work/<name>
-  veles deliver          emit a patch of
-  veles apply <patch>    apply a delivered patch
-  veles list             show projects and patches
-  veles prune [days]     drop old patches and projects
+  veles init             snapshot HEAD of the current repo as the project's latest init
+  veles receive <name>   check out the latest init into ~/work/<name>
+  veles update           merge the latest init into the current work dir
+  veles deliver          emit a patch of all work dir changes since its init
+  veles apply [patch]    apply a patch (default: newest for this repo)
+  veles list             show inits and patches
+  veles prune [days]     drop patches older than days (14) and all but latest inits
 EOF
 }
 
@@ -21,96 +22,163 @@ die() {
   exit 1
 }
 
-newest_init() {
-  find "$VELES_ROOT/inits" -maxdepth 1 -name "$1-*" -printf '%T@ %p\n' 2>/dev/null \
-    | sort -rn | head -1 | cut -d' ' -f2-
+check_name() {
+  case $1 in
+    '' | .* | */*) die "invalid project name: $1" ;;
+  esac
+}
+
+latest_rev() {
+  readlink "$VELES_ROOT/inits/$1/latest" || die "no init for $1"
+}
+
+enter_top() {
+  local top
+  top=$(git rev-parse --show-toplevel) || die "not inside a git repo"
+  cd "$top" || exit
+}
+
+enter_work() {
+  enter_top
+  git config veles.name >/dev/null || die "not a veles work dir"
+}
+
+tree_of() {
+  local index
+  index="$(git rev-parse --absolute-git-dir)/veles-index"
+  rm -f "$index"
+  GIT_INDEX_FILE=$index git --work-tree="$1" add --all --force
+  GIT_INDEX_FILE=$index git write-tree
+  rm -f "$index"
 }
 
 cmd_init() {
-  local top name rev dest
-  top=$(git rev-parse --show-toplevel) || die "not inside a git repo"
-  name=$(basename "$top")
-  rev=$(git -C "$top" rev-parse --short HEAD)
-  dest="$VELES_ROOT/inits/$name-$rev"
-  mkdir -p "$dest"
-  git -C "$top" archive HEAD | tar -x -C "$dest"
-  printf '%s %s\n' "$name" "$rev" >"$dest/$MANIFEST"
-  printf 'inited %s\n' "$dest"
+  local name rev dir stage
+  enter_top
+  name=$(basename "$PWD")
+  rev=$(git rev-parse --short HEAD)
+  dir="$VELES_ROOT/inits/$name"
+  git diff --quiet HEAD || printf 'veles: uncommitted changes are not included\n' >&2
+  if [ ! -d "$dir/$rev" ]; then
+    mkdir -p "$dir"
+    stage=$(mktemp -d "$dir/.$rev.XXXXXX")
+    git archive HEAD | tar -x -C "$stage"
+    mv "$stage" "$dir/$rev"
+  fi
+  ln -sfn "$rev" "$dir/latest"
+  printf 'inited %s@%s\n' "$name" "$rev"
 }
 
 cmd_receive() {
-  local name=$1 init dest rev
-  init=$(newest_init "$name")
-  [ -n "$init" ] || die "no init for $name"
+  local name=$1 rev dest base
+  check_name "$name"
+  rev=$(latest_rev "$name")
   dest="$WORK_ROOT/$name"
-  [ ! -e "$dest" ] || die "$dest already exists"
-  mkdir -p "$WORK_ROOT"
-  cp -a "$init" "$dest"
-  git -C "$dest" init --quiet
-  printf '%s\n' "$MANIFEST" >"$dest/.git/info/exclude"
-  git -C "$dest" add --all
-  read -r name rev <"$dest/$MANIFEST"
-  printf '%s %s %s\n' "$name" "$rev" "$(git -C "$dest" write-tree)" >"$dest/$MANIFEST"
-  printf 'received %s -> %s\n' "$init" "$dest"
+  [ ! -e "$dest" ] || die "$dest exists; run veles update inside it"
+  git init --quiet "$dest"
+  cd "$dest" || exit
+  base=$(tree_of "$VELES_ROOT/inits/$name/$rev")
+  git read-tree --reset -u "$base"
+  git update-ref refs/veles/base "$base"
+  git config veles.name "$name"
+  git config veles.rev "$rev"
+  printf 'received %s@%s -> %s\n' "$name" "$rev" "$dest"
+}
+
+cmd_update() {
+  local name rev latest wip new out rc=0
+  enter_work
+  name=$(git config veles.name)
+  rev=$(git config veles.rev)
+  latest=$(latest_rev "$name")
+  [ "$latest" != "$rev" ] || { printf 'already at %s\n' "$rev"; return; }
+  git add --all
+  wip=$(git write-tree)
+  git update-ref refs/veles/wip "$wip"
+  new=$(tree_of "$VELES_ROOT/inits/$name/$latest")
+  out=$(git merge-tree --write-tree --name-only --no-messages \
+    --merge-base=refs/veles/base "$wip" "$new") || rc=$?
+  [ "$rc" -le 1 ] || die "merge failed"
+  git read-tree --reset -u "${out%%$'\n'*}"
+  git read-tree "$new"
+  git update-ref refs/veles/base "$new"
+  git config veles.rev "$latest"
+  printf 'updated %s %s -> %s\n' "$name" "$rev" "$latest"
+  [ "$rc" -eq 0 ] || die "conflicts in:
+$(printf '%s\n' "$out" | tail -n +2 | sort -u)
+pre-update state kept at refs/veles/wip"
 }
 
 cmd_deliver() {
-  local name rev tree stamp patch
-  [ -f "$MANIFEST" ] || die "no $MANIFEST here; run inside a work dir"
-  read -r name rev tree <"$MANIFEST"
-  [ -n "$tree" ] || die "manifest has no baseline tree; re-receive the init"
+  local name rev dir patch
+  enter_work
+  name=$(git config veles.name)
+  rev=$(git config veles.rev)
   git ls-files --others --exclude-standard -z | xargs -0 -r git add --intent-to-add --
-  stamp=$(date +%Y%m%d-%H%M%S)
-  patch="$VELES_ROOT/patches/$name-$rev-$stamp.patch"
-  mkdir -p "$VELES_ROOT/patches"
-  git diff --binary "$tree" >"$patch"
-  [ -s "$patch" ] || { rm -f "$patch"; die "no changes to deliver"; }
-  git diff --stat "$tree"
+  ! git diff --quiet refs/veles/base || die "no changes to deliver"
+  dir="$VELES_ROOT/patches/$name"
+  patch="$dir/$(date +%Y%m%d-%H%M%S)-$rev.patch"
+  mkdir -p "$dir"
+  git diff --binary refs/veles/base >"$patch.part"
+  mv "$patch.part" "$patch"
+  git diff --stat refs/veles/base
   printf 'delivered %s\n' "$patch"
 }
 
 cmd_apply() {
-  local patch=$1 snapshot base trimmed rev head
+  local patch=${1:-} name snapshot rev patches
+  enter_top
+  name=$(basename "$PWD")
+  if [ -z "$patch" ]; then
+    patches=("$VELES_ROOT/patches/$name"/*.patch)
+    [ ${#patches[@]} -gt 0 ] || die "no patches for $name"
+    patch=${patches[-1]}
+  elif [ ! -f "$patch" ]; then
+    patch="$VELES_ROOT/patches/$name/$patch"
+  fi
   [ -f "$patch" ] || die "no such patch: $patch"
-  head=$(git rev-parse --short HEAD) || die "not inside a git repo"
-  snapshot=$(mktemp -t veles-apply.XXXXXX.patch)
+  snapshot="$(git rev-parse --absolute-git-dir)/veles-apply.patch"
   cp "$patch" "$snapshot"
-  base=$(basename "$patch" .patch)
-  trimmed=${base%-*-*}
-  rev=${trimmed##*-}
-  [ "$rev" = "$head" ] || printf 'veles: patch base %s != HEAD %s, 3-way merging\n' "$rev" "$head" >&2
+  rev=$(basename "$patch" .patch)
+  rev=${rev##*-}
+  [ "$(git rev-parse --verify --quiet "$rev^{commit}")" = "$(git rev-parse HEAD)" ] \
+    || printf 'veles: patch base %s != HEAD, 3-way merging\n' "$rev" >&2
+  printf '%s\n' "$patch"
   sha256sum "$snapshot"
-  git apply --stat "$snapshot"
+  git apply --stat --summary "$snapshot"
   git apply --3way "$snapshot"
-  rm -f "$snapshot"
   printf 'applied, uncommitted — review with git status && git diff HEAD\n'
 }
 
-cmd_prune() {
-  local days=${1:-14} name latest
-  find "$VELES_ROOT/patches" -maxdepth 1 -name '*.patch' -mtime "+$days" -delete 2>/dev/null || true
-  find "$VELES_ROOT/inits" -maxdepth 1 -mindepth 1 -type d -printf '%f\n' 2>/dev/null \
-    | sed 's/-[^-]*$//' | sort -u | while read -r name; do
-      latest=$(newest_init "$name")
-      find "$VELES_ROOT/inits" -maxdepth 1 -mindepth 1 -type d -name "$name-*" ! -path "$latest" \
-        -exec rm -rf {} +
-    done
-  cmd_list
+cmd_list() {
+  local dir rev
+  printf 'inits:\n'
+  for dir in "$VELES_ROOT/inits"/*/; do
+    rev=$(readlink "$dir/latest") || rev='?'
+    printf '  %s@%s\n' "$(basename "$dir")" "$rev"
+  done
+  printf 'patches:\n'
+  find "$VELES_ROOT/patches" -name '*.patch' -printf '  %P\n' 2>/dev/null | sort
 }
 
-cmd_list() {
-  printf 'inits:\n'
-  find "$VELES_ROOT/inits" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | sort
-  printf 'patches:\n'
-  find "$VELES_ROOT/patches" -maxdepth 1 -name '*.patch' 2>/dev/null | sort
+cmd_prune() {
+  local days=${1:-14} dir latest
+  case $days in '' | *[!0-9]*) die "days must be a number: $days" ;; esac
+  find "$VELES_ROOT/patches" -name '*.patch' -mtime "+$days" -delete 2>/dev/null || true
+  for dir in "$VELES_ROOT/inits"/*/; do
+    latest=$(readlink "$dir/latest") || continue
+    find "$dir" -mindepth 1 -maxdepth 1 -type d ! -name "$latest" -exec rm -rf {} +
+  done
+  cmd_list
 }
 
 main() {
   case "${1:-}" in
     init) cmd_init ;;
     receive) [ $# -eq 2 ] || { usage >&2; exit 1; }; cmd_receive "$2" ;;
+    update) cmd_update ;;
     deliver) cmd_deliver ;;
-    apply) [ $# -eq 2 ] || { usage >&2; exit 1; }; cmd_apply "$2" ;;
+    apply) [ $# -le 2 ] || { usage >&2; exit 1; }; cmd_apply "${2:-}" ;;
     list) cmd_list ;;
     prune) cmd_prune "${2:-}" ;;
     -h | --help) usage ;;
