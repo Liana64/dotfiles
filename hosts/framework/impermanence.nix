@@ -70,7 +70,6 @@
       "/var/lib/AccountsService" # user account icons/locale
       "/var/lib/colord" # display color profiles
       "/etc/NetworkManager/system-connections"
-      "/etc/usbguard" # rules.conf — preStart regenerates only if absent
     ];
 
     files = [
