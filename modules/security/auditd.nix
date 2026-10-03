@@ -33,7 +33,10 @@
       enable = "lock";
       backlogLimit = 8192;
       rules =
-        ["-a never,exit -F gid=${toString config.ids.gids.nixbld}"]
+        [
+          "-a never,exit -F gid=${toString config.ids.gids.nixbld}"
+          "-a never,exclude -F msgtype=BPF -F pid=1"
+        ]
         ++ map (exe: "-a never,exit -F arch=b64 -F dir=${gnupgKeys} -F perm=rwa -F exe=${exe}")
         (map (bin: "${pkgs.gnupg}/${bin}") gnupgReaders ++ ["${config.systemd.package}/bin/systemd-tmpfiles"])
         ++ [
