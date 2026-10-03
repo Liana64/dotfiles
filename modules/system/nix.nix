@@ -7,12 +7,6 @@
     hardening,
     ...
   }: let
-    # gc/optimise run the client directly: it remounts /nix/store rw inside a
-    # private mount namespace (SYS_ADMIN + mnt). gc's root discovery must see
-    # /proc of every process (SYS_PTRACE, no invisible proc), traverse 700
-    # homes and 0400 /proc environ (DAC_READ_SEARCH), and resolve gcroot
-    # symlinks into homes — hiding any of these silently collects live paths.
-    # nix-daemon stays untouched — build isolation is the nix sandbox's own job
     maintenance =
       hardening.base
       // {
@@ -26,9 +20,12 @@
         SystemCallArchitectures = "native";
       };
   in {
-    # gc additionally resolves roots anchored in /tmp (nh result links) — a
-    # private /tmp would silently collect them
-    systemd.services.nix-gc.serviceConfig = maintenance // {PrivateTmp = false;};
+    systemd.services.nix-gc.serviceConfig =
+      maintenance
+      // {
+        PrivateTmp = false;
+        CapabilityBoundingSet = "${maintenance.CapabilityBoundingSet} CAP_DAC_OVERRIDE CAP_FOWNER";
+      };
     systemd.services.nix-optimise.serviceConfig = maintenance;
 
     nix = let
@@ -49,8 +46,6 @@
       };
 
       channel.enable = false;
-      # Make flake registry and nix path match flake inputs; `nixpkgs` is
-      # registered by nixosSystem itself, pinned to the channel the host builds from
       registry = lib.mapAttrs (_: flake: {inherit flake;}) (removeAttrs flakeInputs ["nixpkgs"]);
       nixPath = lib.mapAttrsToList (n: _: "${n}=flake:${n}") flakeInputs;
     };
