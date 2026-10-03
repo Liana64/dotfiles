@@ -86,7 +86,7 @@
           toAdd.trustedSiteDirectives = trustedSites;
         };
         WebsiteFilter = lib.mkIf (role == "secure") {
-          Block = map (domain: "*://*.${domain}/*") platforms;
+          # Block = map (domain: "*://*.${domain}/*") platforms;
           Exceptions = ["*://www.google.com/recaptcha/*"];
         };
       };
