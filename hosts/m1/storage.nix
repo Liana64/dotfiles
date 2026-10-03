@@ -27,6 +27,7 @@
     media = 2000;
     documents = 2100;
     backup = 2200;
+    uploads = 2300;
   };
 
   pushers = {
@@ -79,6 +80,12 @@
         props.quota = "5T";
         grants = lan access.browse;
       };
+      "tank/family" = {
+        id = 0;
+        mode = "0755";
+        props.quota = "5T";
+        grants = lan access.browse;
+      };
       "tank/home/photos" = {
         id = ids.documents;
         mode = "2770";
@@ -92,6 +99,10 @@
       "tank/home/shared/landfill" = {
         id = ids.documents;
         mode = "2770";
+      };
+      "tank/home/family" = {
+        id = ids.uploads;
+        mode = "0750";
       };
       "tank/backups" = {
         id = 0;
@@ -149,6 +160,7 @@ in {
       media.gid = ids.media;
       documents.gid = ids.documents;
       backup.gid = ids.backup;
+      uploads.gid = ids.uploads;
     };
     users.backup = {
       uid = ids.backup;

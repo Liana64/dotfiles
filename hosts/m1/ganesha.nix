@@ -64,6 +64,13 @@
       squash = "All_Squash";
       uid = 2100;
       access = "RW";
+    }
+    + export {
+      id = 4;
+      path = "/tank/home/family";
+      squash = "All_Squash";
+      uid = 2300;
+      access = "RW";
     });
 in {
   systemd.services.nfs-ganesha = {
@@ -83,6 +90,7 @@ in {
           "/tank/media"
           "/tank/backups/volsync"
           "/tank/home/photos"
+          "/tank/home/family"
         ];
         SystemCallFilter = [
           "@system-service"
