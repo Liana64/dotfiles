@@ -112,6 +112,11 @@ in {
     drop = "$NIX_HOUSING_REAL_HOME/houses/shared/drop";
     velesDir = "$NIX_HOUSING_REAL_HOME/houses/shared/veles";
 
+    sharedDrop = {
+      xdg.configFile."gtk-3.0/bookmarks".text = "file://${config.home.homeDirectory}/houses/shared/drop Shared\n";
+      programs.firefox.policies.DefaultDownloadDirectory = "${config.home.homeDirectory}/houses/shared/drop";
+    };
+
     webCapabilities = {
       gui.enable = true;
       gpu.enable = true;
@@ -195,6 +200,7 @@ in {
             ++ [
               houseTitle
               portalUrls
+              sharedDrop
               aspects.halloy
               aspects.iamb
               aspects.obsidian
@@ -227,6 +233,7 @@ in {
           base
           ++ [
             houseTitle
+            sharedDrop
             aspects.dillo
           ];
         exportDesktopEntries = true;
@@ -247,11 +254,14 @@ in {
           base
           ++ [
             houseTitle
+            sharedDrop
             aspects.chromium
             aspects.firefox
           ];
         exportDesktopEntries = true;
-        capabilities = webCapabilities;
+        capabilities = lib.recursiveUpdate webCapabilities {
+          landlock.deviceFiles = map (n: "/dev/hidraw${toString n}") (lib.range 0 15);
+        };
       };
 
       web-public = {
@@ -260,6 +270,7 @@ in {
             base
             ++ [
               houseTitle
+              sharedDrop
               aspects.firefox
               aspects.zoom
             ];
@@ -278,6 +289,7 @@ in {
             base
             ++ [
               houseTitle
+              sharedDrop
               aspects.firefox
             ];
           firefox.role = "ephemeral";
@@ -311,7 +323,7 @@ in {
       };
 
       untrusted = {
-        hm.config.imports = [terminfo houseTitle];
+        hm.config.imports = [terminfo houseTitle sharedDrop];
         capabilities = {
           gui.enable = true;
           gpu.enable = true;
