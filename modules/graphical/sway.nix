@@ -219,7 +219,7 @@
           "${sup}+d" = "exec ${cfg.menu}";
 
           "${mod}+Space" = "exec ${cfg.menu}";
-          "${sup}+Space" = "exec ${cfg.menu}";
+          "Ctrl+Space" = "exec ${cfg.menu}";
           "${mod}+Shift+Space" = "exec 'kitty --title numbat ${pkgs.numbat}/bin/numbat'";
 
           "${mod}+Left" = "focus left";
