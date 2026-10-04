@@ -295,7 +295,6 @@ in {
         RestrictRealtime = true;
         LockPersonality = true;
         ProtectClock = true;
-        ProtectKernelModules = true;
         SystemCallArchitectures = "native";
         IPAddressDeny = "any";
       };
