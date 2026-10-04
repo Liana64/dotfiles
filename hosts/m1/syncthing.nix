@@ -7,6 +7,8 @@
   sync = import ../../modules/_lib/syncthing.nix;
   self = config.networking.hostName;
   secret = name: config.sops.secrets."syncthing/${name}".path;
+  folders = lib.filterAttrs (_: f: lib.elem self f.devices) sync.folders;
+  peers = lib.remove self (lib.unique (lib.concatMap (f: f.devices) (lib.attrValues folders)));
 in {
   sops.secrets = lib.genAttrs ["syncthing/cert" "syncthing/key" "syncthing/gui-password"] (_: {owner = "syncthing";});
 
@@ -28,7 +30,7 @@ in {
         natEnabled = false;
         urAccepted = -1;
       };
-      devices = removeAttrs sync.devices [self];
+      devices = lib.getAttrs peers sync.devices;
       folders =
         lib.mapAttrs (_: f: {
           inherit (f) label;
@@ -36,7 +38,7 @@ in {
           devices = lib.remove self f.devices;
           inherit (sync) versioning;
         })
-        (lib.filterAttrs (_: f: lib.elem self f.devices) sync.folders);
+        folders;
     };
   };
 

@@ -160,6 +160,7 @@
   ensure = path: s:
     ''
       zfs list -H ${path} >/dev/null 2>&1 || zfs create -p ${path}
+      [ "$(zfs get -H -o value mounted ${path})" = yes ] || zfs mount ${path}
     ''
     + lib.concatStrings (lib.mapAttrsToList (k: v: "zfs set ${k}=${v} ${path}\n") (s.props or {}))
     + lib.optionalString (s ? allow) "zfs allow ${s.allow} ${path}\n"
@@ -288,7 +289,7 @@ in {
         Type = "oneshot";
         RemainAfterExit = true;
         NoNewPrivileges = true;
-        CapabilityBoundingSet = "CAP_SYS_ADMIN CAP_CHOWN CAP_FOWNER CAP_DAC_READ_SEARCH";
+        CapabilityBoundingSet = "CAP_SYS_ADMIN CAP_CHOWN CAP_FOWNER CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH";
         RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK"];
         RestrictNamespaces = true;
         RestrictRealtime = true;

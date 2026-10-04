@@ -13,6 +13,7 @@
       then "framework"
       else osConfig.networking.hostName;
     folders = lib.filterAttrs (_: f: lib.elem self f.devices) sync.folders;
+    peers = lib.remove self (lib.unique (lib.concatMap (f: f.devices) (lib.attrValues folders)));
   in
     lib.mkIf (osConfig.machineSecrets or true) {
       # setLowPriority calls setpriority/ioprio_set (@resources), home read-only
@@ -38,7 +39,7 @@
         };
 
         settings = {
-          devices = removeAttrs sync.devices [self];
+          devices = lib.getAttrs peers sync.devices;
 
           folders =
             lib.mapAttrs (_: f: {
