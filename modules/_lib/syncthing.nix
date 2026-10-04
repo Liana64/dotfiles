@@ -33,6 +33,18 @@
       path = "Media/Photos";
       devices = liana;
     };
+    "pcem2-vtzke" = {
+      label = "Liana Videos";
+      owner = "liana";
+      path = "Media/Videos";
+      devices = liana;
+    };
+    "nnbty-vi2es" = {
+      label = "Liana Screenshots";
+      owner = "liana";
+      path = "Media/Screenshots";
+      devices = liana;
+    };
     "etaus-cy9u5" = {
       label = "Liana Notebook";
       owner = "liana";
@@ -61,12 +73,6 @@
       label = "Shared Family";
       owner = "shared";
       path = "Shared/Family";
-      devices = liana;
-    };
-    "liana-data" = {
-      label = "Liana Data";
-      owner = "liana";
-      path = "Sync/Data";
       devices = liana;
     };
     "grcx4-ny7sk" = {
