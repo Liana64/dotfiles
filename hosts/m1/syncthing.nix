@@ -17,7 +17,7 @@ in {
     cert = secret "cert";
     key = secret "key";
     guiPasswordFile = secret "gui-password";
-    guiAddress = "127.0.0.1:8384";
+    guiAddress = "172.16.99.44:8384";
     overrideDevices = true;
     overrideFolders = true;
     settings = {
@@ -53,5 +53,8 @@ in {
       };
   };
 
-  networking.firewall.interfaces.hstore.allowedTCPPorts = [22000];
+  networking.firewall.interfaces = {
+    hstore.allowedTCPPorts = [22000];
+    mgmt.allowedTCPPorts = [8384];
+  };
 }
