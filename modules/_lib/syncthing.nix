@@ -6,6 +6,7 @@
 
   devices = {
     framework.id = "GD6R65V-3NAAPLY-FMWVDMY-AHQGZEK-LZXXMAL-HKLP33W-J6CHSNF-O6BI6AY";
+    maxine-framework.id = "WI6FCGN-NBVKCAD-7TC72I4-CFJ7TSA-LKKTXQW-Z22YJES-6CGUKMC-CSQ6LQQ";
     cluster = {
       id = "ENNUNJO-JHR527S-JMMU6IJ-UBA4CL6-CRRPWB4-2GOGD6X-DVIJNJY-DPJLPAR";
       addresses = ["tcp://172.16.5.16:22000"];
@@ -17,7 +18,8 @@
   };
 
   folders = let
-    liana = ["cluster" "framework" "m1"];
+    liana = ["m1" "framework" "cluster"];
+    maxine = ["m1" "maxine-framework"];
   in {
     "bddhy-7xeus" = {
       label = "Liana Projects";
@@ -66,6 +68,18 @@
       owner = "liana";
       path = "Sync/Data";
       devices = liana;
+    };
+    "grcx4-ny7sk" = {
+      label = "Maxine Important Files";
+      owner = "maxine";
+      path = "Important";
+      devices = maxine;
+    };
+    "vcvl6-co6q6" = {
+      label = "Maxine Notebook";
+      owner = "maxine";
+      path = "Notebook";
+      devices = maxine;
     };
   };
 }
