@@ -82,7 +82,7 @@ in {
     requires = ["zfs-datasets.service"];
     after = ["zfs-datasets.service" "network.target"];
     serviceConfig =
-      builtins.removeAttrs hardening.confined ["SystemCallFilter" "ProcSubset"]
+      removeAttrs hardening.confined ["SystemCallFilter" "ProcSubset"]
       // {
         ExecStart = "${pkgs.nfs-ganesha}/bin/ganesha.nfsd -F -L STDERR -f ${conf} -p /run/ganesha/pid";
         Restart = "on-failure";

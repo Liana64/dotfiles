@@ -10,6 +10,7 @@ in {
     ./network.nix
     ./secrets.nix
     ./storage.nix
+    ./syncthing.nix
     ./vms.nix
   ];
 

@@ -61,6 +61,16 @@
     })
   people;
 
+  syncer = {
+    id = config.users.users.syncthing.uid;
+    gid = config.users.groups.syncthing.gid;
+    mode = "0700";
+  };
+
+  syncs = lib.listToAttrs (map (owner: lib.nameValuePair "tank/users/sync/${owner}" syncer) (
+    lib.unique (lib.mapAttrsToList (_: f: f.owner) (import ../../modules/_lib/syncthing.nix).folders)
+  ));
+
   # Quotas, out of ~25.3T usable:
   #
   #   users            3.5T  sync + stash, shared by everyone
@@ -78,6 +88,7 @@
         props.quota = "3.5T";
         grants = lan access.browse;
       };
+      "tank/users/sync" = syncer;
       "tank/users/stash" = {
         id = 0;
         mode = "0755";
@@ -127,6 +138,7 @@
       };
     }
     // stashes
+    // syncs
     // lib.mapAttrs' (name: _:
       lib.nameValuePair "tank/backups/${name}" {
         id = ids.backup;
