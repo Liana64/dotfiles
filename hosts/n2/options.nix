@@ -46,7 +46,6 @@
   services.prometheus.exporters.smartctl.devices = [
     "/dev/disk/by-id/nvme-WD_BLACK_SN770_2TB_244542800309"
     "/dev/disk/by-id/nvme-Viper_VP4300_2TB_VP4300DFBA2308016025"
-    "/dev/disk/by-id/nvme-WD_Blue_SN5100_1TB_25423W804321"
   ];
 
   system.stateVersion = "26.05";

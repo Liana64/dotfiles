@@ -25,12 +25,12 @@ in {
         iso = talosISO;
         disks = [
           {
-            zvol = "vms/talos-os";
+            zvol = "rpool/vms/talos-os";
             dev = "sda";
             boot = 1;
           }
           {
-            zvol = "vms/talos-pool";
+            zvol = "rpool/vms/talos-pool";
             dev = "sdb";
           }
         ];
@@ -53,7 +53,7 @@ in {
   services.sanoid = {
     enable = true;
     # talos-pool unsnapshotted: ~35G pool slack cannot absorb qbt churn deltas
-    datasets."vms/talos-os" = {
+    datasets."rpool/vms/talos-os" = {
       autosnap = true;
       autoprune = true;
       hourly = 0;

@@ -26,49 +26,10 @@ let
     };
   };
 in {
-  boot.zfs.extraPools = ["scratch"];
-
   disko.devices = {
     disk = {
       boot0 = mkBoot 0 "/dev/disk/by-id/nvme-WD_BLACK_SN770_2TB_244542800309";
       boot1 = mkBoot 1 "/dev/disk/by-id/nvme-Viper_VP4300_2TB_VP4300DFBA2308016025";
-      scratch = {
-        type = "disk";
-        device = "/dev/disk/by-id/nvme-WD_Blue_SN5100_1TB_25423W804321";
-        content = {
-          type = "gpt";
-          partitions.zfs = {
-            size = "100%";
-            content = {
-              type = "zfs";
-              pool = "scratch";
-            };
-          };
-        };
-      };
-    };
-
-    zpool.scratch = {
-      type = "zpool";
-      options.ashift = "12";
-      rootFsOptions = {
-        mountpoint = "none";
-        compression = "zstd";
-        atime = "off";
-      };
-      datasets = {
-        reserved = {
-          type = "zfs_fs";
-          options = {
-            mountpoint = "none";
-            refreservation = "10G";
-          };
-        };
-        vms = {
-          type = "zfs_fs";
-          options.mountpoint = "none";
-        };
-      };
     };
 
     zpool.rpool = {
