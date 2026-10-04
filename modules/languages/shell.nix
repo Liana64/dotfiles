@@ -8,6 +8,8 @@
       programs.helix = {
         extraPackages = [pkgs.bash-language-server];
 
+        languages.language-server.bash-language-server.config.bashIde.backgroundAnalysisMaxFiles = 0;
+
         languages.language = [
           {
             name = "bash";
