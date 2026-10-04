@@ -63,13 +63,16 @@
       # SQLite sidecars must never sync — live WAL/shared-memory files tear across
       # peers. taskchampion.sqlite3 itself rides along as a single-writer backup.
       # Real file, not home.file: Syncthing v2 opens .stignore O_NOFOLLOW (ELOOP on symlinks).
-      home.activation.syncthingStignore = lib.hm.dag.entryAfter ["writeBoundary"] ''
-        run install -Dm644 ${pkgs.writeText "stignore" ''
-          *-wal
-          *-shm
-          *-journal
-          *.log
-        ''} $HOME/Sync/Data/.stignore
-      '';
+      home.activation.syncthingStignore = lib.hm.dag.entryAfter ["writeBoundary"] (''
+          run install -Dm644 ${pkgs.writeText "stignore" ''
+            *-wal
+            *-shm
+            *-journal
+            *.log
+          ''} $HOME/Sync/Data/.stignore
+        ''
+        + lib.concatStrings (lib.mapAttrsToList (_: f: ''
+          run install -Dm644 ${pkgs.writeText "stignore" (lib.concatLines f.ignores)} "$HOME/${f.path}/.stignore"
+        '') (lib.filterAttrs (_: f: f ? ignores) folders)));
     };
 }

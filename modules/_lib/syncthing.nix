@@ -26,6 +26,7 @@
       owner = "liana";
       path = "Projects";
       devices = liana;
+      ignores = ["/External"];
     };
     "dqjzb-kwqzh" = {
       label = "Liana Photos";
