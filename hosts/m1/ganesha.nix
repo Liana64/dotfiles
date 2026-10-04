@@ -31,6 +31,37 @@
     }
   '';
 
+  exports = [
+    {
+      id = 1;
+      path = "/tank/cluster/media";
+      squash = "Root_Squash";
+      uid = 2000;
+      access = "RW";
+    }
+    {
+      id = 2;
+      path = "/tank/backups/volsync";
+      squash = "All_Squash";
+      uid = 2200;
+      access = "RW";
+    }
+    {
+      id = 3;
+      path = "/tank/cluster/photos";
+      squash = "All_Squash";
+      uid = 2100;
+      access = "RW";
+    }
+    {
+      id = 4;
+      path = "/tank/cluster/uploads";
+      squash = "All_Squash";
+      uid = 2300;
+      access = "RW";
+    }
+  ];
+
   conf = pkgs.writeText "ganesha.conf" (''
       NFS_CORE_PARAM {
         Bind_addr = 172.16.4.30;
@@ -44,34 +75,7 @@
         RecoveryBackend = fs;
       }
     ''
-    + export {
-      id = 1;
-      path = "/tank/media";
-      squash = "Root_Squash";
-      uid = 2000;
-      access = "RW";
-    }
-    + export {
-      id = 2;
-      path = "/tank/backups/volsync";
-      squash = "All_Squash";
-      uid = 2200;
-      access = "RW";
-    }
-    + export {
-      id = 3;
-      path = "/tank/home/photos";
-      squash = "All_Squash";
-      uid = 2100;
-      access = "RW";
-    }
-    + export {
-      id = 4;
-      path = "/tank/home/family";
-      squash = "All_Squash";
-      uid = 2300;
-      access = "RW";
-    });
+    + builtins.concatStringsSep "" (map export exports));
 in {
   systemd.services.nfs-ganesha = {
     wantedBy = ["multi-user.target"];
@@ -86,12 +90,7 @@ in {
         RuntimeDirectory = "ganesha";
         StateDirectory = "nfs/ganesha";
         TemporaryFileSystem = "/tank";
-        BindPaths = [
-          "/tank/media"
-          "/tank/backups/volsync"
-          "/tank/home/photos"
-          "/tank/home/family"
-        ];
+        BindPaths = map (e: e.path) exports;
         SystemCallFilter = [
           "@system-service"
           "@chown"

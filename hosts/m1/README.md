@@ -35,10 +35,10 @@ restic-tank snapshots
 restic-tank restore <id> --target /tank/restore
 
 # restore one path to a staging dir
-restic-tank restore <id> --target /tank/restore --include /tank/home/liana/some/file
+restic-tank restore <id> --target /tank/restore --include /tank/users/stash/liana/some/file
 
 # restore latest
-restic-tank restore latest --path /tank/home --target /tank/restore
+restic-tank restore latest --path /tank/users --target /tank/restore
 
 ```
 
@@ -49,7 +49,7 @@ restic-tank restore latest --path /tank/home --target /tank/restore
 restic-tank mount /mnt/restic
 
 # stream a file
-restic-tank dump <id> /tank/home/liana/some/file > restored-file
+restic-tank dump <id> /tank/users/stash/liana/some/file > restored-file
 ```
 
 ### Using zpool

@@ -19,11 +19,13 @@ in {
     environmentFile = config.sops.secrets."backup/restic-env".path;
     initialize = true;
     paths = [
-      "/tank/home"
+      "/tank/users"
+      "/tank/cluster/photos"
+      "/tank/cluster/uploads"
       "/tank/backups"
     ];
     exclude = [
-      "/tank/home/shared/landfill"
+      "/tank/users/stash/shared/landfill"
       "/tank/backups/framework"
       "/tank/backups/volsync"
     ];

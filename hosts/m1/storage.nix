@@ -50,71 +50,83 @@
 
   people = lib.filterAttrs (_: u: u.isNormalUser && u.uid != null) config.users.users;
 
-  homes = lib.mapAttrs' (name: u:
-    lib.nameValuePair "tank/home/${name}" {
+  stashes = lib.mapAttrs' (name: u:
+    lib.nameValuePair "tank/users/stash/${name}" {
       id = u.uid;
       gid = config.users.groups.${u.group}.gid;
       mode = "0700";
-      props.quota = "1T";
       grants = {
         ${name} = access.anon;
       };
     })
   people;
 
+  # Quotas, out of ~25.3T usable:
+  #
+  #   users            3.5T  sync + stash, shared by everyone
+  #   cluster/media   11.5T
+  #   cluster/photos     3T
+  #   cluster/uploads    3T
+  #   backups            3T
+  #                   ------
+  #                     24T
   datasets =
     {
-      # downloads is a plain dir: hardlinks need one fs; incomplete stays off-pool
-      "tank/media" = {
-        id = ids.media;
-        mode = "2775";
-        props = {
-          recordsize = "1M";
-          quota = "14.5T";
-        };
-        grants = lan access.user;
-      };
-      "tank/home" = {
+      "tank/users" = {
         id = 0;
         mode = "0755";
-        props.quota = "5T";
+        props.quota = "3.5T";
         grants = lan access.browse;
       };
-      "tank/family" = {
+      "tank/users/stash" = {
         id = 0;
         mode = "0755";
-        props.quota = "5T";
-        grants = lan access.browse;
       };
-      "tank/home/photos" = {
-        id = ids.documents;
-        mode = "2770";
-        grants = lan access.view;
-      };
-      "tank/home/shared" = {
+      "tank/users/stash/shared" = {
         id = ids.documents;
         mode = "2770";
         grants = lan access.anon;
       };
-      "tank/home/shared/landfill" = {
+      "tank/users/stash/shared/landfill" = {
         id = ids.documents;
         mode = "2770";
       };
-      "tank/home/family" = {
+      "tank/cluster" = {
+        id = 0;
+        mode = "0755";
+        grants = lan access.browse;
+      };
+      "tank/cluster/media" = {
+        id = ids.media;
+        mode = "2775";
+        props = {
+          recordsize = "1M";
+          quota = "11.5T";
+        };
+        grants = lan access.user;
+      };
+      "tank/cluster/photos" = {
+        id = ids.documents;
+        mode = "2770";
+        props.quota = "3T";
+        grants = lan access.view;
+      };
+      "tank/cluster/uploads" = {
         id = ids.uploads;
         mode = "0750";
+        props.quota = "3T";
       };
       "tank/backups" = {
         id = 0;
         mode = "0700";
-        props.quota = "5T";
+        props.quota = "3T";
       };
       "tank/backups/volsync" = {
         id = ids.backup;
         mode = "0770";
       };
     }
-    // homes
+    // stashes
     // lib.mapAttrs' (name: _:
       lib.nameValuePair "tank/backups/${name}" {
         id = ids.backup;
@@ -145,11 +157,13 @@
     '';
 in {
   boot = {
-    # tank is hand-built, imported here, never declared to disko (reinstall-safe);
-    # unencrypted — future: native zfs encryption, clevis/tang unlock
+    # TODO: ZFS encryption, clevis/tang
+    # tank is created manually
     zfs.extraPools = ["tank"];
+
     # 64G budget: 40 vm (vfio-pinned) + ~1 qemu + 12 arc + ~11 host/slack
     kernelParams = ["zfs.zfs_arc_max=${toString (12 * 1024 * 1024 * 1024)}"];
+
     # nfsd/ganesha bind specific addrs; the cluster addr is DHCP and may
     # arrive after the units start
     kernel.sysctl."net.ipv4.ip_nonlocal_bind" = 1;
@@ -219,7 +233,7 @@ in {
           daily = 7;
           monthly = 0;
         };
-        "tank/home/shared/landfill" = {
+        "tank/users/stash/shared/landfill" = {
           autosnap = false;
           autoprune = false;
         };
