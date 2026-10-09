@@ -11,6 +11,7 @@
       "randomize_kstack_offset=on"
       "vsyscall=none"
       "lockdown=integrity"
+      "proc_mem.force_override=ptrace"
     ];
 
     boot.kernel.sysctl = {
