@@ -1,5 +1,7 @@
 # @desc: auditd audit logging
-{...}: {
+{...}: let
+  agentExe = "/var/lib/audit-exe/gpg-agent";
+in {
   flake.modules.nixos.auditd = {
     pkgs,
     config,
@@ -8,14 +10,21 @@
     ...
   }: let
     austatus = pkgs.writeShellScriptBin "austatus" (builtins.readFile ../bin/austatus);
-    wallKeys = ["usbguard" "gnupg-secrets" "gnupg-tamper" "code-injection" "data-injection" "register-injection" "32bit-abi" "exec-scratch"];
+    wallKeys = ["usbguard" "gnupg-secrets" "gnupg-tamper" "code-injection" "data-injection" "register-injection" "ptrace-attach" "32bit-abi" "exec-scratch" "memfd-exec"];
     spaceLeftMB = 2048;
     gnupgKeys = "${config.users.users.liana.home}/.gnupg/private-keys-v1.d";
-    gnupgReaders = ["bin/gpg" "bin/gpg-agent" "bin/gpgconf" "bin/dirmngr" "libexec/scdaemon" "libexec/keyboxd"];
+    agentSrc = "${config.home-manager.users.liana.programs.gpg.package}/bin/gpg-agent";
     usbguard = config.services.usbguard;
     scratchDirs = ["/tmp" "/var/tmp"];
     usbguardIPC = "/var/lib/usbguard/IPCAccessControl.d";
     mountCalls = "mount,mount_setattr,move_mount,fsmount";
+    bwraps = lib.unique (map (p: "${p.bubblewrap}/bin/bwrap") [pkgs config.home-manager.extraSpecialArgs.nixpkgs-unstable]);
+    ptraceRequests = {
+      ptrace-attach = ["0x10" "0x4206"];
+      code-injection = ["0x4"];
+      data-injection = ["0x5"];
+      register-injection = ["0x6" "0xd" "0xf" "0x1e" "0x4205" "0x4210" "0x4212"];
+    };
   in {
     security.auditd.enable = true;
     security.auditd.settings = {
@@ -36,16 +45,12 @@
         [
           "-a never,exit -F gid=${toString config.ids.gids.nixbld}"
           "-a never,exclude -F msgtype=BPF -F pid=1"
-        ]
-        ++ map (exe: "-a never,exit -F arch=b64 -F dir=${gnupgKeys} -F perm=rwa -F exe=${exe}")
-        (map (bin: "${pkgs.gnupg}/${bin}") gnupgReaders ++ ["${config.systemd.package}/bin/systemd-tmpfiles"])
-        ++ [
+          "-a never,exit -F arch=b64 -F dir=${gnupgKeys} -F perm=rwa -F exe=${agentExe}"
           "-a always,exit -F arch=b64 -F dir=${gnupgKeys} -F perm=r -k gnupg-secrets"
           "-a always,exit -F arch=b64 -F dir=${gnupgKeys} -F perm=wa -k gnupg-tamper"
         ]
         ++ map (f: "-w ${f} -p wa -k identity") ["/etc/passwd" "/etc/group" "/etc/shadow" "/etc/sudoers"]
         ++ lib.optionals usbguard.enable [
-          "-a never,exit -F arch=b64 -F path=${usbguard.ruleFile} -F perm=wa -F exe=${config.sops.package}/bin/sops-install-secrets"
           "-w ${usbguard.ruleFile} -p wa -k usbguard"
           "-w ${usbguardIPC} -p wa -k usbguard"
         ]
@@ -58,39 +63,47 @@
           "-a never,exit -F arch=b64 -F dir=/nix/var/nix/db -F perm=wa -F exe=${config.nix.package.nix-cli or config.nix.package}/bin/nix"
           "-a always,exit -F arch=b64 -F dir=/nix/var/nix/db -F perm=wa -k nix-db"
 
-          "-a always,exit -F arch=b64 -S ptrace -F a0=0x4 -k code-injection"
-          "-a always,exit -F arch=b64 -S ptrace -F a0=0x5 -k data-injection"
-          "-a always,exit -F arch=b64 -S ptrace -F a0=0x6 -k register-injection"
-
+          "-a always,exit -F arch=b64 -S process_vm_writev -k data-injection"
+          "-a always,exit -F arch=b64 -S memfd_create -F a1&0x10 -k memfd-exec"
           "-a always,exit -F arch=b32 -S all -k 32bit-abi"
         ]
+        ++ lib.concatLists (lib.mapAttrsToList (key: map (req: "-a always,exit -F arch=b64 -S ptrace -F a0=${req} -k ${key}")) ptraceRequests)
         # dir= matches every inode a syscall touches, and the ELF interpreter lives
-        # in /nix/store, so scratch execs must precede the store exclusion
+        # in /nix/store, so writable-tree execs must precede the store exclusion
         ++ map (exec: "-a always,exit -F arch=b64 -S execve,execveat ${exec}") (
           ["-F dir=/dev/shm -k exec-scratch"]
           ++ map (d: "-F dir=${d} -F auid=unset -k exec-scratch") scratchDirs
           ++ map (d: "-F dir=${d} -k exec-scratch-user") scratchDirs
+          ++ ["-F dir=/home -k exec-home"]
         )
         ++ [
           "-a never,exit -F arch=b64 -S execve,execveat -F dir=/nix/store"
           "-a never,exit -F arch=b64 -S execve,execveat -F dir=/run/wrappers"
           "-a always,exit -F arch=b64 -S execve,execveat -F success=1 -k exec-nonstore"
-
-          "-a never,exit -F arch=b64 -S ${mountCalls} -F exe=${config.systemd.package}/lib/systemd/systemd-executor"
-          "-a never,exit -F arch=b64 -S ${mountCalls} -F exe=${pkgs.bubblewrap}/bin/bwrap"
-          "-a always,exit -F arch=b64 -S ${mountCalls} -F auid>=1000 -F auid!=unset -k mount-tamper"
-        ];
+        ]
+        ++ map (exe: "-a never,exit -F arch=b64 -S ${mountCalls} -F exe=${exe}")
+        (["${config.systemd.package}/lib/systemd/systemd-executor"] ++ bwraps)
+        ++ ["-a always,exit -F arch=b64 -S ${mountCalls} -F auid>=1000 -F auid!=unset -k mount-tamper"];
     };
+
+    boot.kernel.sysctl."vm.memfd_noexec" = 1;
+
+    system.activationScripts.audit-exe = ''
+      install -d -m 0755 ${dirOf agentExe}
+      if ! ${pkgs.diffutils}/bin/cmp -s ${agentSrc} ${agentExe}; then
+        install -m 0555 ${agentSrc} ${agentExe}.tmp
+        mv -f ${agentExe}.tmp ${agentExe}
+      fi
+    '';
 
     # Watch targets must exist when rules load at sysinit, or auditctl -R aborts
     # and drops every rule after the failing line, including the -e 2 lock
     systemd.tmpfiles.rules =
       [
         "d /var/log/audit 0700 root root -"
-        "d ${dirOf gnupgKeys} 0700 liana users -"
-        "d ${gnupgKeys} 0700 liana users -"
         "d /var/lib/audit-wall 0755 root root -"
         "d /var/lib/audit-wall/alerts 0755 root root -"
+        "d /var/lib/audit-wall/latch 0755 root root -"
       ]
       ++ lib.optional usbguard.enable "d ${usbguardIPC} 0755 root root -";
     # no seccomp filter, a SIGSYS'd auditd at boot means no audit trail, and
@@ -110,6 +123,10 @@
       serviceConfig.ExecCondition = pkgs.writeShellScript "audit-unlocked" ''
         ! ${config.security.audit.package}/bin/auditctl -s | ${pkgs.gnugrep}/bin/grep -qx 'enabled 2'
       '';
+      serviceConfig.ExecStartPre = "-${config.systemd.package}/bin/systemd-tmpfiles --create ${pkgs.writeText "audit-gnupg.conf" ''
+        d ${dirOf gnupgKeys} 0700 liana users -
+        d ${gnupgKeys} 0700 liana users -
+      ''}";
     };
 
     environment.systemPackages = [austatus];
@@ -126,12 +143,30 @@
         echo "$status" | grep -qx 'enabled 2' || summary="$summary audit-unlocked"
         apid=$(echo "$status" | sed -n 's/^pid //p')
         if [ "''${apid:-0}" -eq 0 ]; then summary="$summary auditd-dead"; fi
+        lost=$(echo "$status" | sed -n 's/^lost //p')
+        lost=''${lost:-0}
+        boot=$(cat /proc/sys/kernel/random/boot_id)
+        base=/var/lib/audit-wall/lost
+        read -r bboot blost 2>/dev/null < "$base" || true
+        if ! [ "$base" -nt "$ack" ]; then
+          bboot=$boot blost=$lost
+        elif [ "$bboot" != "$boot" ]; then
+          bboot=$boot blost=0
+        fi
+        echo "$bboot $blost" > "$base"
+        if [ "$lost" -gt "$blost" ]; then summary="$summary audit-lost:$((lost - blost))"; fi
+        # Rule (re)loads tag the key on a CONFIG_CHANGE bundled with an auditctl
+        # SYSCALL keyed (null); match key on SYSCALL so reboots/switches don't trip.
+        # $ack is "date time": -ts needs it as two args, so it must stay unquoted
+        keys=$(ausearch -ts $(cat "$ack") 2>/dev/null | grep '^type=SYSCALL' | grep -oE 'key="[^"]*"' || true)
         for key in ${toString wallKeys}; do
-          # Rule (re)loads tag the key on a CONFIG_CHANGE bundled with an auditctl
-          # SYSCALL keyed (null); match key on SYSCALL so reboots/switches don't trip.
-          # $ack is "date time": -ts needs it as two args, so it must stay unquoted
-          count=$(ausearch -k "$key" -ts $(cat "$ack") 2>/dev/null | grep 'type=SYSCALL' | grep -Ec 'key="?'"$key" || true)
-          if [ "$count" -gt 0 ]; then summary="$summary $key:$count"; fi
+          count=$(printf '%s\n' "$keys" | grep -cx "key=\"$key\"" || true)
+          latch=/var/lib/audit-wall/latch/$key
+          if [ "$latch" -nt "$ack" ] && [ "$(cat "$latch")" -gt "$count" ]; then count=$(cat "$latch"); fi
+          if [ "$count" -gt 0 ]; then
+            echo "$count" > "$latch"
+            summary="$summary $key:$count"
+          fi
         done
         for f in /var/lib/audit-wall/alerts/*; do
           if [ -s "$f" ]; then summary="$summary ''${f##*/}:$(wc -l <"$f")"; fi
@@ -174,10 +209,17 @@
   };
 
   flake.modules.homeManager.auditd = {
+    config,
+    lib,
     pkgs,
     hardening,
     ...
   }: {
+    systemd.user.services.gpg-agent = lib.mkIf config.services.gpg-agent.enable {
+      Unit.X-Restart-Triggers = ["${config.programs.gpg.package}"];
+      Service.ExecStart = lib.mkForce "${agentExe} --supervised";
+    };
+
     systemd.user.paths.audit-wall-notify = {
       Unit.Description = "Watch the audit wall banner";
       Path.PathChanged = "/run/audit-wall/banner";

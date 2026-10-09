@@ -44,6 +44,15 @@ section() { printf '\n== %s ==\n' "$1"; }
 section "wall"
 grep . /run/audit-wall/banner 2>/dev/null || echo "clear"
 
+section "latched counts (survive log rotation until ack)"
+found=0
+for f in /var/lib/audit-wall/latch/*; do
+  [ "$f" -nt "$ack" ] || continue
+  found=1
+  printf '%5d  %s\n' "$(cat "$f")" "${f##*/}"
+done
+if [ "$found" -eq 0 ]; then echo "none"; fi
+
 section "events since ack ($since) — count last auid ok cmd -> object"
 # shellcheck disable=SC2086 # since is "date time", --start needs two args, DO NOT QUOTE
 ausearch -i --start $since 2>/dev/null |
