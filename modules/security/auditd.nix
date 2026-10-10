@@ -17,8 +17,6 @@ in {
     usbguard = config.services.usbguard;
     scratchDirs = ["/tmp" "/var/tmp"];
     usbguardIPC = "/var/lib/usbguard/IPCAccessControl.d";
-    mountCalls = "mount,mount_setattr,move_mount,fsmount";
-    bwraps = lib.unique (map (p: "${p.bubblewrap}/bin/bwrap") [pkgs config.home-manager.extraSpecialArgs.nixpkgs-unstable]);
     ptraceRequests = {
       ptrace-attach = ["0x10" "0x4206"];
       code-injection = ["0x4"];
@@ -64,7 +62,7 @@ in {
           "-a always,exit -F arch=b64 -F dir=/nix/var/nix/db -F perm=wa -k nix-db"
 
           "-a always,exit -F arch=b64 -S process_vm_writev -k data-injection"
-          "-a always,exit -F arch=b64 -S memfd_create -F a1&0x10 -k memfd-exec"
+          "-a always,exit -F arch=b64 -S memfd_create -F a1&0x10 -F success=1 -k memfd-exec"
           "-a always,exit -F arch=b32 -S all -k 32bit-abi"
         ]
         ++ lib.concatLists (lib.mapAttrsToList (key: map (req: "-a always,exit -F arch=b64 -S ptrace -F a0=${req} -k ${key}")) ptraceRequests)
@@ -73,17 +71,17 @@ in {
         ++ map (exec: "-a always,exit -F arch=b64 -S execve,execveat ${exec}") (
           ["-F dir=/dev/shm -k exec-scratch"]
           ++ map (d: "-F dir=${d} -F auid=unset -k exec-scratch") scratchDirs
-          ++ map (d: "-F dir=${d} -k exec-scratch-user") scratchDirs
+          ++ map (d: "-F dir=${d} -k exec-scratch-user") (scratchDirs ++ ["/run/user"])
           ++ ["-F dir=/home -k exec-home"]
         )
         ++ [
           "-a never,exit -F arch=b64 -S execve,execveat -F dir=/nix/store"
           "-a never,exit -F arch=b64 -S execve,execveat -F dir=/run/wrappers"
+          "-a never,exit -F arch=b64 -S execve,execveat -F dir=/var/lib/flatpak"
           "-a always,exit -F arch=b64 -S execve,execveat -F success=1 -k exec-nonstore"
-        ]
-        ++ map (exe: "-a never,exit -F arch=b64 -S ${mountCalls} -F exe=${exe}")
-        (["${config.systemd.package}/lib/systemd/systemd-executor"] ++ bwraps)
-        ++ ["-a always,exit -F arch=b64 -S ${mountCalls} -F auid>=1000 -F auid!=unset -k mount-tamper"];
+          # euid is the init-namespace uid, so unprivileged userns mounts never match
+          "-a always,exit -F arch=b64 -S mount,mount_setattr,move_mount,fsmount -F auid>=1000 -F auid!=unset -F euid=0 -k mount-tamper"
+        ];
     };
 
     boot.kernel.sysctl."vm.memfd_noexec" = 1;
@@ -133,6 +131,7 @@ in {
 
     systemd.services.audit-wall = {
       path = [config.security.audit.package];
+      environment.BOOT_ID = "%b";
       script = ''
         ack=/var/lib/audit-wall/ack
         banner=/run/audit-wall/banner
@@ -145,7 +144,7 @@ in {
         if [ "''${apid:-0}" -eq 0 ]; then summary="$summary auditd-dead"; fi
         lost=$(echo "$status" | sed -n 's/^lost //p')
         lost=''${lost:-0}
-        boot=$(cat /proc/sys/kernel/random/boot_id)
+        boot=$BOOT_ID
         base=/var/lib/audit-wall/lost
         read -r bboot blost 2>/dev/null < "$base" || true
         if ! [ "$base" -nt "$ack" ]; then
@@ -227,6 +226,8 @@ in {
     };
     systemd.user.services.audit-wall-notify = {
       Unit.Description = "Audit wall desktop notification";
+      Unit.After = ["graphical-session.target"];
+      Install.WantedBy = ["graphical-session.target"];
       Service =
         hardening.base
         // {
