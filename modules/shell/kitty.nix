@@ -51,7 +51,7 @@
         tab_separator = "\" \"";
         tab_title_template = "\"  {title}  \"";
         tab_bar_margin_width = 8;
-        tab_bar_margin_height = "4 0";
+        tab_bar_margin_height = "0 0";
         tab_bar_background = colors.background;
         active_tab_background = colors.gray;
         active_tab_foreground = colors.white;
