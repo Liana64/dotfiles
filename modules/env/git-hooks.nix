@@ -28,7 +28,7 @@
             '');
             language = "system";
             files = "\\.sops\\.ya?ml$";
-            excludes = ["^\\.sops\\.ya?ml$" "^\\.claude/templates/"];
+            excludes = ["^\\.sops\\.ya?ml$" "^kubernetes/templates/"];
           };
 
           forbid-k8s-secrets = {
@@ -37,7 +37,7 @@
             entry = "scripts/check-k8s-secrets-encrypted.sh";
             language = "script";
             files = "\\.ya?ml$";
-            excludes = ["rbac\\.yaml" "^\\.claude/templates/"];
+            excludes = ["rbac\\.yaml" "^kubernetes/templates/"];
           };
 
           gitleaks = {
