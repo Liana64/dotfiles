@@ -139,7 +139,8 @@
 
         #custom-launcher {
           font-size: 14px;
-          margin-left: 5px;
+          margin: 0 2px 0 5px;
+          padding: 0 8px;
         }
 
         #custom-clock {
@@ -204,13 +205,13 @@
         #hw #battery,
         #hw #bluetooth,
         #hw #pulseaudio {
-          margin: 3px 2px;
-          padding: 0 6px;
+          margin: 0 2px;
+          padding: 2px 6px;
         }
 
         /* the % right bearing is base-font metric, propo does not change it, right stays under left */
         #hw #battery {
-          padding: 0 5.5px 0 8px;
+          padding: 2px 5.5px 2px 8px;
         }
 
         #status #custom-harness-status:hover,

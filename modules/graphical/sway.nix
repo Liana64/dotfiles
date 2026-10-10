@@ -114,7 +114,7 @@
 
         # Settings
         font pango:JetBrainsMono Nerd Font 10
-        titlebar_padding 3
+        titlebar_padding 3 1
         title_align center
 
         seat * xcursor_theme Bibata-Modern-Classic 16
