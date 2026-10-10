@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Liana <liana@lianas.org>
+Date: Wed, 15 Jul 2026 20:50:57 -0500
+Subject: [PATCH] waybar: space between value and SI unit
+
+pow_format fuses number and unit (2.5kb/s), add the SI space.
+---
+ include/util/format.hpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/util/format.hpp b/include/util/format.hpp
+index c8ed837..9eaad8a 100644
+--- a/include/util/format.hpp
++++ b/include/util/format.hpp
+@@ -74,7 +74,7 @@ struct formatter<pow_format> {
+         break;
+       case 0:
+       default:
+-        format = "{coefficient:.1f}{prefix}{unit}";
++        format = "{coefficient:.1f} {prefix}{unit}";
+         break;
+     }
+     return fmt::format_to(
+-- 
+2.54.0

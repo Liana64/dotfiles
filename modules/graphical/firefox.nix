@@ -72,7 +72,14 @@
 
     config.programs.firefox = {
       enable = true;
-      package = inputs.nixpkgs-firefox.legacyPackages.${pkgs.stdenv.hostPlatform.system}.firefox;
+      # systemd 260 chase() opens / O_RDONLY, landlocked houses can't enumerate FIDO hidraw (systemd#41630, fixed in 261)
+      package = let
+        pkgsFirefox = inputs.nixpkgs-firefox.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+        udev = pkgsFirefox.udev.overrideAttrs (old: {
+          patches = (old.patches or []) ++ [../../patches/0003-systemd-open-host-root-O_PATH-in-chaseat.patch];
+        });
+      in
+        (pkgsFirefox.wrapFirefox.override {inherit udev;}) pkgsFirefox.firefox-unwrapped {};
       # nixpkgs firefox sets MOZ_LEGACY_PROFILES, so it reads ~/.mozilla/firefox.
       # stateVersion 26.05 would otherwise default this to the XDG path the browser ignores.
       configPath = ".mozilla/firefox";

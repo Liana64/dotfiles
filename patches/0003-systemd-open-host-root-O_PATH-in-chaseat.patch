@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Liana <liana@lianas.org>
+Date: Sat, 10 Oct 2026 10:36:04 -0500
+Subject: [PATCH] systemd: open host root O_PATH in chaseat()
+
+Since 874971b1c0 ("chase: wire up XAT_FDROOT", v260), chaseat() anchors
+host-root resolution with open("/", O_DIRECTORY|O_RDONLY). Every later
+use of that fd is openat(O_PATH) or statx(AT_EMPTY_PATH), so read access
+on / is never needed, but Landlock (LANDLOCK_ACCESS_FS_READ_DIR) and
+AppArmor deny it. sd-device then fails "Failed to get target of
+/sys/class/hidraw/...", libudev enumerates nothing, and Firefox WebAuthn
+cannot see FIDO keys inside a landlocked house.
+
+Open / with O_PATH, matching v259 and main (79862d33a0, v261).
+
+Link: https://github.com/systemd/systemd/issues/41630
+Link: https://github.com/systemd/systemd/pull/42012
+---
+ src/basic/chase.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/basic/chase.c b/src/basic/chase.c
+index 82946ea..ee60e37 100644
+--- a/src/basic/chase.c
++++ b/src/basic/chase.c
+@@ -278,7 +278,7 @@ int chaseat(int dir_fd, const char *path, ChaseFlags flags, char **ret_path, int
+                         goto success;
+                 }
+ 
+-                _dir_fd = open("/", O_DIRECTORY|O_RDONLY|O_CLOEXEC);
++                _dir_fd = open("/", O_DIRECTORY|O_PATH|O_CLOEXEC);
+                 if (_dir_fd < 0)
+                         return -errno;
+ 
+-- 
+2.54.0
+

@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Liana <liana@lianas.org>
+Date: Fri, 9 Oct 2026 18:39:51 -0500
+Subject: [PATCH] housing: import the slices module
+
+---
+ modules/security/housing.nix | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules/security/housing.nix b/modules/security/housing.nix
+index d84b8ae..2a46ccf 100644
+--- a/modules/security/housing.nix
++++ b/modules/security/housing.nix
+@@ -129,7 +129,7 @@ in {
+       };
+     };
+   in {
+-    imports = [inputs.nix-housing.homeManagerModules.default];
++    imports = [inputs.nix-housing.homeManagerModules.default ./_housing/slices.nix];
+ 
+     housing.enable = true;
+     housing.shellPromptPrefix = false;
+-- 
+2.54.0
+

@@ -77,7 +77,7 @@
       enable = true;
       # pow_format fuses number and unit (2.5kb/s), patch in the SI space
       package = pkgs.waybar.overrideAttrs (old: {
-        patches = (old.patches or []) ++ [../_lib/waybar-pow-space.patch];
+        patches = (old.patches or []) ++ [../../patches/0002-waybar-space-between-value-and-SI-unit.patch];
       });
       systemd = {
         enable = true;

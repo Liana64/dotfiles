@@ -1,0 +1,114 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Liana <liana@lianas.org>
+Date: Fri, 9 Oct 2026 18:39:51 -0500
+Subject: [PATCH] housing: per-house cgroup slices module
+
+Inert until 0002 imports it.
+---
+ modules/security/_housing/slices.nix | 94 ++++++++++++++++++++++++++++
+ 1 file changed, 94 insertions(+)
+ create mode 100644 modules/security/_housing/slices.nix
+
+diff --git a/modules/security/_housing/slices.nix b/modules/security/_housing/slices.nix
+new file mode 100644
+index 0000000..5e10ee1
+--- /dev/null
++++ b/modules/security/_housing/slices.nix
+@@ -0,0 +1,94 @@
++# @desc: Per-house cgroup slices: scope wrapper wired, resource control left as study TODOs
++#
++# Study notes (systemd.slice(5), systemd.resource-control(5), cgroup-v2 kernel docs)
++#
++# Layout: slice names nest on dashes. house-web.slice is a child of
++# house.slice, which sits at the root of the user manager, beside app.slice
++# and session.slice. Limits on house.slice cap every house together, limits
++# on house-<name>.slice cap one house. Inspect the tree:
++#   systemd-cgls --user-unit house.slice
++#   cat /proc/<pid>/cgroup
++#
++# Delegation: the user manager only controls what user@.service is delegated.
++# Here that's `cpu io memory pids`:
++#   cat /sys/fs/cgroup/user.slice/user-$(id -u).slice/user@$(id -u).service/cgroup.controllers
++# No cpuset, so AllowedCPUs= silently does nothing in user slices. Why, and
++# what would it take (Delegate= on user@.service)?
++#
++# Knobs worth knowing cold:
++#   CPUWeight=      relative share, only under contention (default 100)
++#   CPUQuota=       hard ceiling, % of one CPU (200% = two cores)
++#   MemoryHigh=     throttle + reclaim above this, the soft limit
++#   MemoryMax=      OOM kill inside the cgroup above this, the hard limit
++#   MemorySwapMax=  swap the cgroup may use (zram here)
++#   TasksMax=       pids controller, the fork-bomb stop
++#   IOWeight=       needs a weight-aware scheduler: check
++#                   /sys/block/<dev>/queue/scheduler (bfq vs none/mq-deadline)
++#   ManagedOOMMemoryPressure=kill  hands the slice to systemd-oomd (oomctl)
++#
++# Experiment without rebuilding (--runtime is lost on reboot):
++#   systemctl --user set-property --runtime house-untrusted.slice MemoryMax=512M
++#   systemctl --user show house-untrusted.slice -p MemoryMax -p MemoryCurrent
++#   cat /sys/fs/cgroup/user.slice/user-$(id -u).slice/user@$(id -u).service/house.slice/house-untrusted.slice/memory.max
++#   systemd-cgtop --depth=5, and memory.pressure / cpu.pressure (PSI) in the same dir
++#   systemctl --user stop house-untrusted.slice    # kills the whole house
++{
++  config,
++  lib,
++  pkgs,
++  ...
++}: let
++  # TODO(EX442): fill per house, each a [Slice] section. Starting questions:
++  # - untrusted: which of MemoryMax / TasksMax / CPUQuota bound a hostile
++  #   workload, and which only slow it down?
++  # - web: browsers spike memory; MemoryHigh (throttle) or MemoryMax (kill)?
++  # - dev: builds want CPU; raise CPUWeight rather than quota others?
++  # - vault: tiny and must never be OOM-killed; what protects it
++  #   (MemoryMin=/MemoryLow=) instead of limiting it?
++  limits = {
++    untrusted = {};
++    web = {};
++    dev = {};
++    vault = {};
++  };
++in {
++  # Redeclaring an attrsOf-submodule option merges this submodule into every
++  # house, with the house name as `name`. capabilities is a deferredModule, so
++  # this entry joins each house's own execWrapper DAG.
++  options.housing.houses = lib.mkOption {
++    type = lib.types.attrsOf (lib.types.submodule ({name, ...}: {
++      capabilities = {housingLib, ...}: {
++        # Before dirSetup means before any namespace exists, while the user bus
++        # is still reachable. `systemd-run --scope` execs in place, so the tty,
++        # env and signals stay the caller's.
++        #
++        # Services (INVOCATION_ID set) are skipped: a service moving its main
++        # process into a foreign scope would leave its own unit empty.
++        # TODO(EX442): vault-agent in housing.nix is such a service. Put it in
++        # the house with `Slice = "house-vault.slice";` in its Service section.
++        # Scope vs service: which one can carry sandboxing properties, and why?
++        execWrappers.slice = housingLib.dag.entryBefore ["dirSetup"] ''
++          [ -n "''${INVOCATION_ID:-}" ] && exec "$@"
++          exec ${pkgs.systemd}/bin/systemd-run --user --scope --quiet --collect \
++            --slice=house-${name}.slice --unit="house-${name}-$$" -- "$@"
++        '';
++      };
++    }));
++  };
++
++  config.systemd.user.slices =
++    {
++      house = {
++        Unit.Description = "nix-housing houses";
++        # TODO(EX442): aggregate caps for all houses together, e.g. keep the
++        # houses from starving session.slice (sway, waybar) under memory pressure
++        Slice = {};
++      };
++    }
++    // lib.mapAttrs' (name: _:
++      lib.nameValuePair "house-${name}" {
++        Unit.Description = "nix-housing house ${name}";
++        Slice = limits.${name} or {};
++      })
++    config.housing.houses;
++}
+-- 
+2.54.0
+
