@@ -132,21 +132,21 @@
         #custom-airplane,
         #custom-harness-status {
           color: ${white};
-          margin: 3px 2px;
-          padding: 2px 8px;
+          margin: 2px 2px;
+          padding: 1px 8px;
           transition: background-color 0.15s ease, color 0.15s ease;
         }
 
         #custom-launcher {
           font-size: 14px;
           margin: 0 2px 0 5px;
-          padding: 0 8px;
+          padding: 1px 8px;
         }
 
         #custom-clock {
           font-size: 13px;
           background: ${gray};
-          padding: 2px 12px;
+          padding: 1px 12px;
         }
 
         #custom-task {
@@ -191,9 +191,9 @@
         #status,
         #hw {
           background: @raised;
-          margin: 3px 6px;
+          margin: 2px 6px;
           /* end slots, filled segments need the same air as inter-icon gaps */
-          padding: 0 8px;
+          padding: 1px 8px;
         }
 
         #status #custom-harness-status,
@@ -206,12 +206,12 @@
         #hw #bluetooth,
         #hw #pulseaudio {
           margin: 0 2px;
-          padding: 2px 6px;
+          padding: 1px 6px;
         }
 
         /* the % right bearing is base-font metric, propo does not change it, right stays under left */
         #hw #battery {
-          padding: 2px 5.5px 2px 8px;
+          padding: 1px 5.5px 1px 8px;
         }
 
         #status #custom-harness-status:hover,
@@ -227,7 +227,7 @@
         }
 
         #workspaces {
-          margin: 3px 4px;
+          margin: 2px 4px;
           padding: 0 2px;
         }
 
