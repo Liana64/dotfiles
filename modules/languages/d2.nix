@@ -1,4 +1,4 @@
-# @desc: D2 diagrams — helix formatting, build-time SVG renders of every *.d2 in the repo
+# @desc: D2 diagrams
 {lib, ...}: {
   perSystem = {
     pkgs,
@@ -19,6 +19,11 @@
     '';
 
     checks.diagrams = config.packages.diagrams;
+  };
+
+  flake.modules.homeManager.d2 = {pkgs, ...}: {
+    home.packages = [pkgs.d2];
+    home.shellAliases.d2w = "d2 --watch";
   };
 
   flake.modules.homeManager.helix = {
