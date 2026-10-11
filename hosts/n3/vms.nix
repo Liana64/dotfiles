@@ -35,7 +35,7 @@ in {
             boot = 1;
           }
           {
-            zvol = "vms/talos-pool";
+            zvol = "rpool/vms/talos-pool";
             dev = "sdb";
           }
         ];
@@ -52,13 +52,13 @@ in {
 
   services.sanoid = {
     enable = true;
-    datasets = lib.genAttrs ["rpool/var" "rpool/vms/talos-os"] (_: {
+    datasets."rpool/var" = {
       autosnap = true;
       autoprune = true;
       hourly = 0;
       daily = 7;
       monthly = 0;
-    });
+    };
   };
 
   systemd.services.sanoid.serviceConfig =

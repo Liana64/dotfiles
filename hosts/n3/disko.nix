@@ -88,6 +88,10 @@
             type = "zfs_volume";
             size = "64G";
           };
+          "vms/talos-pool" = {
+            type = "zfs_volume";
+            size = "16G";
+          };
         };
       };
 
@@ -111,10 +115,6 @@
             type = "zfs_fs";
             mountpoint = "/var/lib/lab";
             options.mountpoint = "legacy";
-          };
-          talos-pool = {
-            type = "zfs_volume";
-            size = "16G";
           };
         };
       };
