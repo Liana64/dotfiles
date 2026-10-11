@@ -3,7 +3,9 @@
     inputs.disko.nixosModules.disko
     ../../modules/_lib/hypervisor.nix
     ./disko.nix
+    ./impermanence.nix
     ./network.nix
+    ./secrets.nix
     ./vms.nix
   ];
 
@@ -29,7 +31,7 @@
       ];
     };
     kernelParams = ["intel_iommu=on" "iommu=pt"];
-    blacklistedKernelModules = ["nouveau" "mt7921e"];
+    blacklistedKernelModules = ["mt7921e"];
   };
 
   networking = {
