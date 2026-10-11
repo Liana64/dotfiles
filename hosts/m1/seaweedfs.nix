@@ -91,6 +91,8 @@ in {
       preStart = "mkdir -p ${meta}/master ${meta}/filer ${data}/meta";
       serviceConfig.WorkingDirectory = store "${meta}/filer";
     };
-    seaweedfs-meta-backup = unit ["seaweedfs.service"] ["${data}/meta"] "${weed} -logtostderr filer.meta.backup -options=${backup}";
+    seaweedfs-meta-backup = lib.recursiveUpdate (unit ["seaweedfs.service"] ["${data}/meta"] "${weed} -logtostderr filer.meta.backup -options=${backup}") {
+      serviceConfig.Restart = "always";
+    };
   };
 }
