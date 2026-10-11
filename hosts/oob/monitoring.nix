@@ -36,6 +36,28 @@
           job_name = "smartctl";
           static_configs = [{targets = ["127.0.0.1:9633" "m1.mgmt.milberry.org:9633"];}];
         }
+        {
+          job_name = "seaweedfs";
+          static_configs = [{targets = ["172.16.4.30:9327"];}];
+        }
+      ];
+      rules = [
+        (builtins.toJSON {
+          groups = [
+            {
+              name = "restic";
+              rules = [
+                {
+                  alert = "ResticBackupStale";
+                  expr = "time() - restic_latest_snapshot_time_seconds > 36 * 3600 or absent(restic_latest_snapshot_time_seconds)";
+                  for = "1h";
+                  labels.severity = "critical";
+                  annotations.summary = "No restic snapshot of m1 tank in over 36h";
+                }
+              ];
+            }
+          ];
+        })
       ];
     };
 
