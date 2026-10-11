@@ -20,6 +20,14 @@
   };
   internal = lib.concatMap (p: [p (p + 10000)]) [ports.master ports.volume ports.filer];
 
+  identities = {
+    admin = ["Admin" "Read" "Write" "List" "Tagging"];
+    docs = ["Read:docs" "Write:docs" "List:docs" "Tagging:docs"];
+    etcd = ["Write:etcd"];
+    nix-cache = ["Read:nix-cache" "Write:nix-cache" "List:nix-cache"];
+  };
+  key = name: k: config.sops.placeholder."seaweedfs/${name}/${k}";
+
   store = dir:
     pkgs.linkFarm "seaweedfs-store" {
       "filer.toml" = (pkgs.formats.toml {}).generate "filer.toml" {
@@ -41,7 +49,7 @@
     s3 = true;
     "s3.ip.bind" = net.cluster.hosts.m1;
     "s3.port" = ports.s3;
-    "s3.config" = config.sops.secrets."seaweedfs/s3-config".path;
+    "s3.config" = config.sops.templates."seaweedfs-s3.json".path;
     filer = true;
     "master.dir" = "${meta}/master";
     "master.volumeSizeLimitMB" = 1024;
@@ -74,7 +82,54 @@
       };
   };
 in {
-  sops.secrets."seaweedfs/s3-config".owner = "seaweedfs";
+  sops = {
+    secrets = lib.listToAttrs (lib.concatMap (name:
+      map (k: lib.nameValuePair "seaweedfs/${name}/${k}" {}) ["access-key" "secret-key"])
+    (lib.attrNames identities));
+    templates = {
+      "seaweedfs-s3.json" = {
+        owner = "seaweedfs";
+        restartUnits = ["seaweedfs.service"];
+        content = builtins.toJSON {
+          identities =
+            lib.mapAttrsToList (name: actions: {
+              inherit name actions;
+              credentials = [
+                {
+                  accessKey = key name "access-key";
+                  secretKey = key name "secret-key";
+                }
+              ];
+            })
+            identities;
+        };
+      };
+      aws-credentials = {
+        owner = "liana";
+        content = ''
+          [default]
+          aws_access_key_id=${key "admin" "access-key"}
+          aws_secret_access_key=${key "admin" "secret-key"}
+        '';
+      };
+    };
+  };
+
+  users.users.liana.packages = [
+    (pkgs.symlinkJoin {
+      name = "awscli2";
+      paths = [pkgs.awscli2];
+      buildInputs = [pkgs.makeWrapper];
+      postBuild = ''
+        wrapProgram $out/bin/aws \
+          --set AWS_SHARED_CREDENTIALS_FILE ${config.sops.templates.aws-credentials.path} \
+          --set AWS_CONFIG_FILE /dev/null \
+          --set AWS_ENDPOINT_URL http://${net.cluster.hosts.m1}:${toString ports.s3} \
+          --set AWS_REGION us-east-1 \
+          --set AWS_EC2_METADATA_DISABLED true
+      '';
+    })
+  ];
 
   networking.firewall = {
     interfaces.cluster.allowedTCPPorts = [ports.s3 ports.metrics];
