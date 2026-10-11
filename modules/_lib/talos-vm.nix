@@ -56,7 +56,7 @@
 in {
   talosISO = pkgs.fetchurl {
     url = "https://factory.talos.dev/image/${schematic}/${talosVersion}/nocloud-amd64-secureboot.iso";
-    hash = "sha256-KIFee+Fxt4I6ldrHDZRd2q9XCsehh3AON3msA1+M27E=";
+    hash = "sha256-+4/wu0bbTuSCPVfpT3OtBv7nVXkSU/pefkYQ6efELVk=";
   };
 
   mkTalosVM = {
