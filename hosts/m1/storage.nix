@@ -161,7 +161,7 @@
     ''
       zfs list -H ${path} >/dev/null 2>&1 || zfs create -p ${path}
     ''
-    + lib.concatStrings (lib.mapAttrsToList (k: v: "zfs set ${k}=${v} ${path}\n") (s.props or {}))
+    + lib.concatStrings (lib.mapAttrsToList (k: v: "zfs set -u ${k}=${v} ${path}\n") (s.props or {}))
     + ''
       [ "$(zfs get -H -o value mounted ${path})" = yes ] || zfs mount ${path}
     ''
