@@ -1,75 +1,75 @@
 direction: right
 
 cluster: Cluster {
-	n1: {
-		hardware: {
-			shape: sql_table
-			platform: ms-01
-			memory: G.SKILL 32 GB DDR5 5200 MT/s (2x16, 1R)
-			processor: "Intel i5-12600H (4 C [P, 4.5 GHz], 8 C [E, 3.3 GHz], 16 T, 18 MB)"
-			boot: -
-			storage: -
-			network: -
-			pcie: -
-		}
-		os: {
-			shape: sql_table
-			role: Kubernetes node
-			host-os: Proxmox
-			vms: opnsense
-		}
-	}
-	n2: {
-		hardware: {
-			shape: sql_table
-			platform: ms-01
-			memory: Crucial 32 GB DDR5 5200 MT/s (2x16, 1R)
-			processor: "Intel i5-12600H (4 C [P, 4.5 GHz], 8 C [E, 3.3 GHz], 16 T, 18 MB)"
-			boot: 2x boot partitions, one per storage NVMe
-			storage: 2x 2 TB NVMe (4 TB raw), 1 TB NVMe unused
-			network: On-board 2x 10Gb SFP, 2x 1Gb Base-T
-			pcie: -
-		}
-		os: {
-			shape: sql_table
-			role: Kubernetes node
-			host-os: NixOS
-			vms: talos
-		}
-	}
-	n3: {
-		hardware: {
-			shape: sql_table
-			platform: Dell Optiplex 7050 Micro
-			memory: 16 GB DDR4 2400 MT/s (2x8, 1R)
-			processor: Intel i7-7700T (4 C, 2 T, 2.9 GHz, 8 MB)
-			boot: Not redundant
-			storage: 1x 256 GB SSD
-			pcie: x4, unused
-		}
-		os: {
-			shape: sql_table
-			role: Kubernetes node
-			host-os: NixOS
-			vms: talos
-		}
-		shape: sql_table
-		role: Etcd quorum
-		host-os: Proxmox
-		platform: Something old
-		memory: -
-		processor: -
-		boot: -
-		storage: -
-	}
-	m1: {
-		shape: sql_table
-		role: Media server
-		host-os: NixOS
-		platform: Custom build
-		memory: 64 GB DDR4
-		processor: i7-9700K (8 C, 8 T, 12 MB, 95 W)
-		boot: Dual NVMe
-		storage: 2x 28 TB (56 TB raw)
-	}
+  n1: {
+    hardware: {
+      shape: sql_table
+      platform: ms-01
+      memory: G.SKILL 32 GB DDR5 5200 MT/s (2x16, 1R)
+      processor: "Intel i5-12600H (4 C [P, 4.5 GHz], 8 C [E, 3.3 GHz], 16 T, 18 MB)"
+      boot: -
+      storage: -
+      network: -
+      pcie: -
+    }
+    os: {
+      shape: sql_table
+      role: Kubernetes node
+      host-os: Proxmox
+      vms: opnsense
+    }
+  }
+  n2: {
+    hardware: {
+      shape: sql_table
+      platform: ms-01
+      memory: Crucial 32 GB DDR5 5200 MT/s (2x16, 1R)
+      processor: "Intel i5-12600H (4 C [P, 4.5 GHz], 8 C [E, 3.3 GHz], 16 T, 18 MB)"
+      boot: 2x boot partitions, one per storage NVMe
+      storage: 2x 2 TB NVMe (4 TB raw), 1 TB NVMe unused
+      network: On-board 2x 10Gb SFP, 2x 1Gb Base-T
+      pcie: -
+    }
+    os: {
+      shape: sql_table
+      role: Kubernetes node
+      host-os: NixOS
+      vms: talos
+    }
+  }
+  n3: {
+    hardware: {
+      shape: sql_table
+      platform: Dell Optiplex 7050 Micro
+      memory: 16 GB DDR4 2400 MT/s (2x8, 1R)
+      processor: Intel i7-7700T (4 C, 8 T, 2.9 GHz, 8 MB)
+      boot: Not redundant
+      storage: 1x 256 GB SSD
+      pcie: x4, unused
+    }
+    os: {
+      shape: sql_table
+      role: Kubernetes node
+      host-os: NixOS
+      vms: talos
+    }
+    shape: sql_table
+    role: Etcd quorum
+    host-os: Proxmox
+    platform: Something old
+    memory: -
+    processor: -
+    boot: -
+    storage: -
+  }
+  m1: {
+    shape: sql_table
+    role: Media server
+    host-os: NixOS
+    platform: Custom build
+    memory: 64 GB DDR4
+    processor: i7-9700K (8 C, 8 T, 12 MB, 95 W)
+    boot: Dual NVMe
+    storage: 2x 28 TB (56 TB raw)
+  }
 }
