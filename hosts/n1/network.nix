@@ -57,7 +57,7 @@
     networks = {
       "20-lan" = member {matchConfig.Name = "lan";} "br0" [{VLAN = 10;}];
       "21-wan" = member {matchConfig.Name = "wan";} "br-wan" [];
-      "22-tb" = member {matchConfig.Driver = "thunderbolt-net";} "br-tb" [];
+      "22-tb" = member {matchConfig.Driver = "thunderbolt-net";} "br-tb" [{VLAN = 10;}];
       "30-br0" = quiet "br0" [{VLAN = 10;}];
       "31-br-wan" = quiet "br-wan" [];
       "32-br-tb" = {
