@@ -59,9 +59,15 @@ in {
           "-a always,exit -F arch=b64 -S delete_module -k module-unload"
 
           "-a never,exit -F arch=b64 -F dir=/nix/var/nix/db -F perm=wa -F exe=${config.nix.package.nix-cli or config.nix.package}/bin/nix"
+          "-a never,exit -F arch=b64 -F dir=/nix/var/nix/db -F perm=wa -F exe=${pkgs.nh-unwrapped}/bin/nh"
           "-a always,exit -F arch=b64 -F dir=/nix/var/nix/db -F perm=wa -k nix-db"
 
           "-a always,exit -F arch=b64 -S process_vm_writev -k data-injection"
+        ]
+        ++ lib.optionals (config.services.dbus.implementation == "broker") (
+          map (exe: "-a never,exit -F arch=b64 -S memfd_create -F exe=${config.services.dbus.brokerPackage}/bin/${exe}") ["dbus-broker" "dbus-broker-launch"]
+        )
+        ++ [
           "-a always,exit -F arch=b64 -S memfd_create -F a1&0x10 -F success=1 -k memfd-exec"
           "-a always,exit -F arch=b32 -S all -k 32bit-abi"
         ]
