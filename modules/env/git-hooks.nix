@@ -19,6 +19,14 @@
             args = ["--markdown-linebreak-ext=md"];
           };
 
+          d2-fmt = {
+            enable = true;
+            name = "Format D2 diagrams";
+            entry = "${pkgs.d2}/bin/d2 fmt";
+            language = "system";
+            files = "\\.d2$";
+          };
+
           forbid-unencrypted-sops = {
             enable = true;
             name = "Check *.sops.yaml files are encrypted";
