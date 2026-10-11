@@ -2,8 +2,8 @@
   imports = [
     inputs.disko.nixosModules.disko
     ../../modules/_lib/hypervisor.nix
+    ../../modules/_lib/rollback.nix
     ./disko.nix
-    ./impermanence.nix
     ./network.nix
     ./secrets.nix
     ./vms.nix
@@ -33,6 +33,8 @@
     kernelParams = ["intel_iommu=on" "iommu=pt"];
     blacklistedKernelModules = ["mt7921e"];
   };
+
+  environment.etc.machine-id.text = "c5ee4d3df9aa4ef490bf03b73520cb15\n";
 
   networking = {
     hostName = "n2";
