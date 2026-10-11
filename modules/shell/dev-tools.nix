@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.modules.homeManager.devPackages = {pkgs, ...}: {
     home.packages = with pkgs; [
       age
