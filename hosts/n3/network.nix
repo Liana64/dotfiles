@@ -1,4 +1,6 @@
-{...}: {
+{inputs, ...}: let
+  inherit (inputs.self.network) mgmt;
+in {
   networking.useDHCP = false;
   networking.useNetworkd = true;
   services.resolved.enable = true;
@@ -41,9 +43,9 @@
       "40-mgmt" = {
         matchConfig.Name = "mgmt";
         networkConfig = {
-          Address = "172.16.99.102/24";
-          Gateway = "172.16.99.1";
-          DNS = "172.16.99.1";
+          Address = mgmt.cidr.n3;
+          Gateway = mgmt.gateway;
+          DNS = mgmt.gateway;
         };
       };
     };

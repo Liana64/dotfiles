@@ -1,4 +1,6 @@
-{...}: {
+{inputs, ...}: let
+  inherit (inputs.self.network) cluster hstore mgmt;
+in {
   networking.useDHCP = false;
   networking.useNetworkd = true;
   services.resolved.enable = true;
@@ -79,12 +81,12 @@
         dhcpV4Config.RouteTable = 10;
         routingPolicyRules = [
           {
-            To = "172.16.4.0/23";
+            To = cluster.subnet;
             Table = 10;
             Priority = 100;
           }
           {
-            From = "172.16.4.0/23";
+            From = cluster.subnet;
             Table = 10;
             Priority = 101;
           }
@@ -93,31 +95,31 @@
       "41-mgmt" = {
         matchConfig.Name = "mgmt";
         networkConfig = {
-          Address = "172.16.99.44/24";
-          Gateway = "172.16.99.1";
-          DNS = "172.16.99.1";
+          Address = mgmt.cidr.m1;
+          Gateway = mgmt.gateway;
+          DNS = mgmt.gateway;
         };
       };
       "42-hstore" = {
         matchConfig.Name = "hstore";
         networkConfig = {
-          Address = "172.16.20.44/24";
+          Address = hstore.cidr.m1;
           LinkLocalAddressing = "no";
         };
         routes = [
           {
-            Destination = "172.16.20.0/24";
+            Destination = hstore.subnet;
             Scope = "link";
             Table = 20;
           }
           {
-            Gateway = "172.16.20.1";
+            Gateway = hstore.gateway;
             Table = 20;
           }
         ];
         routingPolicyRules = [
           {
-            From = "172.16.20.0/24";
+            From = hstore.subnet;
             Table = 20;
             Priority = 102;
           }
