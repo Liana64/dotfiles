@@ -59,11 +59,11 @@
 
   # Quotas, out of ~25.3T usable:
   #
-  #   users            3.5T  sync + stash, shared by everyone
+  #   users            3.5T  syncthing + stash
   #   cluster/media   11.5T
-  #   cluster/photos     3T
+  #   cluster/photos     2T
   #   cluster/uploads    1T
-  #   cluster/s3         2T  refquota; snapshots float, vacuum rewrites pin whole volumes
+  #   cluster/s3         3T
   #   backups            3T
   #                   ------
   #                     24T
@@ -106,7 +106,7 @@
       "tank/cluster/photos" = {
         id = ids.documents;
         mode = "2770";
-        props.quota = "3T";
+        props.quota = "2T";
         grants = lan access.view;
       };
       "tank/cluster/uploads" = {
@@ -117,7 +117,7 @@
       "tank/cluster/s3" = {
         id = ids.s3;
         mode = "0700";
-        props.refquota = "2T";
+        props.refquota = "3T";
       };
       "rpool/seaweedfs" = {
         id = ids.s3;
@@ -297,6 +297,7 @@ in {
       requiredBy = ["nfs-server.service"];
       after = ["zfs-mount.service"];
       before = ["nfs-server.service"];
+      stopIfChanged = false;
       path = [config.boot.zfs.package];
       # mount-ns directives (ProtectSystem, PrivateTmp, ...) would trap the
       # mounts of newly created datasets in the unit's slave namespace
