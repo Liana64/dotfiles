@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   pkgs,
   hardening,
   ...
@@ -81,7 +80,16 @@ in {
           mv $d/restic.prom.tmp $d/restic.prom
         '';
       };
+      restic-snapshot-s3 = {
+        serviceConfig.Type = "oneshot";
+        script = ''
+          ${zfs} destroy ${s3} 2>/dev/null || true
+          ${zfs} snapshot ${s3}
+        '';
+      };
       restic-backups-tank = {
+        requires = ["restic-snapshot-s3.service"];
+        after = ["restic-snapshot-s3.service"];
         unitConfig.OnSuccess = ["restic-metrics.service"];
         serviceConfig =
           removeAttrs hardening.confined ["PrivateTmp"]
@@ -89,13 +97,6 @@ in {
             CapabilityBoundingSet = "CAP_DAC_READ_SEARCH";
             RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_INET6"];
             BindReadOnlyPaths = ["/tank/cluster/s3/.zfs/snapshot/restic:/tank/cluster/s3"];
-            ExecStartPre = lib.mkBefore [
-              "+${pkgs.writeShellScript "snapshot-s3" ''
-                ${zfs} destroy ${s3} 2>/dev/null
-                ${zfs} snapshot ${s3}
-              ''}"
-            ];
-            ExecStopPost = lib.mkAfter ["+${zfs} destroy ${s3}"];
           };
       };
     };
