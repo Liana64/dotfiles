@@ -7,7 +7,7 @@
 }: let
   inherit (inputs) self nixpkgs home-manager;
 
-  nixosAspects = lib.attrValues (config.flake.modules.nixos or {});
+  nixosAspects = lib.attrValues (removeAttrs (config.flake.modules.nixos or {}) ["perfTools"]);
   homeAspects = lib.attrValues (config.flake.modules.homeManager or {});
 
   hosts = {
@@ -16,34 +16,34 @@
     noku.system = "x86_64-linux";
     m1 = {
       system = "x86_64-linux";
-      aspects = ["hardening" "journald" "nixDaemon" "noDefaults" "noexec" "storeVerify" "time" "users"];
+      aspects = ["hardening" "hardwareTools" "journald" "nixDaemon" "noDefaults" "noexec" "storeVerify" "time" "users"];
       home = false;
     };
     n1 = {
       system = "x86_64-linux";
-      aspects = ["nixDaemon" "noDefaults" "time" "users"];
+      aspects = ["hardwareTools" "nixDaemon" "noDefaults" "time" "users"];
       home = false;
     };
     n2 = {
       system = "x86_64-linux";
-      aspects = ["nixDaemon" "noDefaults" "time" "users"];
+      aspects = ["hardening" "hardwareTools" "journald" "nixDaemon" "noDefaults" "noexec" "storeVerify" "time" "users"];
       home = false;
     };
     n3 = {
       system = "x86_64-linux";
-      aspects = ["nixDaemon" "noDefaults" "time" "users"];
+      aspects = ["hardwareTools" "nixDaemon" "noDefaults" "time" "users"];
       home = false;
     };
     oob = {
       system = "aarch64-linux";
       channel = inputs.nixpkgs-unstable;
-      aspects = ["nixDaemon" "time" "users"];
+      aspects = ["hardwareTools" "nixDaemon" "time" "users"];
       home = false;
     };
     deck = {
       system = "x86_64-linux";
       channel = inputs.nixpkgs-unstable;
-      aspects = ["nixDaemon" "noDefaults" "time" "users" "frameworkHardware"];
+      aspects = ["hardwareTools" "nixDaemon" "noDefaults" "time" "users" "frameworkHardware"];
       home = false;
     };
   };

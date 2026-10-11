@@ -1,5 +1,7 @@
 # @desc: Framework AMD AI 300 hardware module + firmware
-{...}: {
+{config, ...}: let
+  inherit (config.flake.modules.nixos) hardwareTools;
+in {
   flake.modules.nixos.frameworkHardware = {
     config,
     inputs,
@@ -32,6 +34,7 @@
   in {
     imports = [
       inputs.nixos-hardware.nixosModules.framework-amd-ai-300-series
+      hardwareTools
     ];
 
     # To get the latest firmware, run:
@@ -47,17 +50,8 @@
 
     services.hardware.bolt.enable = true;
     environment.systemPackages = with pkgs; [
-      dmidecode # BIOS troubleshooting
-      ethtool # Manage networking
-      hdparm # Manage drives
-      nvme-cli # Manage NVMes
-      perf # Benchmarking
       sbctl # Sign our own EFI shim
-      smartmontools # Check smart data on disks
-      sysstat # Troubleshoot performance
-      tcpdump # Troubleshoot networking
       inotify-tools # Use inotify
-      lm_sensors # Temperature sensors
     ];
 
     boot.kernelParams = [
