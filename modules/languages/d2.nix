@@ -1,5 +1,16 @@
 # @desc: D2 diagrams
-{lib, ...}: {
+{lib, ...}: let
+  fmt = pkgs:
+    pkgs.writeShellApplication {
+      name = "d2-fmt";
+      runtimeInputs = [pkgs.d2];
+      text = ''
+        in=$(cat)
+        out=$(printf '%s\n' "$in" | d2 fmt -)
+        printf '%s\n' "''${out:-$in}"
+      '';
+    };
+in {
   perSystem = {
     pkgs,
     config,
@@ -19,6 +30,12 @@
     '';
 
     checks.diagrams = config.packages.diagrams;
+
+    checks.d2-fmt = pkgs.runCommand "d2-fmt-check" {nativeBuildInputs = [(fmt pkgs)];} ''
+      [ "$(printf 'a -> b\n' | d2-fmt)" = "a -> b" ]
+      [ "$(printf 'a->b\n' | d2-fmt)" = "a -> b" ]
+      touch $out
+    '';
   };
 
   flake.modules.homeManager.d2 = {pkgs, ...}: {
@@ -26,21 +43,14 @@
     home.shellAliases.d2w = "d2 --watch";
   };
 
-  flake.modules.homeManager.helix = {
-    pkgs,
-    lib,
-    ...
-  }: {
+  flake.modules.homeManager.helix = {pkgs, ...}: {
     programs.helix.languages.language = [
       {
         name = "d2";
         scope = "source.d2";
         file-types = ["d2"];
         comment-token = "#";
-        formatter = {
-          command = lib.getExe pkgs.d2;
-          args = ["fmt" "-"];
-        };
+        formatter.command = lib.getExe (fmt pkgs);
         auto-format = true;
       }
     ];
