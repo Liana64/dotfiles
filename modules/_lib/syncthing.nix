@@ -1,4 +1,4 @@
-{
+net: {
   versioning = {
     type = "trashcan";
     params.cleanoutDays = "90";
@@ -9,11 +9,11 @@
     maxine-framework.id = "WI6FCGN-NBVKCAD-7TC72I4-CFJ7TSA-LKKTXQW-Z22YJES-6CGUKMC-CSQ6LQQ";
     cluster = {
       id = "ENNUNJO-JHR527S-JMMU6IJ-UBA4CL6-CRRPWB4-2GOGD6X-DVIJNJY-DPJLPAR";
-      addresses = ["tcp://172.16.5.16:22000"];
+      addresses = ["tcp://${net.cluster.hosts.syncthing}:22000"];
     };
     m1 = {
       id = "DZMCSC2-3MUIPEU-SUXQXEH-OYRESED-DWAXB3H-O3ZTUUI-QN4VM4C-ZVUIHAB";
-      addresses = ["tcp://172.16.20.44:22000"];
+      addresses = ["tcp://${net.hstore.hosts.m1}:22000"];
     };
   };
 

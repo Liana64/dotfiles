@@ -5,9 +5,10 @@
     pkgs,
     osConfig,
     hardening,
+    inputs,
     ...
   }: let
-    sync = import ../_lib/syncthing.nix;
+    sync = import ../_lib/syncthing.nix inputs.self.network;
     self =
       if osConfig == null
       then "framework"

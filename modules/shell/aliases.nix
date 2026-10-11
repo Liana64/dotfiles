@@ -32,6 +32,7 @@
       f = "frame";
       k = "kubectl";
       ceremony = "d=$(mktemp -d /run/user/$UID/ceremony.XXX) && cd \"$d\"";
+      ceremony-age = "d=$(mktemp -d /run/user/$UID/ceremony.XXX) && cd \"$d\" && n=$(mkdir -p var/lib/sops-nix/) && cd \"$n\" && age-keygen -pq -o $1";
       dot = "cd /nix/dotfiles && hx /nix/dotfiles";
       drafts = "cd /home/liana/Projects/Software/drafts && hx .";
       notes = "cd /home/liana/Projects/Software/drafts/notes && hx .";
