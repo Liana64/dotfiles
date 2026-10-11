@@ -15,6 +15,9 @@
       openssh.authorizedKeys.keys = [];
     };
 
-    programs.zsh.enable = true;
+    programs.zsh = {
+      enable = true;
+      shellInit = "zsh-newuser-install() { :; }";
+    };
   };
 }
