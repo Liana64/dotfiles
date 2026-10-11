@@ -1,9 +1,10 @@
 {
   pkgs,
   hardening,
+  inputs,
   ...
 }: let
-  cluster = ["172.16.4.11" "172.16.4.12" "172.16.4.13" "172.16.4.14"];
+  net = inputs.self.network;
 
   export = {
     id,
@@ -25,7 +26,7 @@
       Transports = TCP;
       FSAL { Name = VFS; }
       CLIENT {
-        Clients = ${builtins.concatStringsSep ", " cluster};
+        Clients = ${builtins.concatStringsSep ", " net.cluster.nodes};
         Access_Type = ${access};
       }
     }
@@ -64,7 +65,7 @@
 
   conf = pkgs.writeText "ganesha.conf" (''
       NFS_CORE_PARAM {
-        Bind_addr = 172.16.4.30;
+        Bind_addr = ${net.cluster.hosts.m1};
         NFS_Protocols = 4;
         Enable_NLM = false;
         Enable_RQUOTA = false;

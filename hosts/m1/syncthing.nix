@@ -2,9 +2,10 @@
   config,
   lib,
   hardening,
+  inputs,
   ...
 }: let
-  sync = import ../../modules/_lib/syncthing.nix;
+  sync = import ../../modules/_lib/syncthing.nix inputs.self.network;
   self = config.networking.hostName;
   secret = name: config.sops.secrets."syncthing/${name}".path;
   folders = lib.filterAttrs (_: f: lib.elem self f.devices) sync.folders;
@@ -17,7 +18,7 @@ in {
     cert = secret "cert";
     key = secret "key";
     guiPasswordFile = secret "gui-password";
-    guiAddress = "172.16.99.44:8384";
+    guiAddress = "${inputs.self.network.mgmt.hosts.m1}:8384";
     overrideDevices = true;
     overrideFolders = true;
     settings = {

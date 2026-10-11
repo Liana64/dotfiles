@@ -1,11 +1,14 @@
 {
   config,
+  lib,
   pkgs,
   hardening,
   ...
 }: let
   tank = config.services.restic.backups.tank;
   restic = "${tank.package}/bin/restic --repository-file ${tank.repositoryFile} --password-file ${tank.passwordFile} --no-lock --json";
+  zfs = "${config.boot.zfs.package}/bin/zfs";
+  s3 = "tank/cluster/s3@restic";
 in {
   sops.secrets = {
     "backup/restic-repo" = {};
@@ -22,6 +25,7 @@ in {
       "/tank/users"
       "/tank/cluster/photos"
       "/tank/cluster/uploads"
+      "/tank/cluster/s3"
       "/tank/backups"
     ];
     exclude = [
@@ -84,6 +88,14 @@ in {
           // {
             CapabilityBoundingSet = "CAP_DAC_READ_SEARCH";
             RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_INET6"];
+            BindReadOnlyPaths = ["/tank/cluster/s3/.zfs/snapshot/restic:/tank/cluster/s3"];
+            ExecStartPre = lib.mkBefore [
+              "+${pkgs.writeShellScript "snapshot-s3" ''
+                ${zfs} destroy ${s3} 2>/dev/null
+                ${zfs} snapshot ${s3}
+              ''}"
+            ];
+            ExecStopPost = lib.mkAfter ["+${zfs} destroy ${s3}"];
           };
       };
     };

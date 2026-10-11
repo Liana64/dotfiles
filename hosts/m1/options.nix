@@ -8,6 +8,7 @@ in {
     ./disko.nix
     ./ganesha.nix
     ./network.nix
+    ./seaweedfs.nix
     ./secrets.nix
     ./storage.nix
     ./syncthing.nix

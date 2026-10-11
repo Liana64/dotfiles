@@ -3,31 +3,17 @@
   lib,
   pkgs,
   hardening,
+  inputs,
   ...
 }: let
-  net = {
-    cluster = [
-      "172.16.4.11"
-      "172.16.4.12"
-      "172.16.4.13"
-      "172.16.4.14"
-    ];
-    ops = ["172.16.95.0/24"];
-    liana = [
-      "172.16.95.30"
-      "172.16.95.31"
-    ];
-    maxine = [
-      "172.16.95.40"
-      "172.16.95.41"
-    ];
-  };
+  net = inputs.self.network;
 
   ids = {
     media = 2000;
     documents = 2100;
     backup = 2200;
     uploads = 2300;
+    s3 = 2400;
   };
 
   pushers = {
@@ -68,7 +54,7 @@
   };
 
   syncs = lib.listToAttrs (map (owner: lib.nameValuePair "tank/users/sync/${owner}" syncer) (
-    lib.unique (lib.mapAttrsToList (_: f: f.owner) (import ../../modules/_lib/syncthing.nix).folders)
+    lib.unique (lib.mapAttrsToList (_: f: f.owner) (import ../../modules/_lib/syncthing.nix inputs.self.network).folders)
   ));
 
   # Quotas, out of ~25.3T usable:
@@ -76,7 +62,8 @@
   #   users            3.5T  sync + stash, shared by everyone
   #   cluster/media   11.5T
   #   cluster/photos     3T
-  #   cluster/uploads    3T
+  #   cluster/uploads    1T
+  #   cluster/s3         2T  refquota; snapshots float, vacuum rewrites pin whole volumes
   #   backups            3T
   #                   ------
   #                     24T
@@ -125,7 +112,20 @@
       "tank/cluster/uploads" = {
         id = ids.uploads;
         mode = "0750";
-        props.quota = "3T";
+        props.quota = "1T";
+      };
+      "tank/cluster/s3" = {
+        id = ids.s3;
+        mode = "0700";
+        props.refquota = "2T";
+      };
+      "rpool/seaweedfs" = {
+        id = ids.s3;
+        mode = "0700";
+        props = {
+          mountpoint = "/rpool/seaweedfs";
+          quota = "10G";
+        };
       };
       "tank/backups" = {
         id = 0;
@@ -152,7 +152,7 @@
   exportLine = path: s:
     "/${path} "
     + lib.concatStringsSep " " (lib.flatten (
-      lib.mapAttrsToList (group: level: map (c: "${c}(${level s.id})") net.${group}) s.grants
+      lib.mapAttrsToList (group: level: map (c: "${c}(${level s.id})") net.clients.${group}) s.grants
     ));
 
   recvOnly = target: key: ''command="${config.boot.zfs.package}/bin/zfs receive -du tank/backups/${target}",restrict ${key}'';
@@ -160,9 +160,11 @@
   ensure = path: s:
     ''
       zfs list -H ${path} >/dev/null 2>&1 || zfs create -p ${path}
-      [ "$(zfs get -H -o value mounted ${path})" = yes ] || zfs mount ${path}
     ''
     + lib.concatStrings (lib.mapAttrsToList (k: v: "zfs set ${k}=${v} ${path}\n") (s.props or {}))
+    + ''
+      [ "$(zfs get -H -o value mounted ${path})" = yes ] || zfs mount ${path}
+    ''
     + lib.optionalString (s ? allow) "zfs allow ${s.allow} ${path}\n"
     + ''
       chown ${toString s.id}:${toString (s.gid or s.id)} /${path}
@@ -188,6 +190,12 @@ in {
       documents.gid = ids.documents;
       backup.gid = ids.backup;
       uploads.gid = ids.uploads;
+      seaweedfs.gid = ids.s3;
+    };
+    users.seaweedfs = {
+      uid = ids.s3;
+      group = "seaweedfs";
+      isSystemUser = true;
     };
     users.backup = {
       uid = ids.backup;
@@ -207,7 +215,7 @@ in {
     };
     nfs.settings.nfsd = {
       # homes listen on hstore only; 2049 on the cluster addr is ganesha's
-      host = "172.16.20.44";
+      host = net.hstore.hosts.m1;
       vers3 = false;
       udp = false;
       threads = 16;
@@ -243,6 +251,13 @@ in {
           autosnap = true;
           autoprune = true;
           hourly = 0;
+          daily = 7;
+          monthly = 0;
+        };
+        "tank/cluster/s3" = {
+          autosnap = true;
+          autoprune = true;
+          hourly = 24;
           daily = 7;
           monthly = 0;
         };
