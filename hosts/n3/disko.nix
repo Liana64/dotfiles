@@ -68,6 +68,7 @@
             type = "zfs_fs";
             mountpoint = "/";
             options.mountpoint = "legacy";
+            postCreateHook = "zfs snapshot rpool/root@blank";
           };
           nix = {
             type = "zfs_fs";
@@ -79,10 +80,17 @@
             mountpoint = "/var";
             options.mountpoint = "legacy";
           };
+          vms = {
+            type = "zfs_fs";
+            options.mountpoint = "none";
+          };
+          "vms/talos-os" = {
+            type = "zfs_volume";
+            size = "64G";
+          };
         };
       };
 
-      # talos-pool 512G→128G: quorum-only node (2% used); rest hosts the rhca lab
       vms = {
         type = "zpool";
         options.ashift = "12";
@@ -104,13 +112,9 @@
             mountpoint = "/var/lib/lab";
             options.mountpoint = "legacy";
           };
-          talos-os = {
-            type = "zfs_volume";
-            size = "128G";
-          };
           talos-pool = {
             type = "zfs_volume";
-            size = "128G";
+            size = "16G";
           };
         };
       };

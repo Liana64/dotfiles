@@ -2,8 +2,10 @@
   imports = [
     inputs.disko.nixosModules.disko
     ../../modules/_lib/hypervisor.nix
+    ../../modules/_lib/rollback.nix
     ./disko.nix
     ./network.nix
+    ./secrets.nix
     ./vms.nix
   ];
 
@@ -16,6 +18,8 @@
     configurationLimit = 20;
     device = "nodev";
   };
+
+  environment.etc.machine-id.text = "71cbeb322d1c4f5ca317bd0a88e400f5\n";
 
   networking = {
     hostName = "n3";

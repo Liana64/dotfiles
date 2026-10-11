@@ -2,6 +2,7 @@
   inputs,
   pkgs,
   lib,
+  hardening,
   ...
 }: let
   inherit (import ../../modules/_lib/talos-vm.nix {inherit pkgs lib;}) mkTalosVM talosISO;
@@ -11,7 +12,11 @@ in {
   # 16G budget: 6 vm + 6 lab (3×2G) + ~1 qemu + 1 arc + ~1 host
   boot.kernelParams = ["zfs.zfs_arc_max=${toString (1024 * 1024 * 1024)}"];
 
-  virtualisation.libvirtd.qemu.runAsRoot = false;
+  virtualisation.libvirtd = {
+    qemu.runAsRoot = false;
+    onBoot = "ignore";
+    onShutdown = "shutdown";
+  };
 
   virtualisation.libvirt = {
     enable = true;
@@ -25,7 +30,7 @@ in {
         iso = talosISO;
         disks = [
           {
-            zvol = "vms/talos-os";
+            zvol = "rpool/vms/talos-os";
             dev = "sda";
             boot = 1;
           }
@@ -47,21 +52,20 @@ in {
 
   services.sanoid = {
     enable = true;
-    datasets = {
-      "vms/talos-os" = {
-        autosnap = true;
-        autoprune = true;
-        hourly = 0;
-        daily = 7;
-        monthly = 0;
-      };
-      "vms/talos-pool" = {
-        autosnap = true;
-        autoprune = true;
-        hourly = 0;
-        daily = 7;
-        monthly = 0;
-      };
-    };
+    datasets = lib.genAttrs ["rpool/var" "rpool/vms/talos-os"] (_: {
+      autosnap = true;
+      autoprune = true;
+      hourly = 0;
+      daily = 7;
+      monthly = 0;
+    });
   };
+
+  systemd.services.sanoid.serviceConfig =
+    hardening.confined
+    // {
+      PrivateDevices = false;
+      RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK"];
+      IPAddressDeny = "any";
+    };
 }

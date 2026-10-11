@@ -31,7 +31,7 @@
     };
     n3 = {
       system = "x86_64-linux";
-      aspects = ["hardwareTools" "nixDaemon" "noDefaults" "time" "users"];
+      aspects = ["hardening" "hardwareTools" "journald" "nixDaemon" "noDefaults" "noexec" "storeVerify" "time" "users"];
       home = false;
     };
     oob = {
