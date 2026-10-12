@@ -137,12 +137,12 @@ in {
       script = ''
         d=/var/lib/zfs-metrics
         {
-          zfs list -Hpo name,used,usedbysnapshots -t filesystem
+          zfs list -Hpo name -t filesystem
           echo ---
           zfs list -Hpo name,creation -t snapshot
         } | awk -F'\t' '
           /^---$/ {snap = 1; next}
-          !snap {total[$1] = $2; used[$1] = $3; count[$1] = 0; next}
+          !snap {count[$1] = 0; next}
           {split($1, a, "@"); count[a[1]]++; if ($2 > latest[a[1]]) latest[a[1]] = $2}
           END {
             print "# HELP zfs_snapshot_count Snapshots per dataset."
@@ -151,12 +151,6 @@ in {
             print "# HELP zfs_snapshot_latest_time_seconds Creation time of the newest snapshot."
             print "# TYPE zfs_snapshot_latest_time_seconds gauge"
             for (ds in latest) printf "zfs_snapshot_latest_time_seconds{dataset=\"%s\"} %d\n", ds, latest[ds]
-            print "# HELP zfs_dataset_usedbysnapshots_bytes Space consumed by snapshots of the dataset."
-            print "# TYPE zfs_dataset_usedbysnapshots_bytes gauge"
-            for (ds in used) printf "zfs_dataset_usedbysnapshots_bytes{dataset=\"%s\"} %d\n", ds, used[ds]
-            print "# HELP zfs_dataset_used_bytes Space used by the dataset, including its snapshots and children."
-            print "# TYPE zfs_dataset_used_bytes gauge"
-            for (ds in total) printf "zfs_dataset_used_bytes{dataset=\"%s\"} %d\n", ds, total[ds]
           }
         ' >$d/zfs-snapshots.prom.tmp
         mv $d/zfs-snapshots.prom.tmp $d/zfs-snapshots.prom
