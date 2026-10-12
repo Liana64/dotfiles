@@ -20,4 +20,5 @@ install host ip:
     #!/usr/bin/env sh
     set -e
     case {{ invocation_directory() }} in /run/user/*/ceremony.*) ;; *) echo "run from a ceremony dir" >&2; exit 1 ;; esac
+    [ -f {{ invocation_directory() }}/var/lib/sops-nix/key.txt ] || { echo "missing var/lib/sops-nix/key.txt" >&2; exit 1; }
     nix run nixpkgs#nixos-anywhere -- --flake /nix/dotfiles#{{ host }} --extra-files {{ invocation_directory() }} root@{{ ip }}
