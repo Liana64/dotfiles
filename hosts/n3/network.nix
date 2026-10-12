@@ -21,7 +21,10 @@ in {
         Name = "br0";
         Kind = "bridge";
       };
-      bridgeConfig.VLANFiltering = true;
+      bridgeConfig = {
+        VLANFiltering = true;
+        DefaultPVID = "none";
+      };
     };
 
     networks = {
@@ -31,13 +34,12 @@ in {
           Bridge = "br0";
           LinkLocalAddressing = "no";
         };
-        bridgeVLANs = [{VLAN = 10;}];
+        bridgeVLANs = [{VLAN = 10;} {VLAN = 80;}];
         linkConfig.RequiredForOnline = false;
       };
       "30-br0" = {
         matchConfig.Name = "br0";
         networkConfig.LinkLocalAddressing = "no";
-        bridgeVLANs = [{VLAN = 10;}];
         linkConfig.RequiredForOnline = false;
       };
       "40-mgmt" = {

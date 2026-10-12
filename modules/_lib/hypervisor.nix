@@ -1,9 +1,10 @@
-# Headless ZFS hypervisor base: ssh, zfs health, zram, exporters, smartd.
 # Not an aspect: desktop hosts import every aspect, so this stays in _lib
 # and is imported explicitly by m1/n1/n2/n3.
 {
   config,
+  inputs,
   pkgs,
+  lib,
   hardening,
   ...
 }: let
@@ -16,6 +17,24 @@
       IPAddressDeny = "any";
     };
 in {
+  imports = [inputs.nixvirt.nixosModules.default];
+
+  _module.args.libvirt = import ./libvirt {inherit inputs pkgs lib;};
+
+  virtualisation = {
+    libvirtd = {
+      qemu.runAsRoot = false;
+      onBoot = "ignore";
+      onShutdown = "shutdown";
+    };
+    libvirt = {
+      enable = true;
+      swtpm.enable = true;
+    };
+  };
+
+  users.users.liana.extraGroups = ["libvirtd"];
+
   boot = {
     supportedFilesystems = ["zfs"];
     zfs.devNodes = "/dev/disk/by-id";
@@ -26,7 +45,6 @@ in {
 
   networking.firewall.interfaces.mgmt.allowedTCPPorts = [22 9100 9134 9633];
 
-  # host anon pages only — vm ram is vfio-pinned, arc never swaps
   zramSwap = {
     enable = true;
     memoryPercent = 10;
@@ -50,6 +68,16 @@ in {
       interval = "monthly";
     };
     zfs.trim.enable = true;
+    sanoid = {
+      enable = true;
+      templates.daily = {
+        autosnap = true;
+        autoprune = true;
+        hourly = 0;
+        daily = 7;
+        monthly = 0;
+      };
+    };
     smartd.enable = true;
     prometheus.exporters = {
       node = {
@@ -61,7 +89,10 @@ in {
         ];
       };
       smartctl.enable = true;
-      zfs.enable = true;
+      zfs = {
+        enable = true;
+        extraFlags = ["--properties.dataset-filesystem=available,logicalused,quota,refquota,referenced,used,usedbydataset,usedbysnapshots,written"];
+      };
     };
   };
 
@@ -70,6 +101,13 @@ in {
     services.zfs-scrub.serviceConfig = zfsJob;
     services.zpool-trim.serviceConfig = zfsJob;
     services.zfs-zed.serviceConfig = zfsJob;
+    services.sanoid.serviceConfig =
+      hardening.confined
+      // {
+        PrivateDevices = false;
+        RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK"];
+        IPAddressDeny = "any";
+      };
     services.smartd.serviceConfig =
       hardening.base
       // {

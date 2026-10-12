@@ -2,9 +2,11 @@
   imports = [
     inputs.disko.nixosModules.disko
     ../../modules/_lib/hypervisor.nix
+    ../../modules/_lib/rollback.nix
     ./disko.nix
     ./network.nix
-    ./vms.nix
+    ./secrets.nix
+    ./vms
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";
@@ -31,6 +33,8 @@
     blacklistedKernelModules = ["mt7921e"];
   };
 
+  environment.etc.machine-id.text = "d315451707bd20f7c70072788c4d81e0\n";
+
   networking = {
     hostName = "n1";
     hostId = "a7260bc5";
@@ -38,7 +42,6 @@
 
   users.users.liana = {
     uid = 1000;
-    extraGroups = ["libvirtd"];
     openssh.authorizedKeys.keys = (import ../../modules/_lib/keys.nix).liana;
   };
 

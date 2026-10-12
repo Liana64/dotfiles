@@ -6,7 +6,7 @@
     ./disko.nix
     ./network.nix
     ./secrets.nix
-    ./vms.nix
+    ./vms
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";
@@ -43,7 +43,6 @@
 
   users.users.liana = {
     uid = 1000;
-    extraGroups = ["libvirtd"];
     openssh.authorizedKeys.keys = (import ../../modules/_lib/keys.nix).liana;
   };
 

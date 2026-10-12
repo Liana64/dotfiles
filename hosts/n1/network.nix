@@ -22,10 +22,9 @@ in {
         bridgeVLANs = vlans;
         linkConfig.RequiredForOnline = false;
       };
-    quiet = name: vlans: {
+    quiet = name: {
       matchConfig.Name = name;
       networkConfig.LinkLocalAddressing = "no";
-      bridgeVLANs = vlans;
       linkConfig.RequiredForOnline = false;
     };
   in {
@@ -41,7 +40,10 @@ in {
           Name = "br0";
           Kind = "bridge";
         };
-        bridgeConfig.VLANFiltering = true;
+        bridgeConfig = {
+          VLANFiltering = true;
+          DefaultPVID = "none";
+        };
       };
       br-wan.netdevConfig = {
         Name = "br-wan";
@@ -60,8 +62,8 @@ in {
       "20-lan" = member {matchConfig.Name = "lan";} "br0" [{VLAN = 10;}];
       "21-wan" = member {matchConfig.Name = "wan";} "br-wan" [];
       "22-tb" = member {matchConfig.Driver = "thunderbolt-net";} "br-tb" [{VLAN = 10;}];
-      "30-br0" = quiet "br0" [{VLAN = 10;}];
-      "31-br-wan" = quiet "br-wan" [];
+      "30-br0" = quiet "br0";
+      "31-br-wan" = quiet "br-wan";
       "32-br-tb" = {
         matchConfig.Name = "br-tb";
         networkConfig.Address = "10.10.10.11/24";

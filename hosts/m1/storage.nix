@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  hardening,
   inputs,
   ...
 }: let
@@ -64,9 +63,10 @@
   #   cluster/photos     2T
   #   cluster/uploads    1T
   #   cluster/s3         3T
+  #   cluster/nix-cache  0.376T  zvol, reserved up front
   #   backups            3T
   #                   ------
-  #                     24T
+  #                     24.376T
   datasets =
     {
       "tank/users" = {
@@ -119,6 +119,13 @@
         mode = "0700";
         props.refquota = "3T";
       };
+      "tank/cluster/nix-cache" = {
+        volume = {
+          size = "376G";
+          blocksize = "64K";
+        };
+        props.compression = "off";
+      };
       "rpool/seaweedfs" = {
         id = ids.s3;
         mode = "0700";
@@ -159,14 +166,12 @@
 
   ensure = path: s:
     ''
-      zfs list -H ${path} >/dev/null 2>&1 || zfs create -p ${path}
+      zfs list -H ${path} >/dev/null 2>&1 || zfs create -p ${lib.optionalString (s ? volume) "-V ${s.volume.size} -o volblocksize=${s.volume.blocksize} "}${path}
     ''
     + lib.concatStrings (lib.mapAttrsToList (k: v: "zfs set -u ${k}=${v} ${path}\n") (s.props or {}))
-    + ''
-      [ "$(zfs get -H -o value mounted ${path})" = yes ] || zfs mount ${path}
-    ''
     + lib.optionalString (s ? allow) "zfs allow ${s.allow} ${path}\n"
-    + ''
+    + lib.optionalString (!s ? volume) ''
+      [ "$(zfs get -H -o value mounted ${path})" = yes ] || zfs mount ${path}
       chown ${toString s.id}:${toString (s.gid or s.id)} /${path}
       chmod ${s.mode} /${path}
     '';
@@ -176,7 +181,7 @@ in {
     # tank is created manually
     zfs.extraPools = ["tank"];
 
-    # 64G budget: 40 vm (vfio-pinned) + ~1 qemu + 12 arc + ~11 host/slack
+    # 64G: 40 vm (vfio-pinned) + ~1 qemu + 12 arc + ~11 host/slack
     kernelParams = ["zfs.zfs_arc_max=${toString (12 * 1024 * 1024 * 1024)}"];
 
     # nfsd/ganesha bind specific addrs; the cluster addr is DHCP and may
@@ -265,6 +270,10 @@ in {
           autosnap = false;
           autoprune = false;
         };
+        "tank/cluster/nix-cache" = {
+          autosnap = false;
+          autoprune = false;
+        };
         # nested recursion precedence unverified — confirm children skip
         # autosnap: sanoid --cron --readonly --debug
         "tank/backups" = {
@@ -285,13 +294,6 @@ in {
     services.rpc-statd-notify.enable = false;
     services.rpc-gssd.enable = false;
     services.rpc-svcgssd.enable = false;
-    services.sanoid.serviceConfig =
-      hardening.confined
-      // {
-        PrivateDevices = false;
-        RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK"];
-        IPAddressDeny = "any";
-      };
     services.zfs-datasets = {
       wantedBy = ["multi-user.target"];
       requiredBy = ["nfs-server.service"];

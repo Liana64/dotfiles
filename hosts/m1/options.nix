@@ -55,7 +55,7 @@ in {
   users.users = {
     liana = {
       uid = 1000;
-      extraGroups = ["libvirtd" "media" "documents"];
+      extraGroups = ["media" "documents"];
       openssh.authorizedKeys.keys = (import ../../modules/_lib/keys.nix).liana;
     };
     maxine = {

@@ -36,7 +36,7 @@
             size = "100%";
             content = {
               type = "zfs";
-              pool = "vms";
+              pool = "lab";
             };
           };
         };
@@ -48,7 +48,7 @@
         type = "zpool";
         options.ashift = "12";
 
-        # unencrypted — future: native zfs encryption, clevis/tang unlock
+        # TODO: ZFS encryption, clevis/tang
         rootFsOptions = {
           mountpoint = "none";
           compression = "zstd";
@@ -95,7 +95,7 @@
         };
       };
 
-      vms = {
+      lab = {
         type = "zpool";
         options.ashift = "12";
         rootFsOptions = {
@@ -110,11 +110,6 @@
               mountpoint = "none";
               refreservation = "10G";
             };
-          };
-          lab = {
-            type = "zfs_fs";
-            mountpoint = "/var/lib/lab";
-            options.mountpoint = "legacy";
           };
         };
       };

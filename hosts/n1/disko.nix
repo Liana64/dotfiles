@@ -57,6 +57,7 @@ in {
           type = "zfs_fs";
           mountpoint = "/";
           options.mountpoint = "legacy";
+          postCreateHook = "zfs snapshot rpool/root@blank";
         };
         nix = {
           type = "zfs_fs";

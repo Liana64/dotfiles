@@ -31,7 +31,6 @@ in {
       "/tank/users/stash/shared/landfill"
       "/tank/backups/framework"
       "/tank/backups/volsync"
-      "/tank/cluster/s3/nix-cache_*"
     ];
     timerConfig = {
       OnCalendar = "daily";
