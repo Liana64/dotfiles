@@ -24,7 +24,6 @@
     admin = ["Admin" "Read" "Write" "List" "Tagging"];
     docs = ["Read:docs" "Write:docs" "List:docs" "Tagging:docs"];
     etcd = ["Write:etcd"];
-    nix-cache = ["Read:nix-cache" "Write:nix-cache" "List:nix-cache"];
   };
   key = name: k: config.sops.placeholder."seaweedfs/${name}/${k}";
 
