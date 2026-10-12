@@ -26,8 +26,6 @@
         autoload -z edit-command-line
         zle -N edit-command-line
         bindkey "^E" edit-command-line
-        bindkey '^[[1;5C' forward-word
-        bindkey '^[[1;5D' backward-word
         [[ -s /run/audit-wall/banner ]] && cat /run/audit-wall/banner && echo ""
         if (( RANDOM % 2 )); then fortune; else dice; fi
         b64e() {
