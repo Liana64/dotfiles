@@ -1,0 +1,840 @@
+<?xml version="1.0" encoding="utf-8"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-d2-version="v0.7.1" preserveAspectRatio="xMinYMin meet" viewBox="0 0 1290 3112"><svg class="d2-4271833800 d2-svg" width="1290" height="3112" viewBox="-11 -65 1290 3112"><rect x="-11.000000" y="-65.000000" width="1290.000000" height="3112.000000" rx="0.000000" fill="#FFFFFF" class=" fill-N7" stroke-width="0" /><style type="text/css"><![CDATA[
+.d2-4271833800 .text {
+	font-family: "d2-4271833800-font-regular";
+}
+@font-face {
+	font-family: d2-4271833800-font-regular;
+	src: url("data:application/font-woff;base64,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");
+}
+@font-face {
+	font-family: d2-4271833800-font-semibold;
+	src: url("data:application/font-woff;base64,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");
+}]]></style><style type="text/css"><![CDATA[.shape {
+  shape-rendering: geometricPrecision;
+  stroke-linejoin: round;
+}
+.connection {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.blend {
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+		.d2-4271833800 .fill-N1{fill:#0A0F25;}
+		.d2-4271833800 .fill-N2{fill:#676C7E;}
+		.d2-4271833800 .fill-N3{fill:#9499AB;}
+		.d2-4271833800 .fill-N4{fill:#CFD2DD;}
+		.d2-4271833800 .fill-N5{fill:#DEE1EB;}
+		.d2-4271833800 .fill-N6{fill:#EEF1F8;}
+		.d2-4271833800 .fill-N7{fill:#FFFFFF;}
+		.d2-4271833800 .fill-B1{fill:#0D32B2;}
+		.d2-4271833800 .fill-B2{fill:#0D32B2;}
+		.d2-4271833800 .fill-B3{fill:#E3E9FD;}
+		.d2-4271833800 .fill-B4{fill:#E3E9FD;}
+		.d2-4271833800 .fill-B5{fill:#EDF0FD;}
+		.d2-4271833800 .fill-B6{fill:#F7F8FE;}
+		.d2-4271833800 .fill-AA2{fill:#4A6FF3;}
+		.d2-4271833800 .fill-AA4{fill:#EDF0FD;}
+		.d2-4271833800 .fill-AA5{fill:#F7F8FE;}
+		.d2-4271833800 .fill-AB4{fill:#EDF0FD;}
+		.d2-4271833800 .fill-AB5{fill:#F7F8FE;}
+		.d2-4271833800 .stroke-N1{stroke:#0A0F25;}
+		.d2-4271833800 .stroke-N2{stroke:#676C7E;}
+		.d2-4271833800 .stroke-N3{stroke:#9499AB;}
+		.d2-4271833800 .stroke-N4{stroke:#CFD2DD;}
+		.d2-4271833800 .stroke-N5{stroke:#DEE1EB;}
+		.d2-4271833800 .stroke-N6{stroke:#EEF1F8;}
+		.d2-4271833800 .stroke-N7{stroke:#FFFFFF;}
+		.d2-4271833800 .stroke-B1{stroke:#0D32B2;}
+		.d2-4271833800 .stroke-B2{stroke:#0D32B2;}
+		.d2-4271833800 .stroke-B3{stroke:#E3E9FD;}
+		.d2-4271833800 .stroke-B4{stroke:#E3E9FD;}
+		.d2-4271833800 .stroke-B5{stroke:#EDF0FD;}
+		.d2-4271833800 .stroke-B6{stroke:#F7F8FE;}
+		.d2-4271833800 .stroke-AA2{stroke:#4A6FF3;}
+		.d2-4271833800 .stroke-AA4{stroke:#EDF0FD;}
+		.d2-4271833800 .stroke-AA5{stroke:#F7F8FE;}
+		.d2-4271833800 .stroke-AB4{stroke:#EDF0FD;}
+		.d2-4271833800 .stroke-AB5{stroke:#F7F8FE;}
+		.d2-4271833800 .background-color-N1{background-color:#0A0F25;}
+		.d2-4271833800 .background-color-N2{background-color:#676C7E;}
+		.d2-4271833800 .background-color-N3{background-color:#9499AB;}
+		.d2-4271833800 .background-color-N4{background-color:#CFD2DD;}
+		.d2-4271833800 .background-color-N5{background-color:#DEE1EB;}
+		.d2-4271833800 .background-color-N6{background-color:#EEF1F8;}
+		.d2-4271833800 .background-color-N7{background-color:#FFFFFF;}
+		.d2-4271833800 .background-color-B1{background-color:#0D32B2;}
+		.d2-4271833800 .background-color-B2{background-color:#0D32B2;}
+		.d2-4271833800 .background-color-B3{background-color:#E3E9FD;}
+		.d2-4271833800 .background-color-B4{background-color:#E3E9FD;}
+		.d2-4271833800 .background-color-B5{background-color:#EDF0FD;}
+		.d2-4271833800 .background-color-B6{background-color:#F7F8FE;}
+		.d2-4271833800 .background-color-AA2{background-color:#4A6FF3;}
+		.d2-4271833800 .background-color-AA4{background-color:#EDF0FD;}
+		.d2-4271833800 .background-color-AA5{background-color:#F7F8FE;}
+		.d2-4271833800 .background-color-AB4{background-color:#EDF0FD;}
+		.d2-4271833800 .background-color-AB5{background-color:#F7F8FE;}
+		.d2-4271833800 .color-N1{color:#0A0F25;}
+		.d2-4271833800 .color-N2{color:#676C7E;}
+		.d2-4271833800 .color-N3{color:#9499AB;}
+		.d2-4271833800 .color-N4{color:#CFD2DD;}
+		.d2-4271833800 .color-N5{color:#DEE1EB;}
+		.d2-4271833800 .color-N6{color:#EEF1F8;}
+		.d2-4271833800 .color-N7{color:#FFFFFF;}
+		.d2-4271833800 .color-B1{color:#0D32B2;}
+		.d2-4271833800 .color-B2{color:#0D32B2;}
+		.d2-4271833800 .color-B3{color:#E3E9FD;}
+		.d2-4271833800 .color-B4{color:#E3E9FD;}
+		.d2-4271833800 .color-B5{color:#EDF0FD;}
+		.d2-4271833800 .color-B6{color:#F7F8FE;}
+		.d2-4271833800 .color-AA2{color:#4A6FF3;}
+		.d2-4271833800 .color-AA4{color:#EDF0FD;}
+		.d2-4271833800 .color-AA5{color:#F7F8FE;}
+		.d2-4271833800 .color-AB4{color:#EDF0FD;}
+		.d2-4271833800 .color-AB5{color:#F7F8FE;}.appendix text.text{fill:#0A0F25}.md{--color-fg-default:#0A0F25;--color-fg-muted:#676C7E;--color-fg-subtle:#9499AB;--color-canvas-default:#FFFFFF;--color-canvas-subtle:#EEF1F8;--color-border-default:#0D32B2;--color-border-muted:#0D32B2;--color-neutral-muted:#EEF1F8;--color-accent-fg:#0D32B2;--color-accent-emphasis:#0D32B2;--color-attention-subtle:#676C7E;--color-danger-fg:red;}.sketch-overlay-B1{fill:url(#streaks-darker-d2-4271833800);mix-blend-mode:lighten}.sketch-overlay-B2{fill:url(#streaks-darker-d2-4271833800);mix-blend-mode:lighten}.sketch-overlay-B3{fill:url(#streaks-bright-d2-4271833800);mix-blend-mode:darken}.sketch-overlay-B4{fill:url(#streaks-bright-d2-4271833800);mix-blend-mode:darken}.sketch-overlay-B5{fill:url(#streaks-bright-d2-4271833800);mix-blend-mode:darken}.sketch-overlay-B6{fill:url(#streaks-bright-d2-4271833800);mix-blend-mode:darken}.sketch-overlay-AA2{fill:url(#streaks-dark-d2-4271833800);mix-blend-mode:overlay}.sketch-overlay-AA4{fill:url(#streaks-bright-d2-4271833800);mix-blend-mode:darken}.sketch-overlay-AA5{fill:url(#streaks-bright-d2-4271833800);mix-blend-mode:darken}.sketch-overlay-AB4{fill:url(#streaks-bright-d2-4271833800);mix-blend-mode:darken}.sketch-overlay-AB5{fill:url(#streaks-bright-d2-4271833800);mix-blend-mode:darken}.sketch-overlay-N1{fill:url(#streaks-darker-d2-4271833800);mix-blend-mode:lighten}.sketch-overlay-N2{fill:url(#streaks-dark-d2-4271833800);mix-blend-mode:overlay}.sketch-overlay-N3{fill:url(#streaks-normal-d2-4271833800);mix-blend-mode:color-burn}.sketch-overlay-N4{fill:url(#streaks-normal-d2-4271833800);mix-blend-mode:color-burn}.sketch-overlay-N5{fill:url(#streaks-bright-d2-4271833800);mix-blend-mode:darken}.sketch-overlay-N6{fill:url(#streaks-bright-d2-4271833800);mix-blend-mode:darken}.sketch-overlay-N7{fill:url(#streaks-bright-d2-4271833800);mix-blend-mode:darken}.light-code{display: block}.dark-code{display: none}]]></style><style type="text/css">.d2-4271833800 .md em,
+.d2-4271833800 .md dfn {
+  font-family: "d2-4271833800-font-italic";
+}
+
+.d2-4271833800 .md b,
+.d2-4271833800 .md strong {
+  font-family: "d2-4271833800-font-bold";
+}
+
+.d2-4271833800 .md code,
+.d2-4271833800 .md kbd,
+.d2-4271833800 .md pre,
+.d2-4271833800 .md samp {
+  font-family: "d2-4271833800-font-mono";
+  font-size: 1em;
+}
+
+.d2-4271833800 .md {
+  tab-size: 4;
+}
+
+/* variables are provided in d2renderers/d2svg/d2svg.go */
+
+.d2-4271833800 .md {
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  margin: 0;
+  background-color: transparent; /* we don't want to define the background color */
+  font-family: "d2-4271833800-font-regular";
+  font-size: 16px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.d2-4271833800 .md details,
+.d2-4271833800 .md figcaption,
+.d2-4271833800 .md figure {
+  display: block;
+}
+
+.d2-4271833800 .md summary {
+  display: list-item;
+}
+
+.d2-4271833800 .md [hidden] {
+  display: none !important;
+}
+
+.d2-4271833800 .md a {
+  background-color: transparent;
+  color: var(--color-accent-fg);
+  text-decoration: none;
+}
+
+.d2-4271833800 .md a:active,
+.d2-4271833800 .md a:hover {
+  outline-width: 0;
+}
+
+.d2-4271833800 .md abbr[title] {
+  border-bottom: none;
+  text-decoration: underline dotted;
+}
+
+.d2-4271833800 .md dfn {
+  font-style: italic;
+}
+
+.d2-4271833800 .md h1 {
+  margin: 0.67em 0;
+  padding-bottom: 0.3em;
+  font-size: 2em;
+  border-bottom: 1px solid var(--color-border-muted);
+}
+
+.d2-4271833800 .md mark {
+  background-color: var(--color-attention-subtle);
+  color: var(--color-text-primary);
+}
+
+.d2-4271833800 .md small {
+  font-size: 90%;
+}
+
+.d2-4271833800 .md sub,
+.d2-4271833800 .md sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+.d2-4271833800 .md sub {
+  bottom: -0.25em;
+}
+
+.d2-4271833800 .md sup {
+  top: -0.5em;
+}
+
+.d2-4271833800 .md img {
+  border-style: none;
+  max-width: 100%;
+  box-sizing: content-box;
+  background-color: var(--color-canvas-default);
+}
+
+.d2-4271833800 .md figure {
+  margin: 1em 40px;
+}
+
+.d2-4271833800 .md hr {
+  box-sizing: content-box;
+  overflow: hidden;
+  background: transparent;
+  border-bottom: 1px solid var(--color-border-muted);
+  height: 0.25em;
+  padding: 0;
+  margin: 24px 0;
+  background-color: var(--color-border-default);
+  border: 0;
+}
+
+.d2-4271833800 .md input {
+  font: inherit;
+  margin: 0;
+  overflow: visible;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.d2-4271833800 .md [type="button"],
+.d2-4271833800 .md [type="reset"],
+.d2-4271833800 .md [type="submit"] {
+  -webkit-appearance: button;
+}
+
+.d2-4271833800 .md [type="button"]::-moz-focus-inner,
+.d2-4271833800 .md [type="reset"]::-moz-focus-inner,
+.d2-4271833800 .md [type="submit"]::-moz-focus-inner {
+  border-style: none;
+  padding: 0;
+}
+
+.d2-4271833800 .md [type="button"]:-moz-focusring,
+.d2-4271833800 .md [type="reset"]:-moz-focusring,
+.d2-4271833800 .md [type="submit"]:-moz-focusring {
+  outline: 1px dotted ButtonText;
+}
+
+.d2-4271833800 .md [type="checkbox"],
+.d2-4271833800 .md [type="radio"] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.d2-4271833800 .md [type="number"]::-webkit-inner-spin-button,
+.d2-4271833800 .md [type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+
+.d2-4271833800 .md [type="search"] {
+  -webkit-appearance: textfield;
+  outline-offset: -2px;
+}
+
+.d2-4271833800 .md [type="search"]::-webkit-search-cancel-button,
+.d2-4271833800 .md [type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+.d2-4271833800 .md ::-webkit-input-placeholder {
+  color: inherit;
+  opacity: 0.54;
+}
+
+.d2-4271833800 .md ::-webkit-file-upload-button {
+  -webkit-appearance: button;
+  font: inherit;
+}
+
+.d2-4271833800 .md a:hover {
+  text-decoration: underline;
+}
+
+.d2-4271833800 .md hr::before {
+  display: table;
+  content: "";
+}
+
+.d2-4271833800 .md hr::after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.d2-4271833800 .md table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow: auto;
+}
+
+.d2-4271833800 .md td,
+.d2-4271833800 .md th {
+  padding: 0;
+}
+
+.d2-4271833800 .md details summary {
+  cursor: pointer;
+}
+
+.d2-4271833800 .md details:not([open]) > *:not(summary) {
+  display: none !important;
+}
+
+.d2-4271833800 .md kbd {
+  display: inline-block;
+  padding: 3px 5px;
+  color: var(--color-fg-default);
+  vertical-align: middle;
+  background-color: var(--color-canvas-subtle);
+  border: solid 1px var(--color-neutral-muted);
+  border-bottom-color: var(--color-neutral-muted);
+  border-radius: 6px;
+  box-shadow: inset 0 -1px 0 var(--color-neutral-muted);
+}
+
+.d2-4271833800 .md h1,
+.d2-4271833800 .md h2,
+.d2-4271833800 .md h3,
+.d2-4271833800 .md h4,
+.d2-4271833800 .md h5,
+.d2-4271833800 .md h6 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 400;
+  line-height: 1.25;
+  font-family: "d2-4271833800-font-semibold";
+}
+
+.d2-4271833800 .md h2 {
+  padding-bottom: 0.3em;
+  font-size: 1.5em;
+  border-bottom: 1px solid var(--color-border-muted);
+}
+
+.d2-4271833800 .md h3 {
+  font-size: 1.25em;
+}
+
+.d2-4271833800 .md h4 {
+  font-size: 1em;
+}
+
+.d2-4271833800 .md h5 {
+  font-size: 0.875em;
+}
+
+.d2-4271833800 .md h6 {
+  font-size: 0.85em;
+  color: var(--color-fg-muted);
+}
+
+.d2-4271833800 .md p {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.d2-4271833800 .md blockquote {
+  margin: 0;
+  padding: 0 1em;
+  color: var(--color-fg-muted);
+  border-left: 0.25em solid var(--color-border-default);
+}
+
+.d2-4271833800 .md ul,
+.d2-4271833800 .md ol {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 2em;
+}
+
+.d2-4271833800 .md ol ol,
+.d2-4271833800 .md ul ol {
+  list-style-type: lower-roman;
+}
+
+.d2-4271833800 .md ul ul ol,
+.d2-4271833800 .md ul ol ol,
+.d2-4271833800 .md ol ul ol,
+.d2-4271833800 .md ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.d2-4271833800 .md dd {
+  margin-left: 0;
+}
+
+.d2-4271833800 .md pre {
+  margin-top: 0;
+  margin-bottom: 0;
+  word-wrap: normal;
+}
+
+.d2-4271833800 .md ::placeholder {
+  color: var(--color-fg-subtle);
+  opacity: 1;
+}
+
+.d2-4271833800 .md input::-webkit-outer-spin-button,
+.d2-4271833800 .md input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.d2-4271833800 .md::before {
+  display: table;
+  content: "";
+}
+
+.d2-4271833800 .md::after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.d2-4271833800 .md > *:first-child {
+  margin-top: 0 !important;
+}
+
+.d2-4271833800 .md > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+.d2-4271833800 .md a:not([href]) {
+  color: inherit;
+  text-decoration: none;
+}
+
+.d2-4271833800 .md .absent {
+  color: var(--color-danger-fg);
+}
+
+.d2-4271833800 .md .anchor {
+  float: left;
+  padding-right: 4px;
+  margin-left: -20px;
+  line-height: 1;
+}
+
+.d2-4271833800 .md .anchor:focus {
+  outline: none;
+}
+
+.d2-4271833800 .md p,
+.d2-4271833800 .md blockquote,
+.d2-4271833800 .md ul,
+.d2-4271833800 .md ol,
+.d2-4271833800 .md dl,
+.d2-4271833800 .md table,
+.d2-4271833800 .md pre,
+.d2-4271833800 .md details {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.d2-4271833800 .md blockquote > :first-child {
+  margin-top: 0;
+}
+
+.d2-4271833800 .md blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.d2-4271833800 .md sup > a::before {
+  content: "[";
+}
+
+.d2-4271833800 .md sup > a::after {
+  content: "]";
+}
+
+.d2-4271833800 .md h1:hover .anchor,
+.d2-4271833800 .md h2:hover .anchor,
+.d2-4271833800 .md h3:hover .anchor,
+.d2-4271833800 .md h4:hover .anchor,
+.d2-4271833800 .md h5:hover .anchor,
+.d2-4271833800 .md h6:hover .anchor {
+  text-decoration: none;
+}
+
+.d2-4271833800 .md h1 tt,
+.d2-4271833800 .md h1 code,
+.d2-4271833800 .md h2 tt,
+.d2-4271833800 .md h2 code,
+.d2-4271833800 .md h3 tt,
+.d2-4271833800 .md h3 code,
+.d2-4271833800 .md h4 tt,
+.d2-4271833800 .md h4 code,
+.d2-4271833800 .md h5 tt,
+.d2-4271833800 .md h5 code,
+.d2-4271833800 .md h6 tt,
+.d2-4271833800 .md h6 code {
+  padding: 0 0.2em;
+  font-size: inherit;
+}
+
+.d2-4271833800 .md ul.no-list,
+.d2-4271833800 .md ol.no-list {
+  padding: 0;
+  list-style-type: none;
+}
+
+.d2-4271833800 .md ol[type="1"] {
+  list-style-type: decimal;
+}
+
+.d2-4271833800 .md ol[type="a"] {
+  list-style-type: lower-alpha;
+}
+
+.d2-4271833800 .md ol[type="i"] {
+  list-style-type: lower-roman;
+}
+
+.d2-4271833800 .md div > ol:not([type]) {
+  list-style-type: decimal;
+}
+
+.d2-4271833800 .md ul ul,
+.d2-4271833800 .md ul ol,
+.d2-4271833800 .md ol ol,
+.d2-4271833800 .md ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.d2-4271833800 .md li > p {
+  margin-top: 16px;
+}
+
+.d2-4271833800 .md li + li {
+  margin-top: 0.25em;
+}
+
+.d2-4271833800 .md dl {
+  padding: 0;
+}
+
+.d2-4271833800 .md dl dt {
+  padding: 0;
+  margin-top: 16px;
+  font-size: 1em;
+  font-style: italic;
+  font-family: "d2-4271833800-font-semibold";
+}
+
+.d2-4271833800 .md dl dd {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.d2-4271833800 .md table th {
+  font-family: "d2-4271833800-font-semibold";
+}
+
+.d2-4271833800 .md table th,
+.d2-4271833800 .md table td {
+  padding: 6px 13px;
+  border: 1px solid var(--color-border-default);
+}
+
+.d2-4271833800 .md table tr {
+  background-color: var(--color-canvas-default);
+  border-top: 1px solid var(--color-border-muted);
+}
+
+.d2-4271833800 .md table tr:nth-child(2n) {
+  background-color: var(--color-canvas-subtle);
+}
+
+.d2-4271833800 .md table img {
+  background-color: transparent;
+}
+
+.d2-4271833800 .md img[align="right"] {
+  padding-left: 20px;
+}
+
+.d2-4271833800 .md img[align="left"] {
+  padding-right: 20px;
+}
+
+.d2-4271833800 .md span.frame {
+  display: block;
+  overflow: hidden;
+}
+
+.d2-4271833800 .md span.frame > span {
+  display: block;
+  float: left;
+  width: auto;
+  padding: 7px;
+  margin: 13px 0 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+}
+
+.d2-4271833800 .md span.frame span img {
+  display: block;
+  float: left;
+}
+
+.d2-4271833800 .md span.frame span span {
+  display: block;
+  padding: 5px 0 0;
+  clear: both;
+  color: var(--color-fg-default);
+}
+
+.d2-4271833800 .md span.align-center {
+  display: block;
+  overflow: hidden;
+  clear: both;
+}
+
+.d2-4271833800 .md span.align-center > span {
+  display: block;
+  margin: 13px auto 0;
+  overflow: hidden;
+  text-align: center;
+}
+
+.d2-4271833800 .md span.align-center span img {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.d2-4271833800 .md span.align-right {
+  display: block;
+  overflow: hidden;
+  clear: both;
+}
+
+.d2-4271833800 .md span.align-right > span {
+  display: block;
+  margin: 13px 0 0;
+  overflow: hidden;
+  text-align: right;
+}
+
+.d2-4271833800 .md span.align-right span img {
+  margin: 0;
+  text-align: right;
+}
+
+.d2-4271833800 .md span.float-left {
+  display: block;
+  float: left;
+  margin-right: 13px;
+  overflow: hidden;
+}
+
+.d2-4271833800 .md span.float-left span {
+  margin: 13px 0 0;
+}
+
+.d2-4271833800 .md span.float-right {
+  display: block;
+  float: right;
+  margin-left: 13px;
+  overflow: hidden;
+}
+
+.d2-4271833800 .md span.float-right > span {
+  display: block;
+  margin: 13px auto 0;
+  overflow: hidden;
+  text-align: right;
+}
+
+.d2-4271833800 .md code,
+.d2-4271833800 .md tt {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  background-color: var(--color-neutral-muted);
+  border-radius: 6px;
+}
+
+.d2-4271833800 .md code br,
+.d2-4271833800 .md tt br {
+  display: none;
+}
+
+.d2-4271833800 .md del code {
+  text-decoration: inherit;
+}
+
+.d2-4271833800 .md pre code {
+  font-size: 100%;
+}
+
+.d2-4271833800 .md pre > code {
+  padding: 0;
+  margin: 0;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+
+.d2-4271833800 .md .highlight {
+  margin-bottom: 16px;
+}
+
+.d2-4271833800 .md .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+.d2-4271833800 .md .highlight pre,
+.d2-4271833800 .md pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: var(--color-canvas-subtle);
+  border-radius: 6px;
+}
+
+.d2-4271833800 .md pre code,
+.d2-4271833800 .md pre tt {
+  display: inline;
+  max-width: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+
+.d2-4271833800 .md .csv-data td,
+.d2-4271833800 .md .csv-data th {
+  padding: 5px;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.d2-4271833800 .md .csv-data .blob-num {
+  padding: 10px 8px 9px;
+  text-align: right;
+  background: var(--color-canvas-default);
+  border: 0;
+}
+
+.d2-4271833800 .md .csv-data tr {
+  border-top: 0;
+}
+
+.d2-4271833800 .md .csv-data th {
+  font-family: "d2-4271833800-font-semibold";
+  background: var(--color-canvas-subtle);
+  border-top: 0;
+}
+
+.d2-4271833800 .md .footnotes {
+  font-size: 12px;
+  color: var(--color-fg-muted);
+  border-top: 1px solid var(--color-border-default);
+}
+
+.d2-4271833800 .md .footnotes ol {
+  padding-left: 16px;
+}
+
+.d2-4271833800 .md .footnotes li {
+  position: relative;
+}
+
+.d2-4271833800 .md .footnotes li:target::before {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  bottom: -8px;
+  left: -24px;
+  pointer-events: none;
+  content: "";
+  border: 2px solid var(--color-accent-emphasis);
+  border-radius: 6px;
+}
+
+.d2-4271833800 .md .footnotes li:target {
+  color: var(--color-fg-default);
+}
+
+.d2-4271833800 .md .task-list-item {
+  list-style-type: none;
+}
+
+.d2-4271833800 .md .task-list-item label {
+  font-weight: 400;
+}
+
+.d2-4271833800 .md .task-list-item.enabled label {
+  cursor: pointer;
+}
+
+.d2-4271833800 .md .task-list-item + .task-list-item {
+  margin-top: 3px;
+}
+
+.d2-4271833800 .md .task-list-item .handle {
+  display: none;
+}
+
+.d2-4271833800 .md .task-list-item-checkbox {
+  margin: 0 0.2em 0.25em -1.6em;
+  vertical-align: middle;
+}
+
+.d2-4271833800 .md .contains-task-list:dir(rtl) .task-list-item-checkbox {
+  margin: 0 -1.6em 0.25em 0.2em;
+}
+</style><g class="Y2x1c3Rlcg=="><g class="shape" ><rect x="90.000000" y="76.000000" width="1088.000000" height="2870.000000" stroke="#0D32B2" fill="#E3E9FD" class=" stroke-B1 fill-B4" style="stroke-width:2;" /></g><text x="634.000000" y="63.000000" fill="#0A0F25" class="text fill-N1" style="text-anchor:middle;font-size:28px">Cluster</text></g><g class="Y2x1c3Rlci5uMQ=="><g class="shape" ><rect x="231.000000" y="117.000000" width="807.000000" height="588.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="634.500000" y="105.000000" fill="#0A0F25" class="text fill-N1" style="text-anchor:middle;font-size:24px">n1</text></g><g class="Y2x1c3Rlci5uMg=="><g class="shape" ><rect x="120.000000" y="786.000000" width="1028.000000" height="552.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="634.000000" y="774.000000" fill="#0A0F25" class="text fill-N1" style="text-anchor:middle;font-size:24px">n2</text></g><g class="Y2x1c3Rlci5uMw=="><g class="shape" ><rect x="384.000000" y="1419.000000" width="500.000000" height="516.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="634.000000" y="1407.000000" fill="#0A0F25" class="text fill-N1" style="text-anchor:middle;font-size:24px">n3</text></g><g class="Y2x1c3Rlci5tMQ=="><g class="shape" ><rect x="212.000000" y="2036.000000" width="844.000000" height="890.000000" stroke="#0D32B2" fill="#EDF0FD" class=" stroke-B1 fill-B5" style="stroke-width:2;" /></g><text x="634.000000" y="2024.000000" fill="#0A0F25" class="text fill-N1" style="text-anchor:middle;font-size:24px">m1</text></g><g class="Y2x1c3Rlci5uMS5vcw=="><g class="shape" ><rect x="507.000000" y="147.000000" width="254.000000" height="144.000000" stroke="#0A0F25" fill="#FFFFFF" class="shape stroke-N1 fill-N7" style="stroke-width:2;" /><rect x="507.000000" y="147.000000" width="254.000000" height="36.000000" fill="#0A0F25" class="class_header fill-N1" /><text x="517.000000" y="172.750000" fill="#FFFFFF" class="text fill-N7" style="text-anchor:start;font-size:24px">os</text><text x="517.000000" y="206.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">role</text><text x="598.000000" y="206.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Kubernetes node</text><text x="751.000000" y="206.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="507.000000" x2="761.000000" y1="219.000000" y2="219.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="517.000000" y="242.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">host-os</text><text x="598.000000" y="242.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Proxmox</text><text x="751.000000" y="242.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="507.000000" x2="761.000000" y1="255.000000" y2="255.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="517.000000" y="278.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">vms</text><text x="598.000000" y="278.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">opnsense</text><text x="751.000000" y="278.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="507.000000" x2="761.000000" y1="291.000000" y2="291.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /></g></g><g class="Y2x1c3Rlci5uMS5oYXJkd2FyZQ=="><g class="shape" ><rect x="261.000000" y="351.000000" width="747.000000" height="324.000000" stroke="#0A0F25" fill="#FFFFFF" class="shape stroke-N1 fill-N7" style="stroke-width:2;" /><rect x="261.000000" y="351.000000" width="747.000000" height="36.000000" fill="#0A0F25" class="class_header fill-N1" /><text x="271.000000" y="376.750000" fill="#FFFFFF" class="text fill-N7" style="text-anchor:start;font-size:24px">hardware</text><text x="271.000000" y="410.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">platform</text><text x="373.000000" y="410.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">ms-01</text><text x="998.000000" y="410.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="261.000000" x2="1008.000000" y1="423.000000" y2="423.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="271.000000" y="446.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">memory</text><text x="373.000000" y="446.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">G.SKILL 32 GB DDR5 5200 MT/s (2x16, 1R)</text><text x="998.000000" y="446.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="261.000000" x2="1008.000000" y1="459.000000" y2="459.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="271.000000" y="482.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">processor</text><text x="373.000000" y="482.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Intel i5-12600H (4 C [P, 4.5 GHz], 8 C [E, 3.3 GHz], 16 T, 18 MB)</text><text x="998.000000" y="482.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="261.000000" x2="1008.000000" y1="495.000000" y2="495.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="271.000000" y="518.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">boot</text><text x="373.000000" y="518.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Not redundant, see notes</text><text x="998.000000" y="518.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="261.000000" x2="1008.000000" y1="531.000000" y2="531.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="271.000000" y="554.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">storage</text><text x="373.000000" y="554.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">256 GB NVMe (WD Blue SN580), 1 TB NVMe (WD_BLACK SN770)</text><text x="998.000000" y="554.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="261.000000" x2="1008.000000" y1="567.000000" y2="567.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="271.000000" y="590.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">notes</text><text x="373.000000" y="590.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">TODO: Move 1 TB NVMe from n2 to n1 for redundant boot</text><text x="998.000000" y="590.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="261.000000" x2="1008.000000" y1="603.000000" y2="603.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="271.000000" y="626.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">network</text><text x="373.000000" y="626.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">On-board 2x 10Gb SFP+ (X710), 2x 2.5Gb Base-T, 2x USB4 (20Gb [40Gb int])</text><text x="998.000000" y="626.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="261.000000" x2="1008.000000" y1="639.000000" y2="639.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="271.000000" y="662.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">pcie</text><text x="373.000000" y="662.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Gen4 x16, unused</text><text x="998.000000" y="662.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="261.000000" x2="1008.000000" y1="675.000000" y2="675.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /></g></g><g class="Y2x1c3Rlci5uMi5vcw=="><g class="shape" ><rect x="507.000000" y="816.000000" width="254.000000" height="144.000000" stroke="#0A0F25" fill="#FFFFFF" class="shape stroke-N1 fill-N7" style="stroke-width:2;" /><rect x="507.000000" y="816.000000" width="254.000000" height="36.000000" fill="#0A0F25" class="class_header fill-N1" /><text x="517.000000" y="841.750000" fill="#FFFFFF" class="text fill-N7" style="text-anchor:start;font-size:24px">os</text><text x="517.000000" y="875.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">role</text><text x="598.000000" y="875.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Kubernetes node</text><text x="751.000000" y="875.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="507.000000" x2="761.000000" y1="888.000000" y2="888.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="517.000000" y="911.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">host-os</text><text x="598.000000" y="911.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">NixOS</text><text x="751.000000" y="911.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="507.000000" x2="761.000000" y1="924.000000" y2="924.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="517.000000" y="947.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">vms</text><text x="598.000000" y="947.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">talos</text><text x="751.000000" y="947.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="507.000000" x2="761.000000" y1="960.000000" y2="960.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /></g></g><g class="Y2x1c3Rlci5uMi5oYXJkd2FyZQ=="><g class="shape" ><rect x="150.000000" y="1020.000000" width="968.000000" height="288.000000" stroke="#0A0F25" fill="#FFFFFF" class="shape stroke-N1 fill-N7" style="stroke-width:2;" /><rect x="150.000000" y="1020.000000" width="968.000000" height="36.000000" fill="#0A0F25" class="class_header fill-N1" /><text x="160.000000" y="1045.750000" fill="#FFFFFF" class="text fill-N7" style="text-anchor:start;font-size:24px">hardware</text><text x="160.000000" y="1079.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">platform</text><text x="262.000000" y="1079.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">ms-01</text><text x="1108.000000" y="1079.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="150.000000" x2="1118.000000" y1="1092.000000" y2="1092.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="160.000000" y="1115.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">memory</text><text x="262.000000" y="1115.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Crucial 32 GB DDR5 5200 MT/s (2x16, 1R)</text><text x="1108.000000" y="1115.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="150.000000" x2="1118.000000" y1="1128.000000" y2="1128.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="160.000000" y="1151.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">processor</text><text x="262.000000" y="1151.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Intel i5-12600H (4 C [P, 4.5 GHz], 8 C [E, 3.3 GHz], 16 T, 18 MB)</text><text x="1108.000000" y="1151.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="150.000000" x2="1118.000000" y1="1164.000000" y2="1164.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="160.000000" y="1187.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">boot</text><text x="262.000000" y="1187.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">2x boot partitions, one per storage NVMe</text><text x="1108.000000" y="1187.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="150.000000" x2="1118.000000" y1="1200.000000" y2="1200.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="160.000000" y="1223.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">storage</text><text x="262.000000" y="1223.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">2x 2 TB NVMe (Viper VP4300 2TB, WD_BLACK SN770 [4 TB raw]), 1 TB NVMe unused (WD Blue SN5100)</text><text x="1108.000000" y="1223.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="150.000000" x2="1118.000000" y1="1236.000000" y2="1236.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="160.000000" y="1259.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">network</text><text x="262.000000" y="1259.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">On-board 2x 10Gb SFP+ (X710), 2x 2.5Gb Base-T, 2x USB4 (20GB [40Gb int])</text><text x="1108.000000" y="1259.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="150.000000" x2="1118.000000" y1="1272.000000" y2="1272.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="160.000000" y="1295.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">pcie</text><text x="262.000000" y="1295.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Gen4 x16, unused</text><text x="1108.000000" y="1295.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="150.000000" x2="1118.000000" y1="1308.000000" y2="1308.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /></g></g><g class="Y2x1c3Rlci5uMy5vcw=="><g class="shape" ><rect x="484.000000" y="1449.000000" width="301.000000" height="144.000000" stroke="#0A0F25" fill="#FFFFFF" class="shape stroke-N1 fill-N7" style="stroke-width:2;" /><rect x="484.000000" y="1449.000000" width="301.000000" height="36.000000" fill="#0A0F25" class="class_header fill-N1" /><text x="494.000000" y="1474.750000" fill="#FFFFFF" class="text fill-N7" style="text-anchor:start;font-size:24px">os</text><text x="494.000000" y="1508.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">role</text><text x="575.000000" y="1508.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Etcd quorum</text><text x="775.000000" y="1508.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="484.000000" x2="785.000000" y1="1521.000000" y2="1521.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="494.000000" y="1544.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">host-os</text><text x="575.000000" y="1544.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">NixOS (pending install)</text><text x="775.000000" y="1544.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="484.000000" x2="785.000000" y1="1557.000000" y2="1557.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="494.000000" y="1580.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">vms</text><text x="575.000000" y="1580.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">talos</text><text x="775.000000" y="1580.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="484.000000" x2="785.000000" y1="1593.000000" y2="1593.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /></g></g><g class="Y2x1c3Rlci5uMy5oYXJkd2FyZQ=="><g class="shape" ><rect x="414.000000" y="1653.000000" width="440.000000" height="252.000000" stroke="#0A0F25" fill="#FFFFFF" class="shape stroke-N1 fill-N7" style="stroke-width:2;" /><rect x="414.000000" y="1653.000000" width="440.000000" height="36.000000" fill="#0A0F25" class="class_header fill-N1" /><text x="424.000000" y="1678.750000" fill="#FFFFFF" class="text fill-N7" style="text-anchor:start;font-size:24px">hardware</text><text x="424.000000" y="1712.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">platform</text><text x="526.000000" y="1712.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Dell Optiplex 7050 Micro</text><text x="844.000000" y="1712.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="414.000000" x2="854.000000" y1="1725.000000" y2="1725.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="424.000000" y="1748.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">memory</text><text x="526.000000" y="1748.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">16 GB DDR4 2400 MT/s (2x8, 1R)</text><text x="844.000000" y="1748.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="414.000000" x2="854.000000" y1="1761.000000" y2="1761.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="424.000000" y="1784.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">processor</text><text x="526.000000" y="1784.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Intel i7-7700T (4 C, 8 T, 2.9 GHz, 8 MB)</text><text x="844.000000" y="1784.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="414.000000" x2="854.000000" y1="1797.000000" y2="1797.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="424.000000" y="1820.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">boot</text><text x="526.000000" y="1820.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Not redundant</text><text x="844.000000" y="1820.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="414.000000" x2="854.000000" y1="1833.000000" y2="1833.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="424.000000" y="1856.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">storage</text><text x="526.000000" y="1856.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">256 GB NVMe, 256 GB SATA SSD</text><text x="844.000000" y="1856.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="414.000000" x2="854.000000" y1="1869.000000" y2="1869.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="424.000000" y="1892.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">pcie</text><text x="526.000000" y="1892.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Gen3 x4 (NVMe), x2 (unused)</text><text x="844.000000" y="1892.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="414.000000" x2="854.000000" y1="1905.000000" y2="1905.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /></g></g><g class="Y2x1c3Rlci5tMS5zcGVjcw=="><g class="shape" ><rect x="242.000000" y="2072.000000" width="784.000000" height="552.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="634.000000" y="2061.000000" fill="#0A0F25" class="text fill-N1" style="text-anchor:middle;font-size:20px">specs</text></g><g class="Y2x1c3Rlci5tMS5zZXJ2aWNlcw=="><g class="shape" ><rect x="547.000000" y="2784.000000" width="174.000000" height="112.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="634.000000" y="2773.000000" fill="#0A0F25" class="text fill-N1" style="text-anchor:middle;font-size:20px">services</text></g><g class="Y2x1c3Rlci5tMS5saWJ2aXJ0ZA=="><g class="shape" ></g><g><foreignObject requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" x="584.000000" y="2674.000000" width="101" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="md color-N1"><p>talos
+opnsense</p>
+</div></foreignObject></g></g><g class="Y2x1c3Rlci5tMS5zcGVjcy5vcw=="><g class="shape" ><rect x="546.000000" y="2102.000000" width="177.000000" height="144.000000" stroke="#0A0F25" fill="#FFFFFF" class="shape stroke-N1 fill-N7" style="stroke-width:2;" /><rect x="546.000000" y="2102.000000" width="177.000000" height="36.000000" fill="#0A0F25" class="class_header fill-N1" /><text x="556.000000" y="2127.750000" fill="#FFFFFF" class="text fill-N7" style="text-anchor:start;font-size:24px">os</text><text x="556.000000" y="2161.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">role</text><text x="637.000000" y="2161.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Storage</text><text x="713.000000" y="2161.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="546.000000" x2="723.000000" y1="2174.000000" y2="2174.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="556.000000" y="2197.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">host-os</text><text x="637.000000" y="2197.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">NixOS</text><text x="713.000000" y="2197.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="546.000000" x2="723.000000" y1="2210.000000" y2="2210.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="556.000000" y="2233.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">vms</text><text x="637.000000" y="2233.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">talos</text><text x="713.000000" y="2233.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="546.000000" x2="723.000000" y1="2246.000000" y2="2246.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /></g></g><g class="Y2x1c3Rlci5tMS5zcGVjcy5oYXJkd2FyZQ=="><g class="shape" ><rect x="272.000000" y="2306.000000" width="724.000000" height="288.000000" stroke="#0A0F25" fill="#FFFFFF" class="shape stroke-N1 fill-N7" style="stroke-width:2;" /><rect x="272.000000" y="2306.000000" width="724.000000" height="36.000000" fill="#0A0F25" class="class_header fill-N1" /><text x="282.000000" y="2331.750000" fill="#FFFFFF" class="text fill-N7" style="text-anchor:start;font-size:24px">hardware</text><text x="282.000000" y="2365.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">platform</text><text x="384.000000" y="2365.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">ASUS TUF Z390M-PRO</text><text x="986.000000" y="2365.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="272.000000" x2="996.000000" y1="2378.000000" y2="2378.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="282.000000" y="2401.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">memory</text><text x="384.000000" y="2401.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">TEAMGROUP 64 GB DDR4 (4x16, 1R)</text><text x="986.000000" y="2401.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="272.000000" x2="996.000000" y1="2414.000000" y2="2414.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="282.000000" y="2437.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">processor</text><text x="384.000000" y="2437.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Intel i7-9700k (8 C, 8 T, 12 MB)</text><text x="986.000000" y="2437.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="272.000000" x2="996.000000" y1="2450.000000" y2="2450.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="282.000000" y="2473.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">boot</text><text x="384.000000" y="2473.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">2x boot partitions, one per NVMe</text><text x="986.000000" y="2473.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="272.000000" x2="996.000000" y1="2486.000000" y2="2486.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="282.000000" y="2509.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">storage</text><text x="384.000000" y="2509.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">2x Patriot P300 512 GB (mirrored), 2x Seagate 28 T (56 T raw [mirrored])</text><text x="986.000000" y="2509.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="272.000000" x2="996.000000" y1="2522.000000" y2="2522.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="282.000000" y="2545.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">network</text><text x="384.000000" y="2545.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">2x 10GB SFP+ (X710), 1x 2.5Gb Base-T</text><text x="986.000000" y="2545.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="272.000000" x2="996.000000" y1="2558.000000" y2="2558.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /><text x="282.000000" y="2581.000000" fill="#0D32B2" class="text fill-B2" style="text-anchor:start;font-size:20px">pcie</text><text x="384.000000" y="2581.000000" fill="#676C7E" class="text fill-N2" style="text-anchor:start;font-size:20px">Gen3 x16, unused; x1 unused</text><text x="986.000000" y="2581.000000" fill="#4A6FF3" class="text fill-AA2" style="text-anchor:end;font-size:20px" /><line x1="272.000000" x2="996.000000" y1="2594.000000" y2="2594.000000" stroke="#0A0F25" class=" stroke-N1" style="stroke-width:2" /></g></g><g class="Y2x1c3Rlci5tMS5zZXJ2aWNlcy51c2Vyc3BhY2U="><g class="shape" ></g><g><foreignObject requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" x="577.000000" y="2814.000000" width="114" height="52"><div xmlns="http://www.w3.org/1999/xhtml" class="md color-N1"><ul>
+<li>nfs-ganesha</li>
+<li>seaweedfs</li>
+</ul>
+</div></foreignObject></g></g><mask id="d2-4271833800" maskUnits="userSpaceOnUse" x="-11" y="-65" width="1290" height="3112">
+<rect x="-11" y="-65" width="1290" height="3112" fill="white"></rect>
+
+</mask></svg></svg>

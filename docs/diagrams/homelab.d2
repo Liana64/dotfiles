@@ -2,42 +2,49 @@ direction: right
 
 cluster: Cluster {
   n1: {
-    hardware: {
-      shape: sql_table
-      platform: ms-01
-      memory: G.SKILL 32 GB DDR5 5200 MT/s (2x16, 1R)
-      processor: "Intel i5-12600H (4 C [P, 4.5 GHz], 8 C [E, 3.3 GHz], 16 T, 18 MB)"
-      boot: -
-      storage: -
-      network: -
-      pcie: -
-    }
     os: {
       shape: sql_table
       role: Kubernetes node
       host-os: Proxmox
       vms: opnsense
     }
-  }
-  n2: {
     hardware: {
       shape: sql_table
       platform: ms-01
-      memory: Crucial 32 GB DDR5 5200 MT/s (2x16, 1R)
+      memory: G.SKILL 32 GB DDR5 5200 MT/s (2x16, 1R)
       processor: "Intel i5-12600H (4 C [P, 4.5 GHz], 8 C [E, 3.3 GHz], 16 T, 18 MB)"
-      boot: 2x boot partitions, one per storage NVMe
-      storage: 2x 2 TB NVMe (4 TB raw), 1 TB NVMe unused
-      network: On-board 2x 10Gb SFP, 2x 1Gb Base-T
-      pcie: -
+      boot: Not redundant, see notes
+      storage: 256 GB NVMe (WD Blue SN580), 1 TB NVMe (WD_BLACK SN770)
+      notes: "TODO: Move 1 TB NVMe from n2 to n1 for redundant boot"
+      network: "On-board 2x 10Gb SFP+ (X710), 2x 2.5Gb Base-T, 2x USB4 (20Gb [40Gb int])"
+      pcie: Gen4 x16, unused
     }
+  }
+  n2: {
     os: {
       shape: sql_table
       role: Kubernetes node
       host-os: NixOS
       vms: talos
     }
+    hardware: {
+      shape: sql_table
+      platform: ms-01
+      memory: Crucial 32 GB DDR5 5200 MT/s (2x16, 1R)
+      processor: "Intel i5-12600H (4 C [P, 4.5 GHz], 8 C [E, 3.3 GHz], 16 T, 18 MB)"
+      boot: 2x boot partitions, one per storage NVMe
+      storage: "2x 2 TB NVMe (Viper VP4300 2TB, WD_BLACK SN770 [4 TB raw]), 1 TB NVMe unused (WD Blue SN5100)"
+      network: "On-board 2x 10Gb SFP+ (X710), 2x 2.5Gb Base-T, 2x USB4 (20GB [40Gb int])"
+      pcie: Gen4 x16, unused
+    }
   }
   n3: {
+    os: {
+      shape: sql_table
+      role: Etcd quorum
+      host-os: NixOS (pending install)
+      vms: talos
+    }
     hardware: {
       shape: sql_table
       platform: Dell Optiplex 7050 Micro
@@ -45,23 +52,38 @@ cluster: Cluster {
       processor: Intel i7-7700T (4 C, 8 T, 2.9 GHz, 8 MB)
       boot: Not redundant
       storage: 256 GB NVMe, 256 GB SATA SSD
-      pcie: x4, unused
-    }
-    os: {
-      shape: sql_table
-      role: Etcd quorum
-      host-os: NixOS
-      vms: talos
+      pcie: Gen3 x4 (NVMe), x2 (unused)
     }
   }
   m1: {
-    shape: sql_table
-    role: Media server
-    host-os: NixOS
-    platform: Custom build
-    memory: 64 GB DDR4
-    processor: i7-9700K (8 C, 8 T, 12 MB, 95 W)
-    boot: Dual NVMe
-    storage: 2x 28 TB (56 TB raw)
+    specs: {
+      os: {
+        shape: sql_table
+        role: Storage
+        host-os: NixOS
+        vms: talos
+      }
+      hardware: {
+        shape: sql_table
+        platform: ASUS TUF Z390M-PRO
+        memory: TEAMGROUP 64 GB DDR4 (4x16, 1R)
+        processor: "Intel i7-9700k (8 C, 8 T, 12 MB)"
+        boot: 2x boot partitions, one per NVMe
+        storage: "2x Patriot P300 512 GB (mirrored), 2x Seagate 28 T (56 T raw [mirrored])"
+        network: 2x 10GB SFP+ (X710), 1x 2.5Gb Base-T
+        pcie: "Gen3 x16, unused; x1 unused"
+      }
+    }
+    services: {
+      userspace: |md
+        - nfs-ganesha
+        - seaweedfs
+      |
+    }
+    libvirtd: |md
+      talos
+      opnsense
+    |
+    opnsense
   }
 }
