@@ -12,6 +12,7 @@
       extraRules = ''
         ACTION=="add", SUBSYSTEM=="thunderbolt", ATTR{device_name}=="TS4", ATTR{vendor_name}=="CalDigit, Inc.", TAG+="systemd", ENV{SYSTEMD_WANTS}="inhibit-sleep-when-docked.service"
         ACTION=="remove", SUBSYSTEM=="thunderbolt", ATTR{device_name}=="TS4", ATTR{vendor_name}=="CalDigit, Inc.", RUN+="${pkgs.systemd}/bin/systemctl stop inhibit-sleep-when-docked.service"
+        ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="64:4b:f0:6a:d7:00", RUN+="${pkgs.ethtool}/bin/ethtool --set-eee $name eee off"
       '';
     };
 
