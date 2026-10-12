@@ -11,6 +11,26 @@
       {
         nixpkgs.hostPlatform = "x86_64-linux";
         boot.zfs.forceImportRoot = false;
+        networking = {
+          hostName = "nixos-installer";
+          networkmanager.enable = inputs.nixpkgs.lib.mkForce false;
+          useNetworkd = true;
+          useDHCP = false;
+          firewall.allowedUDPPorts = [5353];
+        };
+        services.resolved = {
+          enable = true;
+          settings.Resolve.MulticastDNS = true;
+        };
+        systemd.network.networks."10-ether" = {
+          matchConfig.Type = "ether";
+          networkConfig = {
+            DHCP = "yes";
+            LinkLocalAddressing = "yes";
+            MulticastDNS = true;
+          };
+          linkConfig.RequiredForOnline = "no";
+        };
         zramSwap = {
           enable = true;
           memoryPercent = 100;
