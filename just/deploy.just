@@ -5,12 +5,11 @@ _nh verb host:
     r=liana@{{ host }}.{{ mgmt }}
     exec nh os {{ verb }} /nix/dotfiles --diff always -H {{ host }} --target-host "$r" --build-host "$r"
 
-# Build and show diff, here or on host
+# Build and diff, local or remote
 [group('deploy')]
 build host='': (_nh "build" host)
 
-# Build and activate, here or on host
-[confirm("rebuild + switch now?")]
+# Build and switch, local or remote
 [group('deploy')]
 switch host='': (_nh "switch" host)
 
