@@ -30,6 +30,7 @@
         }
       ];
     };
+    kernelParams = ["intel_iommu=on" "iommu=pt"];
     blacklistedKernelModules = ["mt7921e"];
   };
 
