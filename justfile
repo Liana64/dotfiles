@@ -1,108 +1,16 @@
 # Global command `frame` (cwd /nix/dotfiles)
 
+mgmt := "mgmt.milberry.org"
+m1 := "liana@m1." + mgmt
+kube := "kubectl --context milberry"
+system := arch() + "-" + os()
+
+import 'just/repo.just'
+import 'just/deploy.just'
+import 'just/backup.just'
+import 'just/system.just'
+import 'just/hardware.just'
+import 'just/bench.just'
+
 _default:
     @just --list --unsorted
-
-# Eval all configs, no build
-[group('repo')]
-verify:
-    dotfiles-verify
-
-# Flake checks: shellcheck over modules/bin
-[group('repo')]
-check:
-    nix flake check
-
-# Format nix files
-[group('repo')]
-fmt +files:
-    nix fmt -- {{ files }}
-
-# Update input(s) and verify
-[group('repo')]
-update *inputs:
-    nix flake update {{ inputs }}
-    dotfiles-verify
-
-# Build and show diff
-[group('repo')]
-diff:
-    nh os build /nix/dotfiles --diff always
-
-# Build and activate system
-[group('repo')]
-[confirm("rebuild + switch now?")]
-switch:
-    nh os switch /nix/dotfiles
-
-# Failed systemd units
-[group('system')]
-health:
-    systemctl --failed
-    systemctl --user --failed
-
-# Auditd status
-[group('system')]
-status:
-    austatus
-
-# Acknowledge auditd wall
-[group('system')]
-ack:
-    austatus ack
-
-# Rotate auditd log
-[group('system')]
-rotate:
-    austatus rotate
-
-# Verify nix store integrity
-[group('system')]
-store-verify:
-    sudo systemctl start nix-store-verify
-    @cat /var/lib/audit-wall/alerts/store-verify 2>/dev/null || echo "store clean"
-
-# Install/update/prune flatpaks to the declared set, tailing progress
-[group('system')]
-flatpaks:
-    #!/usr/bin/env sh
-    journalctl -fn0 -o cat -u flatpak-repo & trap 'kill $!' EXIT
-    sudo systemctl start flatpak-repo
-
-# hardening-probe <preset> [--sweep] -- <cmd>
-[group('system')]
-probe +args:
-    hardening-probe {{ args }}
-
-[group('system')]
-generations:
-    nixos-rebuild list-generations
-
-[group('system')]
-[confirm("delete old generations + collect garbage?")]
-gc:
-    nix-collect-garbage -d
-
-# Build the installer ISO into the invoking directory
-[group('hardware')]
-iso *args:
-    cd {{ invocation_directory() }} && nix-build-installer {{ args }}
-
-# Firmware updates
-[group('hardware')]
-firmware:
-    -fwupdmgr refresh
-    fwupdmgr update
-
-# SMART health
-[group('hardware')]
-disk:
-    sudo smartctl -a /dev/nvme0n1
-
-[group('hardware')]
-wifi *args:
-    wifi-bench {{ args }}
-
-[group('hardware')]
-bt *args:
-    bt-bench {{ args }}

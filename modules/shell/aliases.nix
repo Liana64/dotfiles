@@ -32,7 +32,7 @@
       f = "frame";
       k = "kubectl";
       ceremony = "d=$(mktemp -d /run/user/$UID/ceremony.XXX) && cd \"$d\"";
-      ceremony-age = "d=$(mktemp -d /run/user/$UID/ceremony.XXX) && cd \"$d\" && n=$(mkdir -p var/lib/sops-nix/) && cd \"$n\" && age-keygen -pq -o $1";
+      ceremony-age = "d=$(mktemp -d /run/user/$UID/ceremony.XXX) && cd \"$d\" && mkdir -p var/lib/sops-nix && age-keygen -pq -o var/lib/sops-nix/key.txt";
       dot = "cd /nix/dotfiles && hx /nix/dotfiles";
       drafts = "cd /home/liana/Projects/Software/drafts && hx .";
       notes = "cd /home/liana/Projects/Software/drafts/notes && hx .";
@@ -47,11 +47,6 @@
       tt = "taskwarrior-tui -r today";
       # Snooze a task out of view until a wait date (default tomorrow): snooze <id> [when]
       snooze = "task-snooze";
-    };
-
-    nixos = {
-      gc = "nix-collect-garbage -d";
-      rebuild-m1 = "rebuild-remote m1.mgmt.milberry.org";
     };
 
     ai = {
@@ -120,7 +115,7 @@
       flushdns = "sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder";
     };
 
-    aliases = editors // ls // grep // personal // tasks // nixos // ai // containers // rust-tools // networking // utility // crypto // git // darwin;
+    aliases = editors // ls // grep // personal // tasks // ai // containers // rust-tools // networking // utility // crypto // git // darwin;
 
     randomFn = ''
       random() {
