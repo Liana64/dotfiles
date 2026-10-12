@@ -61,7 +61,7 @@
     model.type = "virtio";
   };
 in {
-  iso = import ./media.nix pkgs;
+  media = import ./media.nix pkgs;
 
   mkVM = {
     name,

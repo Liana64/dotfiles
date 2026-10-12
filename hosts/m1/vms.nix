@@ -1,5 +1,5 @@
 {libvirt, ...}: let
-  inherit (libvirt) mkVM iso;
+  inherit (libvirt) mkVM media;
 in {
   virtualisation.libvirt.connections."qemu:///system".domains = [
     (mkVM {
@@ -7,7 +7,7 @@ in {
       uuid = "c0ff6d31-0000-4000-8000-000000000014";
       vcpus = 6;
       memoryGiB = 40;
-      iso = iso.talos;
+      iso = media.talos;
       disks = [
         {
           zvol = "rpool/vms/talos-os";
