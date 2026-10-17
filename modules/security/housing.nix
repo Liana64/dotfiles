@@ -155,7 +155,7 @@ in {
       namespacing.proc = true;
       sessionDbus.own = ["org.mozilla.firefox.*"];
       landlock = {
-        connectTcpPorts = [53 80 443 8006];
+        connectTcpPorts = [53 80 443 8006 8443];
         rwDirs = [drop];
       };
     };
