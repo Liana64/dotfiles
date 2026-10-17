@@ -36,7 +36,7 @@
       gateway = "172.16.140.1";
       hosts = {
         slskd = "172.16.140.10";
-        qbittorrent = "172.16.140.11";
+        qbittorrent = "172.16.140.20";
       };
     };
     clients = {
