@@ -22,7 +22,7 @@ _: {
       enable = true;
       enableZshIntegration = false;
       settings.git.autoFetch = false;
-      settings.gui.theme.selectedLineBgColor = lib.mkForce [config.lib.stylix.colors.withHashtag.base02];
+      settings.gui.theme.selectedLineBgColor = lib.mkIf (config.lib ? stylix) (lib.mkForce [config.lib.stylix.colors.withHashtag.base02]);
     };
   };
 }
