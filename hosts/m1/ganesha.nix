@@ -74,6 +74,7 @@
       NFSv4 {
         Minor_Versions = 1, 2;
         RecoveryBackend = fs;
+        Only_Numeric_Owners = true;
       }
     ''
     + builtins.concatStringsSep "" (map export exports));
