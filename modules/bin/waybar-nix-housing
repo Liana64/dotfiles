@@ -1,0 +1,42 @@
+#!/bin/sh
+# @desc: waybar icon — arrow while house files await promotion; click promotes, right-click dismisses (houses as args)
+
+cmd=$1
+shift
+
+case $cmd in
+promote | dismiss)
+  for h; do
+    set -- "$@" "house-$cmd@$h.service"
+    shift
+  done
+  exec systemctl --user --no-block start "$@"
+  ;;
+watch) ;;
+*) exit 64 ;;
+esac
+
+render() {
+  failed=$(systemctl --user list-units --state=failed --no-legend --plain 'house-promote@*' 'house-dismiss@*' 2>/dev/null | cut -d' ' -f1)
+  for h; do house-intake list "$h" 2>/dev/null | sed "s|^|$h\t|"; done | jq -Rsc --arg failed "$failed" '
+    split("\n") | map(select(. != "") | split("\t")) as $rows
+    | [$rows[] | select(.[1] == "pending") | "\(.[0])  \(.[2])"] as $p
+    | ([$rows[] | select(.[1] == "skipped") | .[2] | tonumber] | add // 0) as $s
+    | ($p | length) as $n
+    | if $n == 0 then {text: ""} else
+        ("\($n) pending\n" + ($p[:20] | join("\n"))
+          + (if $n > 20 then "\n… \($n - 20) more" else "" end)
+          + (if $s > 0 then "\n\($s) skipped: folders, links, special files" else "" end)
+          + (if $failed != "" then "\nfailed: " + ($failed | split("\n") | join(", ")) else "" end)
+          | gsub("&"; "&amp;") | gsub("<"; "&lt;") | gsub(">"; "&gt;")) as $t
+        | {text: "↓", class: (if $failed != "" then "failed" else "pending" end), tooltip: $t}
+      end'
+}
+
+while :; do
+  render "$@"
+  for h; do house-intake paths "$h"; done |
+    inotifywait -qq -t 30 -e create,delete,moved_to,moved_from,close_write,attrib --fromfile -
+  [ $? -eq 1 ] && sleep 5
+  sleep 0.3
+done

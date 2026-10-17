@@ -1,6 +1,7 @@
 # @desc: Waybar status bar
 {...}: {
   flake.modules.homeManager.waybar = {
+    config,
     lib,
     pkgs,
     colors,
@@ -8,6 +9,8 @@
     hardening,
     ...
   }: let
+    intake = import ../_lib/house-intake.nix {inherit pkgs lib hardening config;};
+    intakeArgs = lib.escapeShellArgs intake.houses;
     useNiri = (osConfig.compositor or "sway") == "niri";
     taskManager = osConfig.taskManager or "todoist";
     machineSecrets = osConfig.machineSecrets or true;
@@ -16,7 +19,8 @@
       then ["niri/workspaces"]
       else ["sway/workspaces" "sway/mode"];
     statusModules =
-      ["custom/harness-status" "custom/usbguard"]
+      lib.optional (intake.houses != []) "custom/nix-housing"
+      ++ ["custom/harness-status" "custom/usbguard"]
       ++ lib.optional machineSecrets "custom/syncthing"
       ++ ["custom/caffeine"]
       ++ lib.optional machineSecrets "custom/vpn";
@@ -28,6 +32,7 @@
         (writeShellScriptBin "waybar-syncthing" (builtins.readFile ../../modules/bin/waybar-syncthing))
         (writeShellScriptBin "waybar-caffeine" (builtins.readFile ../../modules/bin/waybar-caffeine))
         (writeShellScriptBin "waybar-harness-status" (builtins.readFile ../../modules/bin/waybar-harness-status))
+        (writeShellScriptBin "waybar-nix-housing" (builtins.readFile ../../modules/bin/waybar-nix-housing))
         (writeShellScriptBin "waybar-task" (builtins.readFile ../../modules/bin/waybar-task))
         (writeShellScriptBin "waybar-countdown" (builtins.readFile ../../modules/bin/waybar-countdown))
         #(writeShellScriptBin "track-date" (builtins.readFile ../../modules/bin/track-date))
@@ -43,6 +48,7 @@
         wrapProgram $out/bin/waybar-task          --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [taskwarrior3 jq coreutils])}
         wrapProgram $out/bin/waybar-syncthing     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [curl jq gnused procps])}
         wrapProgram $out/bin/waybar-harness-status --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils gnused procps sway])}
+        wrapProgram $out/bin/waybar-nix-housing   --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [intake.intake jq inotify-tools coreutils gnused systemd])}
         wrapProgram $out/bin/waybar-countdown     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils])}
         #wrapProgram $out/bin/track-date           --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils procps])}
         wrapProgram $out/bin/waybar-todoist       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [todoist jq coreutils gnused gawk])}
@@ -130,6 +136,7 @@
         #custom-task,
         #custom-countdown,
         #custom-airplane,
+        #custom-nix-housing,
         #custom-harness-status {
           color: ${white};
           margin: 2px 2px;
@@ -160,6 +167,10 @@
 
         #custom-harness-status.running {
           color: ${comment};
+        }
+
+        #custom-nix-housing.failed {
+          color: ${red};
         }
 
         #custom-countdown.today {
@@ -197,6 +208,7 @@
         }
 
         #status #custom-harness-status,
+        #status #custom-nix-housing,
         #status #custom-usbguard,
         #status #custom-syncthing,
         #status #custom-vpn,
@@ -215,6 +227,7 @@
         }
 
         #status #custom-harness-status:hover,
+        #status #custom-nix-housing:hover,
         #status #custom-usbguard:hover,
         #status #custom-syncthing:hover,
         #status #custom-vpn:hover,
@@ -379,6 +392,14 @@
             format = "{}";
             on-click = "${app}/bin/waybar-harness-status focus";
             on-click-right = "${app}/bin/waybar-harness-status clear";
+          };
+
+          "custom/nix-housing" = {
+            exec = "${app}/bin/waybar-nix-housing watch ${intakeArgs}";
+            return-type = "json";
+            format = "{}";
+            on-click = "${app}/bin/waybar-nix-housing promote ${intakeArgs}";
+            on-click-right = "${app}/bin/waybar-nix-housing dismiss ${intakeArgs}";
           };
 
           "sway/workspaces" = {

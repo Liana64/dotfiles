@@ -18,8 +18,8 @@
         # Terminal
         "x-scheme-handler/terminal" = "kitty.desktop";
 
-        # PDF — firefox renders these well enough
-        "application/pdf" = "firefox.house-web.desktop";
+        # PDF → throwaway Firefox in web-ephemeral, staged by open-pdf (housing.nix)
+        "application/pdf" = "open-pdf.desktop";
 
         # Plain text
         "text/plain" = "org.gnome.TextEditor.desktop";

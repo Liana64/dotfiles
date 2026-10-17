@@ -106,16 +106,47 @@ in {
       };
     };
 
+    portalOpenFile = pkgs.writeShellScript "portal-open-file" ''
+      exec 3<"$1"
+      exec ${lib.getExe' pkgs.systemd "busctl"} --user --quiet call \
+        org.freedesktop.portal.Desktop /org/freedesktop/portal/desktop \
+        org.freedesktop.portal.OpenURI OpenFile 'sha{sv}' "" 3 0
+    '';
+    portalPdf = {
+      xdg.desktopEntries.portal-open-file = {
+        name = "Open file on host";
+        noDisplay = true;
+        exec = "${portalOpenFile} %f";
+        mimeType = ["application/pdf"];
+      };
+      xdg.mimeApps.defaultApplications."application/pdf" = "portal-open-file.desktop";
+      programs.thunderbird.profiles.default.settings."pdfjs.disabled" = true;
+    };
+
+    pdfHouse = "web-ephemeral";
+    openPdf = let
+      h = config.housing.houses.${pdfHouse};
+    in
+      intake.openPdf {
+        name = "open-pdf";
+        launch = "${h.runner}/bin/house-${pdfHouse} ${h.hm.homeManagerConfiguration.config.home.path}/bin/firefox --new-tab";
+      };
+
     projects = "$NIX_HOUSING_REAL_HOME/Projects";
     notebook = "$NIX_HOUSING_REAL_HOME/Notebook";
     dillo = "$NIX_HOUSING_REAL_HOME/.dillo";
     drop = "$NIX_HOUSING_REAL_HOME/houses/shared/drop";
     velesDir = "$NIX_HOUSING_REAL_HOME/houses/shared/veles";
 
-    sharedDrop = {
-      xdg.configFile."gtk-3.0/bookmarks".text = "file://${config.home.homeDirectory}/houses/shared/drop Shared\n";
-      programs.firefox.policies.DefaultDownloadDirectory = "${config.home.homeDirectory}/houses/shared/drop";
-    };
+    intake = import ../_lib/house-intake.nix {inherit pkgs lib hardening config;};
+
+    sharedDrop = let
+      shared = "${config.home.homeDirectory}/houses/shared/drop";
+    in
+      {config, ...}: {
+        xdg.configFile."gtk-3.0/bookmarks".text = "file://${shared} Shared\n";
+        programs.firefox.policies.DefaultDownloadDirectory = "${config.home.homeDirectory}/Downloads";
+      };
 
     webCapabilities = {
       gui.enable = true;
@@ -200,6 +231,7 @@ in {
             ++ [
               houseTitle
               portalUrls
+              portalPdf
               sharedDrop
               aspects.halloy
               aspects.iamb
@@ -295,7 +327,9 @@ in {
           firefox.role = "ephemeral";
         };
         exportDesktopEntries = true;
-        capabilities = webCapabilities;
+        capabilities = lib.recursiveUpdate webCapabilities {
+          landlock.roDirs = ["$NIX_HOUSING_REAL_XDG_RUNTIME_DIR/${intake.pdfStage}"];
+        };
       };
 
       agentic = {
@@ -343,22 +377,44 @@ in {
       Install.WantedBy = ["graphical-session.target"];
     };
 
-    systemd.user.tmpfiles.rules = [
-      "d %h/houses/shared 0700 - - -"
-      "d %h/houses/shared/drop 0700 - - -"
-      "d %h/houses/shared/veles 0700 - - -"
-    ];
+    systemd.user.services."house-promote@" = {
+      Unit.Description = "Copy pending %i house files into the host";
+      Service = intake.service {mode = "promote";};
+    };
 
-    xdg.desktopEntries = lib.mapAttrs' (name: _:
-      lib.nameValuePair "house-${name}" {
-        name = "kitty [${name}]";
-        genericName = "Terminal";
-        comment = "Login shell inside the ${name} house";
-        icon = "kitty";
-        exec = "${lib.getExe pkgs.kitty} --class house-${name} ${config.housing.houses.${name}.runner}/bin/house-${name}";
-        categories = ["System" "TerminalEmulator"];
-      })
-    accents;
+    systemd.user.services."house-dismiss@" = {
+      Unit.Description = "Mark pending %i house files as seen";
+      Service = intake.service {mode = "dismiss";};
+    };
+
+    systemd.user.tmpfiles.rules =
+      [
+        "d %h/houses/shared 0700 - - -"
+        "d %h/houses/shared/drop 0700 - - -"
+        "d %h/houses/shared/veles 0700 - - -"
+        "d %t/${intake.pdfStage} 0700 - - -"
+      ]
+      ++ lib.concatMap (h: map (d: "d %h/${d}/${h} 0700 - - -") intake.dirs ++ ["d %S/house-intake/${h} 0700 - - -"]) intake.houses;
+
+    xdg.desktopEntries =
+      lib.mapAttrs' (name: _:
+        lib.nameValuePair "house-${name}" {
+          name = "kitty [${name}]";
+          genericName = "Terminal";
+          comment = "Login shell inside the ${name} house";
+          icon = "kitty";
+          exec = "${lib.getExe pkgs.kitty} --class house-${name} ${config.housing.houses.${name}.runner}/bin/house-${name}";
+          categories = ["System" "TerminalEmulator"];
+        })
+      accents
+      // {
+        open-pdf = {
+          name = "PDF [${pdfHouse}]";
+          noDisplay = true;
+          exec = "${lib.getExe openPdf} %f";
+          mimeType = ["application/pdf"];
+        };
+      };
 
     xdg.dataFile =
       lib.genAttrs (map (app: "applications/${app}.desktop") ["chromium-browser" "firefox" "dillo" "iamb" "obsidian" "org.squidowl.halloy" "signal" "thunderbird" "vesktop" "zoom-web"]) (_: {
