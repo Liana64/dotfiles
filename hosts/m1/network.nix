@@ -62,7 +62,7 @@ in {
           Bridge = "br0";
           LinkLocalAddressing = "no";
         };
-        bridgeVLANs = [{VLAN = 10;} {VLAN = 20;}];
+        bridgeVLANs = [{VLAN = 10;} {VLAN = 20;} {VLAN = 140;}];
         linkConfig.RequiredForOnline = false;
       };
       "20-br0" = {
@@ -71,7 +71,7 @@ in {
           VLAN = ["cluster" "hstore"];
           LinkLocalAddressing = "no";
         };
-        bridgeVLANs = [{VLAN = 10;} {VLAN = 20;}];
+        bridgeVLANs = [{VLAN = 10;} {VLAN = 20;} {VLAN = 140;}];
         linkConfig.RequiredForOnline = false;
       };
       "30-mgmt-nic" = parent "eno2" "mgmt";

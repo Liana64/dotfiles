@@ -1,4 +1,4 @@
-# @desc: Infra network addressing (cluster, hstore, mgmt, clients)
+# @desc: Infra network addressing (cluster, hstore, mgmt, vpn, clients)
 {
   flake.network = let
     lan = net: net // {cidr = builtins.mapAttrs (_: ip: "${ip}/${baseNameOf net.subnet}") net.hosts;};
@@ -29,6 +29,14 @@
         n1 = "172.16.99.100";
         n2 = "172.16.99.101";
         n3 = "172.16.99.102";
+      };
+    };
+    vpn = lan {
+      subnet = "172.16.140.0/24";
+      gateway = "172.16.140.1";
+      hosts = {
+        slskd = "172.16.140.10";
+        qbittorrent = "172.16.140.11";
       };
     };
     clients = {
