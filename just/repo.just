@@ -2,18 +2,18 @@
 [group('repo')]
 verify host='':
     #!/usr/bin/env sh
-    untracked=$(git ls-files --others --exclude-standard -- '*.nix')
+    untracked=$(git -C {{ nixops_path }} ls-files --others --exclude-standard -- '*.nix')
     [ -n "$untracked" ] && printf 'untracked .nix (git add before trusting results):\n%s\n' "$untracked"
     tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
     for kind in nixos home; do
-      nix eval --json ".#${kind}Configurations" --apply builtins.attrNames \
+      nix eval --json "{{ nixops_path }}#${kind}Configurations" --apply builtins.attrNames \
         | jq -r --arg k "$kind" --arg h {{ quote(host) }} '.[] | select($h == "" or . == $h or endswith("@" + $h)) | "\($k) \(.)"'
     done | nl -w2 -nrz -s' ' | xargs -r -P4 -L1 sh -c '
       case $2 in
         nixos) attr="nixosConfigurations.\"$3\".config.system.build.toplevel.drvPath" ;;
         home) attr="homeConfigurations.\"$3\".activationPackage.drvPath" ;;
       esac
-      if err=$(nix eval ".#$attr" 2>&1 >/dev/null); then echo "$3 ✓"
+      if err=$(nix eval "{{ nixops_path }}#$attr" 2>&1 >/dev/null); then echo "$3 ✓"
       else touch "$0/failed"; printf "%s ✗\n%s\n" "$3" "$(printf "%s\n" "$err" | tail -n 20)"; fi >"$0/$1"
     ' "$tmp"
     set -- "$tmp"/[0-9]*
@@ -29,11 +29,11 @@ fmt +files:
 # Verify, format check, build flake checks
 [group('repo')]
 check: verify
-    nix fmt -- --check .
-    nix eval --json .#checks.{{ system }} --apply builtins.attrNames \
-      | jq -r '.[] | ".#checks.{{ system }}.\(.)"' | xargs -r nix build --no-link
+    nix fmt -- --check {{ nixops_path }}
+    nix eval --json {{ nixops_path }}#checks.{{ system }} --apply builtins.attrNames \
+      | jq -r '.[] | "{{ nixops_path }}#checks.{{ system }}.\(.)"' | xargs -r nix build --no-link
 
 # Update flake input(s)
 [group('repo')]
 update *inputs:
-    nix flake update {{ inputs }}
+    nix flake update --flake {{ nixops_path }} {{ inputs }}

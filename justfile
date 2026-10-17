@@ -1,5 +1,6 @@
 # Global command `frame` (cwd /nix/dotfiles)
 
+nixops_path := justfile_directory()
 mgmt := "mgmt.milberry.org"
 m1 := "liana@m1." + mgmt
 kube := "kubectl --context milberry"
