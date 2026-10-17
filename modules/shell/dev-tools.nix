@@ -6,11 +6,15 @@ _: {
       go-task
       jq
       kubectl
-      lazygit
       nix-tree
       pre-commit
       sops
       yq-go
     ];
+
+    programs.lazygit = {
+      enable = true;
+      settings.git.autoFetch = false;
+    };
   };
 }
