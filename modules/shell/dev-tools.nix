@@ -1,5 +1,11 @@
+# @desc: Dev CLI packages and lazygit
 _: {
-  flake.modules.homeManager.devPackages = {pkgs, ...}: {
+  flake.modules.homeManager.devPackages = {
+    pkgs,
+    config,
+    lib,
+    ...
+  }: {
     home.packages = with pkgs; [
       age
       distrobox
@@ -16,6 +22,7 @@ _: {
       enable = true;
       enableZshIntegration = false;
       settings.git.autoFetch = false;
+      settings.gui.theme.selectedLineBgColor = lib.mkForce [config.lib.stylix.colors.withHashtag.base02];
     };
   };
 }
