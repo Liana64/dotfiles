@@ -14,6 +14,7 @@ _: {
 
     programs.lazygit = {
       enable = true;
+      enableZshIntegration = false;
       settings.git.autoFetch = false;
     };
   };

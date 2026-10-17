@@ -9,27 +9,22 @@ _: {
     pinentry = lib.getExe config.programs.gnupg.agent.pinentryPackage;
     askpass = pkgs.writeShellApplication {
       name = "ssh-askpass-pinentry";
-      runtimeInputs = [pkgs.gnugrep pkgs.gnused];
       text = ''
         desc=''${1//%/%25}
         desc=''${desc//$'\n'/%0A}
         case "''${SSH_ASKPASS_PROMPT:-}" in
-          none) exec ${pinentry} <<EOF
-        SETDESC $desc
-        MESSAGE
-        EOF
-          ;;
-          confirm) cmd=CONFIRM ;;
-          *) cmd=GETPIN ;;
+          none) exit 0 ;;
+          confirm) cmd=CONFIRM re=$'^OK[^\n]*\nOK\nOK$' ;;
+          *) cmd=GETPIN re=$'^OK[^\n]*\nOK\nD ([^\n]*)\nOK$' ;;
         esac
         out=$(${pinentry} <<EOF
         SETDESC $desc
-        SETPROMPT PIN:
         $cmd
         EOF
         )
-        printf '%s\n' "$out" | grep -q '^ERR' && exit 1
-        printf '%s\n' "$out" | sed -n 's/^D //p' | sed 's/%25/%/g'
+        [[ $out =~ $re ]] || exit 1
+        pin=''${BASH_REMATCH[1]-}
+        [[ $cmd == CONFIRM ]] || printf '%s\n' "''${pin//%25/%}"
       '';
     };
   in {

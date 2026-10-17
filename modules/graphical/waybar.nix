@@ -396,6 +396,7 @@
 
           "custom/nix-housing" = {
             exec = "${app}/bin/waybar-nix-housing watch ${intakeArgs}";
+            restart-interval = 5;
             return-type = "json";
             format = "{}";
             on-click = "${app}/bin/waybar-nix-housing promote ${intakeArgs}";
