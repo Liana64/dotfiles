@@ -1,5 +1,5 @@
 # @desc: GnuPG agent (SSH support), ssh askpass + gnome-keyring via PAM
-{...}: {
+_: {
   flake.modules.nixos.keyring = {pkgs, ...}: {
     programs.gnupg.agent = {
       enable = true;
