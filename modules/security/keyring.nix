@@ -1,10 +1,17 @@
-# @desc: GnuPG agent (SSH support) + gnome-keyring via PAM
+# @desc: GnuPG agent (SSH support), ssh askpass + gnome-keyring via PAM
 {...}: {
-  flake.modules.nixos.keyring = {...}: {
+  flake.modules.nixos.keyring = {pkgs, ...}: {
     programs.gnupg.agent = {
       enable = true;
       enableSSHSupport = true;
     };
+
+    programs.ssh = {
+      enableAskPassword = true;
+      askPassword = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
+    };
+
+    environment.variables.SSH_ASKPASS_REQUIRE = "prefer";
 
     services.gnome.gnome-keyring = {
       enable = true;
