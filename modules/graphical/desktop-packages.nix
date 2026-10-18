@@ -10,6 +10,7 @@
       bc
       cosign
       cider-2
+      fooyin
       halloy
       moreutils
       networkmanagerapplet
