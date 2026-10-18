@@ -358,7 +358,10 @@ in {
       };
 
       media = {
-        hm.config.imports = base ++ [houseTitle aspects.fooyin];
+        hm.config = {config, ...}: {
+          imports = base ++ [houseTitle aspects.fooyin];
+          home.file.Music.source = config.lib.file.mkOutOfStoreSymlink "/mnt/m1/media/Music";
+        };
         exportDesktopEntries = true;
         capabilities = {
           gui.enable = true;
