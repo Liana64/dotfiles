@@ -26,6 +26,7 @@ in {
       web-gemini = "#d95216";
       untrusted = "#dc4446";
       agentic = "#13a8a8";
+      media = "#597ef7";
     };
 
     houseTitle = {
@@ -353,6 +354,19 @@ in {
             # fixed-output derivations fetch daemon-side, outside landlock — the 443 limit is not an exfiltration boundary
             socketFiles = ["/nix/var/nix/daemon-socket/socket"];
           };
+        };
+      };
+
+      media = {
+        hm.config.imports = base ++ [houseTitle aspects.fooyin];
+        exportDesktopEntries = true;
+        capabilities = {
+          gui.enable = true;
+          gpu.enable = true;
+          pulseAudio.enable = true;
+          namespacing.proc = true;
+          sessionDbus.own = ["org.mpris.MediaPlayer2.fooyin"];
+          landlock.rwDirs = ["/mnt/m1/media"];
         };
       };
 
