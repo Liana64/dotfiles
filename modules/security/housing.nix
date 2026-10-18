@@ -359,7 +359,7 @@ in {
 
       media = {
         hm.config = {config, ...}: {
-          imports = base ++ [houseTitle aspects.fooyin];
+          imports = base ++ [houseTitle aspects.fooyin aspects.stylix];
           home.file.Music.source = config.lib.file.mkOutOfStoreSymlink "/mnt/m1/media/Music";
         };
         exportDesktopEntries = true;
