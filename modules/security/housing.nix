@@ -360,6 +360,7 @@ in {
       media = {
         hm.config = {config, ...}: {
           imports = base ++ [houseTitle aspects.fooyin aspects.stylix];
+          dconf.enable = false;
           home.file.Music.source = config.lib.file.mkOutOfStoreSymlink "/mnt/m1/media/Music";
         };
         exportDesktopEntries = true;
@@ -434,7 +435,7 @@ in {
       };
 
     xdg.dataFile =
-      lib.genAttrs (map (app: "applications/${app}.desktop") ["chromium-browser" "firefox" "dillo" "iamb" "obsidian" "org.squidowl.halloy" "signal" "thunderbird" "vesktop" "zoom-web"]) (_: {
+      lib.genAttrs (map (app: "applications/${app}.desktop") ["chromium-browser" "firefox" "dillo" "iamb" "obsidian" "org.fooyin.fooyin" "org.squidowl.halloy" "signal" "thunderbird" "vesktop" "zoom-web"]) (_: {
         text = ''
           [Desktop Entry]
           Type=Application
