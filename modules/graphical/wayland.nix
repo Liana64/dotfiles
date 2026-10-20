@@ -53,11 +53,11 @@
         greetd = {
           enable = useSway || useNiri;
           settings.default_session = {
-            command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd ${
+            command = "${pkgs.bash}/bin/sh -c '${pkgs.kbd}/bin/kbd_mode -u; exec ${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd ${
               if useNiri
               then "niri-session"
               else "sway"
-            }";
+            }'";
             user = "greeter";
           };
         };
