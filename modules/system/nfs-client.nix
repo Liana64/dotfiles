@@ -1,5 +1,5 @@
 # @desc: NFS v4 client + lazy automounts of m1 exports under /mnt/m1
-{...}: {
+{lib, ...}: {
   flake.modules.nixos.nfsClient = let
     tank = path: extra: {
       device = "home.storage.milberry.org:/tank/${path}";
@@ -23,5 +23,9 @@
       uploads.gid = 2300;
     };
     users.users.liana.extraGroups = ["media" "documents" "uploads"];
+
+    systemd.services = lib.genAttrs ["systemd-suspend" "systemd-hibernate" "systemd-hybrid-sleep" "systemd-suspend-then-hibernate"] (_: {
+      environment.SYSTEMD_SLEEP_FREEZE_USER_SESSIONS = "false";
+    });
   };
 }
