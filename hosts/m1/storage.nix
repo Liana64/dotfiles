@@ -59,12 +59,12 @@
   # Quotas, out of ~25.3T usable:
   #
   #   users            3.5T  syncthing + stash
-  #   cluster/media   11.5T
+  #   cluster/media     15T
   #   cluster/photos     2T
   #   cluster/uploads    1T
-  #   cluster/s3         3T
+  #   cluster/s3         1T
   #   cluster/nix-cache  0.376T  zvol, reserved up front
-  #   backups            3T
+  #   backups            1.5T
   #                   ------
   #                     24.376T
   datasets =
@@ -99,7 +99,7 @@
         mode = "2775";
         props = {
           recordsize = "1M";
-          quota = "11.5T";
+          quota = "15T";
         };
         grants = lan access.user;
       };
@@ -117,7 +117,7 @@
       "tank/cluster/s3" = {
         id = ids.s3;
         mode = "0700";
-        props.refquota = "3T";
+        props.refquota = "1T";
       };
       "tank/cluster/nix-cache" = {
         volume = {
@@ -137,7 +137,7 @@
       "tank/backups" = {
         id = 0;
         mode = "0700";
-        props.quota = "3T";
+        props.quota = "1.5T";
       };
       "tank/backups/volsync" = {
         id = ids.backup;
