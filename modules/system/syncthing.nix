@@ -8,7 +8,7 @@
     inputs,
     ...
   }: let
-    sync = import ../_lib/syncthing.nix inputs.self.network;
+    sync = inputs.self.syncthing;
     self =
       if osConfig == null
       then "framework"

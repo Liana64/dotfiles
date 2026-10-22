@@ -10,10 +10,10 @@
   in {
     programs.k9s = {
       enable = true;
-      settings = import ../../modules/_lib/k9s/settings.nix;
-      aliases = import ../../modules/_lib/k9s/aliases.nix;
+      settings = import ./_k9s/settings.nix;
+      aliases = import ./_k9s/aliases.nix;
       # TODO: Fix broken k9s plugins
-      #plugins = import ./k9s/plugins.nix;
+      #plugins = import ./_k9s/plugins.nix;
 
       # Stylix' k9s skin leaves the selected row near-invisible; add a filled bar.
       skins.stylix.k9s.views.table = {
@@ -24,6 +24,6 @@
       skins.stylix.k9s.prompt.suggestColor = lib.mkForce base04;
     };
     xdg.configFile."k9s/plugins.yaml".source =
-      (pkgs.formats.yaml {}).generate "plugins.yaml" (import ../../modules/_lib/k9s/plugins.nix);
+      (pkgs.formats.yaml {}).generate "plugins.yaml" (import ./_k9s/plugins.nix);
   };
 }

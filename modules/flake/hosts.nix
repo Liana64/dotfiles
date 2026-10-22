@@ -7,8 +7,13 @@
 }: let
   inherit (inputs) self nixpkgs home-manager;
 
-  nixosAspects = lib.attrValues (removeAttrs (config.flake.modules.nixos or {}) ["perfTools"]);
   homeAspects = lib.attrValues (config.flake.modules.homeManager or {});
+
+  base = ["hardwareTools" "nixDaemon" "time" "users"];
+  hardened = base ++ ["hardening" "journald" "noDefaults" "noexec" "storeVerify"];
+  serverOnly = ["hypervisor" "zfsRollback"];
+  optIn = ["perfTools"];
+  workstation = lib.attrNames (removeAttrs config.flake.modules.nixos (optIn ++ serverOnly));
 
   hosts = {
     framework.system = "x86_64-linux";
@@ -16,34 +21,34 @@
     noku.system = "x86_64-linux";
     m1 = {
       system = "x86_64-linux";
-      aspects = ["hardening" "hardwareTools" "journald" "nixDaemon" "noDefaults" "noexec" "storeVerify" "time" "users"];
+      aspects = hardened ++ ["hypervisor"];
       home = false;
     };
     n1 = {
       system = "x86_64-linux";
-      aspects = ["hardening" "hardwareTools" "journald" "nixDaemon" "noDefaults" "noexec" "storeVerify" "time" "users"];
+      aspects = hardened ++ serverOnly;
       home = false;
     };
     n2 = {
       system = "x86_64-linux";
-      aspects = ["hardening" "hardwareTools" "journald" "nixDaemon" "noDefaults" "noexec" "storeVerify" "time" "users"];
+      aspects = hardened ++ serverOnly;
       home = false;
     };
     n3 = {
       system = "x86_64-linux";
-      aspects = ["hardening" "hardwareTools" "journald" "nixDaemon" "noDefaults" "noexec" "storeVerify" "time" "users"];
+      aspects = hardened ++ serverOnly;
       home = false;
     };
     oob = {
       system = "aarch64-linux";
       channel = inputs.nixpkgs-unstable;
-      aspects = ["hardwareTools" "nixDaemon" "time" "users"];
+      aspects = base;
       home = false;
     };
     deck = {
       system = "x86_64-linux";
       channel = inputs.nixpkgs-unstable;
-      aspects = ["hardwareTools" "nixDaemon" "noDefaults" "time" "users" "frameworkHardware"];
+      aspects = base ++ ["noDefaults" "frameworkHardware"];
       home = false;
     };
   };
@@ -77,18 +82,14 @@
 
   mkNixos = name: {
     system,
-    aspects ? null,
+    aspects ? workstation,
     home ? true,
     channel ? nixpkgs,
   }:
     channel.lib.nixosSystem {
       specialArgs = {inherit inputs hardening;};
       modules =
-        (
-          if aspects == null
-          then nixosAspects
-          else lib.attrVals aspects config.flake.modules.nixos
-        )
+        lib.attrVals aspects config.flake.modules.nixos
         ++ ["${self}/hosts/${name}/options.nix"]
         ++ lib.optionals home [
           home-manager.nixosModules.home-manager

@@ -40,7 +40,7 @@
           KbdInteractiveAuthentication = false;
         };
         users.users.root.openssh.authorizedKeys.keys =
-          (import ../_lib/keys.nix).liana;
+          config.flake.keys.liana;
       }
     ];
   };

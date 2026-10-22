@@ -55,7 +55,7 @@ in {
         mutableTrust = false;
         publicKeys = [
           {
-            source = pkgs.writeText "pub.asc" (import ../_lib/keys.nix).lianaGpg;
+            source = pkgs.writeText "pub.asc" inputs.self.keys.lianaGpg;
             trust = "ultimate";
           }
         ];
