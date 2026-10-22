@@ -25,6 +25,7 @@
     docs = ["Read:docs" "Write:docs" "List:docs" "Tagging:docs"];
     etcd = ["Write:etcd"];
     matrix = ["Read:matrix" "Write:matrix" "List:matrix" "Tagging:matrix"];
+    loki = ["Read:loki" "Write:loki" "List:loki"];
   };
   key = name: k: config.sops.placeholder."seaweedfs/${name}/${k}";
 
