@@ -1,3 +1,4 @@
+# @desc: frame — dotfiles just runner
 {...}: {
   flake.modules.homeManager.frame = {pkgs, ...}: {
     home.packages = [

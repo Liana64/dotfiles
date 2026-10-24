@@ -6,25 +6,18 @@
     hardening,
     ...
   }: let
-    deps = with pkgs; [audit systemd coreutils gnused gnugrep jq];
     toProps = preset: lib.concatStringsSep "\n" (hardening.lines preset);
-    hardening-probe = pkgs.symlinkJoin {
-      name = "hardening-probe";
-      paths = [
-        (pkgs.writeShellScriptBin "hardening-probe"
-          (builtins.readFile ../bin/hardening-probe))
-      ];
-      buildInputs = [pkgs.makeWrapper];
-      postBuild = ''
-        wrapProgram $out/bin/hardening-probe \
-          --prefix PATH : ${lib.makeBinPath deps} \
-          --set HARDENING_BASE ${lib.escapeShellArg (toProps hardening.base)} \
-          --set HARDENING_LAUNCH ${lib.escapeShellArg (toProps hardening.launch)} \
-          --set HARDENING_CONFINED ${lib.escapeShellArg (toProps hardening.confined)} \
-          --set HARDENING_AIRGAPPED ${lib.escapeShellArg (toProps hardening.airgapped)}
-      '';
-    };
   in {
-    home.packages = [hardening-probe];
+    home.packages = [
+      (import ../_lib/shell-app.nix pkgs "hardening-probe" {
+        runtimeInputs = with pkgs; [audit systemd coreutils gnused gnugrep jq];
+        runtimeEnv = {
+          HARDENING_BASE = toProps hardening.base;
+          HARDENING_LAUNCH = toProps hardening.launch;
+          HARDENING_CONFINED = toProps hardening.confined;
+          HARDENING_AIRGAPPED = toProps hardening.airgapped;
+        };
+      })
+    ];
   };
 }
