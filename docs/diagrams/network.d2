@@ -1,0 +1,173 @@
+vars: {
+  d2-config: {
+    layout-engine: elk # dagre
+  }
+  unifi: https://172.16.99.15:8443/
+}
+
+direction: down
+
+classes: {
+  # switch_l2: {
+  #   shape: image
+  #   icon: https://raw.githubusercontent.com/aci686/Network-Icons-SVG/refs/heads/master/generic-switch-l2-v1-colour.svg
+  # }
+  # switch_l3: {
+  #   shape: image
+  #   icon: https://raw.githubusercontent.com/aci686/Network-Icons-SVG/refs/heads/master/generic-switch-l3-colour.svg
+  # }
+  active_link: {
+    style.animated: true
+  }
+  planned: {
+    style.stroke-dash: 3
+  }
+}
+
+cluster.label.near: outside-top-left
+office.label.near: outside-top-left
+home.label.near: outside-top-left
+cluster.*.width: 140
+office.*.width: 140
+
+sspine: {
+  # class: switch_l2
+  link: ${unifi}
+}
+
+spine: {
+  # class: switch_l3
+  link: ${unifi}
+}
+
+mgsw: {
+  # class: switch_l2
+  link: ${unifi}
+}
+
+Gateway -- sspine: Uplink (VLAN 4000) {
+  source-arrowhead.label: Base-T Adapter
+  target-arrowhead.label: 8
+  class: active_link
+}
+
+sspine -- cluster.n2: LAN, Trunk (Untagged) {
+  source-arrowhead.label: 1
+  target-arrowhead.label: 0/1
+  class: active_link
+}
+
+sspine -- cluster.n2: WAN, Access (VLAN 4000) {
+  source-arrowhead.label: 2
+  target-arrowhead.label: 0/2
+  class: active_link
+}
+
+sspine -- cluster.n1: LAN, Trunk (Untagged) {
+  source-arrowhead.label: 3
+  target-arrowhead.label: 0/1
+  class: active_link
+}
+
+sspine -- cluster.n1: WAN, Access (VLAN 4000) {
+  source-arrowhead.label: 4
+  target-arrowhead.label: 0/2
+  class: active_link
+}
+
+sspine -- cluster.m1: Storage (bond0), Trunk {
+  source-arrowhead.label: 5
+  target-arrowhead.label: 1/1
+  class: active_link
+}
+
+sspine -- cluster.m1: Storage (bond0), Trunk {
+  source-arrowhead.label: 6
+  target-arrowhead.label: 1/2
+  class: active_link
+}
+
+sspine -- spine: {
+  source-arrowhead.label: 7
+  target-arrowhead.label: 9
+  class: active_link
+}
+
+spine -- mgsw: {
+  source-arrowhead.label: 8
+  target-arrowhead.label: 8
+  class: active_link
+}
+
+spine -- office.liana: Ops, Access (VLAN 95) {
+  source-arrowhead.label: 1
+  target-arrowhead.label: 2.5GbE
+  class: active_link
+}
+
+spine -- home.access_point: LAN, Trunk (Untagged) {
+  source-arrowhead.label: 2
+  target-arrowhead.label: 2.5GbE
+  class: active_link
+}
+
+# Current
+# spine -- cluster.m1: {
+#   source-arrowhead.label: 3
+#   target-arrowhead.label: 0/1
+#   class: active_link
+# }
+
+spine -- office.liana: Work, Access (VLAN 101) {
+  source-arrowhead.label: 4
+  target-arrowhead.label: 2.5GbE
+  class: active_link
+}
+
+spine -- office.maxine: Ops, Access (VLAN 95) {
+  source-arrowhead.label: 5
+  target-arrowhead.label: 2.5GbE
+  class: active_link
+}
+
+spine -- home.gaming_pc: Home, Access (VLAN 100) {
+  source-arrowhead.label: 6
+  target-arrowhead.label: 2.5GbE
+  class: active_link
+}
+
+spine -- cluster.n3: MGMT, Access (VLAN 99) {
+  source-arrowhead.label: 7
+  target-arrowhead.label: 0/1
+  class: active_link
+}
+
+mgsw -- oob: MGMT, Access (VLAN 99) {
+  source-arrowhead.label: 2
+  target-arrowhead.label: eth
+  class: active_link
+}
+
+cluster.m1 -- mgsw: Access (VLAN 99) {
+  source-arrowhead.label: 0/1
+  target-arrowhead.label: 4
+  class: planned
+}
+
+cluster.n1 -- mgsw: Access (VLAN 99) {
+  source-arrowhead.label: 0/3
+  target-arrowhead.label: 5
+  class: planned
+}
+
+cluster.n2 -- mgsw: Access (VLAN 99) {
+  source-arrowhead.label: 0/3
+  target-arrowhead.label: 6
+  class: planned
+}
+
+cluster.n3 -- mgsw: Access (VLAN 99) {
+  source-arrowhead.label: USB
+  target-arrowhead.label: 7
+  class: planned
+}
