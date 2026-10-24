@@ -1,4 +1,4 @@
-# @desc: modules/bin script → writeShellApplication; script keeps its own set flags, lint matches flake checks
+# @desc: modules/bin script → writeShellApplication
 pkgs: name: args:
 pkgs.writeShellApplication ({
     inherit name;

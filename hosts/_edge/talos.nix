@@ -1,11 +1,15 @@
-{libvirt, ...}: let
+{
+  config,
+  libvirt,
+  ...
+}: let
+  cfg = config.edge.talos;
   inherit (libvirt) mkVM media;
 in {
   virtualisation.libvirt.connections."qemu:///system".domains = [
     (mkVM {
-      name = "talos-n2";
-      uuid = "efd7776f-3f94-425d-bcb8-e2613708f4d1";
-      vcpus = 14;
+      name = "talos-${config.networking.hostName}";
+      inherit (cfg) uuid vcpus;
       memoryGiB = 24;
       iso = media.talos;
       disks = [
@@ -22,12 +26,12 @@ in {
       nics = [
         {
           bridge = "br0";
-          mac = "BC:24:11:C7:0F:C6";
+          mac = cfg.macs.lan;
           vlan = 10;
         }
         {
           bridge = "br-tb";
-          mac = "BC:24:11:25:31:59";
+          mac = cfg.macs.tb;
           vlan = 10;
         }
       ];

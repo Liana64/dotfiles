@@ -1,4 +1,8 @@
-let
+{
+  config,
+  lib,
+  ...
+}: let
   mkBoot = idx: device: {
     type = "disk";
     inherit device;
@@ -27,10 +31,7 @@ let
   };
 in {
   disko.devices = {
-    disk = {
-      boot0 = mkBoot 0 "/dev/disk/by-id/nvme-WD_BLACK_SN770_2TB_244542800309";
-      boot1 = mkBoot 1 "/dev/disk/by-id/nvme-Viper_VP4300_2TB_VP4300DFBA2308016025";
-    };
+    disk = lib.listToAttrs (lib.imap0 (i: d: lib.nameValuePair "boot${toString i}" (mkBoot i d)) config.edge.disks);
 
     zpool.rpool = {
       type = "zpool";
@@ -79,7 +80,7 @@ in {
         };
         "vms/talos-pool" = {
           type = "zfs_volume";
-          size = "1280G";
+          size = config.edge.talos.poolSize;
         };
         "vms/opnsense-os" = {
           type = "zfs_volume";

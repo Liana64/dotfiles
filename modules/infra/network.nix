@@ -3,6 +3,7 @@
   flake.network = let
     lan = net: net // {cidr = builtins.mapAttrs (_: ip: "${ip}/${baseNameOf net.subnet}") net.hosts;};
   in {
+    pfsync.vlan = 4000;
     cluster = lan {
       subnet = "172.16.4.0/23";
       hosts = {

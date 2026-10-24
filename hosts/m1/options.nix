@@ -1,9 +1,6 @@
-{inputs, ...}: let
-  gpuIds = "10de:1b80,10de:10f0"; # 02:00.0, 02:00.1
-in {
+{inputs, ...}: {
   imports = [
     inputs.disko.nixosModules.disko
-    ../../modules/_lib/hypervisor.nix
     ./backup.nix
     ./disko.nix
     ./ganesha.nix
@@ -16,6 +13,7 @@ in {
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";
+  hypervisor.cpu = "intel";
 
   boot = {
     # grub until lanzaboote lands for host secure boot
@@ -37,8 +35,8 @@ in {
         }
       ];
     };
-    kernelParams = ["intel_iommu=on" "iommu=pt" "vfio-pci.ids=${gpuIds}"];
-    initrd.kernelModules = ["vfio_pci" "vfio" "vfio_iommu_type1"];
+    # kernelParams "vfio-pci.ids=10de:1b80,10de:10f0" (GTX 1080 at 02:00.0, 02:00.1)
+    #initrd.kernelModules = ["vfio_pci" "vfio" "vfio_iommu_type1"];
     blacklistedKernelModules = ["nouveau" "iwlwifi"];
   };
 
@@ -56,13 +54,13 @@ in {
     liana = {
       uid = 1000;
       extraGroups = ["media" "documents"];
-      openssh.authorizedKeys.keys = (import ../../modules/_lib/keys.nix).liana;
+      openssh.authorizedKeys.keys = inputs.self.keys.liana;
     };
     maxine = {
       isNormalUser = true;
       uid = 1001;
       extraGroups = ["media" "documents"];
-      openssh.authorizedKeys.keys = [(import ../../modules/_lib/keys.nix).maxine];
+      openssh.authorizedKeys.keys = [inputs.self.keys.maxine];
     };
   };
 

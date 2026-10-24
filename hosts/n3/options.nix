@@ -1,8 +1,6 @@
 {inputs, ...}: {
   imports = [
     inputs.disko.nixosModules.disko
-    ../../modules/_lib/hypervisor.nix
-    ../../modules/_lib/rollback.nix
     ./disko.nix
     ./network.nix
     ./secrets.nix
@@ -10,6 +8,7 @@
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";
+  hypervisor.cpu = "intel";
 
   boot.loader.grub = {
     enable = true;
@@ -28,7 +27,7 @@
 
   users.users.liana = {
     uid = 1000;
-    openssh.authorizedKeys.keys = (import ../../modules/_lib/keys.nix).liana;
+    openssh.authorizedKeys.keys = inputs.self.keys.liana;
   };
 
   services.prometheus.exporters.smartctl.devices = [

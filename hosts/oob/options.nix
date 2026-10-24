@@ -68,7 +68,7 @@
 
   users.users.liana = {
     uid = 1000;
-    openssh.authorizedKeys.keys = (import ../../modules/_lib/keys.nix).liana;
+    openssh.authorizedKeys.keys = inputs.self.keys.liana;
   };
 
   system.stateVersion = "26.05";

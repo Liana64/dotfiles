@@ -1,5 +1,10 @@
-{inputs, ...}: let
-  inherit (inputs.self.network) mgmt;
+{
+  config,
+  inputs,
+  ...
+}: let
+  cfg = config.edge;
+  inherit (inputs.self.network) mgmt pfsync;
 in {
   networking.useDHCP = false;
   networking.useNetworkd = true;
@@ -29,9 +34,9 @@ in {
     };
   in {
     links = {
-      "10-mgmt" = rename "58:47:ca:7a:e3:f4" "mgmt";
-      "10-lan" = rename "58:47:ca:7a:e3:f2" "lan";
-      "10-wan" = rename "58:47:ca:7a:e3:f3" "wan";
+      "10-mgmt" = rename cfg.macs.mgmt "mgmt";
+      "10-lan" = rename cfg.macs.lan "lan";
+      "10-wan" = rename cfg.macs.wan "wan";
     };
 
     netdevs = {
@@ -59,20 +64,26 @@ in {
     };
 
     networks = {
-      "20-lan" = member {matchConfig.Name = "lan";} "br0" [{VLAN = 10;}];
+      "20-lan" = member {matchConfig.Name = "lan";} "br0" [
+        {
+          PVID = 1;
+          EgressUntagged = 1;
+        }
+        {VLAN = "2-4094";}
+      ];
       "21-wan" = member {matchConfig.Name = "wan";} "br-wan" [];
-      "22-tb" = member {matchConfig.Driver = "thunderbolt-net";} "br-tb" [{VLAN = 10;}];
+      "22-tb" = member {matchConfig.Driver = "thunderbolt-net";} "br-tb" [{VLAN = 10;} {VLAN = pfsync.vlan;}];
       "30-br0" = quiet "br0";
       "31-br-wan" = quiet "br-wan";
       "32-br-tb" = {
         matchConfig.Name = "br-tb";
-        networkConfig.Address = "10.10.10.11/24";
+        networkConfig.Address = "10.10.10.1${toString cfg.index}/24";
         linkConfig.RequiredForOnline = false;
       };
       "40-mgmt" = {
         matchConfig.Name = "mgmt";
         networkConfig = {
-          Address = mgmt.cidr.n1;
+          Address = mgmt.cidr.${config.networking.hostName};
           Gateway = mgmt.gateway;
           DNS = mgmt.gateway;
         };

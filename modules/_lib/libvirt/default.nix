@@ -52,12 +52,24 @@
   mkNic = {
     bridge,
     mac,
-    vlan,
+    vlan ? null,
+    native ? null,
   }: {
     type = "bridge";
     source = {inherit bridge;};
     mac.address = mac;
-    vlan.tag.id = vlan;
+    vlan =
+      if builtins.isList vlan
+      then {
+        trunk = true;
+        tag =
+          lib.optional (native != null) {
+            id = native;
+            nativeMode = "untagged";
+          }
+          ++ map (id: {inherit id;}) vlan;
+      }
+      else lib.mapNullable (id: {tag.id = id;}) vlan;
     model.type = "virtio";
   };
 in {

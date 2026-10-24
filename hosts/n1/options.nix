@@ -1,55 +1,48 @@
-{inputs, ...}: {
-  imports = [
-    inputs.disko.nixosModules.disko
-    ../../modules/_lib/hypervisor.nix
-    ../../modules/_lib/rollback.nix
-    ./disko.nix
-    ./network.nix
-    ./secrets.nix
-    ./vms
-  ];
-
-  nixpkgs.hostPlatform = "x86_64-linux";
-
-  boot = {
-    loader.grub = {
-      enable = true;
-      efiSupport = true;
-      efiInstallAsRemovable = true;
-      configurationLimit = 20;
-      mirroredBoots = [
-        {
-          devices = ["nodev"];
-          path = "/boot0";
-          efiSysMountPoint = "/boot0";
-        }
-        {
-          devices = ["nodev"];
-          path = "/boot1";
-          efiSysMountPoint = "/boot1";
-        }
-      ];
-    };
-    kernelParams = ["intel_iommu=on" "iommu=pt"];
-    blacklistedKernelModules = ["mt7921e"];
-  };
-
-  environment.etc.machine-id.text = "d315451707bd20f7c70072788c4d81e0\n";
+{
+  imports = [../_edge];
 
   networking = {
     hostName = "n1";
     hostId = "a7260bc5";
   };
 
-  users.users.liana = {
-    uid = 1000;
-    openssh.authorizedKeys.keys = (import ../../modules/_lib/keys.nix).liana;
-  };
+  environment.etc.machine-id.text = "d315451707bd20f7c70072788c4d81e0\n";
 
-  services.prometheus.exporters.smartctl.devices = [
-    "/dev/disk/by-id/nvme-WD_BLACK_SN770_1TB_241009808010"
-    "/dev/disk/by-id/nvme-WD_Blue_SN5100_1TB_25423W804321"
-  ];
+  hypervisor.cpu = "intel";
+
+  # 32G: 24 vm + 4 opnsense + ~1 qemu + 1.5 arc + ~1.5 host
+  # ~900G usable: 640 leaves ~35G for root/nix/var + talos-os snapshots
+  edge = {
+    index = 1;
+    disks = [
+      "/dev/disk/by-id/nvme-WD_BLACK_SN770_1TB_241009808010"
+      "/dev/disk/by-id/nvme-WD_Blue_SN5100_1TB_25423W804321"
+    ];
+    macs = {
+      mgmt = "58:47:ca:7a:e3:f4";
+      lan = "58:47:ca:7a:e3:f2";
+      wan = "58:47:ca:7a:e3:f3";
+    };
+    arcMiB = 1536;
+    opnsense = {
+      uuid = "1209e9fd-69cf-467c-a870-c249a4f5009b";
+      memoryGiB = 4;
+      macs = {
+        lan = "BC:24:11:C4:32:01";
+        wan = "BC:24:11:C4:32:02";
+        tb = "BC:24:11:B6:7B:20";
+      };
+    };
+    talos = {
+      uuid = "44960372-e9de-40e2-b1c3-0fd8799943a0";
+      vcpus = 10;
+      poolSize = "640G";
+      macs = {
+        lan = "BC:24:11:15:69:CB";
+        tb = "BC:24:11:0D:E4:26";
+      };
+    };
+  };
 
   system.stateVersion = "26.05";
 }

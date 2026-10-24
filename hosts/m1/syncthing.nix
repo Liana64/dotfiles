@@ -5,7 +5,7 @@
   inputs,
   ...
 }: let
-  sync = import ../../modules/_lib/syncthing.nix inputs.self.network;
+  sync = inputs.self.syncthing;
   self = config.networking.hostName;
   secret = name: config.sops.secrets."syncthing/${name}".path;
   folders = lib.filterAttrs (_: f: lib.elem self f.devices) sync.folders;

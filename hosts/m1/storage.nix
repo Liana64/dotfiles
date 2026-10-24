@@ -53,7 +53,7 @@
   };
 
   syncs = lib.listToAttrs (map (owner: lib.nameValuePair "tank/users/sync/${owner}" syncer) (
-    lib.unique (lib.mapAttrsToList (_: f: f.owner) (import ../../modules/_lib/syncthing.nix inputs.self.network).folders)
+    lib.unique (lib.mapAttrsToList (_: f: f.owner) inputs.self.syncthing.folders)
   ));
 
   # Quotas, out of ~25.3T usable:

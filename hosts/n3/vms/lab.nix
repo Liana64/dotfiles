@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   pkgs,
   lib,
   libvirt,
@@ -15,7 +16,7 @@
           name = "liana";
           groups = ["wheel"];
           sudo = "ALL=(ALL) NOPASSWD:ALL";
-          ssh_authorized_keys = (import ../../../modules/_lib/keys.nix).liana;
+          ssh_authorized_keys = inputs.self.keys.liana;
         }
       ];
       ssh_pwauth = false;
