@@ -51,9 +51,15 @@ ISP -- edgesw: Uplink, Trunk (Untagged) {
   class: active_link
 }
 
-sspine -- cluster.n2: LAN, Trunk (Untagged) {
+sspine -- cluster.n2: LAN (bond0), Trunk (Untagged) {
   source-arrowhead.label: 1
   target-arrowhead.label: 0/1
+  class: active_link
+}
+
+sspine -- cluster.n2: LAN (bond0), Trunk (Untagged) {
+  source-arrowhead.label: 1
+  target-arrowhead.label: 0/2
   class: active_link
 }
 
@@ -63,9 +69,15 @@ edgesw -- cluster.n2: WAN, Access (VLAN 3000) {
   class: active_link
 }
 
-sspine -- cluster.n1: LAN, Trunk (Untagged) {
+sspine -- cluster.n1: LAN (bond0), Trunk (Untagged) {
   source-arrowhead.label: 3
   target-arrowhead.label: 0/1
+  class: active_link
+}
+
+sspine -- cluster.n1: LAN (bond0), Trunk (Untagged) {
+  source-arrowhead.label: 3
+  target-arrowhead.label: 0/2
   class: active_link
 }
 
