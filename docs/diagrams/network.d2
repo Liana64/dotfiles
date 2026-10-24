@@ -45,9 +45,9 @@ mgsw: {
   link: ${unifi}
 }
 
-Gateway -- sspine: Uplink (VLAN 4000) {
-  source-arrowhead.label: Base-T Adapter
-  target-arrowhead.label: 8
+ISP -- edgesw: Uplink, Trunk (Untagged) {
+  source-arrowhead.label: Uplink
+  target-arrowhead.label: 1
   class: active_link
 }
 
@@ -57,9 +57,9 @@ sspine -- cluster.n2: LAN, Trunk (Untagged) {
   class: active_link
 }
 
-sspine -- cluster.n2: WAN, Access (VLAN 4000) {
+edgesw -- cluster.n2: WAN, Access (VLAN 3000) {
   source-arrowhead.label: 2
-  target-arrowhead.label: 0/2
+  target-arrowhead.label: 0/4
   class: active_link
 }
 
@@ -69,9 +69,9 @@ sspine -- cluster.n1: LAN, Trunk (Untagged) {
   class: active_link
 }
 
-sspine -- cluster.n1: WAN, Access (VLAN 4000) {
-  source-arrowhead.label: 4
-  target-arrowhead.label: 0/2
+edgesw -- cluster.n1: WAN, Access (VLAN 3000) {
+  source-arrowhead.label: 3
+  target-arrowhead.label: 0/4
   class: active_link
 }
 
