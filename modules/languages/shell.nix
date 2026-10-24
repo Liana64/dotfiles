@@ -1,3 +1,4 @@
+# @desc: Shell LSP + linters
 {...}: {
   flake.modules.homeManager = {
     helix = {

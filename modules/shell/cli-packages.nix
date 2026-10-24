@@ -1,3 +1,4 @@
+# @desc: CLI packages
 {...}: {
   flake.modules.homeManager.cliPackages = {pkgs, ...}: {
     home.packages = with pkgs; [

@@ -1,3 +1,4 @@
+# @desc: Haskell devshell
 _: {
   perSystem = {pkgs, ...}: {
     devShells.haskell = pkgs.mkShell {

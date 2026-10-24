@@ -1,3 +1,4 @@
+# @desc: Hardware diagnostics
 _: {
   flake.modules.nixos.hardwareTools = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [

@@ -1,3 +1,4 @@
+# @desc: Infra devshell
 _: {
   perSystem = {
     config,

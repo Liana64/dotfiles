@@ -1,3 +1,4 @@
+# @desc: Go devshell
 # Credit: https://github.com/Anomalocaridid/dotfiles/blob/43ee161efd20091009bc7833a230bb1dcc92a301/modules/development/languages/go.nix
 _: {
   perSystem = {pkgs, ...}: {
