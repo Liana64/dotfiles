@@ -51,9 +51,6 @@
           gitleaks = {
             enable = true;
             name = "Detect hardcoded secrets";
-            entry = "${pkgs.gitleaks}/bin/gitleaks git --pre-commit --redact --staged --verbose";
-            language = "system";
-            pass_filenames = false;
           };
         };
       };
