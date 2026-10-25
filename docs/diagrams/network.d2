@@ -58,7 +58,7 @@ sspine -- cluster.n2: LAN (bond0), Trunk (Untagged) {
 }
 
 sspine -- cluster.n2: LAN (bond0), Trunk (Untagged) {
-  source-arrowhead.label: 1
+  source-arrowhead.label: 2
   target-arrowhead.label: 0/2
   class: active_link
 }
@@ -76,7 +76,7 @@ sspine -- cluster.n1: LAN (bond0), Trunk (Untagged) {
 }
 
 sspine -- cluster.n1: LAN (bond0), Trunk (Untagged) {
-  source-arrowhead.label: 3
+  source-arrowhead.label: 4
   target-arrowhead.label: 0/2
   class: active_link
 }
@@ -103,6 +103,13 @@ sspine -- spine: {
   source-arrowhead.label: 7
   target-arrowhead.label: 9
   class: active_link
+}
+
+# two crosslinks or link to another switch in the living room
+sspine -- spine: {
+  source-arrowhead.label: 8
+  target-arrowhead.label: 8
+  class: planned
 }
 
 spine -- mgsw: {

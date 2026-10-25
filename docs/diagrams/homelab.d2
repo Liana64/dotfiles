@@ -19,6 +19,11 @@ cluster: Cluster {
       network: "On-board 2x 10Gb SFP+ (X710), 2x 2.5Gb Base-T, 2x USB4 (20Gb [40Gb int])"
       pcie: Gen4 x16, unused
     }
+    network: {
+      nic0(x710): port 0 LAN, port 1 WAN (currently)
+      lom(base-t): port 0 MGMT, port 1 WAN (planned)
+      usb4(tb40): port 0 empty, port 1 inter-node link (can't remember if port 0 or 1)
+    }
   }
   n2: {
     os: {
@@ -36,6 +41,11 @@ cluster: Cluster {
       storage: "2x 2 TB NVMe (Viper VP4300 2TB, WD_BLACK SN770 [4 TB raw]), 1 TB NVMe unused (WD Blue SN5100)"
       network: "On-board 2x 10Gb SFP+ (X710), 2x 2.5Gb Base-T, 2x USB4 (20GB [40Gb int])"
       pcie: Gen4 x16, unused
+    }
+    network: {
+      nic0(x710): port 0 LAN, port 1 WAN (currently)
+      lom(base-t): port 0 MGMT, port 1 WAN (planned)
+      usb4(tb40): port 0 empty, port 1 inter-node link (can't remember if port 0 or 1)
     }
   }
   n3: {
@@ -84,6 +94,5 @@ cluster: Cluster {
       talos
       opnsense
     |
-    opnsense
   }
 }
