@@ -55,6 +55,7 @@ in {
     wants = ["network-online.target"];
     after = ["network-online.target"];
   };
+  systemd.user.services.gamescope-session.serviceConfig.UnsetEnvironment = ["WAYLAND_DISPLAY" "DISPLAY"];
 
   users.users = {
     liana.openssh.authorizedKeys.keys = inputs.self.keys.liana;
