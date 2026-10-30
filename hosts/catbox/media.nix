@@ -47,6 +47,7 @@ in {
       "systemsettings"
     ];
   };
+  systemd.user.services.gamescope-session.serviceConfig.ExecStartPre = "-${pkgs.systemd}/bin/systemctl --user stop app-org.kde.plasma.bigscreen.inputhandler@*.service";
   systemd.tmpfiles.rules = ["D /home/home/.local/share/applications 0555 home users -"];
 
   systemd.services.tv-input = {
