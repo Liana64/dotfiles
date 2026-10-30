@@ -5,7 +5,7 @@
   ...
 }: let
   tv = pkgs.writeShellScriptBin "tv" ''
-    exec ${pkgs.curl}/bin/curl -fsS -m 5 --retry 5 --retry-connrefused -X POST "http://${inputs.self.network.home.hosts.tv}:8060/$1"
+    exec ${pkgs.curl}/bin/curl -fsS -m 5 --retry 15 --retry-delay 1 --retry-all-errors -X POST "http://${inputs.self.network.home.hosts.tv}:8060/$1"
   '';
   tile = name: exec:
     pkgs.makeDesktopItem {

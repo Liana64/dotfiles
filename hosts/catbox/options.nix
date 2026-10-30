@@ -56,6 +56,8 @@ in {
     after = ["network-online.target"];
   };
   systemd.user.services.gamescope-session.serviceConfig.UnsetEnvironment = ["WAYLAND_DISPLAY" "DISPLAY"];
+  networking.modemmanager.enable = false;
+  services.orca.enable = false;
 
   users.users = {
     liana.openssh.authorizedKeys.keys = inputs.self.keys.liana;
