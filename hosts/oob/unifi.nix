@@ -2,9 +2,19 @@
   lib,
   pkgs,
   ...
-}: {
+}: let
+  mongodb = pkgs.mongodb-ce;
+  fcv = "8.3";
+in {
   nixpkgs.config.allowUnfreePredicate = pkg:
     builtins.elem (lib.getName pkg) ["unifi" "mongodb-ce"];
+
+  assertions = [
+    {
+      assertion = lib.versions.majorMinor mongodb.version == fcv;
+      message = "mongodb-ce ${mongodb.version} != fcv ${fcv}: step fcv to the next release only, after checking unifi supports it";
+    }
+  ];
 
   networking.firewall = {
     allowedTCPPorts = [8080 8443];
@@ -14,7 +24,7 @@
   services = {
     unifi = {
       enable = true;
-      mongodbPackage = pkgs.mongodb-ce;
+      mongodbPackage = mongodb;
     };
 
     sanoid = {
@@ -26,6 +36,24 @@
         autosnap = true;
         autoprune = true;
       };
+    };
+  };
+
+  systemd.services.unifi-mongodb-fcv = {
+    wantedBy = ["unifi.service"];
+    after = ["unifi.service"];
+    partOf = ["unifi.service"];
+    script = ''
+      ${lib.getExe pkgs.mongosh} --quiet --port 27117 \
+        --eval 'db.adminCommand({setFeatureCompatibilityVersion: "${fcv}", confirm: true})'
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      DynamicUser = true;
+      Restart = "on-failure";
+      RestartSec = 30;
+      IPAddressAllow = "localhost";
+      IPAddressDeny = "any";
     };
   };
 }

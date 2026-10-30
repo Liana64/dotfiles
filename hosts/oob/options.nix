@@ -3,7 +3,9 @@
   lib,
   pkgs,
   ...
-}: {
+}: let
+  inherit (inputs.self.network) mgmt;
+in {
   imports = [
     inputs.nixos-hardware.nixosModules.raspberry-pi-5
     inputs.disko.nixosModules.disko
@@ -32,12 +34,15 @@
     hostId = "b28118b6";
     useDHCP = false;
     useNetworkd = true;
+    nftables.enable = true;
     firewall.allowedTCPPorts = [22];
   };
 
   systemd.network.networks."10-lan" = {
     matchConfig.Name = "en*";
-    networkConfig.DHCP = "ipv4";
+    address = [mgmt.cidr.oob];
+    gateway = [mgmt.gateway];
+    dns = [mgmt.gateway];
   };
 
   zramSwap.enable = true;

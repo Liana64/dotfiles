@@ -24,17 +24,8 @@
     };
   };
 
-  services.prometheus = {
-    exporters.nut = {
-      enable = true;
-      listenAddress = "127.0.0.1";
-      nutServer = "127.0.0.1";
-    };
-    scrapeConfigs = [
-      {
-        job_name = "nut";
-        static_configs = [{targets = ["127.0.0.1:9199"];}];
-      }
-    ];
+  services.prometheus.exporters.nut = {
+    enable = true;
+    nutServer = "127.0.0.1";
   };
 }
