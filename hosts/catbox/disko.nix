@@ -1,10 +1,8 @@
-# Draft — set disk.main.device (by-id) once the TV box's disk is known,
-# then partition from the installer: disko --mode destroy,format,mount
 {
   disko.devices = {
     disk.main = {
       type = "disk";
-      device = "/dev/disk/by-id/CHANGEME";
+      device = "/dev/nvme0n1";
       content = {
         type = "gpt";
         partitions = {
@@ -18,28 +16,23 @@
               mountOptions = ["fmask=0077" "dmask=0077"];
             };
           };
-          main = {
+          root = {
             size = "100%";
             content = {
               type = "btrfs";
-              extraArgs = ["-L" "nixos" "-f"];
+              extraArgs = ["-L" "catbox" "-f"];
               subvolumes = {
-                "/root" = {
+                "/@root" = {
                   mountpoint = "/";
                   mountOptions = ["compress=zstd" "noatime"];
                 };
-                "/home" = {
+                "/@home" = {
                   mountpoint = "/home";
-                  mountOptions = ["compress=zstd" "noatime"];
+                  mountOptions = ["compress=zstd" "noatime" "nodev"];
                 };
-                "/nix" = {
+                "/@nix" = {
                   mountpoint = "/nix";
-                  mountOptions = ["compress=zstd" "noatime"];
-                };
-                "/swap" = {
-                  mountpoint = "/swap";
-                  mountOptions = ["noatime"];
-                  swap.swapfile.size = "8G";
+                  mountOptions = ["compress=zstd" "noatime" "nosuid" "nodev"];
                 };
               };
             };
