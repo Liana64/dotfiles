@@ -12,7 +12,7 @@ in {
   sops.secrets."backup/ssh-key" = {};
 
   systemd.services.unifi-backup = {
-    startAt = "daily";
+    startAt = "*-*-* 00:30";
     wants = ["network-online.target"];
     after = ["network-online.target"];
     path = [config.boot.zfs.package pkgs.gawk pkgs.openssh];
