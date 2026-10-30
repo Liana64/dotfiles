@@ -28,6 +28,8 @@ in {
     };
   };
 
+  powerManagement.resumeCommands = "${tv}/bin/tv keypress/PowerOn; ${tv}/bin/tv launch/tvinput.hdmi1";
+
   services.sunshine.settings.global_prep_cmd = builtins.toJSON [
     {
       do = "${pkgs.writeShellScript "tv-off" "${tv}/bin/tv keypress/PowerOff || true"}";
