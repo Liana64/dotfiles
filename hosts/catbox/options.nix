@@ -51,6 +51,10 @@ in {
     };
     hardware.has.amd.gpu = true;
   };
+  systemd.services.display-manager = {
+    wants = ["network-online.target"];
+    after = ["network-online.target"];
+  };
 
   users.users = {
     liana.openssh.authorizedKeys.keys = inputs.self.keys.liana;

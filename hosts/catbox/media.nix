@@ -40,6 +40,7 @@ in {
   environment.systemPackages = [
     tv
     pkgs.kdePackages.plasma-bigscreen
+    pkgs.kdePackages.kdeconnect-kde
     pkgs.kdePackages.plasmatube
     pkgs.jellyfin-desktop
     (webapp "YouTube" "https://www.youtube.com/tv")
