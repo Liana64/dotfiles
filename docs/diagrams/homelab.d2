@@ -1,36 +1,44 @@
 direction: right
 
 cluster: Cluster {
+  grid-columns: 2
+
   n1: {
+    grid-columns: 2
     os: {
       shape: sql_table
-      role: Kubernetes node
-      host-os: Proxmox
-      vms: opnsense
+      role: Router, Kubernetes Node
+      host-os: NixOS (Planned)
+      vms: talos, opnsense
     }
     hardware: {
       shape: sql_table
       platform: ms-01
       memory: G.SKILL 32 GB DDR5 5200 MT/s (2x16, 1R)
       processor: "Intel i5-12600H (4 C [P, 4.5 GHz], 8 C [E, 3.3 GHz], 16 T, 18 MB)"
-      boot: Not redundant, see notes
-      storage: 256 GB NVMe (WD Blue SN580), 1 TB NVMe (WD_BLACK SN770)
+      boot: 2x boot partitions, one per storage NVMe (planned)
+      storage: 256 GB NVMe (WD Blue SN580), 1 TB NVMe (WD_BLACK SN770), 1 TB NVMe (WD Blue SN5100, Planned)
       notes: "TODO: Move 1 TB NVMe from n2 to n1 for redundant boot"
       network: "On-board 2x 10Gb SFP+ (X710), 2x 2.5Gb Base-T, 2x USB4 (20Gb [40Gb int])"
       pcie: Gen4 x16, unused
     }
     network: {
-      nic0(x710): port 0 LAN, port 1 WAN (currently)
-      lom(base-t): port 0 MGMT, port 1 WAN (planned)
-      usb4(tb40): port 0 empty, port 1 inter-node link (can't remember if port 0 or 1)
+      shape: sql_table
+      "0/1": LAN (bond0) {constraint: SFP+}
+      "0/2": LAN (bond0) {constraint: SFP+}
+      "0/3": MGMT {constraint: Base-T}
+      "0/4": WAN (Planned) {constraint: Base-T}
+      usb4/0: empty {constraint: TB40}
+      usb4/1: pfsync (Planned) {constraint: TB40}
     }
   }
   n2: {
+    grid-columns: 2
     os: {
       shape: sql_table
-      role: Kubernetes node
+      role: Router, Kubernetes Node
       host-os: NixOS
-      vms: talos
+      vms: talos, opnsense (planned)
     }
     hardware: {
       shape: sql_table
@@ -43,17 +51,22 @@ cluster: Cluster {
       pcie: Gen4 x16, unused
     }
     network: {
-      nic0(x710): port 0 LAN, port 1 WAN (currently)
-      lom(base-t): port 0 MGMT, port 1 WAN (planned)
-      usb4(tb40): port 0 empty, port 1 inter-node link (can't remember if port 0 or 1)
+      shape: sql_table
+      "0/1": LAN (bond0) {constraint: SFP+}
+      "0/2": LAN (bond0) {constraint: SFP+}
+      "0/3": MGMT {constraint: Base-T}
+      "0/4": WAN (Planned) {constraint: Base-T}
+      usb4/0: empty {constraint: TB40}
+      usb4/1: pfsync (Planned) {constraint: TB40}
     }
   }
   n3: {
+    grid-columns: 2
     os: {
       shape: sql_table
-      role: Etcd quorum
-      host-os: NixOS (pending install)
-      vms: talos
+      role: Kubernetes etcd quorum
+      host-os: NixOS
+      vms: talos, rhel lab
     }
     hardware: {
       shape: sql_table
@@ -64,9 +77,16 @@ cluster: Cluster {
       storage: 256 GB NVMe, 256 GB SATA SSD
       pcie: Gen3 x4 (NVMe), x2 (unused)
     }
+    network: {
+      shape: sql_table
+      "0/1": Cluster {constraint: Base-T}
+      usb1: MGMT {constraint: Adapter}
+    }
   }
   m1: {
+    grid-columns: 2
     specs: {
+      direction: down
       os: {
         shape: sql_table
         role: Storage
@@ -82,6 +102,12 @@ cluster: Cluster {
         storage: "2x Patriot P300 512 GB (mirrored), 2x Seagate 28 T (56 T raw [mirrored])"
         network: 2x 10GB SFP+ (X710), 1x 2.5Gb Base-T
         pcie: "Gen3 x16, unused; x1 unused"
+      }
+      network: {
+        shape: sql_table
+        "0/1": MGMT {constraint: Base-T}
+        "1/1": LAN (bond0) {constraint: SFP+}
+        "1/2": LAN (bond0) {constraint: SFP+}
       }
     }
     services: {
