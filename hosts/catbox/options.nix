@@ -3,7 +3,6 @@
   config,
   inputs,
   lib,
-  pkgs,
   ...
 }: let
   inherit (inputs.self.network) cluster clients;
@@ -13,6 +12,8 @@ in {
     inputs.disko.nixosModules.disko
     inputs.jovian.nixosModules.default
     ./disko.nix
+    ./games.nix
+    ./media.nix
     ./streaming.nix
   ];
 
@@ -47,13 +48,9 @@ in {
       enable = true;
       autoStart = true;
       user = "home";
-      desktopSession = "plasma-bigscreen-wayland";
     };
     hardware.has.amd.gpu = true;
   };
-  services.desktopManager.plasma6.enable = true;
-  services.displayManager.sessionPackages = [pkgs.kdePackages.plasma-bigscreen];
-  environment.systemPackages = [pkgs.kdePackages.plasma-bigscreen pkgs.jellyfin-desktop];
 
   users.users = {
     liana.openssh.authorizedKeys.keys = inputs.self.keys.liana;

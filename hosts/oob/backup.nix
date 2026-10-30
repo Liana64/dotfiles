@@ -15,16 +15,22 @@ in {
     startAt = "daily";
     wants = ["network-online.target"];
     after = ["network-online.target"];
-    path = [config.boot.zfs.package pkgs.openssh];
+    path = [config.boot.zfs.package pkgs.gawk pkgs.openssh];
     script = ''
       set -o pipefail
-      snap=$(zfs list -Ho name -t snapshot -s createtxg ${ds} | tail -n1)
       from=$(zfs list -Ho name -t bookmark -s createtxg ${ds} | tail -n1)
-      [ "''${from#*#}" = "''${snap#*@}" ] && exit 0
-      zfs send ''${from:+-i "$from"} "$snap" \
-        | ssh -i ${key} -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/var/lib/unifi-backup/known_hosts backup@${m1}
-      zfs bookmark "$snap" "${ds}#''${snap#*@}"
-      [ -z "$from" ] || zfs destroy "$from"
+      txg=0
+      [ -z "$from" ] || txg=$(zfs get -Hpo value createtxg "$from")
+      zfs list -Hpo createtxg,name -t snapshot -s createtxg ${ds} \
+        | awk -v t="$txg" '$1 > t && $2 ~ /_(daily|monthly)$/ {print $2}' \
+        | while read -r snap; do
+          zfs send ''${from:+-i "$from"} "$snap" \
+            | ssh -i ${key} -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/var/lib/unifi-backup/known_hosts backup@${m1}
+          mark="${ds}#''${snap#*@}"
+          zfs bookmark "$snap" "$mark"
+          [ -z "$from" ] || zfs destroy "$from"
+          from=$mark
+        done
     '';
     serviceConfig =
       hardening.zfs
@@ -36,4 +42,6 @@ in {
         IPAddressAllow = m1;
       };
   };
+
+  systemd.timers.unifi-backup.timerConfig.Persistent = true;
 }
