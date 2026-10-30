@@ -31,6 +31,7 @@
       "hardening-probe"
       "helix"
       "housing"
+      "infra"
       "installer"
       "keyboard"
       "kitty"
