@@ -81,6 +81,11 @@
       flake = false;
     };
 
+    jovian = {
+      url = "github:Jovian-Experiments/Jovian-NixOS";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     # Partitioning for provisioned hosts; staged for framework impermanence.
     disko = {
       url = "github:nix-community/disko";
