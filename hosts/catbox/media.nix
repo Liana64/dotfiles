@@ -21,8 +21,10 @@ in {
   programs.kde-pim.enable = false;
   environment.plasma6.excludePackages = with pkgs.kdePackages; [ark discover dolphin dolphin-plugins elisa gwenview kate khelpcenter konsole okular qrca spectacle];
   environment.etc."xdg/applications-blacklistrc".text = lib.generators.toINI {} {
-    Applications.blacklist = lib.concatStringsSep "," [
+    # plasma-bigscreen will overwrite this blacklist unless we make it immutable
+    Applications."blacklist[$i]" = lib.concatStringsSep "," [
       "com.vysp3r.ProtonPlus"
+      "cups"
       "dev.lizardbyte.app.Sunshine"
       "kdesystemsettings"
       "LocalSend"
@@ -35,6 +37,7 @@ in {
       "org.kde.kinfocenter"
       "org.kde.kmenuedit"
       "org.kde.kwalletmanager"
+      "org.kde.plasma.bigscreen.inputhandler"
       "org.kde.plasma-systemmonitor"
       "org.kde.plasma.bigscreen.uvcviewer"
       "org.kde.plasma.emojier"
@@ -44,6 +47,7 @@ in {
       "systemsettings"
     ];
   };
+  systemd.tmpfiles.rules = ["D /home/home/.local/share/applications 0555 home users -"];
 
   systemd.user.services.tv-input = {
     description = "Wake the TV and switch it to catbox";
