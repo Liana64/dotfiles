@@ -84,6 +84,8 @@
       };
   };
 in {
+  motd.commands = [["aws s3 ls" "s3 buckets"]];
+
   sops = {
     secrets = lib.listToAttrs (lib.concatMap (name:
       map (k: lib.nameValuePair "seaweedfs/${name}/${k}" {}) ["access-key" "secret-key"])

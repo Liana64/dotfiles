@@ -8,7 +8,7 @@
   port = 8090;
   key = k: config.sops.placeholder."seaweedfs/nix-cache/${k}";
 in {
-  motd.commands = [["http://${addr}:${toString port}" "attic"]];
+  motd.commands = [["sudo atticd-atticadm make-token --sub <name> --validity 30d --pull <cache>" "attic token"]];
 
   sops = {
     secrets."attic/token-rs256" = {};
