@@ -15,7 +15,6 @@
       seahorse
       traceroute
       unzip
-      vim
       wget
       # wireshark (nix shell on demand, dissectors parse hostile input)
     ];

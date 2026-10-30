@@ -28,5 +28,7 @@
         bindkey '^[[3~' delete-char
       '';
     };
+
+    programs.vim.enable = true;
   };
 }
