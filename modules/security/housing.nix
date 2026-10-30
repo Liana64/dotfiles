@@ -71,12 +71,13 @@ in {
       socketFiles = [vaultExtraSocket vaultSshSocket];
     };
 
+    houses = lib.filterAttrs (_: h: h.enable) config.housing.houses;
     focused = config.wayland.windowManager.sway.config.colors.focused;
     swaymsg = lib.getExe' config.wayland.windowManager.sway.package "swaymsg";
     client = c: "${c.border} ${c.background} ${c.text} ${c.indicator} ${c.childBorder}";
     tint = accent: let t = mix colors.gray accent 20; in "${t} ${t} ${focused.text} ${t} ${t}";
     tints =
-      lib.mapAttrs' (name: accent: lib.nameValuePair "house-${name}" (tint accent)) accents
+      lib.mapAttrs' (name: _: lib.nameValuePair "house-${name}" (tint accents.${name})) houses
       // {"" = client focused;};
     houseTint = pkgs.writeShellScript "house-tint" ''
       ${swaymsg} -t subscribe -m '["window"]' \
@@ -469,16 +470,16 @@ in {
       ++ lib.concatMap (h: map (d: "d %h/${d}/${h} 0700 - - -") intake.dirs ++ ["d %S/house-intake/${h} 0700 - - -"]) intake.houses;
 
     xdg.desktopEntries =
-      lib.mapAttrs' (name: _:
+      lib.mapAttrs' (name: h:
         lib.nameValuePair "house-${name}" {
           name = "kitty [${name}]";
           genericName = "Terminal";
           comment = "Login shell inside the ${name} house";
           icon = "kitty";
-          exec = "${lib.getExe pkgs.kitty} --class house-${name} ${config.housing.houses.${name}.runner}/bin/house-${name}";
+          exec = "${lib.getExe pkgs.kitty} --class house-${name} ${h.runner}/bin/house-${name}";
           categories = ["System" "TerminalEmulator"];
         })
-      accents
+      houses
       // {
         open-pdf = {
           name = "PDF [${pdfHouse}]";
@@ -518,7 +519,7 @@ in {
           command = ''title_format "[${name}] %title"'';
         }
       ])
-      accents);
+      houses);
 
     systemd.user.services.house-tint = lib.mkIf config.wayland.windowManager.sway.enable {
       Unit = {

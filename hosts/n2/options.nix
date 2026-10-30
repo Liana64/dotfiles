@@ -10,9 +10,9 @@
 
   hypervisor.cpu = "intel";
 
-  # 32G: 24 vm + 3 opnsense standby + ~1 qemu + 2 arc + ~2 host
   edge = {
     index = 2;
+    memoryGiB = 32;
     disks = [
       "/dev/disk/by-id/nvme-WD_BLACK_SN770_2TB_244542800309"
       "/dev/disk/by-id/nvme-Viper_VP4300_2TB_VP4300DFBA2308016025"
@@ -28,7 +28,6 @@
       memoryGiB = 3;
       macs = {
         lan = "BC:24:11:70:7A:C3";
-        wan = "BC:24:11:58:E3:5A";
         tb = "BC:24:11:80:4A:EF";
       };
     };

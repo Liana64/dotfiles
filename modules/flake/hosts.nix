@@ -12,13 +12,53 @@
   base = ["hardwareTools" "nixDaemon" "time" "users"];
   hardened = base ++ ["hardening" "journald" "noDefaults" "noexec" "storeVerify"];
   serverOnly = ["hypervisor" "zfsRollback"];
-  optIn = ["perfTools"];
-  workstation = lib.attrNames (removeAttrs config.flake.modules.nixos (optIn ++ serverOnly));
+  workstation =
+    hardened
+    ++ [
+      "audio"
+      "auditd"
+      "boot"
+      "compositor"
+      "email"
+      "faillock"
+      "files"
+      "flatpak"
+      "fonts"
+      "hardeningWorkstation"
+      "impermanence"
+      "keyboard"
+      "keyring"
+      "logFlood"
+      "networking"
+      "nfsClient"
+      "nushell"
+      "packages"
+      "secrets"
+      "ssd"
+      "sudo"
+      "tasks"
+      "theme"
+      "usbguard"
+      "virtualization"
+      "wireguard"
+      "wireless"
+      "yubikey"
+    ];
+  laptop = workstation ++ ["frameworkHardware" "laptop"];
 
   hosts = {
-    framework.system = "x86_64-linux";
-    portable.system = "x86_64-linux";
-    noku.system = "x86_64-linux";
+    framework = {
+      system = "x86_64-linux";
+      aspects = laptop;
+    };
+    portable = {
+      system = "x86_64-linux";
+      aspects = laptop;
+    };
+    noku = {
+      system = "x86_64-linux";
+      aspects = workstation ++ ["bigscreen"];
+    };
     m1 = {
       system = "x86_64-linux";
       aspects = hardened ++ ["hypervisor"];
@@ -39,16 +79,15 @@
       aspects = hardened ++ serverOnly;
       home = false;
     };
+    offsite-1 = {
+      system = "aarch64-linux";
+      aspects = hardened ++ ["impermanence" "sudo"];
+      home = false;
+    };
     oob = {
       system = "aarch64-linux";
       channel = inputs.nixpkgs-unstable;
       aspects = base;
-      home = false;
-    };
-    deck = {
-      system = "x86_64-linux";
-      channel = inputs.nixpkgs-unstable;
-      aspects = base ++ ["noDefaults" "frameworkHardware"];
       home = false;
     };
   };
@@ -82,7 +121,7 @@
 
   mkNixos = name: {
     system,
-    aspects ? workstation,
+    aspects,
     home ? true,
     channel ? nixpkgs,
   }:

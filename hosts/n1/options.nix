@@ -10,10 +10,10 @@
 
   hypervisor.cpu = "intel";
 
-  # 32G: 24 vm + 4 opnsense + ~1 qemu + 1.5 arc + ~1.5 host
   # ~900G usable: 640 leaves ~35G for root/nix/var + talos-os snapshots
   edge = {
     index = 1;
+    memoryGiB = 32;
     disks = [
       "/dev/disk/by-id/nvme-WD_BLACK_SN770_1TB_241009808010"
       "/dev/disk/by-id/nvme-WD_Blue_SN5100_1TB_25423W804321"
@@ -29,7 +29,6 @@
       memoryGiB = 4;
       macs = {
         lan = "BC:24:11:C4:32:01";
-        wan = "BC:24:11:C4:32:02";
         tb = "BC:24:11:B6:7B:20";
       };
     };
