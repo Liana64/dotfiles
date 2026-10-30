@@ -1,6 +1,7 @@
 # @desc: Waybar status bar
 {...}: {
   flake.modules.homeManager.waybar = {
+    inputs,
     config,
     lib,
     pkgs,
@@ -46,7 +47,9 @@
       postBuild = ''
         wrapProgram $out/bin/waybar-usbguard      --prefix PATH : $out/bin
         wrapProgram $out/bin/waybar-task          --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [taskwarrior3 jq coreutils])}
-        wrapProgram $out/bin/waybar-syncthing     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [curl jq gnused procps])}
+        wrapProgram $out/bin/waybar-vpn --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [curl jq systemd])} \
+          --set SOCKS ${with inputs.self.network.vpn; "${hosts.socks}:${toString socksPort}"}
+        wrapProgram $out/bin/waybar-syncthing    --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [curl jq gnused procps])}
         wrapProgram $out/bin/waybar-harness-status --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils gnused procps sway])}
         wrapProgram $out/bin/waybar-nix-housing   --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [intake.intake jq inotify-tools coreutils gnused systemd])}
         wrapProgram $out/bin/waybar-countdown     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils])}
@@ -303,8 +306,14 @@
 
         #battery.warning,
         #custom-usbguard.blocked,
-        #custom-syncthing.error {
+        #custom-syncthing.error,
+        #custom-vpn.ephemeral-down {
           background: ${orange};
+          color: ${darker};
+        }
+
+        #custom-vpn.ephemeral {
+          background: ${emerald};
           color: ${darker};
         }
 
@@ -477,6 +486,7 @@
             exec = "${app}/bin/waybar-vpn";
             return-type = "json";
             interval = 3;
+            signal = 13;
             on-click = "systemctl start vpn-toggle.service";
           };
 

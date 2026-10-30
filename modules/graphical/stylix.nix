@@ -2,6 +2,7 @@
 {...}: {
   flake.modules.homeManager.stylix = {
     inputs,
+    config,
     pkgs,
     lib,
     colors,
@@ -86,6 +87,23 @@
         '';
       };
     };
+
+    qt.kvantum.themes = let
+      render = template: extension:
+        config.lib.stylix.colors {
+          template = builtins.readFile "${inputs.stylix}/modules/qt/${template}";
+          inherit extension;
+        };
+    in
+      lib.mkForce [
+        (pkgs.runCommandLocal "base16-kvantum" {} ''
+          d=$out/share/Kvantum/Base16Kvantum
+          mkdir -p $d
+          cp ${render "kvconfig.mustache" ".kvconfig"} $d/Base16Kvantum.kvconfig
+          sed '/id="itemview-\(toggled\|pressed\)/,+1 s/fill:${base16.base04}/fill:${colors.gray}/' \
+            ${render "kvantum.svg.mustache" ".svg"} > $d/Base16Kvantum.svg
+        '')
+      ];
 
     # Dark mode for electron flatpaks
     gtk.gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;

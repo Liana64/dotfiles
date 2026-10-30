@@ -38,6 +38,18 @@
       hosts = {
         slskd = "172.16.140.10";
         qbittorrent = "172.16.140.20";
+        socks = "172.16.140.30";
+      };
+      socksPort = 1080;
+    };
+    offsite = lan {
+      subnet = "172.16.150.0/24";
+      port = 51820;
+      hosts = {
+        o1 = "172.16.150.1";
+        o1-initrd = "172.16.150.2";
+        framework = "172.16.150.30";
+        m1 = "172.16.150.44";
       };
     };
     clients = {

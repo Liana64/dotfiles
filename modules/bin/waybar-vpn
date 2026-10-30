@@ -4,9 +4,37 @@ net_state=""
 
 # /proc/sys is masked under the unit's ProcSubset=pid, probe /sys instead
 if [ -d /sys/class/net/wg0 ]; then
-    printf '{"text": "󰕥", "class": "connected", "tooltip": "VPN connected"}\n'
+    icon="󰕥" class=connected tip="VPN connected"
 elif [ "$net_state" = untrusted ]; then
-    printf '{"text": "󰻌", "class": "untrusted", "tooltip": "VPN off, untrusted network"}\n'
+    icon="󰻌" class=untrusted tip="VPN off, untrusted network"
 else
-    printf '{"text": "󰦞", "class": "disconnected", "tooltip": "VPN off"}\n'
+    icon="󰦞" class=disconnected tip="VPN off"
 fi
+
+eph="" rtt=0
+case $(systemctl --user show -P ActiveState ephemeral-socks.service) in
+    active|activating)
+        # CONNECT to the proxy's own discard port: a SOCKS refusal (97) proves the proxy answered without leaving it
+        rtt=$(curl -s -o /dev/null -w '%{time_connect}' -m 2 -x "socks5h://$SOCKS" http://127.0.0.1:9/)
+        case $? in
+            0|52|56|97) eph=up ;;
+            *) eph=down ;;
+        esac
+        ;;
+esac
+
+if [ "$class" != untrusted ]; then
+    case $eph in
+        up) icon="󰕥" class=ephemeral ;;
+        down) class=ephemeral-down ;;
+    esac
+fi
+
+jq -cn --arg i "$icon" --arg c "$class" --arg t "$tip" --arg e "$eph" --arg s "$SOCKS" --arg r "$rtt" '{
+    text: $i,
+    class: $c,
+    tooltip: ($t + {
+        up: "\nEphemeral via \($s) · \($r | tonumber * 1000 | round) ms → Proton",
+        down: "\nEphemeral proxy \($s) unreachable"
+    }[$e] // "")
+}'

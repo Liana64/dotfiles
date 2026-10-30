@@ -149,6 +149,8 @@ in {
         programs.firefox.policies.DefaultDownloadDirectory = "${config.home.homeDirectory}/Downloads";
       };
 
+    inherit (inputs.self.network) vpn;
+
     webCapabilities = {
       gui.enable = true;
       gpu.enable = true;
@@ -160,8 +162,25 @@ in {
         rwDirs = [drop];
       };
     };
+    refreshWaybar = "${pkgs.systemd}/bin/systemctl --user kill --kill-whom=main --signal=SIGRTMIN+13 waybar.service";
   in {
     imports = [inputs.nix-housing.homeManagerModules.default];
+
+    systemd.user.services.ephemeral-socks = {
+      Unit = {
+        Description = "web-ephemeral session on the VLAN 140 SOCKS proxy";
+        StopWhenUnneeded = true;
+      };
+      Service =
+        hardening.confined
+        // {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ProtectHome = "read-only";
+          ExecStart = "-${refreshWaybar}";
+          ExecStopPost = "-${refreshWaybar}";
+        };
+    };
 
     housing.enable = true;
     housing.shellPromptPrefix = false;
@@ -326,10 +345,24 @@ in {
               aspects.firefox
             ];
           firefox.role = "ephemeral";
+          programs.firefox.profiles.ephemeral.settings = {
+            "network.proxy.type" = 1;
+            "network.proxy.socks" = vpn.hosts.socks;
+            "network.proxy.socks_port" = vpn.socksPort;
+            "network.proxy.socks_version" = 5;
+            "network.proxy.socks5_remote_dns" = true;
+            "network.proxy.failover_direct" = false;
+            "network.proxy.no_proxies_on" = "";
+          };
         };
         exportDesktopEntries = true;
         capabilities = lib.recursiveUpdate webCapabilities {
+          # the proxy port is the only egress, so a down tunnel fails closed
+          landlock.connectTcpPorts = [vpn.socksPort];
           landlock.roDirs = ["$NIX_HOUSING_REAL_XDG_RUNTIME_DIR/${intake.pdfStage}"];
+          execWrappers.ephemeralSocks = lib.hm.dag.entryBetween ["namespacing"] ["dirSetup"] ''
+            exec ${pkgs.systemd}/bin/systemd-run --user --scope --quiet --collect -p Wants=ephemeral-socks.service -- "$@"
+          '';
         };
       };
 
@@ -371,6 +404,12 @@ in {
           namespacing.proc = true;
           sessionDbus.own = ["org.mpris.MediaPlayer2.fooyin"];
           landlock.rwDirs = ["/mnt/m1/media"];
+          execWrappers.qtLockSweep = lib.hm.dag.entryBetween ["namespacing"] ["dirSetup"] ''
+            for l in "$NIX_HOUSING_HOUSE_TMPDIR"/kdsingleapp-*.lock; do
+              [ -e "$l" ] && ${pkgs.util-linux}/bin/flock -n "$l" true && rm -f "$l" "''${l%.lock}"
+            done
+            exec "$@"
+          '';
         };
       };
 
