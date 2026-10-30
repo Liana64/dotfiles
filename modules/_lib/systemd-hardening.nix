@@ -53,6 +53,14 @@ lib: rec {
       UMask = "0077";
     };
 
+  zfs =
+    confined
+    // {
+      PrivateDevices = false;
+      RestrictAddressFamilies = ["AF_UNIX" "AF_NETLINK"];
+      IPAddressDeny = "any";
+    };
+
   airgapped =
     confined
     // {

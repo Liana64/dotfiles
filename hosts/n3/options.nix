@@ -3,7 +3,6 @@
     inputs.disko.nixosModules.disko
     ./disko.nix
     ./network.nix
-    ./secrets.nix
     ./vms
   ];
 
@@ -24,6 +23,7 @@
     hostName = "n3";
     hostId = "04fb533a";
   };
+  motd.description = "Talos and lab hypervisor";
 
   users.users.liana = {
     uid = 1000;

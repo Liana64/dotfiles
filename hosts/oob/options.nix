@@ -1,10 +1,13 @@
 {
+  hardening,
   inputs,
   lib,
   pkgs,
   ...
 }: let
-  inherit (inputs.self.network) mgmt;
+  inherit (inputs.self.network) mgmt clients;
+  set = lib.concatStringsSep ", ";
+  zfsJob = hardening.zfs // {CapabilityBoundingSet = "CAP_SYS_ADMIN";};
 in {
   imports = [
     inputs.nixos-hardware.nixosModules.raspberry-pi-5
@@ -13,12 +16,10 @@ in {
     ./disko.nix
     ./monitoring.nix
     ./nut.nix
-    ./secrets.nix
     ./unifi.nix
   ];
 
   nixpkgs.hostPlatform = "aarch64-linux";
-
   boot = {
     kernelPackages = pkgs.linuxPackages;
     loader.generic-extlinux-compatible.enable = true;
@@ -29,13 +30,17 @@ in {
     kernelParams = ["zfs.zfs_arc_max=${toString (1024 * 1024 * 1024)}"];
   };
 
+  motd.description = "out-of-band: UniFi and UPS";
+
   networking = {
     hostName = "oob";
     hostId = "b28118b6";
     useDHCP = false;
     useNetworkd = true;
     nftables.enable = true;
-    firewall.allowedTCPPorts = [22];
+    firewall.extraInputRules = ''
+      ip saddr { ${set clients.liana} } tcp dport 22 accept
+    '';
   };
 
   systemd.network.networks."10-lan" = {
@@ -58,6 +63,7 @@ in {
       enable = true;
       openFirewall = false;
       settings = {
+        AllowUsers = ["liana"];
         PasswordAuthentication = false;
         KbdInteractiveAuthentication = false;
         PermitRootLogin = "no";
@@ -69,6 +75,12 @@ in {
       interval = "monthly";
     };
     zfs.trim.enable = true;
+  };
+
+  systemd.services = {
+    zfs-scrub.serviceConfig = zfsJob;
+    zpool-trim.serviceConfig = zfsJob;
+    zfs-zed.serviceConfig = zfsJob;
   };
 
   users.users.liana = {

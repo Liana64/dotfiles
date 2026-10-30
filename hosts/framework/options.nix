@@ -1,5 +1,4 @@
 {
-  config,
   # inputs,
   pkgs,
   ...
@@ -11,15 +10,11 @@
   ];
 
   networking.hostName = "framework";
-  compositor = "sway";
   taskManager = "todoist";
   theme = "kanagawa";
   impermanence = false;
   nushell = false;
-
-  sops.secrets."users/liana/password".neededForUsers = true;
-  users.mutableUsers = false;
-  users.users.liana.hashedPasswordFile = config.sops.secrets."users/liana/password".path;
+  machineSecrets = true;
 
   services.btrfs.autoScrub = {
     enable = true;

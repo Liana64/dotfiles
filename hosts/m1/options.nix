@@ -1,4 +1,8 @@
-{inputs, ...}: {
+{
+  config,
+  inputs,
+  ...
+}: {
   imports = [
     inputs.disko.nixosModules.disko
     ./backup.nix
@@ -6,7 +10,6 @@
     ./ganesha.nix
     ./network.nix
     ./seaweedfs.nix
-    ./secrets.nix
     ./storage.nix
     ./syncthing.nix
     ./vms.nix
@@ -40,6 +43,8 @@
     blacklistedKernelModules = ["nouveau" "iwlwifi"];
   };
 
+  motd.description = "NAS and Talos hypervisor";
+
   networking = {
     hostName = "m1";
     hostId = "c0ff6d31";
@@ -60,9 +65,11 @@
       isNormalUser = true;
       uid = 1001;
       extraGroups = ["media" "documents"];
+      hashedPasswordFile = config.sops.secrets."users/maxine/password".path;
       openssh.authorizedKeys.keys = [inputs.self.keys.maxine];
     };
   };
+  sops.secrets."users/maxine/password".neededForUsers = true;
 
   system.stateVersion = "26.05";
 }

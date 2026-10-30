@@ -31,47 +31,53 @@
 
     options.machineSecrets = lib.mkOption {
       type = lib.types.bool;
-      default = true;
-      description = "False = login hash only.";
+      default = false;
+      description = "Workstation secrets beyond the login hash.";
     };
 
     config = {
       sops.defaultSopsFile = "${inputs.secrets}/${config.networking.hostName}.yaml";
       sops.package = inputs.sops-nix.packages.${pkgs.stdenv.hostPlatform.system}.sops-install-secrets;
-      sops.age.keyFile = "/var/lib/sops-nix/key.txt";
+      sops.age.keyFile = lib.mkDefault "/var/lib/sops-nix/key.txt";
       sops.age.sshKeyPaths = [];
       sops.gnupg.sshKeyPaths = [];
 
-      sops.secrets = lib.mkIf config.machineSecrets ({
-          "network/wireguard/wg0.conf" = {
-            path = "/var/secrets/wireguard/wg0.conf";
-            mode = "0400";
-          };
-          "network/wireguard/trusted-networks" = {
-            path = "/var/secrets/wireguard/trusted-networks";
-            mode = "0400";
-          };
-          "network/nm-secret-key" = {
-            path = "/var/lib/NetworkManager/secret_key";
-            mode = "0600";
-            restartUnits = ["NetworkManager.service"];
-          };
-          "services/ai-router/gateway-key" = {
-            path = "/var/secrets/eek/gateway-key";
+      users.mutableUsers = false;
+      users.users.liana.hashedPasswordFile = config.sops.secrets."users/liana/password".path;
+
+      sops.secrets = lib.mkMerge [
+        {"users/liana/password".neededForUsers = true;}
+        (lib.mkIf config.machineSecrets ({
+            "network/wireguard/wg0.conf" = {
+              path = "/var/secrets/wireguard/wg0.conf";
+              mode = "0400";
+            };
+            "network/wireguard/trusted-networks" = {
+              path = "/var/secrets/wireguard/trusted-networks";
+              mode = "0400";
+            };
+            "network/nm-secret-key" = {
+              path = "/var/lib/NetworkManager/secret_key";
+              mode = "0600";
+              restartUnits = ["NetworkManager.service"];
+            };
+            "services/ai-router/gateway-key" = {
+              path = "/var/secrets/eek/gateway-key";
+              owner = "liana";
+              mode = "0400";
+            };
+            "machine/syncthing/gui-passwd" = {
+              path = "/var/secrets/syncthing/gui-passwd";
+              owner = "liana";
+              mode = "0400";
+            };
+          }
+          // lib.genAttrs (map (k: "cryptography/age/${k}") ageKeys) (name: {
+            path = "${config.users.users.liana.home}/.config/sops/age/${baseNameOf name}.key";
             owner = "liana";
             mode = "0400";
-          };
-          "machine/syncthing/gui-passwd" = {
-            path = "/var/secrets/syncthing/gui-passwd";
-            owner = "liana";
-            mode = "0400";
-          };
-        }
-        // lib.genAttrs (map (k: "cryptography/age/${k}") ageKeys) (name: {
-          path = "${config.users.users.liana.home}/.config/sops/age/${baseNameOf name}.key";
-          owner = "liana";
-          mode = "0400";
-        }));
+          })))
+      ];
 
       environment.systemPackages = [sopsStore];
     };

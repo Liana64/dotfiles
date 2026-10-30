@@ -18,7 +18,6 @@ in {
     ./disko.nix
     ./network.nix
     ./opnsense.nix
-    ./secrets.nix
     ./talos.nix
   ];
 
@@ -36,6 +35,8 @@ in {
   };
 
   config = {
+    motd.description = "edge hypervisor: OPNsense and Talos";
+
     nixpkgs.hostPlatform = "x86_64-linux";
 
     boot = {

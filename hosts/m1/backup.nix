@@ -9,6 +9,8 @@
   zfs = "${config.boot.zfs.package}/bin/zfs";
   s3 = "tank/cluster/s3@restic";
 in {
+  motd.commands = [["systemctl status restic-backups-tank" "offsite backup"]];
+
   sops.secrets = {
     "backup/restic-repo" = {};
     "backup/restic-password" = {};

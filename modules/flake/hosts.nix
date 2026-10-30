@@ -56,8 +56,9 @@
     ]
     config.flake.modules.homeManager;
 
-  base = ["hardwareTools" "nixDaemon" "time" "users"];
+  base = ["hardwareTools" "nixDaemon" "secrets" "time" "users"];
   hardened = base ++ ["hardening" "journald" "noDefaults" "noexec" "storeVerify"];
+  server = hardened ++ ["motd"];
   serverOnly = ["hypervisor" "zfsRollback"];
   workstation =
     hardened
@@ -80,7 +81,6 @@
       "nfsClient"
       "nushell"
       "packages"
-      "secrets"
       "ssd"
       "sudo"
       "tasks"
@@ -105,38 +105,38 @@
     catbox = {
       system = "x86_64-linux";
       channel = inputs.nixpkgs-unstable;
-      aspects = base ++ ["audio" "networking" "noDefaults" "secrets"];
+      aspects = base ++ ["audio" "motd" "networking" "noDefaults"];
       home = false;
     };
     m1 = {
       system = "x86_64-linux";
-      aspects = hardened ++ ["hypervisor"];
+      aspects = server ++ ["hypervisor"];
       home = false;
     };
     n1 = {
       system = "x86_64-linux";
-      aspects = hardened ++ serverOnly;
+      aspects = server ++ serverOnly;
       home = false;
     };
     n2 = {
       system = "x86_64-linux";
-      aspects = hardened ++ serverOnly;
+      aspects = server ++ serverOnly;
       home = false;
     };
     n3 = {
       system = "x86_64-linux";
-      aspects = hardened ++ serverOnly;
+      aspects = server ++ serverOnly;
       home = false;
     };
     offsite-1 = {
       system = "aarch64-linux";
-      aspects = hardened ++ ["impermanence" "sudo"];
+      aspects = server ++ ["impermanence" "sudo"];
       home = false;
     };
     oob = {
       system = "aarch64-linux";
       channel = inputs.nixpkgs-unstable;
-      aspects = base;
+      aspects = server;
       home = false;
     };
   };
