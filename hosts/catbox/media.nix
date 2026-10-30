@@ -51,7 +51,10 @@ in {
     Wayland."InputMethod[$i]" = "/run/current-system/sw/share/applications/org.kde.plasma.keyboard.desktop";
   };
   systemd.user.services.gamescope-session.serviceConfig.ExecStartPre = "-${pkgs.systemd}/bin/systemctl --user stop app-org.kde.plasma.bigscreen.inputhandler@*.service";
-  systemd.tmpfiles.rules = ["D /home/home/.local/share/applications 0555 home users -"];
+  systemd.tmpfiles.rules = [
+    "D /home/home/.local/share/applications 0555 home users -"
+    "L+ /usr/share/wallpapers - - - - /run/current-system/sw/share/wallpapers"
+  ];
 
   systemd.services.tv-input = {
     description = "Wake the TV and switch it to catbox";
