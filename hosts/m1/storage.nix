@@ -151,6 +151,7 @@
         id = ids.backup;
         mode = "0700";
         allow = "backup receive,create,mount,hold";
+        props.readonly = "on";
       })
     pushers;
 
