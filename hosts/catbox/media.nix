@@ -1,5 +1,6 @@
 {
   inputs,
+  lib,
   pkgs,
   ...
 }: let
@@ -17,6 +18,32 @@ in {
   jovian.steam.desktopSession = "plasma-bigscreen-wayland";
   services.desktopManager.plasma6.enable = true;
   services.displayManager.sessionPackages = [pkgs.kdePackages.plasma-bigscreen];
+  programs.kde-pim.enable = false;
+  environment.plasma6.excludePackages = with pkgs.kdePackages; [ark discover dolphin dolphin-plugins elisa gwenview kate khelpcenter konsole okular qrca spectacle];
+  environment.etc."xdg/applications-blacklistrc".text = lib.generators.toINI {} {
+    Applications.blacklist = lib.concatStringsSep "," [
+      "com.vysp3r.ProtonPlus"
+      "dev.lizardbyte.app.Sunshine"
+      "kdesystemsettings"
+      "LocalSend"
+      "net.retrodeck.retrodeck.Configurator"
+      "nixos-manual"
+      "org.kde.drkonqi.coredump.gui"
+      "org.kde.kdeconnect.app"
+      "org.kde.kdeconnect.nonplasma"
+      "org.kde.kdeconnect.sms"
+      "org.kde.kinfocenter"
+      "org.kde.kmenuedit"
+      "org.kde.kwalletmanager"
+      "org.kde.plasma-systemmonitor"
+      "org.kde.plasma.bigscreen.uvcviewer"
+      "org.kde.plasma.emojier"
+      "plasma-bigscreen-swap-session"
+      "protontricks"
+      "steam"
+      "systemsettings"
+    ];
+  };
 
   systemd.user.services.tv-input = {
     description = "Wake the TV and switch it to catbox";
@@ -48,5 +75,6 @@ in {
     (webapp "Pinepods" "https://podcasts.milberry.org")
     (webapp "Seerr" "https://requests.lianas.org")
     (tile "Roku" "tv keypress/Home")
+    (tile "SteamOS" "${pkgs.jovianPackages.steamos-manager}/bin/steamosctl switch-to-game-mode")
   ];
 }
