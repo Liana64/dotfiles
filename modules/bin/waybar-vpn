@@ -12,7 +12,7 @@ else
 fi
 
 eph="" rtt=0
-case $(systemctl --user show -P ActiveState ephemeral-socks.service) in
+case $(systemctl --user show -P ActiveState ephemeral-socks.socket) in
     active|activating)
         # CONNECT to the proxy's own discard port: a SOCKS refusal (97) proves the proxy answered without leaving it
         rtt=$(curl -s -o /dev/null -w '%{time_connect}' -m 2 -x "socks5h://$SOCKS" http://127.0.0.1:9/)

@@ -59,11 +59,49 @@
       ephemeral = {
         "browser.startup.homepage" = "about:blank";
         "browser.privatebrowsing.autostart" = true;
-        "privacy.resistFingerprinting" = true;
         "media.eme.enabled" = false;
         "media.peerconnection.enabled" = false;
+        "media.navigator.enabled" = false;
+        "network.manage-offline-status" = false;
+
+        # Fingerprinting
+        "privacy.resistFingerprinting" = true;
+        "privacy.resistFingerprinting.letterboxing" = true;
+        "privacy.resistFingerprinting.block_mozAddonManager" = true;
+        "privacy.spoof_english" = 2;
+        "webgl.disabled" = true;
+        "dom.webgpu.enabled" = false;
+        "dom.gamepad.enabled" = false;
+        "device.sensors.enabled" = false;
+        "beacon.enabled" = false;
+
+        # Exploit surface
+        "javascript.options.ion" = false;
+        "javascript.options.baselinejit" = false;
+        "javascript.options.wasm" = false;
+        "security.OCSP.require" = true;
+        "security.cert_pinning.enforcement_level" = 2;
+        "security.ssl.require_safe_negotiation" = true;
       };
     };
+
+    ublock = pkgs.fetchurl {
+      url = "https://github.com/gorhill/uBlock/releases/download/1.75.0/uBlock0_1.75.0.firefox.signed.xpi";
+      hash = "sha256-W3RBWGBFY3BkS9gPFhJehlsObDVrtd/PuEBpln6qUoc=";
+    };
+
+    # medium mode on top of the stock rules, which adminSettings replaces wholesale
+    ublockMediumMode = lib.concatStringsSep "\n" [
+      "behind-the-scene * * noop"
+      "behind-the-scene * image noop"
+      "behind-the-scene * 3p noop"
+      "behind-the-scene * inline-script noop"
+      "behind-the-scene * 1p-script noop"
+      "behind-the-scene * 3p-script noop"
+      "behind-the-scene * 3p-frame noop"
+      "* * 3p-script block"
+      "* * 3p-frame block"
+    ];
   in {
     options.firefox.role = lib.mkOption {
       type = lib.types.enum ["secure" "public" "ephemeral"];
@@ -91,6 +129,14 @@
             ["popupPanelSections" "31"]
           ];
           toAdd.trustedSiteDirectives = trustedSites;
+          adminSettings = lib.mkIf (role == "ephemeral") {dynamicFilteringString = ublockMediumMode;};
+        };
+        ExtensionSettings = lib.mkIf (role == "ephemeral") {
+          "uBlock0@raymondhill.net" = {
+            installation_mode = "force_installed";
+            install_url = "file://${ublock}";
+            private_browsing = true;
+          };
         };
         WebsiteFilter = lib.mkIf (role == "secure") {
           # Block = map (domain: "*://*.${domain}/*") platforms;

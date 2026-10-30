@@ -163,22 +163,30 @@ in {
       };
     };
     refreshWaybar = "${pkgs.systemd}/bin/systemctl --user kill --kill-whom=main --signal=SIGRTMIN+13 waybar.service";
+    ephemeralSocket = "${config.housing.houses.web-ephemeral.houseHomeDir}/.socks.sock";
   in {
     imports = [inputs.nix-housing.homeManagerModules.default];
 
-    systemd.user.services.ephemeral-socks = {
+    systemd.user.sockets.ephemeral-socks = {
       Unit = {
-        Description = "web-ephemeral session on the VLAN 140 SOCKS proxy";
+        Description = "web-ephemeral session socket to the VLAN 140 SOCKS proxy";
         StopWhenUnneeded = true;
       };
+      Socket = {
+        ListenStream = ephemeralSocket;
+        SocketMode = "0600";
+        RemoveOnStop = true;
+        ExecStartPost = "-${refreshWaybar}";
+        ExecStopPost = "-${refreshWaybar}";
+      };
+    };
+
+    systemd.user.services.ephemeral-socks = {
+      Unit.Description = "Relay web-ephemeral to the VLAN 140 SOCKS proxy";
       Service =
         hardening.confined
         // {
-          Type = "oneshot";
-          RemainAfterExit = true;
-          ProtectHome = "read-only";
-          ExecStart = "-${refreshWaybar}";
-          ExecStopPost = "-${refreshWaybar}";
+          ExecStart = "${pkgs.systemd}/lib/systemd/systemd-socket-proxyd --exit-idle-time=10s ${vpn.hosts.socks}:${toString vpn.socksPort}";
         };
     };
 
@@ -347,8 +355,7 @@ in {
           firefox.role = "ephemeral";
           programs.firefox.profiles.ephemeral.settings = {
             "network.proxy.type" = 1;
-            "network.proxy.socks" = vpn.hosts.socks;
-            "network.proxy.socks_port" = vpn.socksPort;
+            "network.proxy.socks" = "file://${ephemeralSocket}";
             "network.proxy.socks_version" = 5;
             "network.proxy.socks5_remote_dns" = true;
             "network.proxy.failover_direct" = false;
@@ -357,11 +364,19 @@ in {
         };
         exportDesktopEntries = true;
         capabilities = lib.recursiveUpdate webCapabilities {
-          # the proxy port is the only egress, so a down tunnel fails closed
-          landlock.connectTcpPorts = [vpn.socksPort];
+          # loopback-only netns: the proxy socket is the only way out, for every protocol
+          namespacing.net = true;
+          landlock.connectTcpPorts = [];
           landlock.roDirs = ["$NIX_HOUSING_REAL_XDG_RUNTIME_DIR/${intake.pdfStage}"];
-          execWrappers.ephemeralSocks = lib.hm.dag.entryBetween ["namespacing"] ["dirSetup"] ''
-            exec ${pkgs.systemd}/bin/systemd-run --user --scope --quiet --collect -p Wants=ephemeral-socks.service -- "$@"
+          execWrappers.ephemeralSession = lib.hm.dag.entryBetween ["namespacing"] ["dirSetup"] ''
+            if ! ${pkgs.systemd}/bin/systemctl --user --quiet is-active ephemeral-socks.socket; then
+              ff="$NIX_HOUSING_HOUSE_HOME/.mozilla/firefox"
+              [ -d "$ff/ephemeral" ] && ${pkgs.findutils}/bin/find "$ff/ephemeral" -mindepth 1 -maxdepth 1 \
+                ! -type l ! -name chrome ! -name search.json.mozlz4 -exec ${pkgs.coreutils}/bin/rm -rf {} +
+              ${pkgs.coreutils}/bin/rm -rf "$ff/ephemeral/lock" "$ff/Crash Reports" "$ff/Pending Pings" "$ff/Profile Groups" "$NIX_HOUSING_HOUSE_HOME/.cache/mozilla"
+            fi
+            exec ${pkgs.systemd}/bin/systemd-run --user --scope --quiet --collect \
+              -p Wants=ephemeral-socks.socket -p After=ephemeral-socks.socket -- "$@"
           '';
         };
       };
