@@ -34,7 +34,11 @@ in {
       editor = false;
     };
     loader.efi.canTouchEfiVariables = true;
+    loader.timeout = 0;
     initrd.systemd.enable = true;
+    initrd.verbose = false;
+    consoleLogLevel = 3;
+    kernelParams = ["quiet" "udev.log_level=3" "rd.systemd.show_status=auto"];
     initrd.availableKernelModules = ["nvme" "xhci_pci" "ahci" "usbhid"];
     kernelModules = ["kvm-amd"];
   };
