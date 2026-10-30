@@ -5,6 +5,7 @@
 }: {
   imports = [
     inputs.disko.nixosModules.disko
+    ./attic.nix
     ./backup.nix
     ./disko.nix
     ./ganesha.nix

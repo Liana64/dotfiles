@@ -26,6 +26,7 @@
     etcd = ["Write:etcd"];
     matrix = ["Read:matrix" "Write:matrix" "List:matrix" "Tagging:matrix"];
     loki = ["Read:loki" "Write:loki" "List:loki"];
+    nix-cache = ["Read:nix-cache" "Write:nix-cache" "List:nix-cache"];
   };
   key = name: k: config.sops.placeholder."seaweedfs/${name}/${k}";
 
