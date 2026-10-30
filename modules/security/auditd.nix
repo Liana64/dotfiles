@@ -1,29 +1,14 @@
 # @desc: auditd audit logging
 {...}: let
   agentExe = "/var/lib/audit-exe/gpg-agent";
+  spaceLeftMB = 2048;
 in {
   flake.modules.nixos.auditd = {
-    pkgs,
     config,
     lib,
     hardening,
     ...
-  }: let
-    austatus = pkgs.writeShellScriptBin "austatus" (builtins.readFile ../bin/austatus);
-    wallKeys = ["usbguard" "gnupg-secrets" "gnupg-tamper" "code-injection" "data-injection" "register-injection" "ptrace-attach" "32bit-abi" "exec-scratch" "memfd-exec"];
-    spaceLeftMB = 2048;
-    gnupgKeys = "${config.users.users.liana.home}/.gnupg/private-keys-v1.d";
-    agentSrc = "${config.home-manager.users.liana.programs.gpg.package}/bin/gpg-agent";
-    usbguard = config.services.usbguard;
-    scratchDirs = ["/tmp" "/var/tmp"];
-    usbguardIPC = "/var/lib/usbguard/IPCAccessControl.d";
-    ptraceRequests = {
-      ptrace-attach = ["0x10" "0x4206"];
-      code-injection = ["0x4"];
-      data-injection = ["0x5"];
-      register-injection = ["0x6" "0xd" "0xf" "0x1e" "0x4205" "0x4210" "0x4212"];
-    };
-  in {
+  }: {
     security.auditd.enable = true;
     security.auditd.settings = {
       max_log_file = 16;
@@ -37,27 +22,71 @@ in {
       disk_error_action = "syslog";
     };
     security.audit = {
-      enable = "lock";
+      enable = lib.mkDefault true;
       backlogLimit = 8192;
-      rules =
+      rules = lib.mkBefore (
         [
           "-a never,exit -F gid=${toString config.ids.gids.nixbld}"
           "-a never,exclude -F msgtype=BPF -F pid=1"
+        ]
+        ++ map (f: "-w ${f} -p wa -k identity") (["/etc/passwd" "/etc/group" "/etc/shadow"] ++ lib.optional (config.environment.etc ? sudoers) "/etc/sudoers")
+        ++ [
+          "-w /var/log/audit -p wa -k audit-tamper"
+          "-a always,exit -F arch=b64 -S init_module,finit_module -k module-load"
+          "-a always,exit -F arch=b64 -S delete_module -k module-unload"
+        ]
+      );
+    };
+
+    # Watch targets must exist when rules load at sysinit, or auditctl -R aborts
+    # and drops every rule after the failing line, including the -e 2 lock
+    systemd.tmpfiles.rules = ["d /var/log/audit 0700 root root -"];
+    # no seccomp filter, a SIGSYS'd auditd at boot means no audit trail, and
+    # RefuseManualStop blocks --live probes; PrivateNetwork would sever the
+    # init-namespace audit netlink, CAP_CHOWN covers log_group rotation chowns
+    systemd.services.auditd.serviceConfig =
+      builtins.removeAttrs hardening.confined ["SystemCallFilter" "MemoryDenyWriteExecute" "ProcSubset" "UMask"]
+      // {
+        RestrictAddressFamilies = "AF_UNIX AF_NETLINK";
+        CapabilityBoundingSet = "CAP_AUDIT_CONTROL CAP_AUDIT_READ CAP_AUDIT_WRITE CAP_CHOWN";
+        Nice = -4;
+      };
+  };
+
+  flake.modules.nixos.auditdWorkstation = {
+    pkgs,
+    config,
+    lib,
+    hardening,
+    ...
+  }: let
+    austatus = pkgs.writeShellScriptBin "austatus" (builtins.readFile ../bin/austatus);
+    wallKeys = ["usbguard" "gnupg-secrets" "gnupg-tamper" "code-injection" "data-injection" "register-injection" "ptrace-attach" "32bit-abi" "exec-scratch" "memfd-exec"];
+    gnupgKeys = "${config.users.users.liana.home}/.gnupg/private-keys-v1.d";
+    agentSrc = "${config.home-manager.users.liana.programs.gpg.package}/bin/gpg-agent";
+    usbguard = config.services.usbguard;
+    scratchDirs = ["/tmp" "/var/tmp"];
+    usbguardIPC = "/var/lib/usbguard/IPCAccessControl.d";
+    ptraceRequests = {
+      ptrace-attach = ["0x10" "0x4206"];
+      code-injection = ["0x4"];
+      data-injection = ["0x5"];
+      register-injection = ["0x6" "0xd" "0xf" "0x1e" "0x4205" "0x4210" "0x4212"];
+    };
+  in {
+    security.audit = {
+      enable = "lock";
+      rules =
+        [
           "-a never,exit -F arch=b64 -F dir=${gnupgKeys} -F perm=rwa -F exe=${agentExe}"
           "-a always,exit -F arch=b64 -F dir=${gnupgKeys} -F perm=r -k gnupg-secrets"
           "-a always,exit -F arch=b64 -F dir=${gnupgKeys} -F perm=wa -k gnupg-tamper"
         ]
-        ++ map (f: "-w ${f} -p wa -k identity") ["/etc/passwd" "/etc/group" "/etc/shadow" "/etc/sudoers"]
         ++ lib.optionals usbguard.enable [
           "-w ${usbguard.ruleFile} -p wa -k usbguard"
           "-w ${usbguardIPC} -p wa -k usbguard"
         ]
         ++ [
-          "-w /var/log/audit -p wa -k audit-tamper"
-
-          "-a always,exit -F arch=b64 -S init_module,finit_module -k module-load"
-          "-a always,exit -F arch=b64 -S delete_module -k module-unload"
-
           "-a never,exit -F arch=b64 -F dir=/nix/var/nix/db -F perm=wa -F exe=${config.nix.package.nix-cli or config.nix.package}/bin/nix"
           "-a never,exit -F arch=b64 -F dir=/nix/var/nix/db -F perm=wa -F exe=${pkgs.nh-unwrapped}/bin/nh"
           "-a always,exit -F arch=b64 -F dir=/nix/var/nix/db -F perm=wa -k nix-db"
@@ -100,26 +129,13 @@ in {
       fi
     '';
 
-    # Watch targets must exist when rules load at sysinit, or auditctl -R aborts
-    # and drops every rule after the failing line, including the -e 2 lock
     systemd.tmpfiles.rules =
       [
-        "d /var/log/audit 0700 root root -"
         "d /var/lib/audit-wall 0755 root root -"
         "d /var/lib/audit-wall/alerts 0755 root root -"
         "d /var/lib/audit-wall/latch 0755 root root -"
       ]
       ++ lib.optional usbguard.enable "d ${usbguardIPC} 0755 root root -";
-    # no seccomp filter, a SIGSYS'd auditd at boot means no audit trail, and
-    # RefuseManualStop blocks --live probes; PrivateNetwork would sever the
-    # init-namespace audit netlink, CAP_CHOWN covers log_group rotation chowns
-    systemd.services.auditd.serviceConfig =
-      builtins.removeAttrs hardening.confined ["SystemCallFilter" "MemoryDenyWriteExecute" "ProcSubset" "UMask"]
-      // {
-        RestrictAddressFamilies = "AF_UNIX AF_NETLINK";
-        CapabilityBoundingSet = "CAP_AUDIT_CONTROL CAP_AUDIT_READ CAP_AUDIT_WRITE CAP_CHOWN";
-        Nice = -4;
-      };
 
     systemd.services.audit-rules-nixos = {
       after = ["systemd-tmpfiles-setup.service"];

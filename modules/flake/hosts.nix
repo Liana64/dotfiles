@@ -65,6 +65,7 @@
     ++ [
       "audio"
       "auditd"
+      "auditdWorkstation"
       "boot"
       "compositor"
       "email"
@@ -130,7 +131,7 @@
     };
     offsite-1 = {
       system = "aarch64-linux";
-      aspects = server ++ ["impermanence" "sudo"];
+      aspects = server ++ ["auditd" "impermanence" "sudo"];
       home = false;
     };
     oob = {
