@@ -13,6 +13,7 @@
     backup = 2200;
     uploads = 2300;
     s3 = 2400;
+    attic = 2500;
   };
 
   pushers = {
@@ -63,7 +64,7 @@
   #   cluster/photos     2T
   #   cluster/uploads    1T
   #   cluster/s3         1T
-  #   cluster/nix-cache  0.376T  zvol, reserved up front
+  #   cluster/nix-cache  0.376T  reserved up front
   #   backups            1.5T
   #                   ------
   #                     24.376T
@@ -120,11 +121,13 @@
         props.refquota = "1T";
       };
       "tank/cluster/nix-cache" = {
-        volume = {
-          size = "376G";
-          blocksize = "64K";
+        id = ids.attic;
+        mode = "0700";
+        props = {
+          refquota = "376G";
+          refreservation = "376G";
+          compression = "off";
         };
-        props.compression = "off";
       };
       "rpool/seaweedfs" = {
         id = ids.s3;
@@ -167,14 +170,16 @@
 
   ensure = path: s:
     ''
-      zfs list -H ${path} >/dev/null 2>&1 || zfs create -p ${lib.optionalString (s ? volume) "-V ${s.volume.size} -o volblocksize=${s.volume.blocksize} "}${path}
+      zfs list -H ${path} >/dev/null 2>&1 || zfs create -p ${path}
     ''
     + lib.concatStrings (lib.mapAttrsToList (k: v: "zfs set -u ${k}=${v} ${path}\n") (s.props or {}))
     + lib.optionalString (s ? allow) "zfs allow ${s.allow} ${path}\n"
-    + lib.optionalString (!s ? volume) ''
+    + ''
       [ "$(zfs get -H -o value mounted ${path})" = yes ] || zfs mount ${path}
-      chown ${toString s.id}:${toString (s.gid or s.id)} /${path}
-      chmod ${s.mode} /${path}
+      [ "$(stat -c %u:%g:%a /${path})" = ${toString s.id}:${toString (s.gid or s.id)}:${lib.removePrefix "0" s.mode} ] || {
+        chown ${toString s.id}:${toString (s.gid or s.id)} /${path}
+        chmod ${s.mode} /${path}
+      }
     '';
 in {
   boot = {
@@ -197,10 +202,16 @@ in {
       backup.gid = ids.backup;
       uploads.gid = ids.uploads;
       seaweedfs.gid = ids.s3;
+      atticd.gid = ids.attic;
     };
     users.seaweedfs = {
       uid = ids.s3;
       group = "seaweedfs";
+      isSystemUser = true;
+    };
+    users.atticd = {
+      uid = ids.attic;
+      group = "atticd";
       isSystemUser = true;
     };
     users.backup = {

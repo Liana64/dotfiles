@@ -6,7 +6,6 @@
   net = inputs.self.network;
   addr = net.cluster.hosts.m1;
   port = 8090;
-  key = k: config.sops.placeholder."seaweedfs/nix-cache/${k}";
 in {
   motd.commands = [["sudo atticd-atticadm make-token --sub <name> --validity 30d --pull <cache>" "attic token"]];
 
@@ -15,8 +14,6 @@ in {
     templates."atticd.env" = {
       restartUnits = ["atticd.service"];
       content = ''
-        AWS_ACCESS_KEY_ID=${key "access-key"}
-        AWS_SECRET_ACCESS_KEY=${key "secret-key"}
         ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64=${config.sops.placeholder."attic/token-rs256"}
       '';
     };
@@ -29,18 +26,16 @@ in {
       listen = "${addr}:${toString port}";
       api-endpoint = "http://${addr}:${toString port}/";
       storage = {
-        type = "s3";
-        region = "us-east-1";
-        bucket = "nix-cache";
-        endpoint = "http://${addr}:8333";
+        type = "local";
+        path = "/tank/cluster/nix-cache";
       };
       garbage-collection.default-retention-period = "3 months";
     };
   };
 
   systemd.services.atticd = {
-    requires = ["seaweedfs.service"];
-    after = ["seaweedfs.service"];
+    requires = ["zfs-datasets.service"];
+    after = ["zfs-datasets.service"];
     serviceConfig = {
       IPAddressDeny = "any";
       IPAddressAllow =
