@@ -49,10 +49,11 @@ in {
   };
   systemd.tmpfiles.rules = ["D /home/home/.local/share/applications 0555 home users -"];
 
-  systemd.user.services.tv-input = {
+  systemd.services.tv-input = {
     description = "Wake the TV and switch it to catbox";
-    wantedBy = ["graphical-session.target"];
-    after = ["graphical-session.target"];
+    wantedBy = ["multi-user.target"];
+    wants = ["network-online.target"];
+    after = ["network-online.target"];
     serviceConfig = {
       Type = "oneshot";
       ExecStart = ["-${tv}/bin/tv keypress/PowerOn" "${tv}/bin/tv launch/tvinput.hdmi1"];
