@@ -8,6 +8,7 @@
   inherit (inputs.self.network) pfsync;
   cfg = config.edge.opnsense;
   inherit (libvirt) mkVM media;
+  wanMac = "BC:24:11:C4:32:02";
 in {
   virtualisation.libvirt.connections."qemu:///system".domains = [
     (mkVM {
@@ -31,12 +32,12 @@ in {
         }
         {
           bridge = "br-wan";
-          mac = cfg.macs.wan;
+          mac = wanMac;
         }
         {
           bridge = "br-tb";
           mac = cfg.macs.tb;
-          vlan = pfsync.vlan;
+          inherit (pfsync) vlan;
         }
       ];
     })

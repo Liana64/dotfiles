@@ -3,14 +3,16 @@
   libvirt,
   ...
 }: let
-  cfg = config.edge.talos;
+  inherit (config) edge;
+  cfg = edge.talos;
   inherit (libvirt) mkVM media;
+  reserveMiB = 2560;
 in {
   virtualisation.libvirt.connections."qemu:///system".domains = [
     (mkVM {
       name = "talos-${config.networking.hostName}";
       inherit (cfg) uuid vcpus;
-      memoryGiB = 24;
+      memoryGiB = ((edge.memoryGiB - edge.opnsense.memoryGiB) * 1024 - edge.arcMiB - reserveMiB) / 1024;
       iso = media.talos;
       disks = [
         {

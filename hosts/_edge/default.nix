@@ -26,6 +26,7 @@ in {
     index = mkOption {type = types.ints.between 1 9;};
     disks = mkOption {type = types.listOf types.str;};
     macs = mkOption {type = types.attrsOf types.str;};
+    memoryGiB = mkOption {type = types.ints.positive;};
     arcMiB = mkOption {type = types.ints.positive;};
     opnsense = vm {memoryGiB = mkOption {type = types.ints.positive;};};
     talos = vm {
