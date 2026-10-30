@@ -37,6 +37,7 @@
 
     config = {
       sops.defaultSopsFile = "${inputs.secrets}/${config.networking.hostName}.yaml";
+      sops.package = inputs.sops-nix.packages.${pkgs.stdenv.hostPlatform.system}.sops-install-secrets;
       sops.age.keyFile = "/var/lib/sops-nix/key.txt";
       sops.age.sshKeyPaths = [];
       sops.gnupg.sshKeyPaths = [];

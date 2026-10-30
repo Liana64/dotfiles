@@ -7,7 +7,6 @@
     osConfig,
     ...
   }: let
-    useSway = (osConfig.compositor or "sway") == "sway";
     taskManager = osConfig.taskManager or "todoist";
     taskApp =
       if taskManager == "todoist"
@@ -77,7 +76,7 @@
 
     systemd.user.targets.graphical.Unit.Wants = ["xdg-desktop-autostart.target"];
     wayland.windowManager.sway = {
-      enable = useSway;
+      enable = true;
       systemd = {
         enable = true;
         variables = [
@@ -381,29 +380,26 @@
       Hidden=true
     '';
 
-    home.sessionVariables =
-      lib.optionalAttrs useSway {
-        DESKTOP_SESSION = "sway";
-        XDG_CURRENT_DESKTOP = "sway";
-      }
-      // {
-        XDG_SESSION_TYPE = "wayland";
-        XDG_DATA_DIRS = "$HOME/.nix-profile/share:${config.home.profileDirectory}/share:$XDG_DATA_DIRS";
+    home.sessionVariables = {
+      DESKTOP_SESSION = "sway";
+      XDG_CURRENT_DESKTOP = "sway";
+      XDG_SESSION_TYPE = "wayland";
+      XDG_DATA_DIRS = "$HOME/.nix-profile/share:${config.home.profileDirectory}/share:$XDG_DATA_DIRS";
 
-        # Force native Wayland for Electron/Chromium apps (no XWayland fallback)
-        ELECTRON_OZONE_PLATFORM_HINT = "wayland";
-        OZONE_PLATFORM = "wayland";
-        NIXOS_OZONE_WL = "1";
+      # Force native Wayland for Electron/Chromium apps (no XWayland fallback)
+      ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+      OZONE_PLATFORM = "wayland";
+      NIXOS_OZONE_WL = "1";
 
-        QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-        QT_SCALE_FACTOR = 1;
-        QT_AUTO_SCREEN_SCALE_FACTOR = "0";
-        QT_QPA_PLATFORM = "wayland";
-        SDL_VIDEODRIVER = "wayland";
-        GDK_SCALE = "1";
-        GDK_DPI_SCALE = "1";
-        MOZ_ENABLE_WAYLAND = "1";
-        _JAVA_AWT_WM_NONREPARENTING = "1";
-      };
+      QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+      QT_SCALE_FACTOR = 1;
+      QT_AUTO_SCREEN_SCALE_FACTOR = "0";
+      QT_QPA_PLATFORM = "wayland";
+      SDL_VIDEODRIVER = "wayland";
+      GDK_SCALE = "1";
+      GDK_DPI_SCALE = "1";
+      MOZ_ENABLE_WAYLAND = "1";
+      _JAVA_AWT_WM_NONREPARENTING = "1";
+    };
   };
 }

@@ -38,9 +38,20 @@ in {
     '';
   };
 
-  flake.modules.homeManager.d2 = {pkgs, ...}: {
-    home.packages = [pkgs.d2];
-    home.shellAliases.d2w = "d2 --watch --browser ${pkgs.writeShellScript "d2-browser" ''setsid -f "$BROWSER" "$@" >/dev/null 2>&1''}";
+  flake.modules.homeManager.d2 = {
+    config,
+    pkgs,
+    ...
+  }: {
+    options.d2.watchPort = lib.mkOption {
+      type = lib.types.port;
+      default = 8485;
+    };
+
+    config = {
+      home.packages = [pkgs.d2];
+      home.shellAliases.d2w = "d2 --watch --port ${toString config.d2.watchPort} --browser ${pkgs.writeShellScript "d2-browser" ''setsid -f "$BROWSER" "$@" >/dev/null 2>&1''}";
+    };
   };
 
   flake.modules.homeManager.helix = {pkgs, ...}: {

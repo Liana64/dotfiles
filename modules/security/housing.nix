@@ -321,6 +321,12 @@ in {
           ];
         exportDesktopEntries = true;
         capabilities = lib.recursiveUpdate webCapabilities {
+          landlock.connectTcpPorts =
+            webCapabilities.landlock.connectTcpPorts
+            ++ [
+              (lib.toInt (lib.last (lib.splitString ":" config.services.syncthing.guiAddress)))
+              config.d2.watchPort
+            ];
           landlock.deviceFiles = map (n: "/dev/hidraw${toString n}") (lib.range 0 15);
         };
       };
@@ -489,25 +495,15 @@ in {
         };
       };
 
-    xdg.dataFile =
-      lib.genAttrs (map (app: "applications/${app}.desktop") ["chromium-browser" "firefox" "dillo" "iamb" "obsidian" "org.fooyin.fooyin" "org.squidowl.halloy" "signal" "thunderbird" "vesktop" "zoom-web"]) (_: {
-        text = ''
-          [Desktop Entry]
-          Type=Application
-          Hidden=true
-        '';
-      })
-      // {
-        "applications/iamb.house-personal.desktop".text = ''
-          [Desktop Entry]
-          Type=Application
-          Name=iamb [personal]
-          GenericName=Matrix Client [personal]
-          Icon=iamb
-          Categories=Network;InstantMessaging;Chat;
-          Exec=${lib.getExe pkgs.kitty} --class house-personal --title iamb ${config.housing.houses.personal.runner}/bin/house-personal iamb
-        '';
-      };
+    xdg.dataFile."applications/iamb.house-personal.desktop".text = ''
+      [Desktop Entry]
+      Type=Application
+      Name=iamb [personal]
+      GenericName=Matrix Client [personal]
+      Icon=iamb
+      Categories=Network;InstantMessaging;Chat;
+      Exec=${lib.getExe pkgs.kitty} --class house-personal --title iamb ${config.housing.houses.personal.runner}/bin/house-personal iamb
+    '';
 
     wayland.windowManager.sway.config.window.commands = lib.concatLists (lib.mapAttrsToList (name: _: [
         {

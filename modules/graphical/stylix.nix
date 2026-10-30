@@ -67,9 +67,6 @@
 
       # Modules with manual theming today — migrate one at a time.
       targets = {
-        # Must be gated: enabling writes programs.niri.settings, which would emit a
-        # niri/config.kdl even on sway hosts (settings defaults null → no file).
-        # niri.enable     = (osConfig.compositor or "sway") == "niri";
         waybar.enable = false;
         halloy.enable = false;
         kitty.enable = false;

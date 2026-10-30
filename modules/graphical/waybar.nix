@@ -12,13 +12,9 @@
   }: let
     intake = import ../_lib/house-intake.nix {inherit pkgs lib hardening config;};
     intakeArgs = lib.escapeShellArgs intake.houses;
-    useNiri = (osConfig.compositor or "sway") == "niri";
     taskManager = osConfig.taskManager or "todoist";
     machineSecrets = osConfig.machineSecrets or true;
-    wsModules =
-      if useNiri
-      then ["niri/workspaces"]
-      else ["sway/workspaces" "sway/mode"];
+    wsModules = ["sway/workspaces" "sway/mode"];
     statusModules =
       lib.optional (intake.houses != []) "custom/nix-housing"
       ++ ["custom/harness-status" "custom/usbguard"]
@@ -435,10 +431,6 @@
             tooltip = false;
           };
 
-          "niri/workspaces" = {
-            format = "{value}";
-          };
-
           # native clock formatter cannot drop the %I zero-pad, shell date can
           "custom/clock" = {
             exec = "date +'{\"text\": \"%a %b %-d %-I:%M %p\", \"tooltip\": \"%Y-%m-%d | %H:%M\"}'";
@@ -494,7 +486,7 @@
             exec = "${app}/bin/waybar-syncthing";
             return-type = "json";
             interval = 10;
-            on-click = launch "firefox http://127.0.0.1:8384/";
+            on-click = launch "xdg-open http://${config.services.syncthing.guiAddress}/";
           };
 
           network = {

@@ -10,7 +10,6 @@
       bc
       cosign
       cider-2
-      halloy
       moreutils
       networkmanagerapplet
       pavucontrol

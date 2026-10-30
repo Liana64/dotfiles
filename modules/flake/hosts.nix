@@ -7,7 +7,54 @@
 }: let
   inherit (inputs) self nixpkgs home-manager;
 
-  homeAspects = lib.attrValues (config.flake.modules.homeManager or {});
+  homeAspects =
+    lib.attrVals [
+      "agentic"
+      "aliases"
+      "atuin"
+      "auditd"
+      "benchmarks"
+      "cache"
+      "cliPackages"
+      "ctar"
+      "d2"
+      "dconf"
+      "desktopPackages"
+      "devPackages"
+      "dice"
+      "dvcs"
+      "flatpak"
+      "frame"
+      "frameworkDsp"
+      "fuzzel"
+      "gpg"
+      "hardening-probe"
+      "helix"
+      "housing"
+      "installer"
+      "keyboard"
+      "kitty"
+      "mako"
+      "mime"
+      "nushell"
+      "persist-diff"
+      "shell"
+      "ssh"
+      "starship"
+      "stylix"
+      "sway"
+      "swaybg"
+      "swayidle"
+      "syncthing"
+      "taskwarrior"
+      "theme"
+      "todoist"
+      "troubleshootPackages"
+      "veles"
+      "waybar"
+      "xdgUserdirs"
+    ]
+    config.flake.modules.homeManager;
 
   base = ["hardwareTools" "nixDaemon" "time" "users"];
   hardened = base ++ ["hardening" "journald" "noDefaults" "noexec" "storeVerify"];
@@ -55,9 +102,11 @@
       system = "x86_64-linux";
       aspects = laptop;
     };
-    noku = {
+    catbox = {
       system = "x86_64-linux";
-      aspects = workstation ++ ["bigscreen"];
+      channel = inputs.nixpkgs-unstable;
+      aspects = base ++ ["audio" "networking" "noDefaults" "secrets"];
+      home = false;
     };
     m1 = {
       system = "x86_64-linux";

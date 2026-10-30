@@ -3,7 +3,7 @@
   flake.modules.nixos.packages = {pkgs, ...}: {
     environment.variables = {
       EDITOR = "hx";
-      BROWSER = "firefox";
+      BROWSER = "xdg-open";
     };
 
     environment.systemPackages = with pkgs; [
