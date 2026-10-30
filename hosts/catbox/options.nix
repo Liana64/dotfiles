@@ -3,6 +3,7 @@
   config,
   inputs,
   lib,
+  pkgs,
   ...
 }: let
   inherit (inputs.self.network) cluster clients;
@@ -12,9 +13,17 @@ in {
     inputs.disko.nixosModules.disko
     inputs.jovian.nixosModules.default
     ./disko.nix
+    ./streaming.nix
   ];
 
   networking.hostName = "catbox";
+  motd = {
+    description = "living-room console and media client";
+    commands = [
+      ["sudo systemctl restart display-manager" "restart Steam session"]
+      (with config.services.prometheus.exporters; [":${toString node.port} :${toString smartctl.port}" "node · smartctl exporters"])
+    ];
+  };
   nixpkgs.hostPlatform = "x86_64-linux";
   nixpkgs.config.allowUnfree = true;
 
@@ -38,21 +47,17 @@ in {
       enable = true;
       autoStart = true;
       user = "home";
-      desktopSession = "plasma";
+      desktopSession = "plasma-bigscreen-wayland";
     };
     hardware.has.amd.gpu = true;
   };
   services.desktopManager.plasma6.enable = true;
+  services.displayManager.sessionPackages = [pkgs.kdePackages.plasma-bigscreen];
+  environment.systemPackages = [pkgs.kdePackages.plasma-bigscreen pkgs.jellyfin-desktop];
 
-  machineSecrets = false;
-  sops.secrets."users/liana/password".neededForUsers = true;
-  users = {
-    mutableUsers = false;
-    users.liana = {
-      hashedPasswordFile = config.sops.secrets."users/liana/password".path;
-      openssh.authorizedKeys.keys = inputs.self.keys.liana;
-    };
-    users.home = {
+  users.users = {
+    liana.openssh.authorizedKeys.keys = inputs.self.keys.liana;
+    home = {
       isNormalUser = true;
       hashedPassword = "";
     };
