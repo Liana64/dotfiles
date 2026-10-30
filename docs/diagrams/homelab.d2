@@ -1,6 +1,6 @@
 direction: right
 
-cluster: Cluster {
+cluster: {
   grid-columns: 2
 
   n1: {
@@ -120,5 +120,29 @@ cluster: Cluster {
       talos
       opnsense
     |
+  }
+}
+home: {
+  catbox: {
+    os: {
+      shape: sql_table
+      role: Gaming PC, TV
+      host-os: NixOS
+    }
+    hardware: {
+      shape: sql_table
+      memory: Corsair 32 GB DDR5 5200 MT/s (2x16, 1R)
+      board: "Gigabyte B850"
+      processor: "AMD RYZEN 7 9800X3D"
+      boot: Non-redundant
+      storage: 2 TB Samsung 970 EVO Plus
+      network: TODO
+      usb: TP-Link UB500 Adapter
+      pcie: AMD Radeon RX 7900 XT
+    }
+    network: {
+      shape: sql_table
+      "0/1": Home {constraint: Base-T}
+    }
   }
 }
