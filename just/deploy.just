@@ -39,4 +39,4 @@ install host ip check='':
         ;;
     *) die "unknown arg: {{ check }}" ;;
     esac
-    nix run nixpkgs#nixos-anywhere -- --flake {{ nixops_path }}#{{ host }} --extra-files "$d" root@{{ ip }}
+    nix run nixpkgs#nixos-anywhere -- --flake {{ nixops_path }}#{{ host }} --build-on remote --extra-files "$d" root@{{ ip }}
