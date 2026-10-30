@@ -1,8 +1,12 @@
 {
+  hardening,
+  inputs,
   lib,
   pkgs,
   ...
 }: let
+  inherit (inputs.self.network) clients;
+  set = lib.concatStringsSep ", ";
   mongodb = pkgs.mongodb-ce;
   fcv = "8.3";
 in {
@@ -16,15 +20,21 @@ in {
     }
   ];
 
+  motd.commands = [[":8443" "UniFi controller"]];
+
   networking.firewall = {
-    allowedTCPPorts = [8080 8443];
+    allowedTCPPorts = [8080];
     allowedUDPPorts = [3478 10001];
+    extraInputRules = ''
+      ip saddr { ${set clients.ops} } tcp dport 8443 accept
+    '';
   };
 
   services = {
     unifi = {
       enable = true;
       mongodbPackage = mongodb;
+      maximumJavaHeapSize = 768;
     };
 
     sanoid = {
@@ -47,13 +57,18 @@ in {
       ${lib.getExe pkgs.mongosh} --quiet --port 27117 \
         --eval 'db.adminCommand({setFeatureCompatibilityVersion: "${fcv}", confirm: true})'
     '';
-    serviceConfig = {
-      Type = "oneshot";
-      DynamicUser = true;
-      Restart = "on-failure";
-      RestartSec = 30;
-      IPAddressAllow = "localhost";
-      IPAddressDeny = "any";
-    };
+    serviceConfig =
+      removeAttrs hardening.confined ["MemoryDenyWriteExecute"]
+      // {
+        Type = "oneshot";
+        DynamicUser = true;
+        Restart = "on-failure";
+        RestartSec = 30;
+        SystemCallErrorNumber = "EPERM";
+        IPAddressAllow = "localhost";
+        IPAddressDeny = "any";
+      };
   };
+
+  systemd.services.sanoid.serviceConfig = hardening.zfs;
 }
