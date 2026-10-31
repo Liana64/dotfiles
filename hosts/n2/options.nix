@@ -13,6 +13,7 @@
   edge = {
     index = 2;
     memoryGiB = 32;
+    bond = true;
     disks = [
       "/dev/disk/by-id/nvme-WD_BLACK_SN770_2TB_244542800309"
       "/dev/disk/by-id/nvme-Viper_VP4300_2TB_VP4300DFBA2308016025"

@@ -1,6 +1,7 @@
 {
   config,
   inputs,
+  lib,
   ...
 }: let
   cfg = config.edge;
@@ -61,16 +62,42 @@ in {
         };
         bridgeConfig.VLANFiltering = true;
       };
+      bond0 = lib.mkIf cfg.bond {
+        netdevConfig = {
+          Name = "bond0";
+          Kind = "bond";
+        };
+        bondConfig = {
+          Mode = "802.3ad";
+          TransmitHashPolicy = "layer3+4";
+          LACPTransmitRate = "fast";
+          MIIMonitorSec = "100ms";
+        };
+      };
     };
 
     networks = {
-      "20-lan" = member {matchConfig.Name = "lan";} "br0" [
-        {
-          PVID = 1;
-          EgressUntagged = 1;
-        }
-        {VLAN = "2-4094";}
-      ];
+      "15-bond-member" = lib.mkIf cfg.bond {
+        matchConfig.Driver = "i40e";
+        networkConfig = {
+          Bond = "bond0";
+          LinkLocalAddressing = "no";
+        };
+        linkConfig.RequiredForOnline = false;
+      };
+      "20-lan" =
+        member {
+          matchConfig.Name =
+            if cfg.bond
+            then "bond0"
+            else "lan";
+        } "br0" [
+          {
+            PVID = 1;
+            EgressUntagged = 1;
+          }
+          {VLAN = "2-4094";}
+        ];
       "21-wan" = member {matchConfig.Name = "wan";} "br-wan" [];
       "22-tb" = member {matchConfig.Driver = "thunderbolt-net";} "br-tb" [{VLAN = 10;} {VLAN = pfsync.vlan;}];
       "30-br0" = quiet "br0";
