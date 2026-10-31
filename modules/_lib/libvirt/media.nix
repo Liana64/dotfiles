@@ -22,7 +22,7 @@ pkgs: let
 in {
   talos = pkgs.fetchurl {
     url = "https://factory.talos.dev/image/${schematic}/${talosVersion}/nocloud-amd64-secureboot.iso";
-    hash = "sha256-+4/wu0bbTuSCPVfpT3OtBv7nVXkSU/pefkYQ6efELVk=";
+    hash = "sha256-lYtYptbgCo+woEuQOH9SBMKvJOMV8wNRAMWOkhLCwpE=";
   };
 
   opnsense = pkgs.runCommand "OPNsense-26.7-dvd-amd64.iso" {
