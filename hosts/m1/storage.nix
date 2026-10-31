@@ -127,6 +127,9 @@
           refquota = "376G";
           refreservation = "376G";
           compression = "off";
+          exec = "off";
+          setuid = "off";
+          devices = "off";
         };
       };
       "rpool/seaweedfs" = {

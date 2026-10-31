@@ -5,7 +5,8 @@
 }: let
   net = inputs.self.network;
   addr = net.cluster.hosts.m1;
-  port = 8090;
+  port = net.cluster.atticPort;
+  store = "/tank/cluster/nix-cache";
 in {
   motd.commands = [["sudo atticd-atticadm make-token --sub <name> --validity 30d --pull <cache>" "attic token"]];
 
@@ -27,7 +28,7 @@ in {
       api-endpoint = "http://${addr}:${toString port}/";
       storage = {
         type = "local";
-        path = "/tank/cluster/nix-cache";
+        path = store;
       };
       garbage-collection.default-retention-period = "3 months";
     };
@@ -45,6 +46,13 @@ in {
       SocketBindAllow = "tcp:${toString port}";
       SocketBindDeny = "any";
       PrivateIPC = true;
+      TemporaryFileSystem = "/tank";
+      BindPaths = store;
+      RestrictFileSystems = ["@basic-api" "@temporary" "zfs"];
+      MemoryMax = "4G";
+      TasksMax = 256;
+      CPUWeight = 50;
+      IOWeight = 50;
     };
   };
 
