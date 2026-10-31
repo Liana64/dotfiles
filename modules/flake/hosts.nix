@@ -33,6 +33,7 @@
       "housing"
       "infra"
       "installer"
+      "k9s"
       "keyboard"
       "kitty"
       "mako"
