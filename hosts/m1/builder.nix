@@ -6,7 +6,14 @@
 }: let
   inherit (inputs.self.network) cluster;
   gib = n: n * 1024 * 1024 * 1024;
+  attic-push = pkgs.writeShellScriptBin "attic-push" ''
+    [ $# -gt 0 ] || set -- $OUT_PATHS
+    XDG_CONFIG_HOME=/var/secrets exec ${pkgs.attic-client}/bin/attic push ${cluster.atticCache} "$@"
+  '';
 in {
+  environment.systemPackages = [attic-push];
+  motd.commands = [["sudo attic-push <paths>" "attic push"]];
+
   sops = {
     secrets."attic/push-token" = {};
     templates."attic.toml" = {
@@ -30,9 +37,7 @@ in {
       cores = 4;
       min-free = gib 10;
       max-free = gib 30;
-      post-build-hook = pkgs.writeShellScript "attic-push" ''
-        XDG_CONFIG_HOME=/var/secrets exec ${pkgs.attic-client}/bin/attic push ${cluster.atticCache} $OUT_PATHS
-      '';
+      post-build-hook = "${attic-push}/bin/attic-push";
     };
   };
 
