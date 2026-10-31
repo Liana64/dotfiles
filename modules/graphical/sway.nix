@@ -157,6 +157,13 @@
             };
             command = "floating enable, resize set 900 650, move position center";
           }
+          {
+            criteria = {
+              app_id = "^thunar$";
+              title = "^(?!.* - Thunar$)";
+            };
+            command = "floating enable, move position center";
+          }
         ];
         modifier = "Mod1";
 
