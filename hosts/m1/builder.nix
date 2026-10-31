@@ -16,6 +16,7 @@ in {
 
   sops = {
     secrets."attic/push-token" = {};
+    secrets."nix/signing-key" = {};
     templates."attic.toml" = {
       path = "/var/secrets/attic/config.toml";
       mode = "0400";
@@ -38,6 +39,7 @@ in {
       min-free = gib 10;
       max-free = gib 30;
       post-build-hook = "${attic-push}/bin/attic-push";
+      secret-key-files = [config.sops.secrets."nix/signing-key".path];
     };
   };
 

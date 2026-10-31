@@ -75,6 +75,7 @@ lib: rec {
       PrivateUsers = true;
       PrivatePIDs = true;
       PrivateIPC = true;
+      RemoveIPC = true;
       NoExecPaths = "/";
       ExecPaths = "/nix/store";
     };

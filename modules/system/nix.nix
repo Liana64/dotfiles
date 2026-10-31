@@ -68,7 +68,10 @@
   in {
     nix.settings = {
       extra-substituters = ["http://${cluster.hosts.m1}:${toString cluster.atticPort}/${cluster.atticCache}"];
-      extra-trusted-public-keys = ["nix-cache:wnijbSpDYnfK/YTwUZg56MEOPNU48zUOyjDKXDnK6Ds="];
+      extra-trusted-public-keys = [
+        "nix-cache:wnijbSpDYnfK/YTwUZg56MEOPNU48zUOyjDKXDnK6Ds="
+        "m1-1:Ch8uFRHh+boo9N/i897dq7JogITyh87joo1OAAzoN8c="
+      ];
     };
   };
 }

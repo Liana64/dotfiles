@@ -1,6 +1,7 @@
 {
   config,
   inputs,
+  lib,
   pkgs,
   hardening,
   ...
@@ -38,7 +39,17 @@ in {
 
   services.prometheus.exporters.node.extraFlags = ["--collector.textfile.directory=/run/attic-metrics"];
 
+  users = {
+    users.attic-metrics = {
+      isSystemUser = true;
+      group = "attic-metrics";
+    };
+    groups.attic-metrics = {};
+  };
+
   systemd = {
+    tmpfiles.rules = ["Z /var/lib/atticd - atticd atticd -"];
+
     services.attic-metrics = {
       after = ["atticd.service"];
       path = [pkgs.sqlite pkgs.gawk];
@@ -46,19 +57,22 @@ in {
         hardening.sealed
         // {
           Type = "oneshot";
-          DynamicUser = true;
+          User = "attic-metrics";
+          Group = "attic-metrics";
+          SupplementaryGroups = ["atticd"];
           PrivateUsers = "identity";
           TemporaryFileSystem = ["/var:ro" "/tank:ro"];
-          BindReadOnlyPaths = "/var/lib/private/atticd:/var/lib/attic-db";
+          BindReadOnlyPaths = "/var/lib/atticd:/var/lib/attic-db";
           RuntimeDirectory = "attic-metrics";
           RuntimeDirectoryMode = "0755";
           RuntimeDirectoryPreserve = true;
           UMask = "0022";
           MemoryMax = "128M";
           TasksMax = 8;
-          RuntimeMaxSec = "1min";
+          TimeoutStartSec = "1min";
         };
       script = ''
+        set -o pipefail
         d=$RUNTIME_DIRECTORY
         q="FROM object o JOIN cache c ON c.id = o.cache_id JOIN nar n ON n.id = o.nar_id WHERE c.name = '${net.cluster.atticCache}'"
         sqlite3 -readonly -separator ' ' /var/lib/attic-db/server.db "
@@ -98,6 +112,7 @@ in {
       requires = ["zfs-datasets.service"];
       after = ["zfs-datasets.service"];
       serviceConfig = {
+        DynamicUser = lib.mkForce false;
         IPAddressDeny = "any";
         IPAddressAllow =
           [addr net.mgmt.subnet net.home.hosts.catbox net.offsite.hosts.offsite-1 net.offsite.hosts.framework]
@@ -106,6 +121,7 @@ in {
         SocketBindAllow = "tcp:${toString port}";
         SocketBindDeny = "any";
         PrivateIPC = true;
+        UMask = lib.mkForce "0027";
         TemporaryFileSystem = "/tank";
         BindPaths = store;
         MemoryMax = "4G";
