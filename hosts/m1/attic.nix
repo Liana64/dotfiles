@@ -1,6 +1,7 @@
 {
   config,
   inputs,
+  pkgs,
   ...
 }: let
   net = inputs.self.network;
@@ -11,14 +12,34 @@ in {
   motd.commands = [["sudo atticd-atticadm make-token --sub <name> --validity 30d --pull <cache>" "attic token"]];
 
   sops = {
-    secrets."attic/token-rs256" = {};
-    templates."atticd.env" = {
-      restartUnits = ["atticd.service"];
-      content = ''
-        ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64=${config.sops.placeholder."attic/token-rs256"}
-      '';
+    secrets = {
+      "attic/token-rs256" = {};
+      "attic/push-token" = {};
+    };
+    templates = {
+      "atticd.env" = {
+        restartUnits = ["atticd.service"];
+        content = ''
+          ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64=${config.sops.placeholder."attic/token-rs256"}
+        '';
+      };
+      "attic.toml" = {
+        path = "/var/secrets/attic/config.toml";
+        mode = "0400";
+        content = ''
+          default-server = "m1"
+
+          [servers.m1]
+          endpoint = "http://${addr}:${toString port}/"
+          token = "${config.sops.placeholder."attic/push-token"}"
+        '';
+      };
     };
   };
+
+  nix.settings.post-build-hook = pkgs.writeShellScript "attic-push" ''
+    XDG_CONFIG_HOME=/var/secrets exec ${pkgs.attic-client}/bin/attic push ${net.cluster.atticCache} $OUT_PATHS
+  '';
 
   services.atticd = {
     enable = true;
@@ -40,7 +61,7 @@ in {
     serviceConfig = {
       IPAddressDeny = "any";
       IPAddressAllow =
-        [addr net.home.hosts.catbox net.offsite.hosts.offsite-1 net.offsite.hosts.framework]
+        [addr net.home.hosts.catbox net.mgmt.hosts.oob net.offsite.hosts.offsite-1 net.offsite.hosts.framework]
         ++ net.cluster.nodes
         ++ net.clients.liana;
       SocketBindAllow = "tcp:${toString port}";
