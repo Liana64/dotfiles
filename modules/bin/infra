@@ -9,7 +9,7 @@
 #   infra t:health            namespaced/flag args pass straight through
 set -euo pipefail
 
-dir="$HOME/Projects/Software/home-infra"
+dir="${NIX_HOUSING_REAL_HOME:-$HOME}/Projects/Software/home-infra"
 # tasks require cluster; the repo .envrc only exports it inside the repo
 export cluster="${cluster:-main}"
 

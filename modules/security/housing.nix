@@ -232,6 +232,7 @@ in {
 
       infra = {
         hm.config.dconf.enable = false;
+        hm.config.programs.zsh.initContent = ''[[ -o login ]] && cd "${projects}/Software/home-infra"'';
         hm.config.imports =
           base
           ++ [
