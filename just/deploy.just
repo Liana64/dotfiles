@@ -1,9 +1,13 @@
 _nh verb host:
     #!/usr/bin/env sh
     set -e
-    [ -z "{{ host }}" ] && exec nh os {{ verb }} {{ nixops_path }} --diff always
-    r=liana@{{ host }}.{{ mgmt }}
-    exec nh os {{ verb }} {{ nixops_path }} --diff always -H {{ host }} --target-host "$r" --build-host "$r"
+    h={{ host }}
+    b=
+    [ "$(nix eval --raw "{{ nixops_path }}#nixosConfigurations.${h:-$(hostname)}.config.nixpkgs.hostPlatform.system")" = x86_64-linux ] && b={{ m1 }}
+    set -- {{ nixops_path }} --diff always
+    [ -n "$h" ] && set -- "$@" -H "$h" --target-host "liana@$h.{{ mgmt }}" && b=${b:-liana@$h.{{ mgmt }}}
+    [ -n "$b" ] && set -- "$@" --build-host "$b" --use-substitutes
+    exec nh os {{ verb }} "$@"
 
 # Build and diff, local or remote
 [group('deploy')]
@@ -13,19 +17,29 @@ build host='': (_nh "build" host)
 [group('deploy')]
 switch host='': (_nh "switch" host)
 
+# Build host's system and disko script on m1, pushing both to the cache
+[group('deploy')]
+prebuild host:
+    #!/usr/bin/env sh
+    set -e
+    f={{ nixops_path }}#nixosConfigurations.{{ host }}
+    [ "$(nix eval --raw "$f.config.nixpkgs.hostPlatform.system")" = x86_64-linux ] || exit 0
+    nix build --no-link --eval-store auto --store ssh-ng://{{ m1 }} "$f.config.system.build.toplevel" "$f.config.system.build.diskoScript"
+
 # Wipe and install host with the cwd included as --extra-files
 [confirm("wipe + install now?")]
 [group('deploy')]
-install host ip check='':
+install host ip *args: (prebuild host)
     #!/usr/bin/env sh
     set -eu
     d={{ invocation_directory() }}
     die() { echo "$*" >&2; exit 1; }
     k=$d/var/lib/sops-nix/key.txt
     [ -f "$k" ] || die "missing $k"
-    case '{{ check }}' in
-    '') ;;
-    --check)
+    c=
+    set -- {{ args }}
+    for a do shift; [ "$a" = --check ] && c=1 || set -- "$@" "$a"; done
+    if [ -n "$c" ]; then
         f=$(nix eval --raw {{ nixops_path }}#nixosConfigurations.{{ host }}.config.sops.defaultSopsFile)
         h=$(env -i PATH="$PATH" HOME="$d" SOPS_AGE_KEY_FILE="$k" sops -d --extract '["users"]["liana"]["password"]' "$f" 2>/dev/null) \
             || die "key.txt cannot decrypt $f"
@@ -36,7 +50,5 @@ install host ip check='':
         stty echo
         echo
         [ "$(printf %s "$p" | mkpasswd -s -S "$h" 2>/dev/null)" = "$h" ] || die "password does not match $f"
-        ;;
-    *) die "unknown arg: {{ check }}" ;;
-    esac
-    nix run nixpkgs#nixos-anywhere -- --flake {{ nixops_path }}#{{ host }} --build-on remote --extra-files "$d" root@{{ ip }}
+    fi
+    nix run nixpkgs#nixos-anywhere -- --flake {{ nixops_path }}#{{ host }} --build-on remote --extra-files "$d" "$@" root@{{ ip }}
