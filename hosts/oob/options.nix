@@ -26,8 +26,15 @@ in {
     supportedFilesystems = ["zfs"];
     zfs.devNodes = "/dev/disk/by-id";
     zfs.forceImportRoot = false;
-    # 4G-model floor — leave ram to mongod + java
     kernelParams = ["zfs.zfs_arc_max=${toString (1024 * 1024 * 1024)}"];
+  };
+
+  hardware.raspberry-pi = {
+    firmware = {
+      enable = true;
+      uboot.enable = true;
+    };
+    configtxt.settings.pi5.dtparam = ["pciex1_gen=3"];
   };
 
   motd.description = "out-of-band: UniFi and UPS";

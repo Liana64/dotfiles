@@ -1,8 +1,10 @@
 {
-  # inputs,
+  inputs,
   pkgs,
   ...
-}: {
+}: let
+  inherit (inputs.self.network) mgmt;
+in {
   imports = [
     # inputs.disko.nixosModules.disko
     # ./disko.nix
@@ -15,6 +17,24 @@
   impermanence = false;
   nushell = false;
   machineSecrets = true;
+
+  networking.networkmanager.ensureProfiles.profiles.mgmt = {
+    connection = {
+      id = "mgmt";
+      type = "vlan";
+      interface-name = "enp95s0.99";
+    };
+    vlan = {
+      parent = "enp95s0";
+      id = 99;
+    };
+    ipv4 = {
+      method = "manual";
+      address1 = mgmt.cidr.framework;
+      never-default = true;
+    };
+    ipv6.method = "disabled";
+  };
 
   services.btrfs.autoScrub = {
     enable = true;
