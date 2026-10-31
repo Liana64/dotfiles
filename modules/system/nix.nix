@@ -30,7 +30,6 @@
 
     nix = let
       flakeInputs = lib.filterAttrs (_: lib.isType "flake") inputs;
-      inherit (inputs.self.network) cluster;
     in {
       optimise.automatic = true;
       gc = {
@@ -44,8 +43,6 @@
         fallback = true;
         connect-timeout = 1;
         allowed-users = ["@wheel"];
-        extra-substituters = ["http://${cluster.hosts.m1}:${toString cluster.atticPort}/nix-cache"];
-        extra-trusted-public-keys = ["nix-cache:wnijbSpDYnfK/YTwUZg56MEOPNU48zUOyjDKXDnK6Ds="];
       };
 
       channel.enable = false;
@@ -64,5 +61,14 @@
 
     # Fix `man -k`
     documentation.man.cache.enable = true;
+  };
+
+  flake.modules.nixos.nixCache = {inputs, ...}: let
+    inherit (inputs.self.network) cluster;
+  in {
+    nix.settings = {
+      extra-substituters = ["http://${cluster.hosts.m1}:${toString cluster.atticPort}/nix-cache"];
+      extra-trusted-public-keys = ["nix-cache:wnijbSpDYnfK/YTwUZg56MEOPNU48zUOyjDKXDnK6Ds="];
+    };
   };
 }

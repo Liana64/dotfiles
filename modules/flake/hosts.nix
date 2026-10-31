@@ -61,7 +61,7 @@
   base = ["hardwareTools" "nixDaemon" "secrets" "time" "users"];
   hardened = base ++ ["hardening" "journald" "noDefaults" "noexec" "storeVerify"];
   server = hardened ++ ["motd"];
-  serverOnly = ["hypervisor" "zfsRollback"];
+  serverOnly = ["hypervisor" "nixCache" "zfsRollback"];
   workstation =
     hardened
     ++ [
