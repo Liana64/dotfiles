@@ -93,7 +93,7 @@
               enabledCollectors = ["systemd"];
               extraFlags = [
                 "--collector.textfile.directory=/var/lib/zfs-metrics"
-                "--collector.systemd.unit-include=(restic-.*|sanoid|nix-store-verify|zfs-scrub|zpool-trim|zfs-zed|smartd|nfs-server|nfs-ganesha)\\.service"
+                "--collector.systemd.unit-include=(restic-.*|sanoid|nix-store-verify|zfs-scrub|zpool-trim|zfs-zed|smartd|nfs-server|nfs-ganesha|atticd|attic-metrics)\\.service"
               ];
             };
             smartctl.enable = true;
