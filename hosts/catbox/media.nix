@@ -50,6 +50,14 @@ in {
   environment.etc."xdg/kwinrc".text = lib.generators.toINI {} {
     Wayland."InputMethod[$i]" = "/run/current-system/sw/share/applications/org.kde.plasma.keyboard.desktop";
   };
+  systemd.user.services.display-scale = {
+    wantedBy = ["plasma-workspace.target"];
+    after = ["plasma-workspace.target"];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.kdePackages.libkscreen}/bin/kscreen-doctor output.HDMI-A-1.scale.2";
+    };
+  };
   systemd.user.services.gamescope-session.serviceConfig.ExecStartPre = "-${pkgs.systemd}/bin/systemctl --user stop app-org.kde.plasma.bigscreen.inputhandler@*.service";
   systemd.tmpfiles.rules = [
     "D /home/home/.local/share/applications 0555 home users -"
