@@ -1,0 +1,43 @@
+{
+  config,
+  inputs,
+  pkgs,
+  ...
+}: let
+  inherit (inputs.self.network) cluster;
+  gib = n: n * 1024 * 1024 * 1024;
+in {
+  sops = {
+    secrets."attic/push-token" = {};
+    templates."attic.toml" = {
+      path = "/var/secrets/attic/config.toml";
+      mode = "0400";
+      content = ''
+        default-server = "m1"
+
+        [servers.m1]
+        endpoint = "http://${cluster.hosts.m1}:${toString cluster.atticPort}/"
+        token = "${config.sops.placeholder."attic/push-token"}"
+      '';
+    };
+  };
+
+  nix = {
+    daemonCPUSchedPolicy = "batch";
+    daemonIOSchedClass = "idle";
+    settings = {
+      max-jobs = 2;
+      cores = 4;
+      min-free = gib 10;
+      max-free = gib 30;
+      post-build-hook = pkgs.writeShellScript "attic-push" ''
+        XDG_CONFIG_HOME=/var/secrets exec ${pkgs.attic-client}/bin/attic push ${cluster.atticCache} $OUT_PATHS
+      '';
+    };
+  };
+
+  systemd.services.nix-daemon.serviceConfig = {
+    MemoryHigh = "6G";
+    MemoryMax = "8G";
+  };
+}

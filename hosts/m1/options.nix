@@ -7,6 +7,7 @@
     inputs.disko.nixosModules.disko
     ./attic.nix
     ./backup.nix
+    ./builder.nix
     ./disko.nix
     ./ganesha.nix
     ./network.nix
