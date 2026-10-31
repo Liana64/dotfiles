@@ -67,4 +67,15 @@ lib: rec {
       RestrictAddressFamilies = ["AF_UNIX"];
       PrivateNetwork = true;
     };
+
+  sealed =
+    airgapped
+    // {
+      RestrictAddressFamilies = "none";
+      PrivateUsers = true;
+      PrivatePIDs = true;
+      PrivateIPC = true;
+      NoExecPaths = "/";
+      ExecPaths = "/nix/store";
+    };
 }
