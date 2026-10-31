@@ -3,6 +3,7 @@
   config,
   inputs,
   lib,
+  pkgs,
   ...
 }: let
   inherit (inputs.self.network) cluster clients;
@@ -38,9 +39,14 @@ in {
     initrd.systemd.enable = true;
     initrd.verbose = false;
     consoleLogLevel = 3;
-    kernelParams = ["quiet" "udev.log_level=3" "rd.systemd.show_status=auto"];
+    kernelPackages = pkgs.linuxPackages_latest;
+    kernelParams = ["quiet" "udev.log_level=3" "rd.systemd.show_status=auto" "preempt=full"];
     initrd.availableKernelModules = ["nvme" "xhci_pci" "ahci" "usbhid"];
     kernelModules = ["kvm-amd"];
+    kernel.sysctl = {
+      "vm.swappiness" = 180;
+      "vm.page-cluster" = 0;
+    };
   };
 
   hardware.cpu.amd.updateMicrocode = true;
@@ -97,6 +103,7 @@ in {
   '';
 
   zramSwap.enable = true;
+  systemd.services.scx.wantedBy = lib.mkOverride 49 ["multi-user.target"];
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "26.11";
