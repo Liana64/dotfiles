@@ -36,6 +36,11 @@ in {
     ipv6.method = "disabled";
   };
 
+  boot.kernel.sysctl = {
+    "net.ipv4.conf.all.arp_ignore" = 1;
+    "net.ipv4.conf.all.arp_announce" = 2;
+  };
+
   services.btrfs.autoScrub = {
     enable = true;
     interval = "Fri *-*-1..7 10:00:00";
