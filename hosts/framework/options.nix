@@ -6,6 +6,7 @@
   imports = [
     # inputs.disko.nixosModules.disko
     # ./disko.nix
+    ./cache.nix
     ./hardware-configuration.nix
   ];
 
