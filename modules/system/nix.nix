@@ -67,7 +67,7 @@
     inherit (inputs.self.network) cluster;
   in {
     nix.settings = {
-      extra-substituters = ["http://${cluster.hosts.m1}:${toString cluster.atticPort}/nix-cache"];
+      extra-substituters = ["http://${cluster.hosts.m1}:${toString cluster.atticPort}/${cluster.atticCache}"];
       extra-trusted-public-keys = ["nix-cache:wnijbSpDYnfK/YTwUZg56MEOPNU48zUOyjDKXDnK6Ds="];
     };
   };

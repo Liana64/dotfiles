@@ -17,6 +17,7 @@
         "172.16.4.14"
       ];
       atticPort = 8090;
+      atticCache = "nix-cache";
     };
     hstore = lan {
       subnet = "172.16.20.0/24";

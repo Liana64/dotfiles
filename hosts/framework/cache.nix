@@ -9,8 +9,7 @@ in {
   sops = {
     secrets."attic/token" = {};
     templates."attic.toml" = {
-      path = "${config.users.users.liana.home}/.config/attic/config.toml";
-      owner = "liana";
+      path = "/var/secrets/attic/config.toml";
       mode = "0400";
       content = ''
         default-server = "m1"
@@ -22,5 +21,18 @@ in {
     };
   };
 
-  environment.systemPackages = [pkgs.attic-client];
+  environment.systemPackages = [
+    (pkgs.writeShellApplication {
+      name = "attic-push";
+      runtimeInputs = [pkgs.attic-client pkgs.coreutils];
+      excludeShellChecks = ["SC2024"];
+      text = ''
+        dir=$(mktemp -d -p "$XDG_RUNTIME_DIR")
+        trap 'rm -rf "$dir"' EXIT
+        mkdir "$dir/attic"
+        ${config.security.wrapperDir}/sudo ${pkgs.coreutils}/bin/cat ${config.sops.templates."attic.toml".path} > "$dir/attic/config.toml"
+        XDG_CONFIG_HOME=$dir attic push ${cluster.atticCache} "$@"
+      '';
+    })
+  ];
 }
