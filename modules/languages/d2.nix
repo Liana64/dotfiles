@@ -50,7 +50,7 @@ in {
 
     config = {
       home.packages = [pkgs.d2];
-      home.shellAliases.d2w = "d2 --watch --port ${toString config.d2.watchPort} --browser ${pkgs.writeShellScript "d2-browser" ''setsid -f "$BROWSER" "$@" >/dev/null 2>&1''}";
+      home.shellAliases.d2w = "d2 --watch --port ${toString config.d2.watchPort} --browser ${pkgs.writeShellScript "d2-browser" ''setsid -f xdg-open "$@" >/dev/null 2>&1''}";
     };
   };
 
