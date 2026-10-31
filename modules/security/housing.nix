@@ -2,7 +2,6 @@
 {config, ...}: let
   aspects = config.flake.modules.homeManager;
   terminfo = {pkgs, ...}: {home.packages = [pkgs.kitty.terminfo];};
-  base = with aspects; [aliases atuin shell starship theme terminfo];
 in {
   flake.modules.homeManager.housing = {
     inputs,
@@ -14,6 +13,7 @@ in {
     ...
   }: let
     mix = import ../_lib/mix.nix lib;
+    base = with aspects; [aliases atuin shell starship terminfo {_module.args = {inherit colors;};}];
 
     accents = {
       vault = "#9254de";
