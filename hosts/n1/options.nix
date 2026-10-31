@@ -19,9 +19,9 @@
       "/dev/disk/by-id/nvme-WD_Blue_SN5100_1TB_25423W804321"
     ];
     macs = {
-      mgmt = "58:47:ca:7a:e3:f4";
+      mgmt = "58:47:ca:7a:e3:f3";
       lan = "58:47:ca:7a:e3:f2";
-      wan = "58:47:ca:7a:e3:f3";
+      wan = "58:47:ca:7a:e3:f4";
     };
     arcMiB = 1536;
     opnsense = {

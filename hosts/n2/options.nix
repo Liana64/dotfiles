@@ -18,9 +18,9 @@
       "/dev/disk/by-id/nvme-Viper_VP4300_2TB_VP4300DFBA2308016025"
     ];
     macs = {
-      mgmt = "38:05:25:35:b7:e4";
+      mgmt = "38:05:25:35:b7:e3";
       lan = "38:05:25:35:b7:e2";
-      wan = "38:05:25:35:b7:e3";
+      wan = "38:05:25:35:b7:e4";
     };
     arcMiB = 2048;
     opnsense = {
