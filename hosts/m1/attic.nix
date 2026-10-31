@@ -48,7 +48,6 @@ in {
       PrivateIPC = true;
       TemporaryFileSystem = "/tank";
       BindPaths = store;
-      RestrictFileSystems = ["@basic-api" "@temporary" "zfs"];
       MemoryMax = "4G";
       TasksMax = 256;
       CPUWeight = 50;
