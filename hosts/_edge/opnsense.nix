@@ -13,7 +13,7 @@ in {
   virtualisation.libvirt.connections."qemu:///system".domains = [
     (mkVM {
       name = "opnsense-${config.networking.hostName}";
-      inherit (cfg) uuid memoryGiB;
+      inherit (cfg) uuid memoryGiB active;
       vcpus = 2;
       iso = media.opnsense;
       disks = [

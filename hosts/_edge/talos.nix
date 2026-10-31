@@ -11,7 +11,7 @@ in {
   virtualisation.libvirt.connections."qemu:///system".domains = [
     (mkVM {
       name = "talos-${config.networking.hostName}";
-      inherit (cfg) uuid vcpus;
+      inherit (cfg) uuid vcpus active;
       memoryGiB = ((edge.memoryGiB - edge.opnsense.memoryGiB) * 1024 - edge.arcMiB - reserveMiB) / 1024;
       iso = media.talos;
       disks = [

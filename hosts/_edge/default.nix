@@ -10,6 +10,10 @@
     {
       uuid = mkOption {type = types.str;};
       macs = mkOption {type = types.attrsOf types.str;};
+      active = mkOption {
+        type = types.nullOr types.bool;
+        default = true;
+      };
     }
     // extra;
 in {

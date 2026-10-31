@@ -14,19 +14,21 @@
   edge = {
     index = 1;
     memoryGiB = 32;
+    bond = true;
     disks = [
       "/dev/disk/by-id/nvme-WD_BLACK_SN770_1TB_241009808010"
       "/dev/disk/by-id/nvme-WD_Blue_SN5100_1TB_25423W804321"
     ];
     macs = {
-      mgmt = "58:47:ca:7a:e3:f3";
+      mgmt = "58:47:ca:7a:e3:f4";
       lan = "58:47:ca:7a:e3:f2";
-      wan = "58:47:ca:7a:e3:f4";
+      wan = "58:47:ca:7a:e3:f5";
     };
     arcMiB = 1536;
     opnsense = {
       uuid = "1209e9fd-69cf-467c-a870-c249a4f5009b";
       memoryGiB = 4;
+      active = null;
       macs = {
         lan = "BC:24:11:C4:32:01";
         tb = "BC:24:11:B6:7B:20";
