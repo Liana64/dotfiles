@@ -123,6 +123,30 @@ cluster: {
   }
 }
 home: {
+  # CP1500PFCLCDa
+  oob: {
+    os: {
+      shape: sql_table
+      role: Out of Band
+      host-os: NixOS
+    }
+    hardware: {
+      shape: sql_table
+      platform: Raspberry Pi 5 Model B Rev 1.1
+      memory: 8 GB LPDDR4X-4267
+      processor: Cortex-A76 (4C, 1.5-2.4 GHz)
+      boot: Non-redundant
+      storage: 256 GB NVMe Kioxia BG5 Gen4 (Gen2), 32 GB SanDisk microSD
+      network: 1 GbE Base-T, 802.11ac Wi-Fi/Bluetooth
+      usb: 1x USB 2.0 UPS monitor, 2x USB 3.0, 1x USB 2.0
+      pcie: 1x, NVMe and PoE Hat
+      power: 5.18 V and 5 A
+    }
+    network: {
+      shape: sql_table
+      "0/1": MGMT/PoE {constraint: Base-T}
+    }
+  }
   catbox: {
     os: {
       shape: sql_table
