@@ -5,9 +5,11 @@
   ...
 }: {
   flake.nixosConfigurations.installer = inputs.nixpkgs.lib.nixosSystem {
+    specialArgs = {inherit inputs;};
     modules = [
       "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
       config.flake.modules.nixos.hardwareTools
+      config.flake.modules.nixos.nixCache
       {
         nixpkgs.hostPlatform = "x86_64-linux";
         boot.zfs.forceImportRoot = false;
