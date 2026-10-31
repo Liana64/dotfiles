@@ -47,6 +47,7 @@ in {
         // {
           Type = "oneshot";
           DynamicUser = true;
+          PrivateUsers = "identity";
           TemporaryFileSystem = ["/var:ro" "/tank:ro"];
           BindReadOnlyPaths = "/var/lib/private/atticd:/var/lib/attic-db";
           RuntimeDirectory = "attic-metrics";
