@@ -3,7 +3,11 @@ _nh verb host:
     set -e
     h={{ host }}
     b=
-    [ "$(nix eval --raw "{{ nixops_path }}#nixosConfigurations.${h:-$(hostname)}.config.nixpkgs.hostPlatform.system")" = x86_64-linux ] && b={{ m1 }}
+    read -r sys cache <<EOF
+    $(nix eval --raw "{{ nixops_path }}#nixosConfigurations.${h:-$(hostname)}.config" --apply 'c: "${c.nixpkgs.hostPlatform.system} ${toString c.nix.settings.extra-substituters}"')
+    EOF
+    [ "$sys" = x86_64-linux ] && b={{ m1 }}
+    [ -z "$h" ] && [ -n "$b" ] && ! curl -sfm 2 -o /dev/null "$cache/nix-cache-info" && b= && echo "nix-cache unreachable, building locally" >&2
     set -- {{ nixops_path }} --diff always
     [ -n "$h" ] && set -- "$@" -H "$h" --target-host "liana@$h.{{ mgmt }}" && b=${b:-liana@$h.{{ mgmt }}}
     [ -n "$b" ] && set -- "$@" --build-host "$b" --use-substitutes

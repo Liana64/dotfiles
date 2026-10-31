@@ -43,21 +43,24 @@ in {
       after = ["atticd.service"];
       path = [pkgs.sqlite pkgs.gawk];
       serviceConfig =
-        hardening.airgapped
+        hardening.sealed
         // {
           Type = "oneshot";
-          User = "atticd";
           DynamicUser = true;
-          StateDirectory = "atticd";
+          TemporaryFileSystem = ["/var:ro" "/tank:ro"];
+          BindReadOnlyPaths = "/var/lib/private/atticd:/var/lib/attic-db";
           RuntimeDirectory = "attic-metrics";
           RuntimeDirectoryMode = "0755";
           RuntimeDirectoryPreserve = true;
           UMask = "0022";
+          MemoryMax = "128M";
+          TasksMax = 8;
+          RuntimeMaxSec = "1min";
         };
       script = ''
         d=$RUNTIME_DIRECTORY
         q="FROM object o JOIN cache c ON c.id = o.cache_id JOIN nar n ON n.id = o.nar_id WHERE c.name = '${net.cluster.atticCache}'"
-        sqlite3 -readonly -separator ' ' /var/lib/atticd/server.db "
+        sqlite3 -readonly -separator ' ' /var/lib/attic-db/server.db "
           SELECT 'total', count(*), coalesce(sum(n.nar_size), 0), coalesce(max(strftime('%s', o.created_at)), 0) $q;
           SELECT 'system', o.store_path, strftime('%s', o.created_at) $q AND o.store_path LIKE '%-nixos-system-%';
         " | awk -v cache=${net.cluster.atticCache} '
@@ -96,7 +99,7 @@ in {
       serviceConfig = {
         IPAddressDeny = "any";
         IPAddressAllow =
-          [addr net.home.hosts.catbox net.mgmt.hosts.oob net.offsite.hosts.offsite-1 net.offsite.hosts.framework]
+          [addr net.mgmt.subnet net.home.hosts.catbox net.offsite.hosts.offsite-1 net.offsite.hosts.framework]
           ++ net.cluster.nodes
           ++ net.clients.liana;
         SocketBindAllow = "tcp:${toString port}";
