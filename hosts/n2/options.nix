@@ -35,7 +35,7 @@
     talos = {
       uuid = "efd7776f-3f94-425d-bcb8-e2613708f4d1";
       vcpus = 14;
-      poolSize = "1280G";
+      poolSize = "640G"; # NOTE: n1 has 1 TB (mirrored)
       macs = {
         lan = "BC:24:11:C7:0F:C6";
         tb = "BC:24:11:25:31:59";

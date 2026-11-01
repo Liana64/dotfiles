@@ -10,7 +10,7 @@
 
   hypervisor.cpu = "intel";
 
-  # ~900G usable: 640 leaves ~35G for root/nix/var + talos-os snapshots
+  # ~897G usable: 640 leaves ~58G for root/nix/var + talos-os snapshots (~50G on n2)
   edge = {
     index = 1;
     memoryGiB = 32;
