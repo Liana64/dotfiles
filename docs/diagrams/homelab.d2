@@ -17,18 +17,18 @@ cluster: {
       memory: G.SKILL 32 GB DDR5 5200 MT/s (2x16, 1R)
       processor: "Intel i5-12600H (4 C [P, 4.5 GHz], 8 C [E, 3.3 GHz], 16 T, 18 MB)"
       boot: 2x boot partitions, one per storage NVMe (planned)
-      storage: 256 GB NVMe (WD Blue SN580), 1 TB NVMe (WD_BLACK SN770), 1 TB NVMe (WD Blue SN5100, Planned)
-      notes: "TODO: Move 1 TB NVMe from n2 to n1 for redundant boot"
+      storage: 256 GB NVMe (WD Blue SN580), 1 TB NVMe (WD_BLACK SN770), 1 TB NVMe (WD Blue SN5100)
+      notes: "TODO: Switch to 500 GB NVMe boot disks and 2 TB storage for Piraeus"
       network: "On-board 2x 10Gb SFP+ (X710), 2x 2.5Gb Base-T, 2x USB4 (20Gb [40Gb int])"
-      pcie: Gen4 x16, unused
+      pcie: Gen4 x4 (storage), Gen3 x4 (storage), Gen3 x2, Gen4 x16 (storage)
     }
     network: {
       shape: sql_table
       "0/1": LAN (bond0) {constraint: SFP+}
-      "0/2": LAN (bond0) {constraint: SFP+}
-      "0/3": MGMT {constraint: Base-T}
-      "0/4": WAN (Planned) {constraint: Base-T}
-      usb4/0: empty {constraint: TB40}
+      "0/2": LAN (Planned, bond0) {constraint: SFP+}
+      "0/3": WAN (Planned) {constraint: Base-T}
+      "0/4": MGMT {constraint: Base-T}
+      usb4/0: Piraeus (Maybe) {constraint: TB40}
       usb4/1: pfsync (Planned) {constraint: TB40}
     }
   }
@@ -38,7 +38,7 @@ cluster: {
       shape: sql_table
       role: Router, Kubernetes Node
       host-os: NixOS
-      vms: talos, opnsense (planned)
+      vms: talos, opnsense
     }
     hardware: {
       shape: sql_table
@@ -46,17 +46,19 @@ cluster: {
       memory: Crucial 32 GB DDR5 5200 MT/s (2x16, 1R)
       processor: "Intel i5-12600H (4 C [P, 4.5 GHz], 8 C [E, 3.3 GHz], 16 T, 18 MB)"
       boot: 2x boot partitions, one per storage NVMe
-      storage: "2x 2 TB NVMe (Viper VP4300 2TB, WD_BLACK SN770 [4 TB raw]), 1 TB NVMe unused (WD Blue SN5100)"
+      storage: "2x 2 TB NVMe (Viper VP4300 2TB, WD_BLACK SN770 [4 TB raw])"
       network: "On-board 2x 10Gb SFP+ (X710), 2x 2.5Gb Base-T, 2x USB4 (20GB [40Gb int])"
-      pcie: Gen4 x16, unused
+      pcie: Gen4 x4 (Storage), Gen3 x4, Gen3 x2 (storage), Gen4 x16 (unused)
+      notes: "TODO: Switch to 500 GB NVMe boot disks and 2 TB storage for Piraeus"
+      notes-2: "TODO: Swap viper to other PCIe slot"
     }
     network: {
       shape: sql_table
       "0/1": LAN (bond0) {constraint: SFP+}
       "0/2": LAN (bond0) {constraint: SFP+}
-      "0/3": MGMT {constraint: Base-T}
-      "0/4": WAN (Planned) {constraint: Base-T}
-      usb4/0: empty {constraint: TB40}
+      "0/3": WAN {constraint: Base-T}
+      "0/4": MGMT {constraint: Base-T}
+      usb4/0: Piraeus (Maybe) {constraint: TB40}
       usb4/1: pfsync (Planned) {constraint: TB40}
     }
   }
@@ -101,7 +103,8 @@ cluster: {
         boot: 2x boot partitions, one per NVMe
         storage: "2x Patriot P300 512 GB (mirrored), 2x Seagate 28 T (56 T raw [mirrored])"
         network: 2x 10GB SFP+ (X710), 1x 2.5Gb Base-T
-        pcie: "Gen3 x16, unused; x1 unused"
+        pcie: "Gen3 x16 (NIC, I think); x1 unused"
+        notes: "TODO: Swap 500 GB NVMes for 1 TB NVMes from other devices, post-Piraeus"
       }
       network: {
         shape: sql_table
@@ -114,6 +117,8 @@ cluster: {
       userspace: |md
         - nfs-ganesha
         - seaweedfs
+        - attic
+        - attic-metrics
       |
     }
     libvirtd: |md
@@ -128,7 +133,7 @@ home: {
     os: {
       shape: sql_table
       role: Out of Band
-      host-os: NixOS
+      host-os: "TODO: NixOS"
     }
     hardware: {
       shape: sql_table
@@ -156,7 +161,7 @@ home: {
     hardware: {
       shape: sql_table
       memory: Corsair 32 GB DDR5 5200 MT/s (2x16, 1R)
-      board: "Gigabyte B850"
+      board: "Gigabyte B850 GAMING X WIFI6E"
       processor: "AMD RYZEN 7 9800X3D"
       boot: Non-redundant
       storage: 2 TB Samsung 970 EVO Plus
