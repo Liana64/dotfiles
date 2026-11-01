@@ -54,7 +54,7 @@ in {
     matchConfig.Name = "en*";
     address = [mgmt.cidr.oob];
     gateway = [mgmt.gateway];
-    dns = [mgmt.gateway];
+    dns = [mgmt.dns];
   };
 
   zramSwap.enable = true;

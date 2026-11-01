@@ -112,7 +112,7 @@ in {
         networkConfig = {
           Address = mgmt.cidr.${config.networking.hostName};
           Gateway = mgmt.gateway;
-          DNS = mgmt.gateway;
+          DNS = mgmt.dns;
         };
       };
     };

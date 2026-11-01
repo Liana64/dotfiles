@@ -47,7 +47,7 @@ in {
         networkConfig = {
           Address = mgmt.cidr.n3;
           Gateway = mgmt.gateway;
-          DNS = mgmt.gateway;
+          DNS = mgmt.dns;
         };
       };
     };

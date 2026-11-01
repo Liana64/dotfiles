@@ -97,7 +97,7 @@ in {
         networkConfig = {
           Address = mgmt.cidr.m1;
           Gateway = mgmt.gateway;
-          DNS = mgmt.gateway;
+          DNS = mgmt.dns;
         };
       };
       "42-hstore" = {
