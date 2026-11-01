@@ -17,8 +17,6 @@
         trust_all=false
         deny_screenshot_clipboard=true
         disable_tray_icon=true
-        ssh_parseconfig=false
-        audit=false
       '';
     };
   };

@@ -27,6 +27,7 @@ in {
       untrusted = "#dc4446";
       agentic = "#13a8a8";
       media = "#597ef7";
+      remote = "#2db7f5";
     };
 
     houseTitle = {
@@ -433,6 +434,17 @@ in {
             done
             exec "$@"
           '';
+        };
+      };
+
+      remote = {
+        hm.config.imports = base ++ [houseTitle aspects.remmina];
+        exportDesktopEntries = true;
+        capabilities = {
+          gui.enable = true;
+          gpu.enable = true;
+          namespacing.proc = true;
+          landlock.connectTcpPorts = [3389 5900];
         };
       };
 
