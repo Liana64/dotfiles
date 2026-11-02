@@ -76,6 +76,12 @@ in {
       isNormalUser = true;
       hashedPassword = "";
     };
+    maxine = {
+      isNormalUser = true;
+      uid = 1002;
+      hashedPasswordFile = config.sops.secrets."users/maxine/password".path;
+      openssh.authorizedKeys.keys = [inputs.self.keys.maxine];
+    };
   };
 
   services.openssh = {
