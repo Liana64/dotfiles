@@ -74,8 +74,10 @@ in {
       script = ''
         set -o pipefail
         d=$RUNTIME_DIRECTORY
+        db=/var/lib/attic-db/server.db
+        [ -e $db-wal ] || db="file:$db?immutable=1"
         q="FROM object o JOIN cache c ON c.id = o.cache_id JOIN nar n ON n.id = o.nar_id WHERE c.name = '${net.cluster.atticCache}'"
-        sqlite3 -readonly -separator ' ' /var/lib/attic-db/server.db "
+        sqlite3 -readonly -separator ' ' "$db" "
           SELECT 'total', count(*), coalesce(sum(n.nar_size), 0), coalesce(max(strftime('%s', o.created_at)), 0) $q;
           SELECT 'system', o.store_path, strftime('%s', o.created_at) $q AND o.store_path LIKE '%-nixos-system-%';
         " | awk -v cache=${net.cluster.atticCache} '

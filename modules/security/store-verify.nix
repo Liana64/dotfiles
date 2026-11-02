@@ -9,10 +9,10 @@
       script = ''
         alert=/var/lib/audit-wall/alerts/store-verify
         mkdir -p "''${alert%/*}"
-        if out=$(${config.nix.package}/bin/nix store verify --all --no-trust 2>&1); then
+        if out=$(${config.nix.package}/bin/nix store verify --all --no-trust --quiet 2>&1); then
           rm -f "$alert"
         else
-          printf '%s\n' "$out" | grep '^error' >"$alert" || printf '%s\n' "$out" | tail -n 20 >"$alert"
+          printf '%s\n' "$out" >"$alert"
           exit 1
         fi
       '';
