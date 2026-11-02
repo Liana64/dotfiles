@@ -48,7 +48,9 @@
 
         printf '\n \e[1;7m %s \e[0m  %s\n\n' ${lib.escapeShellArgs [config.networking.hostName cfg.description]}
         printf ' \e[2m◆\e[0m nixos %s · gen %s · %s\n' ${config.system.nixos.release} "$gen" ${rev}
-        printf ' %s · up %s\n\n' "$status" "$up"
+        printf ' %s · up %s\n' "$status" "$up"
+        ${lib.concatLines cfg.status}
+        echo
         ${lib.concatMapStringsSep "\n" row cfg.commands}
         echo
       '';
@@ -63,6 +65,11 @@
         type = lib.types.listOf (lib.types.listOf lib.types.str);
         default = [];
         description = "[command description] rows, in display order.";
+      };
+      status = lib.mkOption {
+        type = lib.types.listOf lib.types.lines;
+        default = [];
+        description = "Shell snippets printing extra status lines below health.";
       };
     };
 
