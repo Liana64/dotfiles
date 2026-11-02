@@ -83,12 +83,13 @@ in {
       openssh.authorizedKeys.keys = [inputs.self.keys.maxine];
     };
   };
+  sops.secrets."users/maxine/password".neededForUsers = true;
 
   services.openssh = {
     enable = true;
     openFirewall = false;
     settings = {
-      AllowUsers = ["liana"];
+      AllowUsers = ["liana" "maxine"];
       PasswordAuthentication = false;
       KbdInteractiveAuthentication = false;
       PermitRootLogin = "no";
