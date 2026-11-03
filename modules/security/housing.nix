@@ -384,6 +384,7 @@ in {
                 ! -type l ! -name chrome ! -name search.json.mozlz4 -exec ${pkgs.coreutils}/bin/rm -rf {} +
               ${pkgs.coreutils}/bin/rm -rf "$ff/ephemeral/lock" "$ff/Crash Reports" "$ff/Pending Pings" "$ff/Profile Groups" "$NIX_HOUSING_HOUSE_HOME/.cache/mozilla"
             fi
+            [ -S "$XDG_RUNTIME_DIR/systemd/private" ] || exec "$@"
             exec ${pkgs.systemd}/bin/systemd-run --user --scope --quiet --collect \
               -p Wants=ephemeral-socks.socket -p After=ephemeral-socks.socket -- "$@"
           '';
