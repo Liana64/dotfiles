@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   lib,
   pkgs,
@@ -36,6 +37,18 @@ in {
         });
       });
     })
+  ];
+
+  motd.status = [
+    ''
+      if ${pkgs.procps}/bin/pgrep -u ${config.jovian.steam.user} -f bin/sunshine >/dev/null; then
+        sun=$'\e[32m●\e[0m sunshine up'
+      else
+        sun=$'\e[31m●\e[0m sunshine down'
+      fi
+      users=$(loginctl list-users --no-legend | while read -r _ u _; do printf '%s, ' "$u"; done)
+      printf ' %s · users: %s\n' "$sun" "''${users%, }"
+    ''
   ];
 
   services.sunshine = {

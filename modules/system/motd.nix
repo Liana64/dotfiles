@@ -54,6 +54,15 @@
           if [[ -s $f ]]; then alerts+=("''${f##*/}"); fi
         done
 
+        declare -A online=()
+        while read -r s _ u _; do
+          if [[ $u != "$USER" && $(loginctl show-session "$s" -p Service --value) == sshd ]]; then online[$u]=1; fi
+        done < <(loginctl list-sessions --no-legend)
+        users=("''${!online[@]}")
+        peers=$(printf '%s, ' "''${users[@]}")
+        peers=''${peers%, }
+        if ((''${#users[@]} > 1)); then peers+=" are online"; else peers+=" is online"; fi
+
         state=$(systemctl is-system-running || true)
         case $state in
           running) status=$'\e[32m●\e[0m healthy' ;;
@@ -79,6 +88,7 @@
         echo
         ${lib.concatMapStringsSep "\n" row cfg.commands}
         echo
+        if ((''${#users[@]})); then printf ' \e[1;33m%s\e[0m\n\n' "$peers"; fi
       '';
     };
   in {
