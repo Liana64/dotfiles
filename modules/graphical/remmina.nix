@@ -3,6 +3,7 @@
   flake.modules.homeManager.remmina = {pkgs, ...}: {
     home.packages = [
       ((pkgs.remmina.override {
+          withKf5Wallet = false;
           withLibsecret = false;
           withVte = false;
         }).overrideAttrs (o: {
@@ -10,13 +11,18 @@
         }))
     ];
 
+    xdg.configFile."remmina/plugins".source = pkgs.emptyDirectory;
     xdg.configFile."remmina/remmina.pref" = {
       force = true;
       text = ''
         [remmina_pref]
-        trust_all=false
         deny_screenshot_clipboard=true
         disable_tray_icon=true
+
+        [remmina]
+        name=
+        disableclipboard=1
+        disablepasswordstoring=1
       '';
     };
   };
