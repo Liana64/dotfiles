@@ -19,10 +19,12 @@
   kubectl
   kubernetes-helm
   kustomize
-  opentofu
+  # opentofu
   pre-commit
   sops
-  talosctl
   yq-go
 ])
-++ [unstable.talhelper]
+++ (with unstable; [
+  talhelper
+  talosctl
+])
