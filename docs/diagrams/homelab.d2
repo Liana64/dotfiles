@@ -8,7 +8,7 @@ cluster: {
     os: {
       shape: sql_table
       role: Router, Kubernetes Node
-      host-os: NixOS (Planned)
+      host-os: NixOS
       vms: talos, opnsense
     }
     hardware: {
@@ -16,11 +16,11 @@ cluster: {
       platform: ms-01
       memory: G.SKILL 32 GB DDR5 5200 MT/s (2x16, 1R)
       processor: "Intel i5-12600H (4 C [P, 4.5 GHz], 8 C [E, 3.3 GHz], 16 T, 18 MB)"
-      boot: 2x boot partitions, one per storage NVMe (planned)
-      storage: 256 GB NVMe (WD Blue SN580), 1 TB NVMe (WD_BLACK SN770), 1 TB NVMe (WD Blue SN5100)
+      boot: 2x boot partitions, one per storage NVMe
+      storage: "2x 1 TB NVMe (WD_BLACK SN770, WD Blue SN5100 [mirrored])"
       notes: "TODO: Switch to 500 GB NVMe boot disks and 2 TB storage for Piraeus"
       network: "On-board 2x 10Gb SFP+ (X710), 2x 2.5Gb Base-T, 2x USB4 (20Gb [40Gb int])"
-      pcie: Gen4 x4 (storage), Gen3 x4 (storage), Gen3 x2, Gen4 x16 (storage)
+      pcie: "M.2 Gen4 x4 (WD_BLACK), M.2 Gen3 x4, M.2 Gen3 x2, Gen4 x8 [x16 slot] (WD Blue)"
     }
     network: {
       shape: sql_table
@@ -48,7 +48,7 @@ cluster: {
       boot: 2x boot partitions, one per storage NVMe
       storage: "2x 2 TB NVMe (Viper VP4300 2TB, WD_BLACK SN770 [4 TB raw])"
       network: "On-board 2x 10Gb SFP+ (X710), 2x 2.5Gb Base-T, 2x USB4 (20GB [40Gb int])"
-      pcie: Gen4 x4 (Storage), Gen3 x4, Gen3 x2 (storage), Gen4 x16 (unused)
+      pcie: "M.2 Gen4 x4 (WD_BLACK), M.2 Gen3 x4, M.2 Gen3 x2 (Viper), Gen4 x8 [x16 slot] (unused)"
       notes: "TODO: Switch to 500 GB NVMe boot disks and 2 TB storage for Piraeus"
       notes-2: "TODO: Swap viper to other PCIe slot"
     }
@@ -97,13 +97,13 @@ cluster: {
       }
       hardware: {
         shape: sql_table
-        platform: ASUS TUF Z390M-PRO
+        platform: ASUS TUF Z390M-PRO GAMING (WI-FI)
         memory: TEAMGROUP 64 GB DDR4 (4x16, 1R)
         processor: "Intel i7-9700k (8 C, 8 T, 12 MB)"
         boot: 2x boot partitions, one per NVMe
         storage: "2x Patriot P300 512 GB (mirrored), 2x Seagate 28 T (56 T raw [mirrored])"
-        network: 2x 10GB SFP+ (X710), 1x 2.5Gb Base-T
-        pcie: "Gen3 x16 (NIC, I think); x1 unused"
+        network: 2x 10Gb SFP+ (X710), 1x 1Gb Base-T (I219-V)
+        pcie: "Gen3 x8 (X710), Gen3 x8 (GTX 1080, vfio), 2x M.2 Gen3 x4 (P300), 2x Gen3 x1 (unused)"
         notes: "TODO: Swap 500 GB NVMes for 1 TB NVMes from other devices, post-Piraeus"
       }
       network: {
@@ -123,7 +123,6 @@ cluster: {
     }
     libvirtd: |md
       talos
-      opnsense
     |
   }
 }
