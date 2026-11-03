@@ -8,6 +8,7 @@
   inherit (inputs.self.network) home clients;
   set = lib.concatStringsSep ", ";
   peers = set ([home.subnet] ++ clients.liana);
+  port = n: toString (config.services.sunshine.settings.port + n);
 in {
   # TCL 65S555 is HDMI 2.0 (600 MHz TMDS)
   # -------------------------------------
@@ -41,11 +42,11 @@ in {
 
   motd.status = [
     ''
-      if ${pkgs.procps}/bin/pgrep -u ${config.jovian.steam.user} -f bin/sunshine >/dev/null; then
-        printf ' \e[32m●\e[0m sunshine up\n'
-      else
-        printf ' \e[31m●\e[0m sunshine down\n'
-      fi
+      case $(${pkgs.curl}/bin/curl -s -m1 http://127.0.0.1:${port 0}/serverinfo || true) in
+        *SERVER_BUSY*) printf ' \e[32m●\e[0m sunshine streaming\n' ;;
+        *SERVER_FREE*) printf ' \e[32m●\e[0m sunshine idle\n' ;;
+        *) printf ' \e[31m●\e[0m sunshine down\n' ;;
+      esac
     ''
   ];
 
@@ -58,8 +59,8 @@ in {
   networking.interfaces.enp10s0.wakeOnLan.enable = true;
 
   networking.firewall.extraInputRules = ''
-    ip saddr { ${peers} } tcp dport { 47984, 47989, 48010 } accept
-    ip saddr { ${peers} } udp dport { 47998-48000, 48002, 48010 } accept
-    ip saddr { ${set clients.liana} } tcp dport 47990 accept
+    ip saddr { ${peers} } tcp dport { ${port (-5)}, ${port 0}, ${port 21} } accept
+    ip saddr { ${peers} } udp dport { ${port 9}-${port 11}, ${port 13}, ${port 21} } accept
+    ip saddr { ${set clients.liana} } tcp dport ${port 1} accept
   '';
 }
