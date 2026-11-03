@@ -3,7 +3,6 @@
   flake.modules.homeManager.remmina = {pkgs, ...}: {
     home.packages = [
       ((pkgs.remmina.override {
-          withKf5Wallet = false;
           withLibsecret = false;
           withVte = false;
         }).overrideAttrs (o: {

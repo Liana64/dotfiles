@@ -42,12 +42,10 @@ in {
   motd.status = [
     ''
       if ${pkgs.procps}/bin/pgrep -u ${config.jovian.steam.user} -f bin/sunshine >/dev/null; then
-        sun=$'\e[32m●\e[0m sunshine up'
+        printf ' \e[32m●\e[0m sunshine up\n'
       else
-        sun=$'\e[31m●\e[0m sunshine down'
+        printf ' \e[31m●\e[0m sunshine down\n'
       fi
-      users=$(loginctl list-users --no-legend | while read -r _ u _; do printf '%s, ' "$u"; done)
-      printf ' %s · users: %s\n' "$sun" "''${users%, }"
     ''
   ];
 
