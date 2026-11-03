@@ -160,7 +160,7 @@ in {
       namespacing.proc = true;
       sessionDbus.own = ["org.mozilla.firefox.*"];
       landlock = {
-        connectTcpPorts = [53 80 443 8006 8443 5900];
+        connectTcpPorts = [53 80 443 8006 8080 8443 5900];
         rwDirs = [drop];
       };
     };
@@ -445,6 +445,7 @@ in {
           gui.enable = true;
           gpu.enable = true;
           namespacing.proc = true;
+          sessionDbus.own = ["org.remmina.Remmina"];
           landlock.connectTcpPorts = [3389 5900];
         };
       };
