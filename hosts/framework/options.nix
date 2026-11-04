@@ -18,22 +18,27 @@ in {
   nushell = false;
   machineSecrets = true;
 
-  networking.networkmanager.ensureProfiles.profiles.mgmt = {
-    connection = {
-      id = "mgmt";
-      type = "vlan";
-      interface-name = "enp95s0.99";
+  networking.networkmanager.ensureProfiles.profiles = let
+    mgmtVlan = id: parent: {
+      connection = {
+        inherit id;
+        type = "vlan";
+        interface-name = "${parent}.99";
+      };
+      vlan = {
+        inherit parent;
+        id = 99;
+      };
+      ipv4 = {
+        method = "manual";
+        address1 = mgmt.cidr.framework;
+        never-default = true;
+      };
+      ipv6.method = "disabled";
     };
-    vlan = {
-      parent = "enp95s0";
-      id = 99;
-    };
-    ipv4 = {
-      method = "manual";
-      address1 = mgmt.cidr.framework;
-      never-default = true;
-    };
-    ipv6.method = "disabled";
+  in {
+    mgmt = mgmtVlan "mgmt" "enp95s0";
+    mgmt-usb = mgmtVlan "mgmt-usb" "enp195s0f0u2";
   };
 
   boot.kernel.sysctl = {
