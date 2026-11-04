@@ -149,6 +149,10 @@ in {
       {config, ...}: {
         xdg.configFile."gtk-3.0/bookmarks".text = "file://${shared} Shared\n";
         programs.firefox.policies.DefaultDownloadDirectory = "${config.home.homeDirectory}/Downloads";
+        xdg.mimeApps = {
+          enable = true;
+          defaultApplications."inode/directory" = "thunar.desktop";
+        };
       };
 
     inherit (inputs.self.network) vpn;
