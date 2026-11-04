@@ -22,7 +22,7 @@ in {
       if [[ -n $port && $fdb =~ 00:00:5e:00:01:..\ dev\ $port\  ]]; then
         carp=$'\e[32mcarp master\e[0m'
       elif [[ $fdb == *00:00:5e:00:01:* ]]; then
-        carp='carp backup'
+        carp=$'\e[94mcarp backup\e[0m'
       else
         carp=$'\e[2mcarp none\e[0m'
       fi
