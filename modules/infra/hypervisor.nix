@@ -61,16 +61,7 @@
         environment.systemPackages = [pkgs.smartmontools];
 
         services = {
-          openssh = {
-            enable = true;
-            openFirewall = false;
-            settings = {
-              PasswordAuthentication = false;
-              KbdInteractiveAuthentication = false;
-              PermitRootLogin = "no";
-              PubkeyAuthOptions = "verify-required";
-            };
-          };
+          openssh.enable = true;
           zfs.autoScrub = {
             enable = true;
             interval = "monthly";

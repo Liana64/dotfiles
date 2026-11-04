@@ -1,6 +1,7 @@
 {
   config,
   inputs,
+  lib,
   ...
 }: let
   addr = inputs.self.network.offsite.hosts.${config.networking.hostName};
@@ -98,7 +99,6 @@ in {
 
   services.openssh = {
     enable = true;
-    openFirewall = false;
     startWhenNeeded = false;
     listenAddresses = [{inherit addr;}];
     hostKeys = [
@@ -109,14 +109,7 @@ in {
     ];
     settings = {
       AllowUsers = ["liana"];
-      AuthenticationMethods = "publickey";
-      PasswordAuthentication = false;
-      KbdInteractiveAuthentication = false;
-      PermitRootLogin = "no";
-      PubkeyAcceptedAlgorithms = "sk-ssh-ed25519@openssh.com";
-      PubkeyAuthOptions = "verify-required";
-      KexAlgorithms = ["mlkem768x25519-sha256" "sntrup761x25519-sha512"];
-      Ciphers = ["chacha20-poly1305@openssh.com" "aes256-gcm@openssh.com"];
+      PubkeyAcceptedAlgorithms = lib.mkForce "sk-ssh-ed25519@openssh.com";
       X11Forwarding = false;
       AllowAgentForwarding = false;
       AllowTcpForwarding = false;

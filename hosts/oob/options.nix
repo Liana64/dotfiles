@@ -68,14 +68,7 @@ in {
     resolved.enable = true;
     openssh = {
       enable = true;
-      openFirewall = false;
-      settings = {
-        AllowUsers = ["liana"];
-        PasswordAuthentication = false;
-        KbdInteractiveAuthentication = false;
-        PermitRootLogin = "no";
-        PubkeyAuthOptions = "verify-required";
-      };
+      settings.AllowUsers = ["liana"];
     };
     zfs.autoScrub = {
       enable = true;

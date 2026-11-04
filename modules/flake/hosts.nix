@@ -58,7 +58,7 @@
     ]
     config.flake.modules.homeManager;
 
-  base = ["hardwareTools" "nixCache" "nixDaemon" "secrets" "time" "users"];
+  base = ["hardwareTools" "nixCache" "nixDaemon" "secrets" "sshd" "time" "users"];
   hardened = base ++ ["hardening" "journald" "noDefaults" "noexec" "storeVerify"];
   server = hardened ++ ["motd"];
   serverOnly = ["hypervisor" "zfsRollback"];

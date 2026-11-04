@@ -87,14 +87,7 @@ in {
 
   services.openssh = {
     enable = true;
-    openFirewall = false;
-    settings = {
-      AllowUsers = ["liana" "maxine"];
-      PasswordAuthentication = false;
-      KbdInteractiveAuthentication = false;
-      PermitRootLogin = "no";
-      PubkeyAuthOptions = "verify-required";
-    };
+    settings.AllowUsers = ["liana" "maxine"];
   };
   services.prometheus.exporters = {
     node = {
