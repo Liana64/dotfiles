@@ -369,8 +369,8 @@
             # Reduce iGPU usage
             "ui.prefersReducedMotion" = 1;
 
-            # Max framerate
-            "layout.frame_rate" = 120;
+            # Follow compositor vsync, i.e. the sway output mode
+            "layout.frame_rate" = -1;
 
             # default 0.002
             "apz.fling_friction" = "0.003";
@@ -381,13 +381,13 @@
             # Vertical tabs
             "sidebar.verticalTabs" = true;
             "sidebar.revamp" = true;
-            "sidebar.main.tools" = ["history" "bookmarks"];
+            "sidebar.main.tools" = "history,bookmarks";
 
             # Wayland popup/menu fixes
+            "widget.wayland.use-move-to-rect" = true;
             "widget.gtk.ignore-bogus-leave-notify" = 1;
             "widget.use-xdg-desktop-portal.file-picker" = 0;
             "widget.use-xdg-desktop-portal.mime-handler" = 0;
-            "widget.non-native-theme.enabled" = false;
           }
           // roleSettings.${role};
         #restrictedDomainsList = [
