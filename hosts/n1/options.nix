@@ -28,7 +28,6 @@
     opnsense = {
       uuid = "1209e9fd-69cf-467c-a870-c249a4f5009b";
       memoryGiB = 4;
-      active = null;
       macs = {
         lan = "BC:24:11:C4:32:01";
         tb = "BC:24:11:B6:7B:20";

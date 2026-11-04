@@ -12,7 +12,32 @@
   wanMac = "BC:24:11:C4:32:02";
   name = "opnsense-${config.networking.hostName}";
   virsh = "${config.virtualisation.libvirtd.package}/bin/virsh -c qemu:///system";
+  hook = "/usr/local/etc/rc.syshook.d/carp/50-wan";
+  tmp = "/usr/local/etc/.50-wan.tmp";
+  wanHook = pkgs.writeText "50-wan" ''
+    #!/bin/sh
+    case "$1" in 1@vlan07*) ;; *) exit 0 ;; esac
+    master() { ifconfig vlan07 | grep -q 'carp: MASTER vhid 1 '; }
+    if master; then ifconfig vtnet1 up; configctl interface reconfigure wan; fi
+    master || ifconfig vtnet1 down
+  '';
 in {
+  # WAN follows the LAYER3 VIP (1@vlan07): one DHCP lease, shared MAC
+  systemd.services.opnsense-wan-hook = {
+    startAt = "*:0/15";
+    path = [pkgs.jq];
+    script = ''
+      set -o pipefail
+      ga() { ${virsh} qemu-agent-command ${name} "$1" | jq -r .return; }
+      ${virsh} qemu-agent-command ${name} '{"execute":"guest-ping"}' >/dev/null 2>&1 || exit 0
+      h=$(ga '{"execute":"guest-file-open","arguments":{"path":"${tmp}","mode":"w"}}')
+      ga "{\"execute\":\"guest-file-write\",\"arguments\":{\"handle\":$h,\"buf-b64\":\"$(base64 -w0 ${wanHook})\"}}" >/dev/null
+      ga "{\"execute\":\"guest-file-close\",\"arguments\":{\"handle\":$h}}" >/dev/null
+      ga '{"execute":"guest-exec","arguments":{"path":"/bin/sh","arg":["-c","chmod 755 ${tmp} && mv ${tmp} ${hook}"]}}' >/dev/null
+    '';
+    serviceConfig.Type = "oneshot";
+  };
+
   motd.status = [
     ''
       vm=$(${virsh} domstate ${name} 2>/dev/null) || vm=unknown
