@@ -384,7 +384,6 @@
             "sidebar.main.tools" = ["history" "bookmarks"];
 
             # Wayland popup/menu fixes
-            "widget.wayland.use-move-to-rect" = false;
             "widget.gtk.ignore-bogus-leave-notify" = 1;
             "widget.use-xdg-desktop-portal.file-picker" = 0;
             "widget.use-xdg-desktop-portal.mime-handler" = 0;
