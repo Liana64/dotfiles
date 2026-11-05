@@ -96,7 +96,9 @@
         (pkgs.runCommandLocal "base16-kvantum" {} ''
           d=$out/share/Kvantum/Base16Kvantum
           mkdir -p $d
-          cp ${render "kvconfig.mustache" ".kvconfig"} $d/Base16Kvantum.kvconfig
+          sed -e 's/^highlight\.color=.*/highlight.color=${highlight}/' \
+              -e 's/^highlight\.text\.color=.*/highlight.text.color=${foreground}/' \
+            ${render "kvconfig.mustache" ".kvconfig"} > $d/Base16Kvantum.kvconfig
           sed '/id="itemview-\(toggled\|pressed\)/,+1 s/fill:${base16.base04}/fill:${colors.gray}/' \
             ${render "kvantum.svg.mustache" ".svg"} > $d/Base16Kvantum.svg
         '')
