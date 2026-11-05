@@ -67,7 +67,6 @@
           org.gnome.Calendar
           dev.bragefuglseth.Fretboard
           org.gimp.GIMP
-          org.libreoffice.LibreOffice
           org.localsend.localsend_app
           org.pulseaudio.pavucontrol
           com.moonlight_stream.Moonlight

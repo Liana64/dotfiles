@@ -9,7 +9,6 @@
       autotiling-rs
       bc
       cosign
-      cider-2
       moreutils
       networkmanagerapplet
       pavucontrol

@@ -169,4 +169,46 @@
         exec ${launch} "$dir/$base"
       '';
     };
+
+  houseOpen = {
+    name,
+    launch,
+    dirs,
+    drop,
+  }:
+    pkgs.writeShellApplication {
+      inherit name;
+      runtimeInputs = [pkgs.coreutils pkgs.gnused pkgs.libnotify];
+      text = ''
+        ${cleanName}
+
+        args=()
+        for f; do
+          real=$(realpath -e -- "$f") && [ -f "$real" ] || {
+            notify-send -a ${lib.escapeShellArg name} "Not opened" "$f"
+            continue
+          }
+          case $real in
+          ${lib.concatMapStringsSep " | " (d: "${lib.escapeShellArg d}/*") dirs}) args+=("$real") ;;
+          *)
+            base=$(clean "$(basename -- "$real")")
+            case $base in "" | .*) base=document ;; esac
+            stem=''${base%.*}
+            ext=''${base:''${#stem}}
+            t=${lib.escapeShellArg drop}/$base
+            i=1
+            while [ -e "$t" ]; do
+              i=$((i + 1))
+              t=${lib.escapeShellArg drop}/"$stem ($i)$ext"
+            done
+            cp -n -- "$real" "$t" || continue
+            notify-send -a ${lib.escapeShellArg name} "Copied to Shared drop" "$(basename -- "$t")"
+            args+=("$t")
+            ;;
+          esac
+        done
+        [ "''${#args[@]}" -gt 0 ] || exit 1
+        exec ${launch} "''${args[@]}"
+      '';
+    };
 }

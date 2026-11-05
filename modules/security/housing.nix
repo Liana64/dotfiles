@@ -28,6 +28,7 @@ in {
       agentic = "#13a8a8";
       media = "#597ef7";
       remote = "#2db7f5";
+      tasks = "#ff85c0";
     };
 
     houseTitle = {
@@ -135,8 +136,33 @@ in {
         launch = "${h.runner}/bin/house-${pdfHouse} ${h.hm.homeManagerConfiguration.config.home.path}/bin/firefox --new-tab";
       };
 
+    officeTypes = [
+      "application/vnd.oasis.opendocument.text"
+      "application/vnd.oasis.opendocument.spreadsheet"
+      "application/vnd.oasis.opendocument.presentation"
+      "application/vnd.oasis.opendocument.graphics"
+      "application/msword"
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      "application/vnd.ms-excel"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.ms-powerpoint"
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      "application/rtf"
+    ];
+    houseOpen = let
+      h = config.housing.houses.personal;
+      real = lib.replaceStrings ["$NIX_HOUSING_REAL_HOME"] [config.home.homeDirectory];
+    in
+      intake.houseOpen {
+        name = "house-open";
+        launch = "${h.runner}/bin/house-personal ${h.hm.homeManagerConfiguration.config.home.path}/bin/libreoffice";
+        dirs = map real personalDirs;
+        drop = real drop;
+      };
+
     projects = "$NIX_HOUSING_REAL_HOME/Projects";
     notebook = "$NIX_HOUSING_REAL_HOME/Notebook";
+    personalDirs = [notebook "$NIX_HOUSING_REAL_HOME/Documents" drop];
     dillo = "$NIX_HOUSING_REAL_HOME/.dillo";
     drop = "$NIX_HOUSING_REAL_HOME/houses/shared/drop";
     velesDir = "$NIX_HOUSING_REAL_HOME/houses/shared/veles";
@@ -144,12 +170,39 @@ in {
     intake = import ../_lib/house-intake.nix {inherit pkgs lib hardening config;};
 
     sharedDrop = let
-      shared = "${config.home.homeDirectory}/houses/shared/drop";
+      host = config;
+      shared = "${host.home.homeDirectory}/houses/shared/drop";
     in
-      {config, ...}: {
-        xdg.configFile."gtk-3.0/bookmarks".text = "file://${shared} Shared\n";
+      {config, ...}: let
+        # Thunar is a unique GApplication; on the shared bus it would hand folders to another house's instance
+        bus = pkgs.writeText "thunar-bus.conf" ''
+          <!DOCTYPE busconfig PUBLIC "-//freedesktop//DTD D-Bus Bus Configuration 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
+          <busconfig>
+            <type>session</type>
+            <listen>unix:tmpdir=${config.xdg.cacheHome}</listen>
+            <auth>EXTERNAL</auth>
+            <policy context="default">
+              <allow send_destination="*"/>
+              <allow own="*"/>
+            </policy>
+          </busconfig>
+        '';
+        thunar = pkgs.symlinkJoin {
+          name = "thunar-private-bus";
+          paths = [pkgs.thunar];
+          postBuild = ''
+            ln -sf ${pkgs.writeShellScript "thunar" ''
+              mkdir -p ${config.xdg.cacheHome}
+              exec ${pkgs.dbus}/bin/dbus-run-session --config-file=${bus} -- ${pkgs.thunar}/bin/thunar "$@"
+            ''} $out/bin/thunar
+          '';
+        };
+      in {
+        xdg.configFile =
+          lib.genAttrs ["gtk-3.0/settings.ini" "gtk-3.0/gtk.css" "gtk-4.0/settings.ini" "gtk-4.0/gtk.css"] (f: {inherit (host.xdg.configFile.${f}) source;})
+          // {"gtk-3.0/bookmarks".text = "file://${shared} Shared\n";};
         programs.firefox.policies.DefaultDownloadDirectory = "${config.home.homeDirectory}/Downloads";
-        home.packages = [pkgs.thunar];
+        home.packages = [thunar] ++ map (t: t.package) (with host.gtk; [theme iconTheme cursorTheme font]);
         xdg.mimeApps = {
           enable = true;
           defaultApplications."inode/directory" = "thunar.desktop";
@@ -276,6 +329,7 @@ in {
               aspects.thunderbird
               aspects.vesktop
             ];
+          home.packages = [pkgs.libreoffice];
           home.sessionVariables = {
             NIXOS_OZONE_WL = "1";
             XDG_SESSION_TYPE = "wayland";
@@ -291,8 +345,18 @@ in {
           sessionDbus.own = ["org.freedesktop.StatusNotifierItem-2-1"];
           landlock = {
             connectTcpPorts = [443 1025 1143 6697];
-            rwDirs = [notebook drop "/dev/shm"];
+            rwDirs = personalDirs ++ ["/dev/shm" "/tmp"];
           };
+          # libreoffice binds its instance pipe in a hard-coded /tmp; give the house its own
+          execWrappers.privateTmp = lib.hm.dag.entryBetween ["namespacingDrop"] ["namespacing"] ''
+            set -eu
+            exec 3<"$NIX_HOUSING_HOUSE_TMPDIR"
+            ${pkgs.util-linux}/bin/mount -t tmpfs -o mode=1777,nosuid,nodev tmpfs /tmp
+            ${pkgs.coreutils}/bin/mkdir -p "$NIX_HOUSING_HOUSE_TMPDIR"
+            ${pkgs.util-linux}/bin/mount --bind /proc/self/fd/3 "$NIX_HOUSING_HOUSE_TMPDIR"
+            exec 3<&-
+            exec "$@"
+          '';
         };
       };
 
@@ -455,6 +519,18 @@ in {
         };
       };
 
+      tasks = {
+        hm.config.imports = base ++ [houseTitle aspects.planify];
+        exportDesktopEntries = true;
+        capabilities = {
+          gui.enable = true;
+          gpu.enable = true;
+          namespacing.proc = true;
+          sessionDbus.own = ["io.github.alainm23.planify" "io.github.alainm23.planify.*"];
+          landlock.connectTcpPorts = [443];
+        };
+      };
+
       untrusted = {
         hm.config.imports = [terminfo houseTitle sharedDrop];
         capabilities = {
@@ -513,7 +589,15 @@ in {
           exec = "${lib.getExe openPdf} %f";
           mimeType = ["application/pdf"];
         };
+        house-open = {
+          name = "LibreOffice [personal]";
+          noDisplay = true;
+          exec = "${lib.getExe houseOpen} %F";
+          mimeType = officeTypes;
+        };
       };
+
+    xdg.mimeApps.defaultApplications = lib.genAttrs officeTypes (_: "house-open.desktop");
 
     xdg.dataFile."applications/iamb.house-personal.desktop".text = ''
       [Desktop Entry]

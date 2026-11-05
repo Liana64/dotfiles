@@ -102,29 +102,25 @@
 
         assign [app_id="kitty-startup"] workspace 1:q
         assign [app_id="thunderbird"] workspace 3:e
-        assign [class="Todoist"] workspace 4:a
+        assign [app_id="(?i)todoist"] workspace 4:a
         assign [app_id="Element"] workspace 5:s
         assign [app_id="org.squidowl.halloy"] workspace 5:s
         assign [app_id="signal"] workspace 5:s
         assign [app_id="vesktop"] workspace 5:s
         assign [app_id="house-personal" title="^iamb"] workspace 5:s
         assign [app_id="md.Obsidian"] workspace 6:d
-        assign [class="Cider"] workspace 7:z
+        assign [app_id="org.fooyin.fooyin"] workspace 8:x
 
         # Settings
         font pango:JetBrainsMono Nerd Font 10
         titlebar_padding 3 1
         title_align center
 
-        seat * xcursor_theme Bibata-Modern-Classic 16
-
         # Disable laptop display when using a dock
         bindswitch --reload --locked lid:on output eDP-1 disable
         bindswitch --reload --locked lid:off output eDP-1 enable
 
         exec_always --no-startup-id autotiling-rs
-
-        exec gnome-keyring-daemon --start --components=secrets,pkcs11
       '';
       config = {
         terminal = "kitty";
@@ -208,9 +204,9 @@
           "XF86AudioNext" = "exec playerctl next";
           "XF86AudioStop" = "exec playerctl stop";
 
-          "XF86AudioRaiseVolume" = "exec 'pactl set-sink-volume \\@DEFAULT_SINK@ +5%'";
-          "XF86AudioLowerVolume" = "exec 'pactl set-sink-volume \\@DEFAULT_SINK@ -5%'";
-          "XF86AudioMute" = "exec 'pactl set-sink-mute \\@DEFAULT_SINK@ toggle'";
+          "XF86AudioRaiseVolume" = "exec wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+";
+          "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-";
+          "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
 
           #"${sup}+c" = "exec wtype -P XF56Copy";
           #"${sup}+v" = "exec wtype -P XF56Paste";
@@ -225,7 +221,6 @@
           "${sup}+d" = "exec ${cfg.menu}";
 
           "${mod}+Space" = "exec ${cfg.menu}";
-          "Ctrl+Space" = "exec ${cfg.menu}";
           "${mod}+Shift+Space" = "exec 'kitty --title numbat ${pkgs.numbat}/bin/numbat'";
 
           "${mod}+Left" = "focus left";
@@ -299,9 +294,8 @@
           "${mod}+Shift+z" = "move container to workspace 7:z";
           "${mod}+Shift+x" = "move container to workspace 8:x";
           "${mod}+Shift+c" = "move container to workspace 9:c";
-          "${mod}+Control+Shift+x" = "workspace 8:x; exec thunar";
+          "${mod}+Control+Shift+x" = "workspace 8:x; exec house-media fooyin";
           "${mod}+Control+Return" = "exec thunar";
-          "${mod}+Control+Shift+c" = "workspace 4:a; exec flatpak run com.todoist.Todoist";
           "${mod}+Control+Shift+z" = "exec house-web-public zoom-web";
 
           "${sup}+Shift+q" = "kill";
@@ -336,7 +330,7 @@
           "eDP-1" = {
             # resolution = "2880x1920@120Hz";
             resolution = "2880x1920@60Hz";
-            position = "0,0";
+            position = "920,1440";
             #scale = "1.9";
             scale = "1.8";
           };
@@ -355,7 +349,7 @@
             h = "exec swaymsg 'mode default' && systemctl hibernate";
             r = "exec swaymsg 'mode default' && systemctl reboot";
             g = "exec swaymsg 'mode default' && systemctl --user stop sway-session.target && systemctl --user stop graphical-session.target && swaymsg exit";
-            l = "exec swaymsg 'mode default' && swaylock -f";
+            l = "exec swaymsg 'mode default' && systemctl --user start swaylock.service";
             c = "exec swaymsg 'mode default' && ${app}/bin/caffeinate-toggle";
             a = "exec swaymsg 'mode default' && ${app}/bin/airplane-toggle";
             Return = "mode default";
@@ -399,13 +393,8 @@
       NIXOS_OZONE_WL = "1";
 
       QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-      QT_SCALE_FACTOR = 1;
-      QT_AUTO_SCREEN_SCALE_FACTOR = "0";
       QT_QPA_PLATFORM = "wayland";
       SDL_VIDEODRIVER = "wayland";
-      GDK_SCALE = "1";
-      GDK_DPI_SCALE = "1";
-      MOZ_ENABLE_WAYLAND = "1";
       _JAVA_AWT_WM_NONREPARENTING = "1";
     };
   };

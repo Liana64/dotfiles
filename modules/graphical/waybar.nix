@@ -41,7 +41,7 @@
       ];
       buildInputs = [pkgs.makeWrapper];
       postBuild = ''
-        wrapProgram $out/bin/waybar-usbguard      --prefix PATH : $out/bin
+        wrapProgram $out/bin/waybar-usbguard      --prefix PATH : $out/bin:${pkgs.lib.makeBinPath (with pkgs; [dbus coreutils gnugrep])}
         wrapProgram $out/bin/waybar-task          --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [taskwarrior3 jq coreutils])}
         wrapProgram $out/bin/waybar-vpn --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [curl jq systemd])} \
           --set SOCKS ${with inputs.self.network.vpn; "${hosts.socks}:${toString socksPort}"}

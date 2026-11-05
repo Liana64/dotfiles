@@ -14,6 +14,7 @@
         enable = true;
         wrapperFeatures.gtk = true;
         package = pkgs.sway;
+        extraPackages = [];
       };
 
       dconf.enable = true;
@@ -59,12 +60,9 @@
       wl-clipboard
       playerctl
       grim
-      dbus
       slurp
       libnotify
       libsecret
-      swaybg
-      swayidle
     ];
   };
 }
