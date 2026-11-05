@@ -149,7 +149,7 @@ spine -- office.maxine: Ops, Access (VLAN 95) {
   class: active_link
 }
 
-spine -- home.gaming_pc: Home, Access (VLAN 100) {
+spine -- home.catbox: Home, Access (VLAN 100) {
   source-arrowhead.label: 6
   target-arrowhead.label: 2.5GbE
   class: active_link
@@ -170,23 +170,24 @@ mgsw -- oob: MGMT, Access (VLAN 99) {
 cluster.m1 -- mgsw: Access (VLAN 99) {
   source-arrowhead.label: 0/1
   target-arrowhead.label: 4
-  class: planned
 }
 
 cluster.n1 -- mgsw: Access (VLAN 99) {
   source-arrowhead.label: 0/4
   target-arrowhead.label: 5
-  class: planned
+}
+
+cluster.n1 -- cluster.n2: PFSYNC (VLAN 4000) {
+  source-arrowhead.label: TB2
+  target-arrowhead.label: TB2
 }
 
 cluster.n2 -- mgsw: Access (VLAN 99) {
   source-arrowhead.label: 0/4
   target-arrowhead.label: 6
-  class: planned
 }
 
 cluster.n3 -- mgsw: Access (VLAN 99) {
   source-arrowhead.label: USB
   target-arrowhead.label: 7
-  class: planned
 }
