@@ -224,6 +224,8 @@ in {
     };
     refreshWaybar = "${pkgs.systemd}/bin/systemctl --user kill --kill-whom=main --signal=SIGRTMIN+13 waybar.service";
     ephemeralSocket = "${config.housing.houses.web-ephemeral.houseHomeDir}/.socks.sock";
+    caldav = "calendar.milberry.org";
+    caldavSocket = "tasks-caldav.sock";
   in {
     imports = [inputs.nix-housing.homeManagerModules.default];
 
@@ -247,6 +249,25 @@ in {
         hardening.confined
         // {
           ExecStart = "${pkgs.systemd}/lib/systemd/systemd-socket-proxyd --exit-idle-time=10s ${vpn.hosts.socks}:${toString vpn.socksPort}";
+        };
+    };
+
+    systemd.user.sockets.tasks-caldav = {
+      Unit.Description = "tasks house relay socket to ${caldav}";
+      Socket = {
+        ListenStream = "%t/${caldavSocket}";
+        SocketMode = "0600";
+        RemoveOnStop = true;
+      };
+      Install.WantedBy = ["sockets.target"];
+    };
+
+    systemd.user.services.tasks-caldav = {
+      Unit.Description = "Relay the tasks house to ${caldav}:443";
+      Service =
+        hardening.confined
+        // {
+          ExecStart = "${pkgs.systemd}/lib/systemd/systemd-socket-proxyd --exit-idle-time=10s ${caldav}:443";
         };
     };
 
@@ -525,9 +546,24 @@ in {
         capabilities = {
           gui.enable = true;
           gpu.enable = true;
-          namespacing.proc = true;
+          namespacing.net = true;
           sessionDbus.own = ["io.github.alainm23.planify" "io.github.alainm23.planify.*"];
-          landlock.connectTcpPorts = [443];
+          landlock = {
+            connectTcpPorts = [443];
+            bindTcpPorts = [443];
+            socketFiles = ["$NIX_HOUSING_REAL_XDG_RUNTIME_DIR/${caldavSocket}"];
+          };
+          execWrappers.caldavNet = lib.hm.dag.entryBetween ["namespacingDrop" "procMask"] ["namespacing"] ''
+            set -eu
+            ${pkgs.util-linux}/bin/mount --bind ${pkgs.writeText "tasks-hosts" "127.0.0.1 localhost ${caldav}\n::1 localhost\n"} /etc/hosts
+            echo 0 > /proc/sys/net/ipv4/ip_unprivileged_port_start
+            exec "$@"
+          '';
+          execWrappers.caldavRelay = lib.hm.dag.entryBetween ["envFilter"] ["landlock"] ''
+            ${pkgs.systemd}/bin/systemd-socket-activate -l 127.0.0.1:443 \
+              ${pkgs.systemd}/lib/systemd/systemd-socket-proxyd "$NIX_HOUSING_REAL_XDG_RUNTIME_DIR/${caldavSocket}" &
+            exec "$@"
+          '';
         };
       };
 
