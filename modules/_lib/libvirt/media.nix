@@ -3,7 +3,7 @@ pkgs: let
   # NOTE: This image is ready for Piraeus for when we upgrade (drbd, qemu-guest-agent, sd-boot, secureboot).
   # https://factory.talos.dev/?target=cloud
   talosVersion = "v1.14.5";
-  schematic = "701cdcaa5b4ceb6ee1b43478cadba093419c65ced54891c1ee2e98cc05ebab0f";
+  schematic = "79d245f689b37bd21ff1514408f1bb4cd448b21400377bf2510603df2217c0c3";
 
   # https://access.redhat.com/downloads/content/rhel
   rhel = version: sha256:
@@ -15,7 +15,7 @@ pkgs: let
 in {
   talos = pkgs.fetchurl {
     url = "https://factory.talos.dev/image/${schematic}/${talosVersion}/nocloud-amd64-secureboot.iso";
-    hash = "sha256-y3+4a5wigcHrmfh3fTdmyZypQOx4hvj+YJ6zmMuXVEU=";
+    hash = "sha256-0jEsdiZN3QVp5ylI8Dcsf/USswkB8y8RdRjyj1sJWSc=";
   };
 
   opnsense = pkgs.runCommand "OPNsense-26.7-dvd-amd64.iso" {
