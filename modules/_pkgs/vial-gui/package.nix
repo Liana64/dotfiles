@@ -5,6 +5,7 @@
   python3,
   libsForQt5,
   makeWrapper,
+  udev,
 }: let
   env = python3.withPackages (ps:
     with ps; [
@@ -62,6 +63,7 @@ in
       makeWrapper ${env}/bin/python $out/bin/vial-gui \
         --add-flags $out/share/vial/src/main/python/main.py \
         --run 'cd "$HOME"' \
+        --prefix LD_LIBRARY_PATH : "${lib.getLib udev}/lib" \
         --set VIAL_PROJECT $out/share/vial \
         --set PYTHONPATH "$out/share/vial/shim:$out/share/vial/src/main/python" \
         --prefix QT_PLUGIN_PATH : "${lib.getBin libsForQt5.qtwayland}/${libsForQt5.qtbase.qtPluginPrefix}"

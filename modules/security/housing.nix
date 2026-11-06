@@ -34,7 +34,11 @@ in {
       remote = "#2db7f5";
       tasks = "#ff85c0";
       tools = "#7d8597";
+      passwords = "#a0522d";
     };
+
+    # landlock resolves the udev symlink at launch: plug the device in before starting the house
+    hidraw = device: map (n: "/dev/${device}-hidraw${toString n}") (lib.range 0 15);
 
     houseTitle = {
       programs.zsh = {
@@ -284,7 +288,24 @@ in {
           imports = [aspects.gpg terminfo houseTitle];
           programs.gpg.homedir = "${config.home.homeDirectory}/gnupg";
           services.gpg-agent.pinentry.package = pkgs.pinentry-qt;
-          home.packages = [pkgs.bitwarden-desktop];
+        };
+        capabilities = {
+          wayland.enable = true;
+          landlock.socketDirs = ["/run/pcscd" "/var/run/pcscd"];
+        };
+      };
+
+      passwords = {
+        hm.config = {
+          imports = base ++ [houseTitle];
+          home.packages = [
+            (pkgs.symlinkJoin {
+              name = "bitwarden-desktop";
+              paths = [pkgs.bitwarden-desktop];
+              nativeBuildInputs = [pkgs.makeWrapper];
+              postBuild = "wrapProgram $out/bin/bitwarden --prefix LD_LIBRARY_PATH : ${lib.getLib (import ../_lib/udev-chase.nix pkgs)}/lib";
+            })
+          ];
           home.sessionVariables.NIXOS_OZONE_WL = "1";
         };
         exportDesktopEntries = true;
@@ -294,7 +315,7 @@ in {
           namespacing.proc = true;
           landlock = {
             connectTcpPorts = [443];
-            socketDirs = ["/run/pcscd" "/var/run/pcscd"];
+            deviceFiles = hidraw "yubikey";
           };
         };
       };
@@ -593,7 +614,7 @@ in {
           namespacing.proc = true;
           landlock = {
             connectTcpPorts = [80 443];
-            deviceFiles = map (n: "/dev/hidraw${toString n}") (lib.range 0 15);
+            deviceFiles = hidraw "vial";
           };
         };
       };
