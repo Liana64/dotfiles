@@ -13,7 +13,7 @@ See also [network diagram](docs/diagrams/network.svg) and my kubernetes [home-in
   - Compartmentalized post-quantum secrets management
   - Hardware optimizations for the AMD AI 300 series framework laptop
   - Minimal packaging, rust tools, virtualization support
-  - Helix editor configuration
+  - Helix editor, devshell, and language servers
   - Demarcated flake management
   - Nix Impermanence
   - Bazzite-inspired just tooling, motds, misc scripts, and nixos-anywhere installer
@@ -21,12 +21,15 @@ See also [network diagram](docs/diagrams/network.svg) and my kubernetes [home-in
   - [seaweedfs](https://github.com/seaweedfs/seaweedfs) for S3
   - [Attic](https://github.com/zhaofengli/attic) nix binary cache
   - [nfs-ganesha](https://github.com/nfs-ganesha/nfs-ganesha) for userspace NFS
+  - [Syncthing](https://github.com/syncthing/syncthing)
+  - ZFS backups and staging prior to offsite replication
 - Cluster
   - Talos VMs using libvirt on [NixVirt](https://github.com/AshleyYakeley/NixVirt)
   - Edge router config with CARP and WAN failover using one public IP
   - Node for RHEL lab VMs
 - Catbox
-  - SteamOS and TV host with Sunshine
+  - [Jovian](https://github.com/Jovian-Experiments/Jovian-NixOS) (SteamOS) with Proton and Sunshine
+  - TV host on [KDE plasma-bigscreen](https://github.com/kde/plasma-bigscreen)
 - Portable
   - Backup host
 
@@ -44,3 +47,4 @@ See also [network diagram](docs/diagrams/network.svg) and my kubernetes [home-in
   - Unifi Controller
 - nix-daemon hardening
 - Alternate nixpkgs
+- Offsite git in case of local failure
