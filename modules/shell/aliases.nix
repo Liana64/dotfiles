@@ -80,9 +80,8 @@
 
       top = "btop";
       htop = "btop";
-      neofetch = "fastfetch";
 
-      nmap = "rustscan";
+      rustscan = "rustscan --no-banner";
     };
 
     networking = {
