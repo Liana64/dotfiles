@@ -110,7 +110,7 @@
     };
     m1 = {
       system = "x86_64-linux";
-      aspects = server ++ ["hypervisor"];
+      aspects = server ++ ["auditd" "hypervisor"];
       home = false;
     };
     n1 = {
