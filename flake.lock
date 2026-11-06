@@ -496,11 +496,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793378448,
-        "narHash": "sha256-SIbX9UdccG361cHrm4vjEgkhbrKjfzf5K46Sbwxi5ow=",
+        "lastModified": 1793989841,
+        "narHash": "sha256-5I40Sf1r+qcn0AEsPhf3lW2INSoRneh5PnVyhfK6IEY=",
         "ref": "refs/heads/main",
-        "rev": "a6608e28a22b5417747b49f1ee0917f3992113b0",
-        "revCount": 12,
+        "rev": "2aac4da9a386896cc011da3191f26037541bcb49",
+        "revCount": 13,
         "type": "git",
         "url": "ssh://git@git.milberry.org/liana/nix-housing.git"
       },
