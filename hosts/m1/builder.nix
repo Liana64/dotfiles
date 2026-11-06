@@ -31,6 +31,13 @@ in {
   };
 
   nix = {
+    # sshServe = {
+    #   enable = true;
+    #   write = true;
+    #   trusted = true;
+    #   protocol = "ssh-ng";
+    #   keys = builtins.attrValues inputs.self.keys.nixBuilder;
+    # };
     daemonCPUSchedPolicy = "batch";
     daemonIOSchedClass = "idle";
     settings = {

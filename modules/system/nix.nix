@@ -52,8 +52,8 @@
 
     assertions = [
       {
-        assertion = (config.nix.settings.trusted-users or ["root"]) == ["root"];
-        message = "nix.settings.trusted-users grew beyond root";
+        assertion = lib.subtractLists (lib.optional config.nix.sshServe.trusted "nix-ssh") (config.nix.settings.trusted-users or ["root"]) == ["root"];
+        message = "nix.settings.trusted-users grew beyond root and nix-ssh";
       }
     ];
 
@@ -72,6 +72,41 @@
         "nix-cache:wnijbSpDYnfK/YTwUZg56MEOPNU48zUOyjDKXDnK6Ds="
         "m1-1:Ch8uFRHh+boo9N/i897dq7JogITyh87joo1OAAzoN8c="
       ];
+    };
+  };
+
+  flake.modules.nixos.remoteBuilds = {...}: {
+    # let
+    #   inherit (inputs.self) keys;
+    #   m1 = inputs.self.network.mgmt.hosts.m1;
+    # in
+    # sops.secrets."nix/builder-key".mode = "0400";
+    #
+    # programs.ssh.knownHosts.m1 = {
+    #   hostNames = [m1];
+    #   publicKey = keys.hosts.m1;
+    # };
+
+    nix = {
+      # distributedBuilds = true;
+      # buildMachines = [
+      #   {
+      #     hostName = m1;
+      #     sshUser = "nix-ssh";
+      #     sshKey = config.sops.secrets."nix/builder-key".path;
+      #     protocol = "ssh-ng";
+      #     system = "x86_64-linux";
+      #     maxJobs = 2;
+      #     supportedFeatures = ["nixos-test" "benchmark" "big-parallel" "kvm"];
+      #   }
+      # ];
+      daemonCPUSchedPolicy = "idle";
+      daemonIOSchedClass = "idle";
+      settings = {
+        # builders-use-substitutes = true;
+        max-jobs = 1;
+        cores = 6;
+      };
     };
   };
 }

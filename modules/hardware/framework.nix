@@ -48,6 +48,43 @@ in {
 
     security.pam.services = lib.genAttrs ["swaylock" "greetd" "login"] passwordFirst // {sudo = fingerFirst "sudo";};
 
+    hardware.fw-fanctrl = {
+      enable = true;
+      config = {
+        defaultStrategy = "brisk";
+        strategies.brisk = {
+          fanSpeedUpdateFrequency = 2;
+          movingAverageInterval = 10;
+          speedCurve = [
+            {
+              temp = 0;
+              speed = 0;
+            }
+            {
+              temp = 50;
+              speed = 0;
+            }
+            {
+              temp = 60;
+              speed = 20;
+            }
+            {
+              temp = 70;
+              speed = 40;
+            }
+            {
+              temp = 78;
+              speed = 70;
+            }
+            {
+              temp = 85;
+              speed = 100;
+            }
+          ];
+        };
+      };
+    };
+
     services.hardware.bolt.enable = true;
     environment.systemPackages = with pkgs; [
       sbctl # Sign our own EFI shim

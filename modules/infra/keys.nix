@@ -6,6 +6,8 @@
       "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIMw7e8H4N/lw+9npl/dbhTc50I8n4+737mDB0UNG0xCwAAAACXNzaDpsaWFuYQ== 2026@yk2"
       "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIGQuyOOQP4VCHH/ynAAh9C3f9Ck8mFIu5Lk431ptmjWaAAAACXNzaDpsaWFuYQ== 2026@yk3"
     ];
+    hosts.m1 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEVbfbtER3foygqQS+WfewJ3LaGNtc1PRossXVAIilG3";
+    # nixBuilder.framework = "TODO";
     wireguard = {
       offsite-1 = "TODO";
       framework = "TODO";
