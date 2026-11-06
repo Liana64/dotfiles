@@ -4,6 +4,7 @@
     lib,
     nixpkgs-unstable,
     hardening,
+    flakePath,
     ...
   }: let
     cargoDevshell =
@@ -20,6 +21,7 @@
     agentic = {
       enable = true;
       package = nixpkgs-unstable.claude-code;
+      workspace = flakePath;
       # host tooling the base list cannot know about; nix develop -c pins only cargo
       permissions.allow =
         [

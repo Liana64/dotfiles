@@ -1,11 +1,18 @@
 # @desc: Shell aliases (rust-tool replacements)
 {...}: {
   flake.modules.homeManager.aliases = {
+    config,
     lib,
     osConfig,
     flakePath,
     ...
   }: let
+    software = "${config.home.homeDirectory}/Projects/Software";
+    drafts = "${software}/drafts";
+    edit = dir: "cd ${dir} && hx .";
+    ceremony = "d=$(mktemp -d /run/user/$UID/ceremony.XXX) && cd \"$d\"";
+    city = lib.last (lib.splitString "/" (osConfig.time.timeZone or ""));
+
     editors = {
       vi = "hx";
       vim = "hx";
@@ -32,15 +39,16 @@
     personal = {
       f = "frame";
       k = "kubectl";
-      ceremony = "d=$(mktemp -d /run/user/$UID/ceremony.XXX) && cd \"$d\"";
-      ceremony-age = "d=$(mktemp -d /run/user/$UID/ceremony.XXX) && cd \"$d\" && mkdir -p var/lib/sops-nix && age-keygen -pq -o var/lib/sops-nix/key.txt";
-      ops = "cd ${flakePath} && hx .";
-      drafts = "cd /home/liana/Projects/Software/drafts && hx .";
-      notes = "cd /home/liana/Projects/Software/drafts/notes && hx .";
-      projects = "cd /home/liana/Projects/Software/drafts/projects && hx .";
+      inherit ceremony;
+      ceremony-age = "${ceremony} && mkdir -p var/lib/sops-nix && age-keygen -pq -o var/lib/sops-nix/key.txt";
+      ops = edit flakePath;
+      docs = edit "${software}/docs";
+      drafts = edit drafts;
+      notes = edit "${drafts}/notes";
+      projects = edit "${drafts}/projects";
       clip = "wl-copy";
       myip = "curl ifconfig.me -j";
-      weather = "curl wttr.in/Chicago";
+      weather = "curl wttr.in/${city}";
     };
 
     tasks = lib.optionalAttrs ((osConfig.taskManager or "todoist") == "taskwarrior") {
@@ -101,7 +109,7 @@
     crypto = {
       gpg-encrypt = "gpg -c --no-symkey-cache --cipher-algo=AES256";
       gpg-decrypt = "gpg -d";
-      sign = "gpg -esa --default-recipient-self --comment \"Sealed by liana@lianas.org\"";
+      sign = "gpg -esa --default-recipient-self --comment \"Sealed by ${config.programs.git.settings.user.email}\"";
       rotate-sops = "for f in *.yaml; do sops-store updatekeys \"$f\"; done";
     };
 
@@ -137,7 +145,7 @@
     shellFns = randomFn + statusFn;
 
     nuShadowedBuiltins = ["ls" "du"];
-    nuZshBound = ["j" "dotfiles"];
+    nuZshBound = ["j" "ops"];
     nuAliases =
       lib.filterAttrs (
         name: value:
