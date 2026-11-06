@@ -18,7 +18,7 @@
       "/mnt/m1/landfill" = tank "users/stash/shared/landfill" [];
       "/mnt/m1/photos" = tank "cluster/photos" ["ro"];
       "/mnt/m1/uploads" = tank "cluster/uploads" [];
-      "/mnt/m1/media" = tank "cluster/media" [];
+      "/mnt/m1/media" = tank "cluster/media" ["hard"];
     };
 
     users.groups = {
