@@ -140,8 +140,7 @@
           sup = "Mod4";
           powerMode = ''mode "power: (p) poweroff · (s) suspend · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane"'';
         in {
-          # "${sup}+Escape" = ''mode "power: (p) poweroff · (s) suspend · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane"'';
-
+          "XF86PowerOff" = powerMode;
           "XF86AudioMedia" = powerMode;
           "XF86Explorer" = powerMode;
 

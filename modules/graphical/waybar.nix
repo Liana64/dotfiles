@@ -13,7 +13,6 @@
     intake = import ../_lib/house-intake.nix {inherit pkgs lib hardening config;};
     intakeArgs = lib.escapeShellArgs intake.houses;
     machineSecrets = osConfig.machineSecrets or true;
-    wsModules = ["sway/workspaces" "sway/mode"];
     statusModules =
       lib.optional (intake.houses != []) "custom/nix-housing"
       ++ ["custom/harness-status" "custom/usbguard"]
@@ -308,8 +307,8 @@
           position = "top";
           output = ["*"];
 
-          modules-left = ["custom/launcher"] ++ wsModules;
-          modules-center = ["custom/clock"];
+          modules-left = ["custom/launcher" "sway/workspaces"];
+          modules-center = ["sway/mode" "custom/clock"];
           modules-right = ["custom/airplane" "group/status" "group/hw" "tray"];
 
           # groups stack vertically on a horizontal bar unless told otherwise

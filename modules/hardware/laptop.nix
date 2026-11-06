@@ -54,6 +54,14 @@
     services.logind.settings.Login.HandleLidSwitch = "suspend";
     services.logind.settings.Login.HandleLidSwitchExternalPower = "suspend";
     services.logind.settings.Login.HandleLidSwitchDocked = "ignore";
+    services.logind.settings.Login.HandlePowerKey = "ignore";
+    services.logind.settings.Login.HandlePowerKeyLongPress = "poweroff";
+
+    systemd.sleep.settings.Sleep = {
+      AllowHibernation = "no";
+      AllowHybridSleep = "no";
+      AllowSuspendThenHibernate = "no";
+    };
 
     # Disable light sensors and accelerometers
     hardware.sensor.iio.enable = false;
@@ -63,6 +71,7 @@
         enable = true;
         percentageLow = 15;
         percentageCritical = 5;
+        criticalPowerAction = "PowerOff";
       };
 
       # Choose one or the other
