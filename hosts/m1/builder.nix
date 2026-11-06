@@ -8,7 +8,7 @@
   gib = n: n * 1024 * 1024 * 1024;
   attic-push = pkgs.writeShellScriptBin "attic-push" ''
     [ $# -gt 0 ] || set -- $OUT_PATHS
-    NIX_REMOTE=daemon XDG_CONFIG_HOME=/var/secrets exec ${pkgs.attic-client}/bin/attic push ${cluster.atticCache} "$@"
+    NIX_CONFIG="store = daemon" XDG_CONFIG_HOME=/var/secrets exec ${pkgs.attic-client}/bin/attic push ${cluster.atticCache} "$@"
   '';
 in {
   environment.systemPackages = [attic-push];
