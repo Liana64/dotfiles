@@ -61,23 +61,31 @@ in {
               speed = 0;
             }
             {
-              temp = 50;
+              temp = 45;
               speed = 0;
             }
             {
-              temp = 60;
-              speed = 20;
+              temp = 55;
+              speed = 15;
             }
             {
-              temp = 70;
-              speed = 40;
+              temp = 65;
+              speed = 30;
+            }
+            {
+              temp = 72;
+              speed = 45;
             }
             {
               temp = 78;
-              speed = 70;
+              speed = 65;
             }
             {
-              temp = 85;
+              temp = 82;
+              speed = 82;
+            }
+            {
+              temp = 86;
               speed = 100;
             }
           ];
