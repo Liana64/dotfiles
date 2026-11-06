@@ -60,7 +60,7 @@
 
   users.users = {
     ${user.name} = {
-      uid = 1000;
+      uid = user.uid;
       extraGroups = ["media" "documents"];
       openssh.authorizedKeys.keys = inputs.self.keys.${user.name};
     };

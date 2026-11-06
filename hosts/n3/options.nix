@@ -30,7 +30,7 @@
   motd.description = "Talos and lab hypervisor";
 
   users.users.${user.name} = {
-    uid = 1000;
+    uid = user.uid;
     openssh.authorizedKeys.keys = inputs.self.keys.${user.name};
   };
 

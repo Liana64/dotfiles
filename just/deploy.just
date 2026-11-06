@@ -9,7 +9,7 @@ _nh verb host:
     [ "$sys" = x86_64-linux ] && b={{ m1 }}
     [ -z "$h" ] && [ -n "$b" ] && ! curl -sfm 2 -o /dev/null "$cache/nix-cache-info" && b= && echo "nix-cache unreachable, building locally" >&2
     set -- {{ nixops_path }} --diff always
-    [ -n "$h" ] && set -- "$@" -H "$h" --target-host "liana@$h.{{ mgmt }}" && b=${b:-liana@$h.{{ mgmt }}}
+    [ -n "$h" ] && set -- "$@" -H "$h" --target-host "{{ user }}@$h.{{ mgmt }}" && b=${b:-{{ user }}@$h.{{ mgmt }}}
     [ -n "$b" ] && set -- "$@" --build-host "$b" --use-substitutes
     exec nh os {{ verb }} "$@"
 
@@ -45,11 +45,11 @@ install host ip *args: (prebuild host)
     for a do shift; [ "$a" = --check ] && c=1 || set -- "$@" "$a"; done
     if [ -n "$c" ]; then
         f=$(nix eval --raw {{ nixops_path }}#nixosConfigurations.{{ host }}.config.sops.defaultSopsFile)
-        h=$(env -i PATH="$PATH" HOME="$d" SOPS_AGE_KEY_FILE="$k" sops -d --extract '["users"]["liana"]["password"]' "$f" 2>/dev/null) \
+        h=$(env -i PATH="$PATH" HOME="$d" SOPS_AGE_KEY_FILE="$k" sops -d --extract '["users"]["{{ user }}"]["password"]' "$f" 2>/dev/null) \
             || die "key.txt cannot decrypt $f"
         trap 'stty echo' EXIT
         stty -echo
-        printf 'liana@{{ host }} password: '
+        printf '{{ user }}@{{ host }} password: '
         read -r p
         stty echo
         echo
