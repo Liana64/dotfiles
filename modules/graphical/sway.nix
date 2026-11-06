@@ -138,9 +138,9 @@
           cfg = config.wayland.windowManager.sway.config;
           mod = cfg.modifier;
           sup = "Mod4";
-          powerMode = ''mode "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane"'';
+          powerMode = ''mode "power: (p) poweroff · (s) suspend · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane"'';
         in {
-          # "${sup}+Escape" = ''mode "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane"'';
+          # "${sup}+Escape" = ''mode "power: (p) poweroff · (s) suspend · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane"'';
 
           "XF86AudioMedia" = powerMode;
           "XF86Explorer" = powerMode;
@@ -302,10 +302,9 @@
         bars = [];
 
         modes = {
-          "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane" = {
+          "power: (p) poweroff · (s) suspend · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane" = {
             p = "exec swaymsg 'mode default' && systemctl poweroff";
             s = "exec swaymsg 'mode default' && systemctl suspend";
-            h = "exec swaymsg 'mode default' && systemctl hibernate";
             r = "exec swaymsg 'mode default' && systemctl reboot";
             g = "exec swaymsg 'mode default' && systemctl --user stop sway-session.target && systemctl --user stop graphical-session.target && swaymsg exit";
             l = "exec swaymsg 'mode default' && systemctl --user start swaylock.service";
