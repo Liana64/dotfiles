@@ -1,20 +1,25 @@
-# dotfiles
+# nixops
 
-Personal dendritic NixOS configuration with lots of security hardening.
+Nixops, including my personal NixOS configuration. It's not SpectrumOS, or QubesOS, but it's something.
+
 
 ## Features
 
-- Agentic framework with skills, agents, memory, todos, and multi-agent systems prompting
-- Lightweight sway graphical environment with custom waybar, tuigreet login
-- Systemd hardening, kernel tuning, auditd rules, wall alerts, faillock, and usbguard
-- Compartmentalized post-quantum secrets management
-- Hardware optimizations for the AMD AI 300 series framework laptop
-- Minimal packaging, rust tools, virtualization support
-- Lots of misc scripts
+- Framework
+  - Lightweight sway graphical environment with custom waybar
+  - Landlock isolation using decentstate's [nix-housing](https://codeberg.org/decentstates/nix-housing)
+  - Systemd hardening, kernel tuning, auditd rules, wall alerts, faillock, and usbguard
+  - Compartmentalized post-quantum secrets management
+  - Hardware optimizations for the AMD AI 300 series framework laptop
+  - Minimal packaging, rust tools, virtualization support
+  - Lots of misc scripts
+  - Impermanence
+- Other hosts
 
-## WIP
+## Demo
 
-- Impermanence
-- Keyboard firmware management
-- Better flake and dependency management
+![Framework host](docs/screenshot.png)
+
+## TODO
+
 - nix-daemon hardening
