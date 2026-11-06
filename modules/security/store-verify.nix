@@ -2,9 +2,37 @@
 {...}: {
   flake.modules.nixos.storeVerify = {
     config,
+    pkgs,
     hardening,
     ...
   }: {
+    systemd.services.store-ro = {
+      path = [pkgs.util-linux];
+      script = ''
+        alert=$STATE_DIRECTORY/store-rw
+        opts=$(findmnt --task 1 -no OPTIONS --mountpoint /nix/store)
+        if [[ ,$opts, == *,ro,* ]]; then
+          rm -f "$alert"
+        else
+          printf '/nix/store mounted %s in the host namespace\n' "$opts" >"$alert"
+        fi
+      '';
+      serviceConfig =
+        hardening.airgapped
+        // {
+          Type = "oneshot";
+          StateDirectory = "audit-wall/alerts";
+          UMask = "0022";
+        };
+    };
+    systemd.timers.store-ro = {
+      wantedBy = ["timers.target"];
+      timerConfig = {
+        OnBootSec = "2min";
+        OnUnitActiveSec = "10min";
+      };
+    };
+
     systemd.services.nix-store-verify = {
       script = ''
         alert=/var/lib/audit-wall/alerts/store-verify

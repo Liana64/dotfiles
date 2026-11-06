@@ -34,6 +34,8 @@ in {
           "-w /var/log/audit -p wa -k audit-tamper"
           "-a always,exit -F arch=b64 -S init_module,finit_module -k module-load"
           "-a always,exit -F arch=b64 -S delete_module -k module-unload"
+          # 0x1020 = MS_REMOUNT|MS_BIND, libnixstore makeStoreWritable
+          "-a always,exit -F arch=b64 -S mount -F a3=0x1020 -k store-remount"
         ]
       );
     };
