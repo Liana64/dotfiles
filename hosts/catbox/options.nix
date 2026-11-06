@@ -37,8 +37,6 @@ in {
     };
     loader.efi.canTouchEfiVariables = true;
     loader.timeout = 0;
-    initrd.systemd.enable = true;
-    initrd.verbose = false;
     consoleLogLevel = 3;
     kernelPackages = pkgs.linuxPackages_latest;
     kernelParams = ["quiet" "udev.log_level=3" "rd.systemd.show_status=auto" "preempt=full"];
