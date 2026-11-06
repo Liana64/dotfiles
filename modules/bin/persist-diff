@@ -1,7 +1,5 @@
 #!/bin/sh
 # @desc: Ephemeral-root files that would not survive a reboot
-# btrfs find-new against the /root-blank snapshot, minus symlinks (nix-managed),
-# directories, and paths already present under /persist.
 # after fs-diff.sh from https://guekka.github.io/nixos-server-1/
 set -eu
 
@@ -15,15 +13,15 @@ cleanup() {
 trap cleanup EXIT
 
 sudo mount -o ro,subvol=/ "$dev" "$mnt"
-[ -d "$mnt/root-blank" ] || {
-  echo "no /root-blank subvolume — pre-migration layout" >&2
+[ -d "$mnt/@root-blank" ] || {
+  echo "no @root-blank subvolume — pre-migration layout" >&2
   exit 1
 }
 
-transid=$(sudo btrfs subvolume find-new "$mnt/root-blank" 9999999)
+transid=$(sudo btrfs subvolume find-new "$mnt/@root-blank" 9999999)
 transid=${transid#transid marker was }
 
-sudo btrfs subvolume find-new "$mnt/root" "$transid" |
+sudo btrfs subvolume find-new "$mnt/@root" "$transid" |
   sed '$d' |
   cut -f17- -d' ' |
   sort -u |
