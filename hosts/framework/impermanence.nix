@@ -1,23 +1,14 @@
-# impermanence for framework, pairs with ./disko.nix
-#
-# DO NOT IMPORT THIS
-# importing arms the /@root wipe on boot
-# wait until the subvolumes and the readonly /@root-blank snapshot exist
-# (docs/MIGRATION.md); arm together with `impermanence = true` in
-# ./options.nix — the login hash already comes from the secretstore
-# (users/liana/password, wired in ./options.nix), so arming only adds the
-# wipe + persistence, and the host key must survive in /persist
-#
-# two pieces: initrd rollback (/@root-blank → /@root) and the
-# environment.persistence."/persist" list of what survives
-#
-# /home is a persistent subvolume, firefox/keyring/ssh/gpg/syncthing need nothing here
-# /var/secrets needs nothing either, sops-nix re-materializes it each activation,
-# only /var/lib/sops-nix (host identity) must survive
-{inputs, ...}: {
+# DO NOT IMPORT before the disko migration, arming wipes /@root every boot
+{
+  inputs,
+  lib,
+  ...
+}: {
   imports = [inputs.impermanence.nixosModules.impermanence];
 
-  # snapshot /@root-blank → /@root once LUKS is open, before sysroot.mount
+  sops.age.keyFile = "/persist/var/lib/sops-nix/key.txt";
+  sops.secrets."network/nm-secret-key".path = lib.mkForce "/persist/var/lib/NetworkManager/secret_key";
+
   boot.initrd.systemd.services.rollback-root = {
     description = "Rollback root btrfs subvolume to @root-blank";
     wantedBy = ["initrd.target"];
@@ -29,55 +20,53 @@
       mkdir -p /mnt
       mount -o subvol=/ /dev/mapper/cryptroot /mnt
 
-      # nested subvolumes (podman, systemd machines/portables) have to go first
-      btrfs subvolume list -o /mnt/@root | cut -f9 -d' ' | while read -r sub; do
-        btrfs subvolume delete "/mnt/$sub"
+      mkdir -p /mnt/@old-roots
+      if [ -e /mnt/@root ]; then
+        gen=$(btrfs subvolume find-new /mnt/@root 9999999)
+        mv /mnt/@root "/mnt/@old-roots/''${gen##* }"
+      fi
+      ls /mnt/@old-roots | sort -rn | tail -n +31 | while read -r old; do
+        btrfs subvolume delete --recursive "/mnt/@old-roots/$old"
       done
 
-      btrfs subvolume delete /mnt/@root
       btrfs subvolume snapshot /mnt/@root-blank /mnt/@root
 
       umount /mnt
     '';
   };
 
-  # what survives the wipe, add sparingly, every entry is a place for stale state to hide
   environment.persistence."/persist" = {
     hideMounts = true;
 
     directories = [
-      "/var/lib/nixos" # uid/gid/group allocation state
-      "/var/lib/systemd" # timers, random-seed, backlight, etc.
+      "/var/lib/nixos"
+      "/var/lib/systemd"
       {
         directory = "/var/lib/private";
         mode = "0700";
-      } # DynamicUser state, systemd insists on 0700
-      "/var/lib/sops-nix" # PQ host identity — without it no secret decrypts
-      "/var/lib/sbctl" # lanzaboote signing keys — loss = unbootable under secure boot
-      "/var/lib/fprint" # fingerprint enrollments
-      "/var/lib/audit-wall" # ack timestamps; loss re-alerts stale events
-      "/var/lib/usbguard" # IPCAccessControl.d (daemon conf points here)
-      "/var/lib/cni" # container network allocations
-      "/var/lib/btrfs" # scrub progress + stats
-      "/var/lib/chrony" # clock drift + NTS state
-      "/var/lib/NetworkManager" # wifi connection profiles
-      "/var/lib/bluetooth" # paired device keys
-      "/var/lib/boltd" # thunderbolt device authorization (dir is boltd, not bolt)
-      "/var/lib/fwupd" # firmware update metadata
-      "/var/lib/flatpak" # flatpak-repo installs land here
-      "/var/lib/upower" # battery history
-      "/var/lib/power-profiles-daemon" # last selected profile
-      "/var/lib/AccountsService" # user account icons/locale
-      "/var/lib/colord" # display color profiles
+      }
+      "/var/lib/sbctl"
+      "/var/lib/fprint"
+      "/var/lib/audit-wall"
+      "/var/lib/usbguard"
+      "/var/lib/cni"
+      "/var/lib/btrfs"
+      "/var/lib/chrony"
+      "/var/lib/NetworkManager"
+      "/var/lib/bluetooth"
+      "/var/lib/boltd"
+      "/var/lib/fwupd"
+      "/var/lib/flatpak"
+      "/var/lib/upower"
+      "/var/lib/power-profiles-daemon"
+      "/var/lib/AccountsService"
+      "/var/lib/colord"
       "/etc/NetworkManager/system-connections"
     ];
 
     files = [
-      "/etc/machine-id" # journald continuity, sd-network
-      "/var/lib/logrotate.status" # rotation timestamps
-    ]; # no sshd on this host → no host keys to keep
+      "/etc/machine-id"
+      "/var/lib/logrotate.status"
+    ];
   };
-
-  # only matters if home-level binds ever appear, harmless until then
-  programs.fuse.userAllowOther = true;
 }
