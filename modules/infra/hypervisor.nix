@@ -46,7 +46,7 @@
           supportedFilesystems = ["zfs"];
           zfs.devNodes = "/dev/disk/by-id";
           zfs.forceImportRoot = false;
-          kernelParams = lib.optional (cpu == "intel") "intel_iommu=on" ++ ["iommu=pt"];
+          kernelParams = lib.optional (cpu == "intel") "intel_iommu=on" ++ ["efi=disable_early_pci_dma"];
         };
 
         hardware.cpu.intel.updateMicrocode = cpu == "intel";
