@@ -1,16 +1,9 @@
-# Talos ISO matches talconfig's minimal schematic (qemu-guest-agent, secureboot).
 pkgs: let
+  # NOTE: ia32_emulation=0 will stop 32-bit binaries from running in containers
+  # NOTE: This image is ready for Piraeus for when we upgrade (drbd, qemu-guest-agent, sd-boot, secureboot).
   # https://factory.talos.dev/?target=cloud
-  # TODO: Update image kernel params. This isn't a long-term fix, since all it
-  # takes is one KVM escape CVE, but hey it's something:
-  #
-  # lockdown=integrity, required for tetragon eBPF
-  # ia32_emulation=0 init_on_free=1 page_alloc.shuffle=1 debugfs=off
-  # console=ttyS0 for virsh console
-  # upgrade talosVersion then check /proc/config.gz for kernel defaults
-  #
-  talosVersion = "v1.12.6"; # TODO: Upgrade talosVersion *urgently*
-  schematic = "d9cb0be10f95f364c88e92c9a695cc38373fb0f2f5ad8b612cba97d81c6b75be";
+  talosVersion = "v1.14.5";
+  schematic = "701cdcaa5b4ceb6ee1b43478cadba093419c65ced54891c1ee2e98cc05ebab0f";
 
   # https://access.redhat.com/downloads/content/rhel
   rhel = version: sha256:
@@ -22,7 +15,7 @@ pkgs: let
 in {
   talos = pkgs.fetchurl {
     url = "https://factory.talos.dev/image/${schematic}/${talosVersion}/nocloud-amd64-secureboot.iso";
-    hash = "sha256-lYtYptbgCo+woEuQOH9SBMKvJOMV8wNRAMWOkhLCwpE=";
+    hash = "sha256-rW6kGb//4aYd4e8TBFzjed5jNT804eHfgcuWbF6N8zs=";
   };
 
   opnsense = pkgs.runCommand "OPNsense-26.7-dvd-amd64.iso" {
