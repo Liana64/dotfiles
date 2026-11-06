@@ -4,7 +4,7 @@
 
 set -eu
 
-dir=${DOTFILES:-/nix/dotfiles}
+dir=${FLAKE:-}
 case ${1:-} in
 '' | -*) ;;
 *)

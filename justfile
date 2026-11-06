@@ -1,4 +1,4 @@
-# Global command `frame` (cwd /nix/dotfiles)
+# Global command `frame`
 
 nixops_path := justfile_directory()
 mgmt := "mgmt.milberry.org"

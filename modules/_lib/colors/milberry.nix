@@ -1,7 +1,7 @@
 # @desc: Color palette: milberry
 {}: rec {
   name = "milberry";
-  wallpaper = "/nix/dotfiles/share/wallpapers/flower.png";
+  wallpaper = ../../../share/wallpapers/flower.png;
   foreground = "#fbf1c7";
   background = "#222222";
   darker = "#222222";

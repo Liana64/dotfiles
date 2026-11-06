@@ -3,6 +3,7 @@
   flake.modules.homeManager.aliases = {
     lib,
     osConfig,
+    flakePath,
     ...
   }: let
     editors = {
@@ -33,7 +34,7 @@
       k = "kubectl";
       ceremony = "d=$(mktemp -d /run/user/$UID/ceremony.XXX) && cd \"$d\"";
       ceremony-age = "d=$(mktemp -d /run/user/$UID/ceremony.XXX) && cd \"$d\" && mkdir -p var/lib/sops-nix && age-keygen -pq -o var/lib/sops-nix/key.txt";
-      dot = "cd /nix/dotfiles && hx /nix/dotfiles";
+      ops = "cd ${flakePath} && hx .";
       drafts = "cd /home/liana/Projects/Software/drafts && hx .";
       notes = "cd /home/liana/Projects/Software/drafts/notes && hx .";
       projects = "cd /home/liana/Projects/Software/drafts/projects && hx .";

@@ -4,13 +4,14 @@
     pkgs,
     lib,
     osConfig,
+    flakePath,
     ...
   }: let
     host =
       if osConfig == null
       then "framework"
       else osConfig.networking.hostName;
-    flake = ''builtins.getFlake "/nix/dotfiles"'';
+    flake = ''builtins.getFlake "${flakePath}"'';
   in {
     programs.helix.extraPackages = [pkgs.nixd];
 

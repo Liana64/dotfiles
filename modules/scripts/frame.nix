@@ -1,10 +1,14 @@
 # @desc: frame — dotfiles just runner
 {...}: {
-  flake.modules.homeManager.frame = {pkgs, ...}: {
+  flake.modules.homeManager.frame = {
+    pkgs,
+    flakePath,
+    ...
+  }: {
     home.packages = [
       (pkgs.writeShellScriptBin "frame" ''
-        exec ${pkgs.just}/bin/just --justfile /nix/dotfiles/justfile \
-          --working-directory /nix/dotfiles "$@"
+        exec ${pkgs.just}/bin/just --justfile ${flakePath}/justfile \
+          --working-directory ${flakePath} "$@"
       '')
     ];
   };

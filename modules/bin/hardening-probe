@@ -22,7 +22,7 @@
 # interacting pairs manually with -p.
 #
 # --from-flake[=unit] takes the preset's place: the property set is generated
-# from the wired flake config ($FLAKE, default /nix/dotfiles) — no hand-copied
+# from the wired flake config ($FLAKE) — no hand-copied
 # -p drift, and composed with --live it validates wired-but-unbuilt config
 # against the deployed unit before a switch. Eval takes seconds; the generated
 # lines print to stderr for audit. -p still overrides afterwards.
@@ -94,7 +94,7 @@ shift
 if [ -n "$ff_unit" ]; then
   name=${ff_unit%.service}
   host=$(uname -n)
-  flake=${FLAKE:-/nix/dotfiles}
+  flake=${FLAKE:?}
   # user units deploy from the NixOS-embedded home-manager, not the standalone
   # homeConfigurations (different nixpkgs, no osConfig)
   if [ "$scope" = --system ]; then

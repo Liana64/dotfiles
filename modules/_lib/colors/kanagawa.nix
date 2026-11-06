@@ -2,7 +2,7 @@
 # based on https://github.com/rebelot/kanagawa.nvim (wave)
 {}: rec {
   name = "kanagawa";
-  wallpaper = "/nix/dotfiles/share/wallpapers/flower.png";
+  wallpaper = ../../../share/wallpapers/flower.png;
   foreground = "#dcd7ba";
   background = "#1f1f28";
   darker = "#16161d";

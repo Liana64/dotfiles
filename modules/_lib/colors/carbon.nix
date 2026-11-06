@@ -2,7 +2,7 @@
 # based on https://github.com/nyoom-engineering/oxocarbon.nvim
 {}: rec {
   name = "carbon";
-  wallpaper = "/nix/dotfiles/share/wallpapers/flower.png";
+  wallpaper = ../../../share/wallpapers/flower.png;
   foreground = "#c0caf5";
   background = "#16161e";
   darker = "#0e0e14";
