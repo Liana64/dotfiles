@@ -11,7 +11,11 @@ _: {
         inherit pkgs;
         unstable = inputs'.nixpkgs-unstable.legacyPackages;
       };
-      shellHook = config.pre-commit.installationScript;
+      shellHook = ''
+        if [ -e "$(git rev-parse --show-toplevel 2>/dev/null)/scripts/check-k8s-secrets-encrypted.sh" ]; then
+          ${config.pre-commit.installationScript}
+        fi
+      '';
     };
   };
 }
