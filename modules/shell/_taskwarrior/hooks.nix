@@ -1,7 +1,5 @@
 # @desc: Taskwarrior hooks
 {
-  lib,
-  osConfig,
   pkgs,
   ...
 }: let
@@ -49,7 +47,7 @@
     '
   '';
 in {
-  config = lib.mkIf ((osConfig.taskManager or "todoist") == "taskwarrior") {
+  config = {
     xdg.configFile."task/hooks/on-add-tree".source = treeHook;
     xdg.configFile."task/hooks/on-modify-tree".source = treeHook;
   };

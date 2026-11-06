@@ -2,7 +2,6 @@
 {
   lib,
   colors,
-  osConfig,
   ...
 }: let
   # Taskwarrior has no truecolor, so the palette is approximated onto the cube.
@@ -46,7 +45,7 @@
   columns = "due.relative,description,upstream,subproject,tags,entry.age,goal,id";
   labels = "Due,Description,Upstream,Project,Tags,Age,Goal,ID";
 in {
-  config = lib.mkIf ((osConfig.taskManager or "todoist") == "taskwarrior") {
+  config = {
     # Change settings here, not via `task config`.
     xdg.configFile."task/managed.taskrc".text = ''
       data.location=~/Sync/Data/task

@@ -1,8 +1,6 @@
 # @desc: Taskwarrior due/overdue reminders
 {
   pkgs,
-  lib,
-  osConfig,
   hardening,
   ...
 }: let
@@ -20,18 +18,8 @@
           [ -z "$line" ] || ${notify} -u normal -a Taskwarrior "Task due soon" "$line"
         done
   '';
-
-  # Morning agenda: one notification listing everything due today + overdue.
-  digestScript = pkgs.writeShellScript "task-daily-digest" ''
-    body=$(${task} rc.verbose=nothing rc.hooks=off status:pending '(+OVERDUE or +TODAY)' export \
-      | ${jq} -r '.[].description | "• \(.)"')
-    [ -z "$body" ] && exit 0
-    n=$(printf '%s\n' "$body" | ${pkgs.coreutils}/bin/wc -l)
-    ${notify} -u normal -a Taskwarrior "$n task(s) today" "$body"
-  '';
 in {
-  # unit names are shared with the todoist twin in features/tasks/reminders.nix
-  config = lib.mkIf ((osConfig.taskManager or "todoist") == "taskwarrior") {
+  config = {
     systemd.user.services.task-due-reminder = {
       Unit.Description = "Notify about taskwarrior tasks coming due";
       Service =
@@ -46,24 +34,6 @@ in {
       Timer = {
         OnCalendar = "*:0/10";
         Persistent = false;
-      };
-      Install.WantedBy = ["timers.target"];
-    };
-
-    systemd.user.services.task-daily-digest = {
-      Unit.Description = "Morning taskwarrior agenda notification";
-      Service =
-        hardening.base
-        // {
-          Type = "oneshot";
-          ExecStart = "${digestScript}";
-        };
-    };
-    systemd.user.timers.task-daily-digest = {
-      Unit.Description = "Daily taskwarrior agenda digest";
-      Timer = {
-        OnCalendar = "*-*-* 08:00:00";
-        Persistent = true;
       };
       Install.WantedBy = ["timers.target"];
     };

@@ -1,13 +1,11 @@
-# @desc: Taskwarrior + nested-task tooling (taskManager = taskwarrior)
+# @desc: Taskwarrior + nested-task tooling
 {...}: {
   flake.modules.homeManager.taskwarrior = {
     pkgs,
     lib,
     inputs,
-    osConfig,
     ...
   }: let
-    enabled = (osConfig.taskManager or "todoist") == "taskwarrior";
     taskwarrior-tui = pkgs.symlinkJoin {
       name = "taskwarrior-tui";
       paths = [
@@ -31,7 +29,7 @@
       ./_taskwarrior/reminders.nix
     ];
 
-    config = lib.mkIf enabled {
+    config = {
       home.packages = with pkgs; [
         taskwarrior-tui
         # `task` belongs to go-task (cli-packages); Taskwarrior lives at `tw`
@@ -76,6 +74,11 @@
           echo "working on: $desc"
         '')
       ];
+
+      home.shellAliases = {
+        tt = "taskwarrior-tui -r today";
+        snooze = "task-snooze";
+      };
 
       home.sessionVariables.TASKWARRIOR_TUI_DATA = "$HOME/Sync/Data/taskwarrior-tui";
       home.activation.migrateTaskData = lib.hm.dag.entryAfter ["writeBoundary"] ''

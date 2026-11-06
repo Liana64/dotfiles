@@ -12,7 +12,6 @@
   }: let
     intake = import ../_lib/house-intake.nix {inherit pkgs lib hardening config;};
     intakeArgs = lib.escapeShellArgs intake.houses;
-    taskManager = osConfig.taskManager or "todoist";
     machineSecrets = osConfig.machineSecrets or true;
     wsModules = ["sway/workspaces" "sway/mode"];
     statusModules =
@@ -30,10 +29,8 @@
         (writeShellScriptBin "waybar-caffeine" (builtins.readFile ../../modules/bin/waybar-caffeine))
         (writeShellScriptBin "waybar-harness-status" (builtins.readFile ../../modules/bin/waybar-harness-status))
         (writeShellScriptBin "waybar-nix-housing" (builtins.readFile ../../modules/bin/waybar-nix-housing))
-        (writeShellScriptBin "waybar-task" (builtins.readFile ../../modules/bin/waybar-task))
         (writeShellScriptBin "waybar-countdown" (builtins.readFile ../../modules/bin/waybar-countdown))
         #(writeShellScriptBin "track-date" (builtins.readFile ../../modules/bin/track-date))
-        (writeShellScriptBin "waybar-todoist" (builtins.readFile ../../modules/bin/waybar-todoist))
         (writeShellScriptBin "waybar-sysinfo" (builtins.readFile ../../modules/bin/waybar-sysinfo))
         (writeShellScriptBin "caffeinate-toggle" (builtins.readFile ../../modules/bin/caffeinate-toggle))
         (writeShellScriptBin "waybar-airplane" (builtins.readFile ../../modules/bin/waybar-airplane))
@@ -42,7 +39,6 @@
       buildInputs = [pkgs.makeWrapper];
       postBuild = ''
         wrapProgram $out/bin/waybar-usbguard      --prefix PATH : $out/bin:${pkgs.lib.makeBinPath (with pkgs; [dbus coreutils gnugrep])}
-        wrapProgram $out/bin/waybar-task          --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [taskwarrior3 jq coreutils])}
         wrapProgram $out/bin/waybar-vpn --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [curl jq systemd])} \
           --set SOCKS ${with inputs.self.network.vpn; "${hosts.socks}:${toString socksPort}"}
         wrapProgram $out/bin/waybar-syncthing    --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [curl jq gnused procps])}
@@ -50,7 +46,6 @@
         wrapProgram $out/bin/waybar-nix-housing   --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [intake.intake jq inotify-tools coreutils gnused systemd])}
         wrapProgram $out/bin/waybar-countdown     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils])}
         #wrapProgram $out/bin/track-date           --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils procps])}
-        wrapProgram $out/bin/waybar-todoist       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [todoist jq coreutils gnused gawk])}
         wrapProgram $out/bin/waybar-sysinfo       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils gnused gawk procps jq])}
       '';
     };
@@ -74,8 +69,7 @@
         ProtectHome = "read-only";
         # launcher sysinfo tooltip reads /proc stat+meminfo, the pid subset masks them
         ProcSubset = "all";
-        # todoist sync cache
-        ReadWritePaths = "%t %h/.cache/todoist";
+        ReadWritePaths = "%t";
       };
 
     programs.waybar = with colors; {
@@ -132,7 +126,6 @@
         #custom-usbguard,
         #custom-caffeine,
         #custom-syncthing,
-        #custom-task,
         #custom-countdown,
         #custom-airplane,
         #custom-nix-housing,
@@ -155,10 +148,6 @@
           padding: 1px 12px;
         }
 
-        #custom-task {
-          color: ${tan};
-        }
-
         #custom-airplane.active {
           background: ${orange};
           color: ${darker};
@@ -178,19 +167,6 @@
 
         #custom-countdown.past {
           color: ${comment};
-        }
-
-        #custom-task.active {
-          color: ${background};
-          background: ${highlight};
-        }
-
-        #custom-task.due-today {
-          color: ${orange};
-        }
-
-        #custom-task.overdue {
-          color: ${red};
         }
 
         #tray {
@@ -334,7 +310,7 @@
 
           modules-left = ["custom/launcher"] ++ wsModules;
           modules-center = ["custom/clock"];
-          modules-right = ["custom/airplane" "custom/task" "group/status" "group/hw" "tray"];
+          modules-right = ["custom/airplane" "group/status" "group/hw" "tray"];
 
           # groups stack vertically on a horizontal bar unless told otherwise
           "group/status" = {
@@ -438,27 +414,6 @@
             return-type = "json";
             on-click = launch "house-personal thunderbird -calendar";
           };
-
-          "custom/task" =
-            if taskManager == "todoist"
-            then {
-              exec = "${app}/bin/waybar-todoist";
-              interval = 30;
-              signal = 9;
-              return-type = "json";
-              format = "{}";
-              max-length = 50;
-              on-click = launch "flatpak run com.todoist.Todoist";
-            }
-            else {
-              exec = "${app}/bin/waybar-task";
-              interval = 10;
-              signal = 9;
-              return-type = "json";
-              format = "{}";
-              max-length = 50;
-              on-click = launch "kitty --title task taskwarrior-tui";
-            };
 
           battery = {
             format = "{icon} {capacity}%";

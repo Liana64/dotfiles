@@ -4,15 +4,9 @@
     config,
     lib,
     pkgs,
-    osConfig,
     flakePath,
     ...
   }: let
-    taskManager = osConfig.taskManager or "todoist";
-    taskApp =
-      if taskManager == "todoist"
-      then "flatpak run com.todoist.Todoist"
-      else "kitty --title task taskwarrior-tui";
     app = pkgs.symlinkJoin {
       name = "sway-scripts";
       paths = with pkgs; [
@@ -31,40 +25,6 @@
         wrapProgram $out/bin/airplane-toggle          --prefix PATH : ${lib.makeBinPath (with pkgs; [networkmanager bluez libnotify procps coreutils])}
       '';
     };
-
-    taskDisplayToggle = pkgs.writeShellScript "task-display-toggle" ''
-      f="$XDG_RUNTIME_DIR/waybar-task-shown"
-      if [ -e "$f" ]; then rm -f "$f"; else : > "$f"; fi
-      ${pkgs.procps}/bin/pkill -RTMIN+9 waybar
-    '';
-
-    taskStartStop = pkgs.writeShellScript "task-start-stop" ''
-      task=${pkgs.taskwarrior3}/bin/task
-      if [ -n "$($task rc.context=none +ACTIVE _ids 2>/dev/null)" ]; then
-        $task rc.context=none +ACTIVE stop
-      else
-        id=$($task rc.context=none status:pending -ACTIVE export 2>/dev/null \
-          | ${pkgs.jq}/bin/jq -r 'sort_by(-.urgency) | first | .id // empty')
-        [ -n "$id" ] && $task rc.context=none "$id" start
-      fi
-      ${pkgs.procps}/bin/pkill -RTMIN+9 waybar
-    '';
-
-    taskAdd = pkgs.writeShellScript "task-add" ''
-      task=${pkgs.taskwarrior3}/bin/task
-      printf 'Add task: '
-      IFS= read -r desc
-      [ -n "$desc" ] && $task add "$desc" && sleep 0.6
-    '';
-
-    taskDone = pkgs.writeShellScript "task-done" ''
-      task=${pkgs.taskwarrior3}/bin/task
-      sel=$($task rc.context=none status:pending export 2>/dev/null \
-        | ${pkgs.jq}/bin/jq -r '.[] | "\(.id)\t\(.description)"' \
-        | ${pkgs.fzf}/bin/fzf --delimiter '\t' --with-nth 2.. --prompt 'done> ') || exit 0
-      id=$(printf '%s' "$sel" | ${pkgs.coreutils}/bin/cut -f1)
-      [ -n "$id" ] && $task rc.context=none "$id" done && sleep 0.6
-    '';
   in {
     programs.swaylock = {
       enable = true;
@@ -103,7 +63,6 @@
 
         assign [app_id="kitty-startup"] workspace 1:q
         assign [app_id="thunderbird"] workspace 3:e
-        assign [app_id="(?i)todoist"] workspace 4:a
         assign [app_id="Element"] workspace 5:s
         assign [app_id="org.squidowl.halloy"] workspace 5:s
         assign [app_id="signal"] workspace 5:s
@@ -183,7 +142,6 @@
         in {
           # "${sup}+Escape" = ''mode "power: (p) poweroff · (s) suspend · (h) hibernate · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane"'';
 
-          # "XF86AudioMedia" = ''mode "task: (a) add · (s) start/stop · (h) hide/show · (t) TUI · (d) done · (g) goal · (c) choose"'';
           "XF86AudioMedia" = powerMode;
           "XF86Explorer" = powerMode;
 
@@ -285,7 +243,7 @@
           "${mod}+Shift+e" = "move container to workspace 3:e";
           "${mod}+Control+Shift+e" = "workspace 3:e; exec house-personal thunderbird";
           "${mod}+Shift+a" = "move container to workspace 4:a";
-          "${mod}+Ctrl+Shift+a" = "exec '${taskApp}'";
+          "${mod}+Ctrl+Shift+a" = "workspace 4:a; exec house-tasks planify";
           "${mod}+Shift+s" = "move container to workspace 5:s";
           "${mod}+Control+Shift+s" = "workspace 5:s; exec house-personal signal-desktop";
           "${mod}+Control+Shift+v" = "workspace 5:s; exec house-personal vesktop";
@@ -353,20 +311,6 @@
             l = "exec swaymsg 'mode default' && systemctl --user start swaylock.service";
             c = "exec swaymsg 'mode default' && ${app}/bin/caffeinate-toggle";
             a = "exec swaymsg 'mode default' && ${app}/bin/airplane-toggle";
-            Return = "mode default";
-            Escape = "mode default";
-          };
-
-          "task: (a) add · (s) start/stop · (h) hide/show · (t) TUI · (d) done · (g) goal · (c) choose" = {
-            a = "exec swaymsg 'mode default' && kitty --title task-add ${taskAdd}";
-            s = "exec swaymsg 'mode default' && ${taskStartStop}";
-            h = "exec swaymsg 'mode default' && ${taskDisplayToggle}";
-            t = "exec swaymsg 'mode default' && kitty --title task taskwarrior-tui";
-            d = "exec swaymsg 'mode default' && kitty --title task-done ${taskDone}";
-            # TODO(unwired): (g) toggle the active-goal waybar display.
-            g = "mode default";
-            # TODO(unwired): (c) choose/pin the active goal via a picker.
-            c = "mode default";
             Return = "mode default";
             Escape = "mode default";
           };

@@ -12,7 +12,6 @@ in {
   ];
 
   networking.hostName = "framework";
-  taskManager = "todoist";
   theme = "kanagawa";
   impermanence = false;
   nushell = false;
