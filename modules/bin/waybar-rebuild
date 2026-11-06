@@ -6,6 +6,7 @@ now=$(date +%s)
 for h in "$dir"/*.host; do
   [ -e "$h" ] || continue
   s=${h%.host}
+  kill -0 "${s##*/}" 2>/dev/null || { rm -f "$s".*; continue; }
   t=$((now - $(stat -c %Y "$h")))
   line=$(tail -c 2048 "$s.log" 2>/dev/null | tr '\r' '\n' |
     sed 's/\x1b\[[0-9;?]*[ -\/]*[@-~]//g; s/\x1b[()][0-9A-B]//g' | grep -v '^[[:space:]]*$' | tail -n 1)

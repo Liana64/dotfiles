@@ -14,7 +14,8 @@
     intakeArgs = lib.escapeShellArgs intake.houses;
     machineSecrets = osConfig.machineSecrets or true;
     statusModules =
-      lib.optional (intake.houses != []) "custom/nix-housing"
+      ["custom/rebuild"]
+      ++ lib.optional (intake.houses != []) "custom/nix-housing"
       ++ ["custom/harness-status" "custom/usbguard"]
       ++ lib.optional machineSecrets "custom/syncthing"
       ++ ["custom/caffeine"]
@@ -195,6 +196,7 @@
           padding: 1px 8px;
         }
 
+        #status #custom-rebuild,
         #status #custom-harness-status,
         #status #custom-nix-housing,
         #status #custom-usbguard,
@@ -214,6 +216,7 @@
           padding: 1px 5.5px 1px 8px;
         }
 
+        #status #custom-rebuild:hover,
         #status #custom-harness-status:hover,
         #status #custom-nix-housing:hover,
         #status #custom-usbguard:hover,
@@ -333,7 +336,7 @@
 
           modules-left = ["custom/launcher" "sway/workspaces"];
           modules-center = ["custom/clock"];
-          modules-right = ["custom/rebuild" "custom/airplane" "group/status" "group/hw" "tray"];
+          modules-right = ["custom/airplane" "group/status" "group/hw" "tray"];
 
           # groups stack vertically on a horizontal bar unless told otherwise
           "group/status" = {
@@ -385,7 +388,7 @@
             return-type = "json";
             interval = 2;
             signal = 9;
-            on-click = "swaymsg '[title=\"^nix-rebuild \"] scratchpad show'";
+            on-click = "swaymsg '[title=\"^nix-rebuild [0-9]+$\"] scratchpad show'";
           };
 
           "custom/caffeine" = {

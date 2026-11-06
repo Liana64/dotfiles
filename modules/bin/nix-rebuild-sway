@@ -4,6 +4,7 @@ set -u
 
 if [ "${1:-}" != --run ]; then
   id=$(date +%s%N)
+  unset XDG_ACTIVATION_TOKEN DESKTOP_STARTUP_ID
   setsid -f kitty --title "nix-rebuild $id" nix-rebuild-sway --run "$id" "$@" >/dev/null 2>&1
   exit
 fi
@@ -17,8 +18,8 @@ host=${1:-}
 dir=$XDG_RUNTIME_DIR/nix-rebuild
 s=$dir/$$
 mkdir -p "$dir"
-reveal() { swaymsg -q "[title=\"^$title\$\"] scratchpad show"; }
-refresh() { pkill -RTMIN+9 -x waybar; }
+reveal() { swaymsg -q "[title=\"^$title\$\"] focus"; }
+refresh() { pkill -RTMIN+9 waybar; }
 
 printf '%s\n' "${host:-$(hostname)}" >"$s.host"
 trap 'rm -f "$s".*; refresh' EXIT
@@ -27,7 +28,7 @@ refresh
 [ -n "$add" ] && git -C "$NH_FLAKE" add --all
 
 (
-  while sleep 1; do
+  while [ -e "$s.host" ] && sleep 1; do
     tail -c 512 "$s.log" 2>/dev/null | tr '\r' '\n' | tail -n 2 |
       grep -qiE 'password|finger|\[y/n\]|yes/no' && reveal && break
   done

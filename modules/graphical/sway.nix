@@ -91,7 +91,7 @@
         ];
         window.commands = [
           {
-            criteria = {title = "nix-rebuild";};
+            criteria = {title = "^nix-rebuild [0-9]+$";};
             command = "floating enable, resize set 800 400, move scratchpad";
           }
           {
