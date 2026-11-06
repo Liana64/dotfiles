@@ -8,7 +8,7 @@ See also [network diagram](docs/diagrams/network.svg) and my kubernetes [home-in
 
 - Framework
   - Lightweight sway graphical environment with custom waybar
-  - Landlock isolation using decentstate's [nix-housing](https://codeberg.org/decentstates/nix-housing) with file staging
+  - Landlock app isolation using decentstate's [nix-housing](https://codeberg.org/decentstates/nix-housing) with file staging
   - Systemd hardening, kernel tuning, hardened mounts, auditd rules, wall alerts, fingerprint login, faillock, and usbguard
   - Compartmentalized post-quantum secrets management
   - Secure boot via [lanzaboote](https://github.com/nix-community/lanzaboote)
