@@ -11,7 +11,9 @@ _nh verb host:
     set -- {{ nixops_path }} --diff always
     [ -n "$h" ] && set -- "$@" -H "$h" --target-host "{{ user }}@$h.{{ mgmt }}" && b=${b:-{{ user }}@$h.{{ mgmt }}}
     [ -n "$b" ] && set -- "$@" --build-host "$b" --use-substitutes
-    exec nh os {{ verb }} "$@"
+    set -- nh os {{ verb }} "$@"
+    command -v rebuild-track >/dev/null && set -- rebuild-track "${h:-$(hostname)} {{ verb }}" "$@"
+    exec "$@"
 
 # Build and diff, local or remote
 [group('deploy')]

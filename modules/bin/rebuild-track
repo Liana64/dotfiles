@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# @desc: Run a rebuild under script(1), registered for the waybar rebuild pill; state keyed by $REBUILD_PID (default: own pid)
+set -u
+label=$1
+shift
+[ -n "${XDG_RUNTIME_DIR:-}" ] || exec "$@"
+
+s=$XDG_RUNTIME_DIR/nix-rebuild/${REBUILD_PID:-$$}
+mkdir -p "${s%/*}"
+signal() { systemctl --user kill -s "RTMIN+$1" --kill-whom=main waybar.service 2>/dev/null; }
+
+printf '%s\n' "$label" >"$s.host"
+trap 'rm -f "$s.host" "$s.log"; signal 9; signal 14' EXIT
+signal 9
+(while [ -e "$s.host" ] && sleep 2; do signal 9; done) &
+
+script -qefc "$(printf '%q ' "$@")" "$s.log"

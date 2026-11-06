@@ -7,7 +7,7 @@ if [ "$1" = clear ]; then
   for f in "$dir"/*; do
     [ -e "$f" ] && sed -i '3s/.*/running/' "$f"
   done
-  pkill -RTMIN+11 waybar 2>/dev/null
+  systemctl --user kill -s RTMIN+11 --kill-whom=main waybar.service 2>/dev/null
   exit 0
 fi
 

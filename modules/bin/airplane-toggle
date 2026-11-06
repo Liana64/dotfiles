@@ -11,5 +11,5 @@ else
     bluetoothctl power off >/dev/null
     notify-send "Airplane mode on" "Wi-Fi and Bluetooth off"
 fi
-pkill -RTMIN+12 waybar 2>/dev/null
+systemctl --user kill -s RTMIN+12 --kill-whom=main waybar.service 2>/dev/null
 exit 0

@@ -34,6 +34,7 @@
         (writeShellScriptBin "caffeinate-toggle" (builtins.readFile ../../modules/bin/caffeinate-toggle))
         (writeShellScriptBin "waybar-airplane" (builtins.readFile ../../modules/bin/waybar-airplane))
         (writeShellScriptBin "waybar-rebuild" (builtins.readFile ../../modules/bin/waybar-rebuild))
+        (writeShellScriptBin "waybar-reboot" (builtins.readFile ../../modules/bin/waybar-reboot))
         usbguard
       ];
       buildInputs = [pkgs.makeWrapper];
@@ -42,12 +43,13 @@
         wrapProgram $out/bin/waybar-vpn --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [curl jq systemd])} \
           --set SOCKS ${with inputs.self.network.vpn; "${hosts.socks}:${toString socksPort}"}
         wrapProgram $out/bin/waybar-syncthing    --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [curl jq gnused procps])}
-        wrapProgram $out/bin/waybar-harness-status --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils gnused procps sway])}
+        wrapProgram $out/bin/waybar-harness-status --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils gnused procps sway systemd])}
         wrapProgram $out/bin/waybar-nix-housing   --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [intake.intake jq inotify-tools coreutils gnused systemd])}
         wrapProgram $out/bin/waybar-countdown     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils])}
-        #wrapProgram $out/bin/track-date           --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils procps])}
+        #wrapProgram $out/bin/track-date           --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils systemd])}
         wrapProgram $out/bin/waybar-sysinfo       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils gnused gawk procps jq])}
         wrapProgram $out/bin/waybar-rebuild       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils gnused gnugrep jq])}
+        wrapProgram $out/bin/waybar-reboot        --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils gnused gnugrep jq systemd])}
       '';
     };
     # Toggle BT via BlueZ HCI power, never rfkill: rfkill power-gates the MT7925
@@ -71,6 +73,12 @@
         # launcher sysinfo tooltip reads /proc stat+meminfo, the pid subset masks them
         ProcSubset = "all";
         ReadWritePaths = "%t";
+        # privacy's pipewire client loads module-rt (sched_setscheduler), EPERM makes it fall back instead of SIGSYS
+        SystemCallFilter = map (f:
+          if f == "~@resources"
+          then "~@resources:EPERM"
+          else f)
+        hardening.confined.SystemCallFilter;
       };
 
     programs.waybar = with colors; {
@@ -140,6 +148,7 @@
         #custom-countdown,
         #custom-airplane,
         #custom-rebuild,
+        #custom-reboot,
         #custom-nix-housing,
         #custom-harness-status {
           color: ${white};
@@ -170,6 +179,8 @@
         }
 
         #custom-rebuild.failed,
+        #custom-reboot.needed,
+        #systemd-failed-units.degraded,
         #custom-nix-housing.failed {
           color: ${red};
         }
@@ -187,12 +198,25 @@
           margin-right: 5px;
         }
 
-        #custom-rebuild,
+        #nixos,
+        #privacy,
         #status,
         #hw {
           background: @raised;
           margin: 2px 6px;
           /* end slots, filled segments need the same air as inter-icon gaps */
+          padding: 1px 8px;
+        }
+
+        /* hidden children collapse the pill to zero width, so padding lives on them */
+        #nixos {
+          padding: 0;
+        }
+
+        #nixos #custom-rebuild,
+        #nixos #custom-reboot,
+        #nixos #systemd-failed-units {
+          margin: 0;
           padding: 1px 8px;
         }
 
@@ -319,6 +343,7 @@
       settings = {
         power = {
           name = "power";
+          height = 25;
           id = "power";
           ipc = true;
           position = "top";
@@ -334,9 +359,25 @@
 
           modules-left = ["custom/launcher" "sway/workspaces"];
           modules-center = ["custom/clock"];
-          modules-right = ["custom/rebuild" "custom/airplane" "group/status" "group/hw" "tray"];
+          modules-right = ["group/nixos" "privacy" "custom/airplane" "group/status" "group/hw" "tray"];
 
           # groups stack vertically on a horizontal bar unless told otherwise
+          "group/nixos" = {
+            orientation = "horizontal";
+            modules = ["custom/rebuild" "custom/reboot" "systemd-failed-units"];
+          };
+
+          "custom/reboot" = {
+            exec = "${app}/bin/waybar-reboot";
+            return-type = "json";
+            interval = 30;
+            signal = 14;
+          };
+
+          "systemd-failed-units".format = "󰀩 {nr_failed}";
+
+          privacy.icon-size = 12;
+
           "group/status" = {
             orientation = "horizontal";
             modules = statusModules;
@@ -384,7 +425,7 @@
           "custom/rebuild" = {
             exec = "${app}/bin/waybar-rebuild";
             return-type = "json";
-            interval = 2;
+            interval = 60;
             signal = 9;
             on-click = "swaymsg '[title=\"^nix-rebuild [0-9]+$\"] scratchpad show'";
           };

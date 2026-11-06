@@ -5,5 +5,5 @@ if [ -e "$flag" ]; then
 else
     : > "$flag"
 fi
-pkill -RTMIN+8 waybar 2>/dev/null
+systemctl --user kill -s RTMIN+8 --kill-whom=main waybar.service 2>/dev/null
 exit 0

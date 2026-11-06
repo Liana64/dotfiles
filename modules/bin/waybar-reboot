@@ -1,0 +1,29 @@
+#!/bin/sh
+# @desc: Waybar reboot-needed: booted kernel/initrd/modules differ, or an active no-restart unit changed since boot
+cache=$XDG_RUNTIME_DIR/waybar-reboot
+cur=$(readlink /run/current-system)
+
+if [ "$(head -n 1 "$cache" 2>/dev/null)" != "$cur" ]; then
+  {
+    echo "$cur"
+    for p in kernel initrd kernel-modules; do
+      [ "$(readlink -f "/run/booted-system/$p")" = "$(readlink -f "/run/current-system/$p")" ] || echo "$p"
+    done
+    cd /run/current-system/etc/systemd/system &&
+      grep -l -- '^X-RestartIfChanged=false' *.service *.service.d/*.conf 2>/dev/null | sed 's|\.d/.*||' | sort -u |
+      while read -r u; do
+        case $u in *@*) continue ;; esac
+        b=/run/booted-system/etc/systemd/system/$u
+        [ -e "$b" ] || continue
+        systemctl is-active --quiet "$u" || continue
+        [ "$(cat "$u" "$u".d/*.conf 2>/dev/null | md5sum)" = "$(cat "$b" "$b".d/*.conf 2>/dev/null | md5sum)" ] || echo "$u"
+      done
+  } >"$cache.$$"
+  mv "$cache.$$" "$cache"
+fi
+
+tail -n +2 "$cache" | jq -Rsc --arg icon "$(printf '\363\260\244\201')" '
+  split("\n") | map(select(. != "")) |
+  if length == 0 then {text: ""} else
+    {text: $icon, class: "needed", tooltip: (["reboot needed"] + map("  " + .) | join("\n"))}
+  end'

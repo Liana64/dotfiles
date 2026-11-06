@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# @desc: Rebuild in a scratchpad kitty, surfaced on prompt or failure; state in $XDG_RUNTIME_DIR/nix-rebuild
+# @desc: frame switch in a scratchpad kitty, surfaced on prompt or failure; tracked via rebuild-track under this pid
 set -u
 
 if [ "${1:-}" != --run ]; then
@@ -15,31 +15,23 @@ add=
 [ "${1:-}" = add ] && add=1 && shift
 host=${1:-}
 
-dir=$XDG_RUNTIME_DIR/nix-rebuild
-s=$dir/$$
-mkdir -p "$dir"
+s=$XDG_RUNTIME_DIR/nix-rebuild/$$
+export REBUILD_PID=$$
 reveal() { swaymsg -q "[title=\"^$title\$\"] focus"; }
-refresh() { pkill -RTMIN+9 waybar; }
-
-printf '%s\n' "${host:-$(hostname)}" >"$s.host"
-trap 'rm -f "$s".*; refresh' EXIT
-refresh
+signal() { systemctl --user kill -s "RTMIN+$1" --kill-whom=main waybar.service 2>/dev/null; }
+trap 'rm -f "$s".*; signal 9' EXIT
 
 [ -n "$add" ] && git -C "$NH_FLAKE" add --all
 
 (
-  while [ -e "$s.host" ] && sleep 1; do
+  while kill -0 $$ 2>/dev/null && sleep 1; do
     tail -c 512 "$s.log" 2>/dev/null | tr '\r' '\n' | tail -n 2 |
       grep -qiE 'password|finger|\[y/n\]|yes/no' && reveal && break
   done
 ) &
 watch=$!
 
-if [ -n "$host" ]; then
-  script -qefc "frame switch $host" "$s.log"
-else
-  script -qefc "nh os switch $NH_FLAKE" "$s.log"
-fi
+frame switch ${host:+"$host"}
 rc=$?
 kill "$watch" 2>/dev/null
 
@@ -48,8 +40,10 @@ if [ "$rc" -eq 0 ]; then
   exit
 fi
 
+mkdir -p "${s%/*}"
+printf '%s\n' "${host:-$(hostname)} switch" >"$s.host"
 echo "$rc" >"$s.rc"
-refresh
+signal 9
 reveal
 echo ""
 echo "Failed ($rc). Press any key to close..."
