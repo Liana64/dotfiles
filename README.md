@@ -8,7 +8,7 @@ See also [network diagram](docs/diagrams/network.svg) and my kubernetes [home-in
 
 - Framework
   - Lightweight sway graphical environment with custom waybar
-  - Landlock isolation using decentstate's [nix-housing](https://codeberg.org/decentstates/nix-housing) (fork, but upstream will work fine)
+  - Landlock isolation using decentstate's [nix-housing](https://codeberg.org/decentstates/nix-housing) with file staging
   - Systemd hardening, kernel tuning, hardened mounts, auditd rules, wall alerts, faillock, and usbguard
   - Compartmentalized post-quantum secrets management
   - Hardware optimizations for the AMD AI 300 series framework laptop
@@ -32,7 +32,9 @@ See also [network diagram](docs/diagrams/network.svg) and my kubernetes [home-in
 
 ## Framework demo
 
-![Framework host](docs/screenshot.png)
+![Framework host](docs/screenshots/framework-main.png)
+![Framework justfiles](docs/screenshots/framework-just.png)
+![Framework web](docs/screenshots/framework-web.png)
 
 ## TODO
 
