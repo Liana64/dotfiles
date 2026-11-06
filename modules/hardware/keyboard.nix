@@ -1,4 +1,4 @@
-# @desc: Vial keyboard editor (source-built, bwrap-jailed) + QMK/Vial device access
+# @desc: Vial keyboard editor (source-built, housed in tools) + QMK/Vial device access
 {...}: {
   flake.modules.nixos.keyboard = {pkgs, ...}: {
     services.udev.packages = [
@@ -15,24 +15,12 @@
     packages.vial-gui = pkgs.callPackage ../_pkgs/vial-gui/package.nix {};
   };
 
-  flake.modules.homeManager.keyboard = {pkgs, ...}: let
-    vial-gui = pkgs.callPackage ../_pkgs/vial-gui/package.nix {};
-  in {
-    home.packages = [
-      (pkgs.symlinkJoin {
-        name = "vial";
-        paths = [(pkgs.writeShellScriptBin "vial" (builtins.readFile ../bin/vial))];
-        buildInputs = [pkgs.makeWrapper];
-        postBuild = ''
-          wrapProgram $out/bin/vial \
-            --prefix PATH : ${pkgs.lib.makeBinPath [pkgs.bubblewrap vial-gui]}
-        '';
-      })
-    ];
+  flake.modules.homeManager.keyboard = {pkgs, ...}: {
+    home.packages = [(pkgs.callPackage ../_pkgs/vial-gui/package.nix {})];
 
     xdg.desktopEntries.vial = {
       name = "Vial";
-      exec = "vial";
+      exec = "vial-gui";
       categories = ["Utility"];
     };
   };
