@@ -20,6 +20,7 @@
       lib.optionalAttrs (options ? motd) {
         motd.commands = [
           ["virsh -c qemu:///system list --all" "VMs"]
+          ["virsh -c qemu:///system console <vm>" "serial console + sd-boot menu, Ctrl+] exits"]
           ["zpool status -x" "pool health"]
           ["zfs list -t snapshot" "sanoid snapshots"]
         ];
