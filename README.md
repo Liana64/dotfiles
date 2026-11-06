@@ -9,13 +9,13 @@ See also [network diagram](docs/diagrams/network.svg) and my kubernetes [home-in
 - Framework
   - Lightweight sway graphical environment with custom waybar
   - Landlock isolation using decentstate's [nix-housing](https://codeberg.org/decentstates/nix-housing) with file staging
-  - Systemd hardening, kernel tuning, hardened mounts, auditd rules, wall alerts, faillock, and usbguard
+  - Systemd hardening, kernel tuning, hardened mounts, auditd rules, wall alerts, fingerprint login, faillock, and usbguard
   - Compartmentalized post-quantum secrets management
-  - Hardware optimizations for the AMD AI 300 series framework laptop
+  - Secure boot via [lanzaboote](https://github.com/nix-community/lanzaboote)
+  - Hardware optimizations for the AMD AI 300 series framework laptop including a fan curve
   - Minimal packaging, rust tools, virtualization support
   - Helix editor, devshell, and language servers
   - Demarcated flake management
-  - Nix Impermanence
   - Bazzite-inspired just tooling, motds, misc scripts, and nixos-anywhere installer
 - Media host
   - [seaweedfs](https://github.com/seaweedfs/seaweedfs) for S3
@@ -30,6 +30,9 @@ See also [network diagram](docs/diagrams/network.svg) and my kubernetes [home-in
 - Catbox
   - [Jovian](https://github.com/Jovian-Experiments/Jovian-NixOS) (SteamOS) with Proton and Sunshine
   - TV host on [KDE plasma-bigscreen](https://github.com/kde/plasma-bigscreen)
+- OOB (Out of Band), currently needs aarch64-refactoring
+  - UPS NUT monitoring
+  - Unifi Controller
 - Portable
   - Backup host
 
@@ -41,10 +44,8 @@ See also [network diagram](docs/diagrams/network.svg) and my kubernetes [home-in
 
 ## TODO
 
+- Nix impermanence
 - Move from nfs-ganesha to something more memory-safe
-- OOB (Out of Band)
-  - UPS NUT monitoring
-  - Unifi Controller
 - nix-daemon hardening
 - Alternate nixpkgs
 - Offsite git in case of local failure
