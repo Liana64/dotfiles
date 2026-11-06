@@ -150,7 +150,7 @@
       config.allowUnfree = true;
     };
   hardening = import ../_lib/systemd-hardening.nix lib;
-  flakePath = "/nix/dotfiles";
+  flakePath = "/nix/nixops";
 
   homeExtra = system: {
     inherit inputs hardening flakePath;
