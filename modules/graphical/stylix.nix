@@ -1,5 +1,5 @@
 # @desc: Stylix theming (home)
-{...}: {
+{user, ...}: {
   flake.modules.homeManager.stylix = {
     inputs,
     config,
@@ -75,7 +75,7 @@
         swaylock.enable = false;
         mako.enable = false;
         obsidian.enable = false;
-        firefox.profileNames = ["liana"];
+        firefox.profileNames = [user.name];
 
         # Thunar (and other GTK apps) use these named colors for view/window bg.
         gtk.extraCss = ''

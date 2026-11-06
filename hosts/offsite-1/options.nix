@@ -2,6 +2,7 @@
   config,
   inputs,
   lib,
+  user,
   ...
 }: let
   addr = inputs.self.network.offsite.hosts.${config.networking.hostName};
@@ -108,7 +109,7 @@ in {
       }
     ];
     settings = {
-      AllowUsers = ["liana"];
+      AllowUsers = [user.name];
       PubkeyAcceptedAlgorithms = lib.mkForce "sk-ssh-ed25519@openssh.com";
       X11Forwarding = false;
       AllowAgentForwarding = false;
@@ -127,9 +128,9 @@ in {
     wants = ["network-online.target"];
   };
 
-  users.users.liana = {
+  users.users.${user.name} = {
     uid = 1000;
-    openssh.authorizedKeys.keys = inputs.self.keys.liana;
+    openssh.authorizedKeys.keys = inputs.self.keys.${user.name};
   };
 
   nix.settings.max-jobs = 0;

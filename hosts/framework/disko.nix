@@ -12,7 +12,7 @@
 #             ├─ /@log         → /var/log             (journal churn, out of @persist snapshots)
 #             ├─ /@containers  → /var/lib/containers  (podman storage, holds nested subvolumes)
 #             └─ /@swap        → /swap                (NOCOW swapfile)
-{
+{user, ...}: {
   disko.devices = {
     disk.main = {
       type = "disk";
@@ -52,7 +52,7 @@
                     mountOptions = ["compress=zstd" "noatime" "nosuid" "nodev"];
                   };
                   "/@cache" = {
-                    mountpoint = "/home/liana/.cache";
+                    mountpoint = "/home/${user.name}/.cache";
                     mountOptions = ["compress=zstd" "relatime" "nosuid" "nodev"];
                   };
                   "/@nix" = {

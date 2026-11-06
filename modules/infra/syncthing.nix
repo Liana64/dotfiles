@@ -1,5 +1,9 @@
 # @desc: Syncthing device/folder topology shared by clients and m1
-{config, ...}: let
+{
+  config,
+  user,
+  ...
+}: let
   net = config.flake.network;
 in {
   flake.syncthing = {
@@ -19,66 +23,84 @@ in {
         id = "DZMCSC2-3MUIPEU-SUXQXEH-OYRESED-DWAXB3H-O3ZTUUI-QN4VM4C-ZVUIHAB";
         addresses = ["tcp://${net.hstore.hosts.m1}:22000"];
       };
+      # catbox = {
+      #   id = "CATBOX-DEVICE-ID";
+      #   addresses = ["tcp://${net.home.hosts.catbox}:22000"];
+      # };
+      # deck.id = "DECK-DEVICE-ID";
     };
 
     folders = let
-      liana = ["m1" "framework" "cluster"];
+      mine = ["m1" "framework" "cluster"];
       maxine = ["m1" "maxine-framework"];
+      # games = ["m1" "catbox" "deck"];
     in {
+      # "f3px7-gxjz7" = {
+      #   label = "RetroDECK Saves";
+      #   owner = "games";
+      #   path = "retrodeck/saves";
+      #   devices = games;
+      # };
+      # "zcmax-6gcj0" = {
+      #   label = "RetroDECK States";
+      #   owner = "games";
+      #   path = "retrodeck/states";
+      #   devices = games;
+      # };
       "bddhy-7xeus" = {
-        label = "Liana Projects";
-        owner = "liana";
+        label = "${user.fullName} Projects";
+        owner = user.name;
         path = "Projects";
-        devices = liana;
+        devices = mine;
         ignores = ["/External"];
       };
       "dqjzb-kwqzh" = {
-        label = "Liana Photos";
-        owner = "liana";
+        label = "${user.fullName} Photos";
+        owner = user.name;
         path = "Media/Photos";
-        devices = liana;
+        devices = mine;
       };
       "pcem2-vtzke" = {
-        label = "Liana Videos";
-        owner = "liana";
+        label = "${user.fullName} Videos";
+        owner = user.name;
         path = "Media/Videos";
-        devices = liana;
+        devices = mine;
       };
       "nnbty-vi2es" = {
-        label = "Liana Screenshots";
-        owner = "liana";
+        label = "${user.fullName} Screenshots";
+        owner = user.name;
         path = "Media/Screenshots";
-        devices = liana;
+        devices = mine;
       };
       "etaus-cy9u5" = {
-        label = "Liana Notebook";
-        owner = "liana";
+        label = "${user.fullName} Notebook";
+        owner = user.name;
         path = "Notebook";
-        devices = liana;
+        devices = mine;
       };
       "itxfi-cig7x" = {
         label = "Shared Reference";
         owner = "shared";
         path = "Shared/Reference";
-        devices = liana;
+        devices = mine;
       };
       "kslaa-vounv" = {
-        label = "Liana Documents";
-        owner = "liana";
+        label = "${user.fullName} Documents";
+        owner = user.name;
         path = "Documents";
-        devices = liana;
+        devices = mine;
       };
       "z443t-7mcjh" = {
-        label = "Liana Pictures";
-        owner = "liana";
+        label = "${user.fullName} Pictures";
+        owner = user.name;
         path = "Media/Pictures";
-        devices = liana;
+        devices = mine;
       };
       "zd95a-syzmp" = {
         label = "Shared Family";
         owner = "shared";
         path = "Shared/Family";
-        devices = liana;
+        devices = mine;
       };
       "grcx4-ny7sk" = {
         label = "Maxine Important Files";

@@ -1,5 +1,9 @@
 # @desc: nix-housing sandbox domains
-{config, ...}: let
+{
+  config,
+  user,
+  ...
+}: let
   aspects = config.flake.modules.homeManager;
   terminfo = {pkgs, ...}: {home.packages = [pkgs.kitty.terminfo];};
 in {
@@ -29,6 +33,7 @@ in {
       media = "#597ef7";
       remote = "#2db7f5";
       tasks = "#ff85c0";
+      tools = "#7d8597";
     };
 
     houseTitle = {
@@ -57,7 +62,7 @@ in {
         mutableTrust = false;
         publicKeys = [
           {
-            source = pkgs.writeText "pub.asc" inputs.self.keys.lianaGpg;
+            source = pkgs.writeText "pub.asc" inputs.self.keys."${user.name}Gpg";
             trust = "ultimate";
           }
         ];
@@ -279,10 +284,18 @@ in {
           imports = [aspects.gpg terminfo houseTitle];
           programs.gpg.homedir = "${config.home.homeDirectory}/gnupg";
           services.gpg-agent.pinentry.package = pkgs.pinentry-qt;
+          home.packages = [pkgs.bitwarden-desktop];
+          home.sessionVariables.NIXOS_OZONE_WL = "1";
         };
+        exportDesktopEntries = true;
         capabilities = {
-          wayland.enable = true;
-          landlock.socketDirs = ["/run/pcscd" "/var/run/pcscd"];
+          gui.enable = true;
+          gpu.enable = true;
+          namespacing.proc = true;
+          landlock = {
+            connectTcpPorts = [443];
+            socketDirs = ["/run/pcscd" "/var/run/pcscd"];
+          };
         };
       };
 
@@ -564,6 +577,24 @@ in {
               ${pkgs.systemd}/lib/systemd/systemd-socket-proxyd "$NIX_HOUSING_REAL_XDG_RUNTIME_DIR/${caldavSocket}" &
             exec "$@"
           '';
+        };
+      };
+
+      tools = {
+        hm.config = {
+          imports = base ++ [houseTitle aspects.keyboard];
+          home.packages = [pkgs.supercell-wx];
+        };
+        exportDesktopEntries = true;
+        capabilities = {
+          gui.enable = true;
+          gpu.enable = true;
+          pulseAudio.enable = true;
+          namespacing.proc = true;
+          landlock = {
+            connectTcpPorts = [80 443];
+            deviceFiles = map (n: "/dev/hidraw${toString n}") (lib.range 0 15);
+          };
         };
       };
 

@@ -2,6 +2,7 @@
 {
   config,
   inputs,
+  user,
   ...
 }: {
   flake.nixosConfigurations.installer = inputs.nixpkgs.lib.nixosSystem {
@@ -42,7 +43,7 @@
           KbdInteractiveAuthentication = false;
         };
         users.users.root.openssh.authorizedKeys.keys =
-          config.flake.keys.liana;
+          config.flake.keys.${user.name};
       }
     ];
   };

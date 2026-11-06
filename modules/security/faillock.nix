@@ -1,5 +1,5 @@
 # @desc: PAM faillock lockout for swaylock
-{...}: {
+{user, ...}: {
   flake.modules.nixos.faillock = {
     config,
     pkgs,
@@ -32,7 +32,7 @@
   in {
     security.pam.services = lib.genAttrs services mkFaillock;
 
-    systemd.tmpfiles.rules = ["d /run/faillock 0700 liana users -"];
+    systemd.tmpfiles.rules = ["d /run/faillock 0700 ${user.name} users -"];
 
     environment.etc."security/faillock.conf".text = ''
       deny = 5

@@ -4,6 +4,7 @@
   pkgs,
   hardening,
   inputs,
+  user,
   ...
 }: let
   net = inputs.self.network;
@@ -108,7 +109,7 @@ in {
         };
       };
       aws-credentials = {
-        owner = "liana";
+        owner = user.name;
         content = ''
           [default]
           aws_access_key_id=${key "admin" "access-key"}
@@ -118,7 +119,7 @@ in {
     };
   };
 
-  users.users.liana.packages = [
+  users.users.${user.name}.packages = [
     (pkgs.symlinkJoin {
       name = "awscli2";
       paths = [pkgs.awscli2];

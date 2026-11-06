@@ -1,5 +1,5 @@
 # @desc: auditd audit logging
-{...}: let
+{user, ...}: let
   agentExe = "/var/lib/audit-exe/gpg-agent";
   spaceLeftMB = 2048;
 in {
@@ -62,8 +62,8 @@ in {
   }: let
     austatus = pkgs.writeShellScriptBin "austatus" (builtins.readFile ../bin/austatus);
     wallKeys = ["usbguard" "gnupg-secrets" "gnupg-tamper" "code-injection" "data-injection" "register-injection" "ptrace-attach" "32bit-abi" "exec-scratch" "memfd-exec"];
-    gnupgKeys = "${config.users.users.liana.home}/.gnupg/private-keys-v1.d";
-    agentSrc = "${config.home-manager.users.liana.programs.gpg.package}/bin/gpg-agent";
+    gnupgKeys = "${config.users.users.${user.name}.home}/.gnupg/private-keys-v1.d";
+    agentSrc = "${config.home-manager.users.${user.name}.programs.gpg.package}/bin/gpg-agent";
     usbguard = config.services.usbguard;
     scratchDirs = ["/tmp" "/var/tmp"];
     usbguardIPC = "/var/lib/usbguard/IPCAccessControl.d";
@@ -144,8 +144,8 @@ in {
         ! ${config.security.audit.package}/bin/auditctl -s | ${pkgs.gnugrep}/bin/grep -qx 'enabled 2'
       '';
       serviceConfig.ExecStartPre = "-${config.systemd.package}/bin/systemd-tmpfiles --create ${pkgs.writeText "audit-gnupg.conf" ''
-        d ${dirOf gnupgKeys} 0700 liana users -
-        d ${gnupgKeys} 0700 liana users -
+        d ${dirOf gnupgKeys} 0700 ${user.name} users -
+        d ${gnupgKeys} 0700 ${user.name} users -
       ''}";
     };
 

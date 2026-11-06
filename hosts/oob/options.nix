@@ -3,6 +3,7 @@
   inputs,
   lib,
   pkgs,
+  user,
   ...
 }: let
   inherit (inputs.self.network) mgmt clients;
@@ -46,7 +47,7 @@ in {
     useNetworkd = true;
     nftables.enable = true;
     firewall.extraInputRules = ''
-      ip saddr { ${set clients.liana} } tcp dport 22 accept
+      ip saddr { ${set clients.${user.name}} } tcp dport 22 accept
     '';
   };
 
@@ -68,7 +69,7 @@ in {
     resolved.enable = true;
     openssh = {
       enable = true;
-      settings.AllowUsers = ["liana"];
+      settings.AllowUsers = [user.name];
     };
     zfs.autoScrub = {
       enable = true;
@@ -83,9 +84,9 @@ in {
     zfs-zed.serviceConfig = zfsJob;
   };
 
-  users.users.liana = {
+  users.users.${user.name} = {
     uid = 1000;
-    openssh.authorizedKeys.keys = inputs.self.keys.liana;
+    openssh.authorizedKeys.keys = inputs.self.keys.${user.name};
   };
 
   system.stateVersion = "26.05";

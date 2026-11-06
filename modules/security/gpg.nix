@@ -1,5 +1,5 @@
 # @desc: GPG keys/config
-{...}: {
+{user, ...}: {
   flake.modules.homeManager.gpg = {
     pkgs,
     hardening,
@@ -30,7 +30,7 @@
       mutableTrust = false;
       publicKeys = [
         {
-          source = pkgs.writeText "pub.asc" inputs.self.keys.lianaGpg;
+          source = pkgs.writeText "pub.asc" inputs.self.keys."${user.name}Gpg";
           trust = "ultimate";
         }
       ];

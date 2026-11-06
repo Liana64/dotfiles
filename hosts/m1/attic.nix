@@ -4,6 +4,7 @@
   lib,
   pkgs,
   hardening,
+  user,
   ...
 }: let
   net = inputs.self.network;
@@ -119,7 +120,7 @@ in {
         IPAddressAllow =
           [addr net.mgmt.subnet net.home.hosts.catbox net.offsite.hosts.offsite-1 net.offsite.hosts.framework]
           ++ net.cluster.nodes
-          ++ net.clients.liana;
+          ++ net.clients.${user.name};
         SocketBindAllow = "tcp:${toString port}";
         SocketBindDeny = "any";
         PrivateIPC = true;

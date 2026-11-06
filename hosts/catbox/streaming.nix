@@ -3,11 +3,12 @@
   inputs,
   lib,
   pkgs,
+  user,
   ...
 }: let
   inherit (inputs.self.network) home clients;
   set = lib.concatStringsSep ", ";
-  peers = set ([home.subnet] ++ clients.liana);
+  peers = set ([home.subnet] ++ clients.${user.name});
   port = n: toString (config.services.sunshine.settings.port + n);
 in {
   # TCL 65S555 is HDMI 2.0 (600 MHz TMDS)
@@ -61,6 +62,6 @@ in {
   networking.firewall.extraInputRules = ''
     ip saddr { ${peers} } tcp dport { ${port (-5)}, ${port 0}, ${port 21} } accept
     ip saddr { ${peers} } udp dport { ${port 9}-${port 11}, ${port 13}, ${port 21} } accept
-    ip saddr { ${set clients.liana} } tcp dport ${port 1} accept
+    ip saddr { ${set clients.${user.name}} } tcp dport ${port 1} accept
   '';
 }

@@ -1,17 +1,16 @@
-# @desc: DVCS config; hardcodes user liana / email
-{...}: let
-  user = {
-    name = "Liana";
-    email = "liana@lianas.org";
+# @desc: DVCS config (git, jujutsu) signed as the primary user
+{user, ...}: let
+  identity = {
+    inherit (user) email;
+    name = user.fullName;
   };
-  signingKey = "2348524E0BC72DAD1638EC79EEE4B7E49941B009";
 in {
   flake.modules.homeManager.dvcs = {pkgs, ...}: {
     programs.git = {
       enable = true;
 
       settings = {
-        user = user // {signingkey = signingKey;};
+        user = identity // {signingkey = user.signingKey;};
         init.defaultBranch = "main";
         push.autoSetupRemote = true;
         commit.gpgsign = true;
@@ -22,11 +21,11 @@ in {
     programs.jujutsu = {
       enable = true;
       settings = {
-        inherit user;
+        user = identity;
         signing = {
           behavior = "own";
           backend = "gpg";
-          key = signingKey;
+          key = user.signingKey;
         };
         ui.diff-formatter = ["difft" "--color=always" "$left" "$right"];
       };

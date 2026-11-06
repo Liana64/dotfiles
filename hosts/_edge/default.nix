@@ -2,6 +2,7 @@
   config,
   inputs,
   lib,
+  user,
   ...
 }: let
   inherit (lib) mkOption types;
@@ -60,9 +61,9 @@ in {
       blacklistedKernelModules = ["mt7921e"];
     };
 
-    users.users.liana = {
+    users.users.${user.name} = {
       uid = 1000;
-      openssh.authorizedKeys.keys = inputs.self.keys.liana;
+      openssh.authorizedKeys.keys = inputs.self.keys.${user.name};
     };
 
     services.prometheus.exporters.smartctl.devices = cfg.disks;

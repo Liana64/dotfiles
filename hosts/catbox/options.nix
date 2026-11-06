@@ -4,6 +4,7 @@
   inputs,
   lib,
   pkgs,
+  user,
   ...
 }: let
   inherit (inputs.self.network) cluster clients;
@@ -71,7 +72,7 @@ in {
   systemd.user.services.orca.enable = false;
 
   users.users = {
-    liana.openssh.authorizedKeys.keys = inputs.self.keys.liana;
+    ${user.name}.openssh.authorizedKeys.keys = inputs.self.keys.${user.name};
     home = {
       isNormalUser = true;
       hashedPassword = "";
@@ -87,7 +88,7 @@ in {
 
   services.openssh = {
     enable = true;
-    settings.AllowUsers = ["liana" "maxine"];
+    settings.AllowUsers = [user.name "maxine"];
   };
   services.prometheus.exporters = {
     node = {
@@ -98,7 +99,7 @@ in {
   };
 
   networking.firewall.extraInputRules = ''
-    ip saddr { ${set clients.liana} } tcp dport 22 accept
+    ip saddr { ${set clients.${user.name}} } tcp dport 22 accept
     ip saddr { ${set cluster.nodes} } tcp dport { 9100, 9633 } accept
   '';
 

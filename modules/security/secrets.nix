@@ -1,5 +1,5 @@
 # @desc: sops-nix secrets from the PQ-encrypted secretstore repo
-{...}: {
+{user, ...}: {
   flake.modules.nixos.secrets = {
     config,
     inputs,
@@ -43,10 +43,10 @@
       sops.gnupg.sshKeyPaths = [];
 
       users.mutableUsers = false;
-      users.users.liana.hashedPasswordFile = config.sops.secrets."users/liana/password".path;
+      users.users.${user.name}.hashedPasswordFile = config.sops.secrets."users/${user.name}/password".path;
 
       sops.secrets = lib.mkMerge [
-        {"users/liana/password".neededForUsers = true;}
+        {"users/${user.name}/password".neededForUsers = true;}
         (lib.mkIf config.machineSecrets ({
             "network/wireguard/wg0.conf" = {
               path = "/var/secrets/wireguard/wg0.conf";
@@ -63,18 +63,18 @@
             };
             "services/ai-router/gateway-key" = {
               path = "/var/secrets/eek/gateway-key";
-              owner = "liana";
+              owner = user.name;
               mode = "0400";
             };
             "machine/syncthing/gui-passwd" = {
               path = "/var/secrets/syncthing/gui-passwd";
-              owner = "liana";
+              owner = user.name;
               mode = "0400";
             };
           }
           // lib.genAttrs (map (k: "cryptography/age/${k}") ageKeys) (name: {
-            path = "${config.users.users.liana.home}/.config/sops/age/${baseNameOf name}.key";
-            owner = "liana";
+            path = "${config.users.users.${user.name}.home}/.config/sops/age/${baseNameOf name}.key";
+            owner = user.name;
             mode = "0400";
           })))
       ];

@@ -14,6 +14,7 @@ in {
           dev = "sda";
           boot = 1;
         }
+        # TODO: revisit this after piraeus, refreservation=auto
         {
           zvol = "rpool/vms/talos-pool";
           dev = "sdb";

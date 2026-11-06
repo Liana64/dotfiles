@@ -1,19 +1,9 @@
 # @desc: Flatpak app set — converged by the daily flatpak-repo timer or `just flatpaks`, never at switch
-{...}: {
+{user, ...}: {
   flake.modules.homeManager.flatpak = {lib, ...}: let
     overrides = {
-      "com.bitwarden.desktop".Context = {
-        sockets = "!x11";
-        devices = "!all";
-        filesystems = "!~/.mozilla;~/.mozilla/native-messaging-hosts:create;!~/.var/app/org.mozilla.firefox/.mozilla;!xdg-config/chromium/NativeMessagingHosts;!xdg-config/google-chrome/NativeMessagingHosts;!xdg-config/microsoft-edge/NativeMessagingHosts;!~/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts;!~/.var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts;!~/.var/app/com.microsoft.Edge/config/microsoft-edge/NativeMessagingHosts";
-      };
       "com.moonlight_stream.Moonlight".Context.devices = "!all;dri;input";
       "com.rustdesk.RustDesk".Context.filesystems = "!home;xdg-download";
-      "net.supercellwx.app".Context = {
-        sockets = "!x11";
-        devices = "!all;dri";
-        filesystems = "!xdg-documents";
-      };
       "org.gimp.GIMP".Context.devices = "!all;dri";
       "org.gnome.Calculator".Context.sockets = "!fallback-x11;!x11";
       "org.gnome.Calendar".Context.sockets = "!fallback-x11;!x11";
@@ -54,7 +44,6 @@
         flatpak override --filesystem=/nix/store:ro
 
         flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-        flatpak remote-add --if-not-exists supercell-wx https://dpaulat.github.io/supercell-wx/supercell-wx.flatpakrepo
 
         verified=(
           org.gnome.Calculator
@@ -70,10 +59,8 @@
           org.localsend.localsend_app
           org.pulseaudio.pavucontrol
           com.moonlight_stream.Moonlight
-          com.bitwarden.desktop
           com.rustdesk.RustDesk
           com.github.tchx84.Flatseal
-          com.todoist.Todoist
           # com.prusa3d.PrusaSlicer
           # com.github.johnfactotum.Foliate
           # org.freecad.FreeCAD
@@ -102,8 +89,6 @@
         for app in "''${desired[@]}"; do
           flatpak update -y --noninteractive "$app" || true
         done
-        flatpak install -y --noninteractive supercell-wx net.supercellwx.app
-        flatpak update -y --noninteractive net.supercellwx.app || true
         flatpak update -y --noninteractive --runtime || true
         flatpak uninstall -y --noninteractive --unused || true
       '';
@@ -130,7 +115,7 @@
     };
 
     systemd.user.extraConfig = ''
-      DefaultEnvironment="PATH=/etc/profiles/per-user/liana/bin:/run/current-system/sw/bin"
+      DefaultEnvironment="PATH=/etc/profiles/per-user/${user.name}/bin:/run/current-system/sw/bin"
     '';
   };
 }

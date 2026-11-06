@@ -1,5 +1,5 @@
 # @desc: Firefox
-{...}: {
+{user, ...}: {
   flake.modules.homeManager.firefox = {
     inputs,
     pkgs,
@@ -13,7 +13,7 @@
     # D-Bus remoting is keyed on profile name; distinct names keep houses from handing URLs to each other.
     profile =
       if role == "secure"
-      then "liana"
+      then user.name
       else role;
 
     search =

@@ -1,5 +1,5 @@
 # @desc: Shell aliases (rust-tool replacements)
-{...}: {
+{user, ...}: {
   flake.modules.homeManager.aliases = {
     config,
     lib,
@@ -49,13 +49,6 @@
       clip = "wl-copy";
       myip = "curl ifconfig.me -j";
       weather = "curl wttr.in/${city}";
-    };
-
-    tasks = lib.optionalAttrs ((osConfig.taskManager or "todoist") == "taskwarrior") {
-      # Open on the Today view (Todoist-style home screen).
-      tt = "taskwarrior-tui -r today";
-      # Snooze a task out of view until a wait date (default tomorrow): snooze <id> [when]
-      snooze = "task-snooze";
     };
 
     ai = {
@@ -109,7 +102,7 @@
     crypto = {
       gpg-encrypt = "gpg -c --no-symkey-cache --cipher-algo=AES256";
       gpg-decrypt = "gpg -d";
-      sign = "gpg -esa --default-recipient-self --comment \"Sealed by ${config.programs.git.settings.user.email}\"";
+      sign = "gpg -esa --default-recipient-self --comment \"Sealed by ${user.email}\"";
       rotate-sops = "for f in *.yaml; do sops-store updatekeys \"$f\"; done";
     };
 
@@ -124,7 +117,7 @@
       flushdns = "sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder";
     };
 
-    aliases = editors // ls // grep // personal // tasks // ai // containers // rust-tools // networking // utility // crypto // git // darwin;
+    aliases = editors // ls // grep // personal // ai // containers // rust-tools // networking // utility // crypto // git // darwin;
 
     randomFn = ''
       random() {

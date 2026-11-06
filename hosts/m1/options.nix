@@ -1,6 +1,7 @@
 {
   config,
   inputs,
+  user,
   ...
 }: {
   imports = [
@@ -58,10 +59,10 @@
   };
 
   users.users = {
-    liana = {
+    ${user.name} = {
       uid = 1000;
       extraGroups = ["media" "documents"];
-      openssh.authorizedKeys.keys = inputs.self.keys.liana;
+      openssh.authorizedKeys.keys = inputs.self.keys.${user.name};
     };
     maxine = {
       isNormalUser = true;

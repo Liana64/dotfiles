@@ -1,5 +1,9 @@
 # @desc: helix-portable — nix-free helix config tarball (nix build .#helix-portable)
-{config, ...}: {
+{
+  config,
+  user,
+  ...
+}: {
   flake.modules.homeManager.helix = {pkgs, ...}: {
     home.packages = [
       (pkgs.writeShellScriptBin "helix-export" (builtins.readFile ../../bin/helix-export))
@@ -11,7 +15,7 @@
     lib,
     ...
   }: let
-    hm = config.flake.homeConfigurations."liana@framework".config;
+    hm = config.flake.homeConfigurations."${user.name}@framework".config;
     inherit (hm.programs.helix) languages;
 
     servers = builtins.removeAttrs languages.language-server ["nixd"];

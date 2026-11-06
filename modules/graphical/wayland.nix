@@ -1,5 +1,5 @@
 # @desc: Sway Wayland session: greetd, portals, session tools
-{...}: {
+{user, ...}: {
   flake.modules.nixos.compositor = {
     lib,
     pkgs,
@@ -21,7 +21,7 @@
     };
 
     services.udev.packages = [pkgs.brightnessctl];
-    users.users.liana.extraGroups = ["video"];
+    users.users.${user.name}.extraGroups = ["video"];
 
     services = {
       dbus.enable = true;

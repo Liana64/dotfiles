@@ -3,6 +3,7 @@
   config,
   inputs,
   lib,
+  user,
   ...
 }: let
   inherit (inputs) self nixpkgs home-manager;
@@ -34,7 +35,6 @@
       "infra"
       "installer"
       "k9s"
-      "keyboard"
       "kitty"
       "mako"
       "mime"
@@ -48,9 +48,7 @@
       "swaybg"
       "swayidle"
       "syncthing"
-      "taskwarrior"
       "theme"
-      "todoist"
       "troubleshootPackages"
       "veles"
       "waybar"
@@ -86,7 +84,6 @@
       "packages"
       "ssd"
       "sudo"
-      "tasks"
       "theme"
       "usbguard"
       "virtualization"
@@ -153,14 +150,14 @@
   flakePath = "/nix/nixops";
 
   homeExtra = system: {
-    inherit inputs hardening flakePath;
+    inherit inputs hardening flakePath user;
     nixpkgs-unstable = mkUnstable system;
   };
 
   # Home base shared by the NixOS-embedded and standalone home configs.
   hmShared = {
-    home.username = "liana";
-    home.homeDirectory = "/home/liana";
+    home.username = user.name;
+    home.homeDirectory = "/home/${user.name}";
     home.stateVersion = "26.05";
     home.file.".wallpapers" = {
       source = ../../share/wallpapers;
@@ -180,7 +177,7 @@
     channel ? nixpkgs,
   }:
     channel.lib.nixosSystem {
-      specialArgs = {inherit inputs hardening;};
+      specialArgs = {inherit inputs hardening user;};
       modules =
         lib.attrVals aspects config.flake.modules.nixos
         ++ ["${self}/hosts/${name}/options.nix"]
@@ -188,7 +185,7 @@
           home-manager.nixosModules.home-manager
           {
             home-manager.useUserPackages = true;
-            home-manager.users.liana.imports = homeAspects ++ [hmShared];
+            home-manager.users.${user.name}.imports = homeAspects ++ [hmShared];
             home-manager.extraSpecialArgs = homeExtra system;
           }
         ];
@@ -203,6 +200,6 @@
 in {
   flake.nixosConfigurations = lib.mapAttrs mkNixos hosts;
   flake.homeConfigurations =
-    lib.mapAttrs' (name: h: lib.nameValuePair "liana@${name}" (mkHome h))
+    lib.mapAttrs' (name: h: lib.nameValuePair "${user.name}@${name}" (mkHome h))
     (lib.filterAttrs (_: h: h.home or true) hosts);
 }

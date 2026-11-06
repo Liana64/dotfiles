@@ -1,5 +1,5 @@
 # @desc: Nix language — nixd with flake-aware option completion, alejandra formatting
-{...}: {
+{user, ...}: {
   flake.modules.homeManager.helix = {
     pkgs,
     lib,
@@ -21,7 +21,7 @@
         config.nixd = {
           nixpkgs.expr = "import (${flake}).inputs.nixpkgs { }";
           options.nixos.expr = "(${flake}).nixosConfigurations.${host}.options";
-          options.home_manager.expr = ''(${flake}).homeConfigurations."liana@${host}".options'';
+          options.home_manager.expr = ''(${flake}).homeConfigurations."${user.name}@${host}".options'';
         };
       };
 

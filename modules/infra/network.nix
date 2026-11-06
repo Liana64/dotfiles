@@ -1,5 +1,5 @@
 # @desc: Infra network addressing (cluster, hstore, mgmt, vpn, clients)
-{
+{user, ...}: {
   flake.network = let
     lan = net: net // {cidr = builtins.mapAttrs (_: ip: "${ip}/${baseNameOf net.subnet}") net.hosts;};
   in {
@@ -65,7 +65,7 @@
     };
     clients = {
       ops = ["172.16.95.0/24"];
-      liana = [
+      ${user.name} = [
         "172.16.95.30"
         "172.16.95.31"
       ];

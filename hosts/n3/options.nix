@@ -1,4 +1,8 @@
-{inputs, ...}: {
+{
+  inputs,
+  user,
+  ...
+}: {
   imports = [
     inputs.disko.nixosModules.disko
     ./disko.nix
@@ -25,9 +29,9 @@
   };
   motd.description = "Talos and lab hypervisor";
 
-  users.users.liana = {
+  users.users.${user.name} = {
     uid = 1000;
-    openssh.authorizedKeys.keys = inputs.self.keys.liana;
+    openssh.authorizedKeys.keys = inputs.self.keys.${user.name};
   };
 
   services.prometheus.exporters.smartctl.devices = [

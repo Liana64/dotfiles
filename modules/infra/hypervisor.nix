@@ -1,5 +1,5 @@
 # @desc: Libvirt/ZFS hypervisor base: sanoid, scrub, smartd, exporters
-{
+{user, ...}: {
   flake.modules.nixos.hypervisor = {
     config,
     inputs,
@@ -39,7 +39,7 @@
           };
         };
 
-        users.users.liana.extraGroups = ["libvirtd"];
+        users.users.${user.name}.extraGroups = ["libvirtd"];
 
         boot = {
           supportedFilesystems = ["zfs"];

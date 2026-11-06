@@ -1,12 +1,12 @@
-# @desc: User account liana (groups, zsh)
-{...}: {
+# @desc: Primary user account (groups, zsh)
+{user, ...}: {
   flake.modules.nixos.users = {
     config,
     lib,
     pkgs,
     ...
   }: {
-    users.users.liana = {
+    users.users.${user.name} = {
       isNormalUser = true;
       shell = pkgs.zsh;
       extraGroups =

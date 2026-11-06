@@ -5,6 +5,7 @@
   lib,
   libvirt,
   hardening,
+  user,
   ...
 }: let
   inherit (libvirt) mkVM media;
@@ -13,10 +14,10 @@
     + builtins.toJSON {
       users = [
         {
-          name = "liana";
+          name = user.name;
           groups = ["wheel"];
           sudo = "ALL=(ALL) NOPASSWD:ALL";
-          ssh_authorized_keys = inputs.self.keys.liana;
+          ssh_authorized_keys = inputs.self.keys.${user.name};
         }
       ];
       ssh_pwauth = false;
