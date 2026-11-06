@@ -164,7 +164,7 @@
       recursive = true;
     };
     home.sessionVariables.NIX_CONFIG = "experimental-features = nix-command flakes";
-    home.sessionVariables.FLAKE = flakePath;
+    home.sessionVariables.NH_FLAKE = flakePath;
     programs.home-manager.enable = true;
     nixpkgs.config.allowUnfree = true;
     dconf.settings."org/gnome/desktop/interface".color-scheme = "prefer-dark";

@@ -4,7 +4,7 @@
 
 set -eu
 
-dir=${FLAKE:-}
+dir=${NH_FLAKE:-}
 case ${1:-} in
 '' | -*) ;;
 *)

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-[ "$1" = "add" ] && git -C "$FLAKE" add --all
-nh os switch "$FLAKE"
+[ "$1" = "add" ] && git -C "$NH_FLAKE" add --all
+nh os switch "$NH_FLAKE"
 echo ""
 echo "Done. Press any key to close..."
 read -n 1 -s -r

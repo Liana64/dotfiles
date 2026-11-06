@@ -21,7 +21,7 @@
       postBuild = ''
         wrapProgram $out/bin/sway-screenshot-all      --prefix PATH : $out/bin
         wrapProgram $out/bin/sway-screenshot-area     --prefix PATH : $out/bin
-        wrapProgram $out/bin/nix-rebuild-sway         --prefix PATH : $out/bin --set-default FLAKE ${flakePath}
+        wrapProgram $out/bin/nix-rebuild-sway         --prefix PATH : $out/bin --set-default NH_FLAKE ${flakePath}
         wrapProgram $out/bin/airplane-toggle          --prefix PATH : ${lib.makeBinPath (with pkgs; [networkmanager bluez libnotify procps coreutils])}
       '';
     };
