@@ -33,6 +33,7 @@
         (writeShellScriptBin "waybar-sysinfo" (builtins.readFile ../../modules/bin/waybar-sysinfo))
         (writeShellScriptBin "caffeinate-toggle" (builtins.readFile ../../modules/bin/caffeinate-toggle))
         (writeShellScriptBin "waybar-airplane" (builtins.readFile ../../modules/bin/waybar-airplane))
+        (writeShellScriptBin "waybar-rebuild" (builtins.readFile ../../modules/bin/waybar-rebuild))
         usbguard
       ];
       buildInputs = [pkgs.makeWrapper];
@@ -46,6 +47,7 @@
         wrapProgram $out/bin/waybar-countdown     --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [jq coreutils])}
         #wrapProgram $out/bin/track-date           --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils procps])}
         wrapProgram $out/bin/waybar-sysinfo       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils gnused gawk procps jq])}
+        wrapProgram $out/bin/waybar-rebuild       --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [coreutils gnused gnugrep jq])}
       '';
     };
     # Toggle BT via BlueZ HCI power, never rfkill: rfkill power-gates the MT7925
@@ -98,6 +100,16 @@
           color: ${foreground};
         }
 
+        window#waybar.power {
+          background: transparent;
+        }
+
+        window#waybar.power #mode {
+          background: ${background};
+          color: ${white};
+          padding: 0 8px;
+        }
+
         tooltip {
           background: ${background};
           border: 1px solid ${color0};
@@ -127,6 +139,7 @@
         #custom-syncthing,
         #custom-countdown,
         #custom-airplane,
+        #custom-rebuild,
         #custom-nix-housing,
         #custom-harness-status {
           color: ${white};
@@ -156,6 +169,7 @@
           color: ${comment};
         }
 
+        #custom-rebuild.failed,
         #custom-nix-housing.failed {
           color: ${red};
         }
@@ -302,14 +316,24 @@
       '';
 
       settings = {
+        power = {
+          name = "power";
+          id = "power";
+          ipc = true;
+          position = "top";
+          output = ["*"];
+          modules-right = ["sway/mode"];
+          "sway/mode".tooltip = false;
+        };
+
         mainBar = {
           layer = "top";
           position = "top";
           output = ["*"];
 
           modules-left = ["custom/launcher" "sway/workspaces"];
-          modules-center = ["sway/mode" "custom/clock"];
-          modules-right = ["custom/airplane" "group/status" "group/hw" "tray"];
+          modules-center = ["custom/clock"];
+          modules-right = ["custom/rebuild" "custom/airplane" "group/status" "group/hw" "tray"];
 
           # groups stack vertically on a horizontal bar unless told otherwise
           "group/status" = {
@@ -356,6 +380,14 @@
             format = "{}";
           };
 
+          "custom/rebuild" = {
+            exec = "${app}/bin/waybar-rebuild";
+            return-type = "json";
+            interval = 2;
+            signal = 9;
+            on-click = "swaymsg '[title=\"^nix-rebuild \"] scratchpad show'";
+          };
+
           "custom/caffeine" = {
             exec = "${app}/bin/waybar-caffeine";
             return-type = "json";
@@ -400,10 +432,6 @@
               "9:c" = [];
             };
             disable-click = false;
-          };
-
-          "sway/mode" = {
-            tooltip = false;
           };
 
           # native clock formatter cannot drop the %I zero-pad, shell date can

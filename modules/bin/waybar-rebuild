@@ -1,0 +1,22 @@
+#!/bin/sh
+# @desc: Waybar rebuild indicator: one icon for all nix-rebuild-sway runs, per-build tooltip
+dir=$XDG_RUNTIME_DIR/nix-rebuild
+now=$(date +%s)
+
+for h in "$dir"/*.host; do
+  [ -e "$h" ] || continue
+  s=${h%.host}
+  t=$((now - $(stat -c %Y "$h")))
+  line=$(tail -c 2048 "$s.log" 2>/dev/null | tr '\r' '\n' |
+    sed 's/\x1b\[[0-9;?]*[ -\/]*[@-~]//g; s/\x1b[()][0-9A-B]//g' | grep -v '^[[:space:]]*$' | tail -n 1)
+  state=running
+  [ -e "$s.rc" ] && state=failed
+  jq -cn --arg h "$(cat "$h")" --arg t "$((t / 60))m$((t % 60))s" --arg l "$line" --arg s "$state" \
+    '{host: $h, time: $t, line: $l, state: $s}'
+done | jq -cs --arg icon "$(printf '\363\261\204\205')" '
+  if length == 0 then {text: ""} else {
+    text: ($icon + (if length > 1 then " \(length)" else "" end)),
+    class: (if any(.state == "failed") then "failed" else "running" end),
+    tooltip: (map("\(.host) · \(.time) · \(.state)\n  \(.line)") | join("\n")
+      | gsub("&"; "&amp;") | gsub("<"; "&lt;") | gsub(">"; "&gt;"))
+  } end'

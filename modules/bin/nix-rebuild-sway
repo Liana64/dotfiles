@@ -1,6 +1,55 @@
 #!/usr/bin/env bash
-[ "$1" = "add" ] && git -C "$NH_FLAKE" add --all
-nh os switch "$NH_FLAKE"
+# @desc: Rebuild in a scratchpad kitty, surfaced on prompt or failure; state in $XDG_RUNTIME_DIR/nix-rebuild
+set -u
+
+if [ "${1:-}" != --run ]; then
+  id=$(date +%s%N)
+  setsid -f kitty --title "nix-rebuild $id" nix-rebuild-sway --run "$id" "$@" >/dev/null 2>&1
+  exit
+fi
+title="nix-rebuild $2"
+shift 2
+
+add=
+[ "${1:-}" = add ] && add=1 && shift
+host=${1:-}
+
+dir=$XDG_RUNTIME_DIR/nix-rebuild
+s=$dir/$$
+mkdir -p "$dir"
+reveal() { swaymsg -q "[title=\"^$title\$\"] scratchpad show"; }
+refresh() { pkill -RTMIN+9 -x waybar; }
+
+printf '%s\n' "${host:-$(hostname)}" >"$s.host"
+trap 'rm -f "$s".*; refresh' EXIT
+refresh
+
+[ -n "$add" ] && git -C "$NH_FLAKE" add --all
+
+(
+  while sleep 1; do
+    tail -c 512 "$s.log" 2>/dev/null | tr '\r' '\n' | tail -n 2 |
+      grep -qiE 'password|finger|\[y/n\]|yes/no' && reveal && break
+  done
+) &
+watch=$!
+
+if [ -n "$host" ]; then
+  script -qefc "frame switch $host" "$s.log"
+else
+  script -qefc "nh os switch $NH_FLAKE" "$s.log"
+fi
+rc=$?
+kill "$watch" 2>/dev/null
+
+if [ "$rc" -eq 0 ]; then
+  notify-send -a nix-rebuild "${host:-$(hostname)} switched"
+  exit
+fi
+
+echo "$rc" >"$s.rc"
+refresh
+reveal
 echo ""
-echo "Done. Press any key to close..."
+echo "Failed ($rc). Press any key to close..."
 read -n 1 -s -r

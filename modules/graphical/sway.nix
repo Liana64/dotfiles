@@ -21,7 +21,7 @@
       postBuild = ''
         wrapProgram $out/bin/sway-screenshot-all      --prefix PATH : $out/bin
         wrapProgram $out/bin/sway-screenshot-area     --prefix PATH : $out/bin
-        wrapProgram $out/bin/nix-rebuild-sway         --prefix PATH : $out/bin --set-default NH_FLAKE ${flakePath}
+        wrapProgram $out/bin/nix-rebuild-sway         --prefix PATH : $out/bin:${lib.makeBinPath (with pkgs; [coreutils gnugrep libnotify procps sway util-linux])} --set-default NH_FLAKE ${flakePath}
         wrapProgram $out/bin/airplane-toggle          --prefix PATH : ${lib.makeBinPath (with pkgs; [networkmanager bluez libnotify procps coreutils])}
       '';
     };
@@ -92,7 +92,7 @@
         window.commands = [
           {
             criteria = {title = "nix-rebuild";};
-            command = "floating enable, resize set 800 400";
+            command = "floating enable, resize set 800 400, move scratchpad";
           }
           {
             criteria = {title = "numbat";};
@@ -174,8 +174,8 @@
           "${mod}+Shift+Return" = "exec ${cfg.terminal} --session startup.session";
 
           "${mod}+Shift+r" = "reload";
-          "${mod}+Control+Shift+r" = "exec 'kitty --title nix-rebuild ${app}/bin/nix-rebuild-sway'";
-          "${mod}+Control+Shift+g" = "exec 'kitty --title nix-rebuild ${app}/bin/nix-rebuild-sway add'";
+          "${mod}+Control+Shift+r" = "exec ${app}/bin/nix-rebuild-sway";
+          "${mod}+Control+Shift+g" = "exec '${app}/bin/nix-rebuild-sway add'";
           "${sup}+d" = "exec ${cfg.menu}";
 
           "${mod}+Space" = "exec ${cfg.menu}";
@@ -298,7 +298,16 @@
           };
         };
 
-        bars = [];
+        bars = [
+          {
+            id = "power";
+            mode = "hide";
+            hiddenState = "hide";
+            command = "${pkgs.coreutils}/bin/true";
+            statusCommand = null;
+            extraConfig = "modifier none";
+          }
+        ];
 
         modes = {
           "power: (p) poweroff · (s) suspend · (r) reboot · (g) logout · (l) lock · (c) caffeinate · (a) airplane" = {
