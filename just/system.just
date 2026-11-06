@@ -18,9 +18,7 @@ store-verify:
 # Install, update, and prune flatpaks
 [group('system')]
 update-flatpaks:
-    #!/usr/bin/env sh
-    journalctl -fn0 -o cat -u flatpak-repo & trap 'kill $!' EXIT
-    sudo systemctl start flatpak-repo
+    sudo sh -c 'journalctl -f -o cat -u flatpak-repo --since "$(date "+%F %T")" & trap "kill $!" EXIT; systemctl start flatpak-repo'
 
 # hardening-probe <preset> [--sweep] -- <cmd>
 [group('system')]

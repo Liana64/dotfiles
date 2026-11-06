@@ -85,11 +85,8 @@
           fi
         done
 
-        flatpak install -y --noninteractive flathub "''${desired[@]}"
-        for app in "''${desired[@]}"; do
-          flatpak update -y --noninteractive "$app" || true
-        done
-        flatpak update -y --noninteractive --runtime || true
+        flatpak install -y --noninteractive --or-update flathub "''${desired[@]}"
+        flatpak update -y --noninteractive || true
         flatpak uninstall -y --noninteractive --unused || true
       '';
       unitConfig = {
